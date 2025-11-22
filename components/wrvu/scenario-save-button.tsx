@@ -12,6 +12,8 @@ interface ScenarioSaveButtonProps {
   annualWrvus: number;
   conversionFactor: number;
   productivityPay: number;
+  providerName?: string;
+  specialty?: string;
 }
 
 export function ScenarioSaveButton({
@@ -19,6 +21,8 @@ export function ScenarioSaveButton({
   annualWrvus,
   conversionFactor,
   productivityPay,
+  providerName,
+  specialty,
 }: ScenarioSaveButtonProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -30,6 +34,9 @@ export function ScenarioSaveButton({
     const scenario: ProviderScenario = {
       id: `scenario-${Date.now()}`,
       name: name.trim(),
+      scenarioType: 'wrvu-modeler',
+      providerName: providerName,
+      specialty: specialty,
       fte,
       annualWrvus,
       tccComponents: [

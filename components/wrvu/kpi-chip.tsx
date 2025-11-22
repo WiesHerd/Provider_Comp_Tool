@@ -9,7 +9,10 @@ interface KPIChipProps {
 
 export function KPIChip({ label, value, unit, className }: KPIChipProps) {
   const formattedValue = typeof value === 'number' 
-    ? value.toLocaleString('en-US', { maximumFractionDigits: 2 })
+    ? value.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })
     : value;
 
   // For currency, place $ before the value

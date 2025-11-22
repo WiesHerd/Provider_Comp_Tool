@@ -18,26 +18,16 @@ export function calculatePercentile(
 
   // Extrapolate below 25th percentile
   if (p25 && value < p25) {
-    if (p50) {
-      // Use slope from p25 to p50 to extrapolate below p25
-      // Assume p0 (0th percentile) is approximately 0.6 * p25 (conservative estimate)
-      const p0 = p25 * 0.6;
-      if (value <= p0) {
-        // Below estimated 0th percentile, return 0
-        return 0;
-      }
-      // Extrapolate between p0 and p25
-      const ratio = (value - p0) / (p25 - p0);
-      return ratio * 25; // 0 to 25 percentile
-    } else if (p25) {
-      // Only p25 available, use simple linear extrapolation
-      // Assume p0 is 0.6 * p25
-      const p0 = p25 * 0.6;
-      if (value <= p0) return 0;
-      const ratio = (value - p0) / (p25 - p0);
-      return ratio * 25;
+    if (value <= 0) {
+      // Negative or zero values return 0 percentile
+      return 0;
     }
-    return 0;
+    
+    // Simple linear interpolation from 0 to p25
+    // Assumes 0th percentile = 0, 25th percentile = p25
+    // This gives us: percentile = 25 * (value / p25)
+    const ratio = value / p25;
+    return Math.max(0, ratio * 25); // 0 to 25 percentile
   }
 
   // Extrapolate above 90th percentile

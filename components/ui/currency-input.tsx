@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Input, InputProps } from "./input";
+import { cn } from "@/lib/utils/cn";
 
 export interface CurrencyInputProps extends Omit<InputProps, 'type' | 'inputMode' | 'onChange'> {
   value?: number;
@@ -9,7 +10,7 @@ export interface CurrencyInputProps extends Omit<InputProps, 'type' | 'inputMode
 }
 
 const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ value, onChange, prefix = "$", showDecimals = true, ...props }, ref) => {
+  ({ value, onChange, prefix = "$", showDecimals = true, className, ...props }, ref) => {
     const [isFocused, setIsFocused] = React.useState(false);
     const [displayValue, setDisplayValue] = React.useState('');
 
@@ -75,7 +76,7 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
     return (
       <div className="relative">
         {prefix && (
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-base pointer-events-none">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-base pointer-events-none z-10">
             {prefix}
           </span>
         )}
@@ -87,7 +88,7 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className={prefix ? "pl-[3.5rem]" : ""}
+          className={cn(prefix && "pl-[3.5rem]", className)}
           {...props}
         />
       </div>

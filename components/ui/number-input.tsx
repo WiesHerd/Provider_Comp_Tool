@@ -7,10 +7,11 @@ export interface NumberInputProps extends Omit<InputProps, 'type' | 'inputMode' 
   min?: number;
   max?: number;
   step?: number;
+  integerOnly?: boolean;
 }
 
 const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ value, onChange, min, max, step, ...props }, ref) => {
+  ({ value, onChange, min, max, step, integerOnly = false, ...props }, ref) => {
     const [isFocused, setIsFocused] = React.useState(false);
     const [displayValue, setDisplayValue] = React.useState('');
 
@@ -19,12 +20,19 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       if (!isFocused) {
         // When not focused, show formatted value
         if (value !== undefined && value !== 0) {
-          setDisplayValue(value.toString());
+          if (integerOnly) {
+            // For integers, show as whole number
+            setDisplayValue(Math.round(value).toString());
+          } else {
+            // Format to 2 decimal places, but don't show trailing zeros if not needed
+            const formatted = value.toFixed(2);
+            setDisplayValue(formatted);
+          }
         } else {
           setDisplayValue('');
         }
       }
-    }, [value, isFocused]);
+    }, [value, isFocused, integerOnly]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
@@ -33,6 +41,29 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       if (inputValue === '' || inputValue === '-') {
         setDisplayValue(inputValue);
         onChange?.(0);
+        return;
+      }
+
+      // For integer-only, only allow whole numbers
+      if (integerOnly) {
+        const integerPattern = /^-?\d+$/;
+        if (!integerPattern.test(inputValue)) {
+          // Invalid pattern, don't update
+          return;
+        }
+        setDisplayValue(inputValue);
+        const numValue = parseInt(inputValue, 10);
+        if (!isNaN(numValue)) {
+          // Apply min/max constraints
+          let constrainedValue = numValue;
+          if (min !== undefined && constrainedValue < min) {
+            constrainedValue = min;
+          }
+          if (max !== undefined && constrainedValue > max) {
+            constrainedValue = max;
+          }
+          onChange?.(constrainedValue);
+        }
         return;
       }
 
@@ -79,15 +110,31 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       setIsFocused(false);
       // Format value when blurring
       if (value !== undefined && value !== 0) {
-        setDisplayValue(value.toString());
+        if (integerOnly) {
+          // For integers, round to whole number
+          const rounded = Math.round(value);
+          setDisplayValue(rounded.toString());
+          if (rounded !== value) {
+            onChange?.(rounded);
+          }
+        } else {
+          // Format to 2 decimal places
+          const formatted = value.toFixed(2);
+          setDisplayValue(formatted);
+          // Round the value to 2 decimal places and update if needed
+          const rounded = Math.round(value * 100) / 100;
+          if (rounded !== value) {
+            onChange?.(rounded);
+          }
+        }
       } else {
         setDisplayValue('');
       }
       props.onBlur?.(e);
     };
 
-    // Determine inputMode based on step
-    const inputMode = step !== undefined && step < 1 ? 'decimal' : 'numeric';
+    // Determine inputMode based on step and integerOnly
+    const inputMode = integerOnly ? 'numeric' : (step !== undefined && step < 1 ? 'decimal' : 'numeric');
 
     return (
       <Input

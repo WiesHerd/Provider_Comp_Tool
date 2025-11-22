@@ -48,7 +48,7 @@ export function UsageGuide() {
             <div>
               <h4 className="font-semibold mb-1 text-gray-900 dark:text-gray-100">Step 3: Review Annual Budget</h4>
               <p className="text-gray-700 dark:text-gray-300">
-                The <strong>"Total Annual Call Budget"</strong> at the bottom shows your annual budget. This is calculated automatically as you enter values.
+                The <strong>&quot;Total Annual Call Budget&quot;</strong> at the bottom shows your annual budget. This is calculated automatically as you enter values.
               </p>
             </div>
 
@@ -57,7 +57,7 @@ export function UsageGuide() {
                 💡 Key Point:
               </p>
               <p className="text-blue-800 dark:text-blue-200">
-                <strong>"Burden Assumptions"</strong> = Total calls/shifts your service needs per month, NOT per provider. The rotation ratio automatically distributes this among providers.
+                <strong>&quot;Burden Assumptions&quot;</strong> = Total calls/shifts your service needs per month, NOT per provider. The rotation ratio automatically distributes this among providers.
               </p>
             </div>
 
@@ -67,7 +67,7 @@ export function UsageGuide() {
                 If your cardiology service needs 15 weekday calls/month covered:
               </p>
               <ul className="list-disc list-inside ml-2 mt-1 space-y-1 text-gray-700 dark:text-gray-300">
-                <li>Enter <strong>15</strong> in "Weekday Calls/Shifts per Month"</li>
+                <li>Enter <strong>15</strong> in &quot;Weekday Calls/Shifts per Month&quot;</li>
                 <li>With 1-in-4 rotation, each provider covers 15÷4 = 3.75 calls/month</li>
                 <li>The tool calculates annual pay per provider automatically</li>
                 <li>Multiply by number of providers = Your annual budget</li>

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Tooltip } from '@/components/ui/tooltip';
 
 interface TierCardProps {
   tier: CallTier;
@@ -80,20 +81,27 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
       {/* Tier Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1">
-          <Input
-            value={tier.name}
-            onChange={(e) => updateField('name', e.target.value)}
-            className="font-semibold text-base max-w-[120px]"
-            placeholder="C1"
-          />
-          <Switch
-            checked={tier.enabled}
-            onCheckedChange={(checked) => updateField('enabled', checked)}
-          />
+          <Tooltip 
+            content={tier.enabled 
+              ? "This tier is enabled and will be included in budget calculations. Tap to disable." 
+              : "This tier is disabled and won't be included in budget calculations. Tap to enable."}
+            side="top"
+          >
+            <Switch
+              checked={tier.enabled}
+              onCheckedChange={(checked) => updateField('enabled', checked)}
+            />
+          </Tooltip>
           <Label className="text-sm text-gray-600 dark:text-gray-400">
             {tier.enabled ? 'Enabled' : 'Disabled'}
           </Label>
         </div>
+        <Input
+          value={tier.name}
+          onChange={(e) => updateField('name', e.target.value)}
+          className="font-semibold text-base max-w-[120px]"
+          placeholder="C1"
+        />
       </div>
 
       {/* Coverage Type */}
@@ -201,28 +209,35 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 Calculate from Base Rate
               </Label>
-              <Switch
-                checked={tier.rates.usePercentageBasedRates ?? false}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    // Switch to percentage-based: set defaults if not set
-                    const updates: Partial<CallTier['rates']> = {
-                      usePercentageBasedRates: true,
-                      weekendUpliftPercent: tier.rates.weekendUpliftPercent ?? 20,
-                      holidayUpliftPercent: tier.rates.holidayUpliftPercent ?? 30,
-                    };
-                    // Calculate rates from weekday
-                    if (tier.rates.weekday > 0) {
-                      updates.weekend = tier.rates.weekday * (1 + (updates.weekendUpliftPercent ?? 20) / 100);
-                      updates.holiday = tier.rates.weekday * (1 + (updates.holidayUpliftPercent ?? 30) / 100);
+              <Tooltip 
+                content={tier.rates.usePercentageBasedRates 
+                  ? "Weekend and holiday rates are automatically calculated from weekday rate using percentage uplifts. Tap to switch to manual entry." 
+                  : "Enter weekend and holiday rates manually. Tap to automatically calculate from weekday rate using percentage uplifts."}
+                side="left"
+              >
+                <Switch
+                  checked={tier.rates.usePercentageBasedRates ?? false}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      // Switch to percentage-based: set defaults if not set
+                      const updates: Partial<CallTier['rates']> = {
+                        usePercentageBasedRates: true,
+                        weekendUpliftPercent: tier.rates.weekendUpliftPercent ?? 20,
+                        holidayUpliftPercent: tier.rates.holidayUpliftPercent ?? 30,
+                      };
+                      // Calculate rates from weekday
+                      if (tier.rates.weekday > 0) {
+                        updates.weekend = tier.rates.weekday * (1 + (updates.weekendUpliftPercent ?? 20) / 100);
+                        updates.holiday = tier.rates.weekday * (1 + (updates.holidayUpliftPercent ?? 30) / 100);
+                      }
+                      updateRates(updates);
+                    } else {
+                      // Switch to manual entry: keep current values but disable percentage mode
+                      updateRates({ usePercentageBasedRates: false });
                     }
-                    updateRates(updates);
-                  } else {
-                    // Switch to manual entry: keep current values but disable percentage mode
-                    updateRates({ usePercentageBasedRates: false });
-                  }
-                }}
-              />
+                  }}
+                />
+              </Tooltip>
             </div>
 
             {tier.rates.usePercentageBasedRates ? (
@@ -239,7 +254,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                         onChange={() => {}} // Read-only when percentage-based
                         placeholder="0.00"
                         disabled
-                        className="bg-gray-50 dark:bg-gray-800"
+                        className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:text-gray-900 dark:disabled:text-gray-100 disabled:opacity-100"
                       />
                     </div>
                     <div className="w-24">
@@ -272,7 +287,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                         onChange={() => {}} // Read-only when percentage-based
                         placeholder="0.00"
                         disabled
-                        className="bg-gray-50 dark:bg-gray-800"
+                        className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:text-gray-900 dark:disabled:text-gray-100 disabled:opacity-100"
                       />
                     </div>
                     <div className="w-24">
@@ -326,14 +341,21 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   <Label className="text-xs text-gray-600 dark:text-gray-400">
                     Trauma / High-Acuity Uplift (%)
                   </Label>
-                  <Switch
-                    checked={tier.rates.traumaUpliftPercent !== undefined}
-                    onCheckedChange={(checked) =>
-                      updateRates({
-                        traumaUpliftPercent: checked ? 0 : undefined,
-                      })
-                    }
-                  />
+                  <Tooltip 
+                    content={tier.rates.traumaUpliftPercent !== undefined 
+                      ? "Trauma/high-acuity uplift is enabled. Additional percentage applied to rates for high-acuity cases. Tap to disable." 
+                      : "Enable trauma/high-acuity uplift to add an additional percentage to rates for high-acuity cases. Tap to enable."}
+                    side="left"
+                  >
+                    <Switch
+                      checked={tier.rates.traumaUpliftPercent !== undefined}
+                      onCheckedChange={(checked) =>
+                        updateRates({
+                          traumaUpliftPercent: checked ? 0 : undefined,
+                        })
+                      }
+                    />
+                  </Tooltip>
                 </div>
                 {tier.rates.traumaUpliftPercent !== undefined && (
                   <NumberInput

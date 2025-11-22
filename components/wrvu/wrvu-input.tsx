@@ -40,21 +40,27 @@ export function WRVUInput({
   const [mode, setMode] = useState<'annual' | 'monthly' | 'breakdown'>('annual');
 
   const handleAnnualChange = (value: number) => {
-    onAnnualChange(value);
+    // Round to 2 decimal places
+    const roundedValue = Math.round(value * 100) / 100;
+    onAnnualChange(roundedValue);
     if (mode === 'annual') {
-      onMonthlyChange(value / 12);
+      const monthlyValue = Math.round((roundedValue / 12) * 100) / 100;
+      onMonthlyChange(monthlyValue);
       if (onMonthlyBreakdownChange) {
-        onMonthlyBreakdownChange(Array(12).fill(value / 12));
+        onMonthlyBreakdownChange(Array(12).fill(monthlyValue));
       }
     }
   };
 
   const handleMonthlyChange = (value: number) => {
-    onMonthlyChange(value);
+    // Round to 2 decimal places
+    const roundedValue = Math.round(value * 100) / 100;
+    onMonthlyChange(roundedValue);
     if (mode === 'monthly') {
-      onAnnualChange(value * 12);
+      const annualValue = Math.round((roundedValue * 12) * 100) / 100;
+      onAnnualChange(annualValue);
       if (onMonthlyBreakdownChange) {
-        onMonthlyBreakdownChange(Array(12).fill(value));
+        onMonthlyBreakdownChange(Array(12).fill(roundedValue));
       }
     }
   };
@@ -63,13 +69,71 @@ export function WRVUInput({
     if (!onMonthlyBreakdownChange) return;
     
     const newBreakdown = [...(monthlyBreakdown || Array(12).fill(0))];
-    newBreakdown[monthIndex] = value;
+    // Round to 2 decimal places
+    newBreakdown[monthIndex] = Math.round(value * 100) / 100;
     onMonthlyBreakdownChange(newBreakdown);
     
-    // Calculate annual total from breakdown
-    const annualTotal = newBreakdown.reduce((sum, val) => sum + val, 0);
+    // Calculate annual total from breakdown (rounded to 2 decimal places)
+    const annualTotal = Math.round(newBreakdown.reduce((sum, val) => sum + val, 0) * 100) / 100;
     onAnnualChange(annualTotal);
-    onMonthlyChange(annualTotal / 12);
+    onMonthlyChange(Math.round((annualTotal / 12) * 100) / 100);
+  };
+
+  const handleAnnualize = () => {
+    if (!onMonthlyBreakdownChange) return;
+    
+    const breakdown = [...(monthlyBreakdown || Array(12).fill(0))];
+    
+    // Find the last month with data (non-zero value)
+    let lastMonthIndex = -1;
+    for (let i = breakdown.length - 1; i >= 0; i--) {
+      if (breakdown[i] > 0) {
+        lastMonthIndex = i;
+        break;
+      }
+    }
+    
+    // If no data found, do nothing
+    if (lastMonthIndex === -1) return;
+    
+    // Calculate average from months 0 to lastMonthIndex (inclusive)
+    const monthsWithData = breakdown.slice(0, lastMonthIndex + 1);
+    const sum = monthsWithData.reduce((acc, val) => acc + val, 0);
+    const average = Math.round((sum / (lastMonthIndex + 1)) * 100) / 100; // Round to 2 decimal places
+    
+    // Fill remaining months (after lastMonthIndex) with the average
+    const annualizedBreakdown = [...breakdown];
+    for (let i = lastMonthIndex + 1; i < 12; i++) {
+      annualizedBreakdown[i] = average;
+    }
+    
+    // Update the breakdown
+    onMonthlyBreakdownChange(annualizedBreakdown);
+    
+    // Recalculate annual total (rounded to 2 decimal places)
+    const annualTotal = Math.round(annualizedBreakdown.reduce((sum, val) => sum + val, 0) * 100) / 100;
+    onAnnualChange(annualTotal);
+    onMonthlyChange(Math.round((annualTotal / 12) * 100) / 100);
+  };
+
+  // Check if annualize button should be enabled (only if there's partial data)
+  const canAnnualize = () => {
+    if (mode !== 'breakdown') return false;
+    const breakdown = monthlyBreakdown || Array(12).fill(0);
+    
+    // Find first and last month with data
+    let firstDataIndex = -1;
+    let lastDataIndex = -1;
+    
+    for (let i = 0; i < breakdown.length; i++) {
+      if (breakdown[i] > 0) {
+        if (firstDataIndex === -1) firstDataIndex = i;
+        lastDataIndex = i;
+      }
+    }
+    
+    // Enable if we have data but not all 12 months are filled
+    return firstDataIndex !== -1 && lastDataIndex < 11;
   };
 
   // Sync breakdown when switching modes
@@ -117,6 +181,7 @@ export function WRVUInput({
           onChange={handleAnnualChange}
           placeholder="Enter annual wRVUs"
           min={0}
+          step={0.01}
         />
       ) : mode === 'monthly' ? (
         <NumberInput
@@ -124,6 +189,7 @@ export function WRVUInput({
           onChange={handleMonthlyChange}
           placeholder="Enter monthly average wRVUs"
           min={0}
+          step={0.01}
         />
       ) : (
         <div className="space-y-3">
@@ -136,22 +202,36 @@ export function WRVUInput({
                 <NumberInput
                   value={monthlyBreakdown?.[index] || 0}
                   onChange={(value) => handleMonthlyBreakdownChange(index, value)}
-                  placeholder="0"
+                  placeholder="0.00"
                   min={0}
+                  step={0.01}
                   className="text-sm"
                 />
               </div>
             ))}
           </div>
-          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
             <div className="flex justify-between items-center">
               <Label className="text-sm font-semibold">Annual Total</Label>
               <span className="text-lg font-bold">
                 {(monthlyBreakdown || Array(12).fill(0)).reduce((sum, val) => sum + val, 0).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </span>
             </div>
+            {canAnnualize() && (
+              <div className="flex justify-end pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAnnualize}
+                  className="text-xs"
+                >
+                  Annualize from Entered Months
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

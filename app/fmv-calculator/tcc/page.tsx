@@ -9,12 +9,13 @@ import { SpecialtyInput } from '@/components/fmv/specialty-input';
 import { MarketDataSaveButton } from '@/components/fmv/market-data-save-button';
 import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
-import { MarketBenchmarks, TCCComponent, FTE } from '@/types';
+import { MarketBenchmarks, TCCComponent, FTE, ProviderScenario } from '@/types';
 import { calculateTCCPercentile } from '@/lib/utils/percentile';
 import { normalizeTcc } from '@/lib/utils/normalization';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 
 export default function TCCCalculatorPage() {
   const [specialty, setSpecialty] = useState<string>('');
@@ -57,6 +58,18 @@ export default function TCCCalculatorPage() {
           <CardTitle>Provider Input</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <ScenarioLoader
+            scenarioType="fmv-tcc"
+            onLoad={(scenario) => {
+              setFte(scenario.fte);
+              if (scenario.tccComponents && scenario.tccComponents.length > 0) {
+                setTccComponents(scenario.tccComponents);
+              }
+              if (scenario.marketBenchmarks) {
+                setMarketBenchmarks(scenario.marketBenchmarks);
+              }
+            }}
+          />
           <SpecialtyInput
             metricType="tcc"
             onSpecialtyChange={setSpecialty}

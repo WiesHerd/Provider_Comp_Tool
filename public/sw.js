@@ -1,5 +1,5 @@
 // Basic service worker for PWA support
-const CACHE_NAME = 'provider-comp-v1';
+const CACHE_NAME = 'comp-lens-v2';
 const urlsToCache = [
   '/',
   '/wrvu-modeler',
@@ -17,9 +17,17 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Skip service worker for development/localhost
+  if (event.request.url.includes('localhost') || event.request.url.includes('127.0.0.1')) {
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      return response || fetch(event.request).catch(() => {
+        // If fetch fails, return a basic response to prevent errors
+        return new Response('Offline', { status: 503 });
+      });
     })
   );
 });

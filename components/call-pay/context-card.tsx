@@ -99,7 +99,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
           onClick={() => setIsExpanded(!isExpanded)}
           className="w-full flex items-center justify-between"
         >
-          <CardTitle className="text-lg font-semibold">Context</CardTitle>
+          <CardTitle className="text-lg font-semibold">Step 1: Context</CardTitle>
           {isExpanded ? (
             <ChevronUp className="w-5 h-5" />
           ) : (
@@ -222,6 +222,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
               min={2020}
               max={2100}
               placeholder="2024"
+              integerOnly={true}
             />
           </div>
         </CardContent>

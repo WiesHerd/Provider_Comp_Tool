@@ -36,9 +36,14 @@ export interface MarketBenchmarks {
   wrvu90?: number;
 }
 
+export type ScenarioType = 'wrvu-modeler' | 'fmv-tcc' | 'fmv-wrvu' | 'fmv-cf' | 'call-pay' | 'general';
+
 export interface ProviderScenario {
   id: string;
   name: string;
+  scenarioType?: ScenarioType; // Type of scenario to identify which screen it belongs to
+  providerName?: string; // Optional provider name
+  specialty?: string; // Optional specialty
   fte: FTE;
   annualWrvus: number;
   tccComponents: TCCComponent[];

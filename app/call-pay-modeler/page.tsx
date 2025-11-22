@@ -3,12 +3,15 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
 import { FMVBenchmarkPanel } from '@/components/call-pay/fmv-benchmark-panel';
 import { TierManager } from '@/components/call-pay/tier-manager';
 import { UsageGuide } from '@/components/call-pay/usage-guide';
+import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
+import { StepGuide } from '@/components/call-pay/step-guide';
 import {
   Accordion,
   AccordionItem,
@@ -68,6 +71,7 @@ export default function CallPayModelerPage() {
   const [tiers, setTiers] = useState<CallTier[]>(DEFAULT_TIERS);
   const [benchmarks, setBenchmarks] = useState<CallPayBenchmarks>({});
   const [expandedTier, setExpandedTier] = useState<string>('C1');
+  const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
 
   // Initialize first tier as enabled by default on mount
   useEffect(() => {
@@ -128,6 +132,9 @@ export default function CallPayModelerPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24 md:pb-6">
+      {/* Welcome Walkthrough */}
+      <WelcomeWalkthrough />
+
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-3 mb-2">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -141,14 +148,43 @@ export default function CallPayModelerPage() {
         </p>
       </div>
 
-      {/* Context Card */}
-      <ContextCard context={context} onContextChange={setContext} />
+      {/* Step-by-Step Guide */}
+      <StepGuide context={context} tiers={tiers} />
 
-      {/* Tiered Call Categories */}
-      <Card>
+      {/* Annual Budget Input - Set target upfront */}
+      <Card className="shadow-sm">
+        <CardContent className="p-4 md:p-6">
+          <div className="space-y-3">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                Annual Allowable Budget
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Set your target budget to track spending as you configure call pay
+              </p>
+            </div>
+            <CurrencyInput
+              id="annual-budget"
+              value={annualAllowableBudget || undefined}
+              onChange={(value) => setAnnualAllowableBudget(value > 0 ? value : null)}
+              placeholder="2,000,000"
+              className="w-full h-12 text-base touch-manipulation"
+              showDecimals={false}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Context Card - Step 1 */}
+      <div id="context-card" className="scroll-mt-4">
+        <ContextCard context={context} onContextChange={setContext} />
+      </div>
+
+      {/* Tiered Call Categories - Step 2 */}
+      <Card id="tier-card" className="scroll-mt-4">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-xl">Tiered Call Categories</CardTitle>
+            <CardTitle className="text-xl">Step 2: Tiered Call Categories</CardTitle>
             <TierManager
               tiers={tiers}
               onTiersChange={handleTiersChange}
@@ -207,8 +243,15 @@ export default function CallPayModelerPage() {
         </CardContent>
       </Card>
 
-      {/* Impact Summary - Always show so users can see where budget appears */}
-      <ImpactSummary impact={impact} onAddToTCC={handleAddToTCC} />
+      {/* Impact Summary - Step 3 - Always show so users can see where budget appears */}
+      <div id="impact-summary" className="scroll-mt-4">
+        <ImpactSummary 
+          impact={impact} 
+          onAddToTCC={handleAddToTCC}
+          annualAllowableBudget={annualAllowableBudget}
+          onBudgetChange={setAnnualAllowableBudget}
+        />
+      </div>
 
       {/* FMV Benchmark Panel */}
       <FMVBenchmarkPanel

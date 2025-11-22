@@ -1,6 +1,6 @@
 {
-  "name": "Mobile Provider Compensation Companion",
-  "short_name": "Provider Comp",
+  "name": "Comp Lens - Provider Compensation Intelligence",
+  "short_name": "Comp Lens",
   "description": "wRVU modeling, FMV checks, and call-pay scenarios on your phone",
   "start_url": "/",
   "display": "standalone",

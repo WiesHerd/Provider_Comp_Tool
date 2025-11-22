@@ -34,12 +34,18 @@ export function FMVSaveButton({
   const handleSave = () => {
     if (!name.trim()) return;
 
+    // Determine scenario type based on metric type
+    const scenarioType = metricType === 'tcc' ? 'fmv-tcc' : metricType === 'wrvu' ? 'fmv-wrvu' : 'fmv-cf';
+    
     // Create scenario based on metric type
     const scenario: ProviderScenario = {
       id: `fmv-${metricType}-${Date.now()}`,
       name: name.trim(),
-      fte: metricType === 'tcc' && fte !== undefined ? fte : (metricType === 'wrvu' ? 1.0 : 1.0),
-      annualWrvus: metricType === 'wrvu' ? value : 0,
+      scenarioType,
+      fte: fte !== undefined ? fte : 1.0,
+      // For wRVU: value is normalized, but we need to calculate annualWrvus from FTE
+      // However, we don't have annualWrvus here, so we'll store normalized and calculate on load
+      annualWrvus: metricType === 'wrvu' ? (fte !== undefined ? value * fte : value) : 0,
       tccComponents: metricType === 'tcc' && tccComponents 
         ? tccComponents 
         : metricType === 'tcc'

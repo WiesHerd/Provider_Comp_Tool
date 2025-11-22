@@ -23,7 +23,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Safe pathname check for SSR
+  // Safe pathname check for SSR - ensure consistent initial render
   const activeTab = mounted && pathname 
     ? (tabs.find(tab => {
         // Special handling for home - exact match only
@@ -32,7 +32,12 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
         }
         return pathname.startsWith(tab.path);
       })?.id || 'home')
-    : 'home';
+    : (pathname ? (tabs.find(tab => {
+        if (tab.path === '/') {
+          return pathname === '/';
+        }
+        return pathname.startsWith(tab.path);
+      })?.id || 'home') : 'home');
 
   return (
     <div className="w-full">
@@ -57,7 +62,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
-                  {isActive && (
+                  {isActive && mounted && (
                     <motion.div
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full"
                       layoutId="activeTab"
@@ -101,7 +106,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
                     transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                   >
                     <Icon className="w-7 h-7 flex-shrink-0" />
-                    {isActive && (
+                    {isActive && mounted && (
                       <motion.div
                         className="absolute -top-1 left-1/2 -translate-x-1/2 w-7 h-1 bg-primary rounded-b-full"
                         layoutId="mobileActiveTab"
@@ -112,7 +117,11 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
                   </motion.div>
                 </div>
                 <span className="truncate w-full text-center">
-                  {isActive && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{tab.label}</motion.span>}
+                  {isActive && mounted ? (
+                    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{tab.label}</motion.span>
+                  ) : (
+                    <span className={isActive ? 'opacity-100' : 'opacity-0'}>{tab.label}</span>
+                  )}
                 </span>
               </Link>
             );

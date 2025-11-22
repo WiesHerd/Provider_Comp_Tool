@@ -9,11 +9,12 @@ import { SpecialtyInput } from '@/components/fmv/specialty-input';
 import { MarketDataSaveButton } from '@/components/fmv/market-data-save-button';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
-import { MarketBenchmarks } from '@/types';
+import { MarketBenchmarks, ProviderScenario } from '@/types';
 import { calculateCFPercentile } from '@/lib/utils/percentile';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 
 export default function CFCalculatorPage() {
   const [specialty, setSpecialty] = useState<string>('');
@@ -56,6 +57,18 @@ export default function CFCalculatorPage() {
           <CardTitle>Provider Input</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <ScenarioLoader
+            scenarioType="fmv-cf"
+            onLoad={(scenario) => {
+              // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
+              if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
+                setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
+              }
+              if (scenario.marketBenchmarks) {
+                setMarketBenchmarks(scenario.marketBenchmarks);
+              }
+            }}
+          />
           <SpecialtyInput
             metricType="cf"
             onSpecialtyChange={setSpecialty}
