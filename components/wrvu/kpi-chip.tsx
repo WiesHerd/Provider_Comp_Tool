@@ -22,11 +22,11 @@ export function KPIChip({ label, value, unit, className }: KPIChipProps) {
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-card",
+      "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 md:p-6 shadow-sm",
       className
     )}>
-      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{label}</div>
-      <div className="text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">{label}</div>
+      <div className="text-2xl font-light tracking-tight text-gray-900 dark:text-white">
         {displayValue}
         {displayUnit && <span className="text-lg text-gray-500 dark:text-gray-400 ml-1">{displayUnit}</span>}
       </div>

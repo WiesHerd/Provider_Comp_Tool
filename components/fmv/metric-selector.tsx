@@ -38,7 +38,7 @@ export function MetricSelector() {
         const Icon = metric.icon;
         return (
           <Link key={metric.id} href={metric.href}>
-            <Card className="hover:shadow-lg transition-all cursor-pointer h-full min-h-[180px] flex flex-col">
+            <Card className="hover:shadow-md transition-shadow duration-150 cursor-pointer h-full min-h-[180px] flex flex-col">
               <CardHeader className="flex-1">
                 <Icon className={`w-10 h-10 ${metric.color} mb-3`} />
                 <CardTitle className="text-xl">{metric.title}</CardTitle>

@@ -96,9 +96,9 @@ const config: Config = {
         'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
         'glow-green': '0 0 20px rgba(0, 200, 5, 0.5)',
         'glow-red': '0 0 20px rgba(255, 80, 0, 0.5)',
-        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
-        'card-hover': '0 8px 16px -4px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.08)',
-        'glass': '0 2px 8px 0 rgba(0, 0, 0, 0.08), 0 1px 4px -1px rgba(0, 0, 0, 0.06)',
+        'card': '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 1px -1px rgba(0, 0, 0, 0.02)',
+        'card-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04)',
+        'glass': '0 2px 8px 0 rgba(0, 0, 0, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.04)',
       },
       spacing: {
         'safe-top': 'env(safe-area-inset-top)',

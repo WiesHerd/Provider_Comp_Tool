@@ -58,7 +58,7 @@ export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBud
       {hasEnabledTiers && (
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Tier Impact</h3>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <div className="flex gap-3 pb-2 min-w-max">
               {impact.tiers.map((tier) => (
                 <Card key={tier.tierId} className="min-w-[280px]">

@@ -27,7 +27,7 @@ export default function Home() {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <Link href="/wrvu-modeler">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="hover:shadow-md transition-shadow duration-150 cursor-pointer h-full">
               <CardHeader>
                 <Calculator className="w-8 h-8 text-primary mb-2" />
                 <CardTitle>wRVU Modeler</CardTitle>
@@ -39,7 +39,7 @@ export default function Home() {
           </Link>
 
           <Link href="/fmv-calculator">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="hover:shadow-md transition-shadow duration-150 cursor-pointer h-full">
               <CardHeader>
                 <TrendingUp className="w-8 h-8 text-primary mb-2" />
                 <CardTitle>FMV Quick Calculator</CardTitle>
@@ -51,7 +51,7 @@ export default function Home() {
           </Link>
 
           <Link href="/call-pay-modeler">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="hover:shadow-md transition-shadow duration-150 cursor-pointer h-full">
               <CardHeader>
                 <Phone className="w-8 h-8 text-primary mb-2" />
                 <CardTitle>Call Pay Modeler</CardTitle>
@@ -63,7 +63,7 @@ export default function Home() {
           </Link>
 
           <Link href="/scenarios">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <Card className="hover:shadow-md transition-shadow duration-150 cursor-pointer h-full">
               <CardHeader>
                 <FolderOpen className="w-8 h-8 text-primary mb-2" />
                 <CardTitle>Scenarios</CardTitle>

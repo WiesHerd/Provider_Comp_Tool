@@ -45,10 +45,10 @@ export default function WRVUCalculatorPage() {
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
           wRVU Calculator
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
           Calculate percentile for Work Relative Value Units
         </p>
       </div>

@@ -138,12 +138,12 @@ export default function CallPayModelerPage() {
 
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-3 mb-2">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight">
             Call Pay & Coverage Modeler
           </h2>
           <UsageGuide />
         </div>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
           Model tiered call pay structures for all specialties including primary care,
           procedural, and medical subspecialties
         </p>
@@ -153,7 +153,7 @@ export default function CallPayModelerPage() {
       <StepGuide context={context} tiers={tiers} />
 
       {/* Annual Budget Input - Set target upfront */}
-      <Card className="shadow-sm">
+      <Card>
         <CardContent className="p-4 md:p-6">
           <div className="space-y-3">
             <div>

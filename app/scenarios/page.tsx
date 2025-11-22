@@ -19,10 +19,10 @@ export default function ScenariosPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
             Saved Scenarios
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
             Manage your saved compensation scenarios
           </p>
         </div>
@@ -33,8 +33,8 @@ export default function ScenariosPage() {
       </div>
 
       {scenarios.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
+        <div className="text-center py-12 md:py-16">
+          <p className="text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
             No scenarios saved yet. Create your first scenario to get started.
           </p>
           <Button onClick={() => router.push('/fmv-calculator')}>
@@ -42,7 +42,7 @@ export default function ScenariosPage() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 md:space-y-6">
           {scenarios.map((scenario) => (
             <ScenarioCard key={scenario.id} scenario={scenario} />
           ))}
