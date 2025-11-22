@@ -30,3 +30,4 @@ export function calculateEffectiveCF(normalizedTcc: number, normalizedWrvus: num
   return normalizedTcc / normalizedWrvus;
 }
 
+

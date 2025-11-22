@@ -3,7 +3,6 @@
 import { PercentileChip } from '@/components/ui/percentile-chip';
 import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Dot } from 'recharts';
 
 interface PercentileBreakdownProps {
   value: number;
@@ -157,172 +156,124 @@ export function PercentileBreakdown({
         </CardContent>
       </Card>
 
-      {/* Visual Distribution Chart - Line Chart with Market Data */}
+      {/* Market Position - Apple-style simple visualization */}
       {(p25 && p90) && (
         <Card className="border border-gray-200/80 dark:border-gray-800/80 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-tight">
-                  Market Distribution
+          <CardContent className="p-4 md:p-6">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-tight mb-1">
+                  Market Position
                 </h3>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Your Value: <span className="font-semibold text-gray-900 dark:text-white">{formatValue(value)}</span>
-                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Your value compared to market benchmarks
+                </p>
               </div>
               
-              {/* Line Chart showing percentile distribution */}
-              {(() => {
-                // Create data points for the line chart - only benchmark points for the line
-                const benchmarkData = [];
-                if (p25) benchmarkData.push({ percentile: 25, value: p25 });
-                if (p50) benchmarkData.push({ percentile: 50, value: p50 });
-                if (p75) benchmarkData.push({ percentile: 75, value: p75 });
-                if (p90) benchmarkData.push({ percentile: 90, value: p90 });
-                
-                // Sort by percentile
-                benchmarkData.sort((a, b) => a.percentile - b.percentile);
-                
-                // Calculate domain for Y-axis (add some padding)
-                const allValues = [...benchmarkData.map(d => d.value), value].filter(v => v > 0);
-                const minValue = Math.max(0, Math.min(...allValues) * 0.85);
-                const maxValue = Math.max(...allValues) * 1.15;
-                
-                // Custom dot component for user's value
-                const CustomUserDot = (props: any) => {
-                  const { cx, cy } = props;
-                  return (
-                    <g>
-                      <circle
-                        cx={cx}
-                        cy={cy}
-                        r={10}
-                        fill="#00C805"
-                        stroke="#fff"
-                        strokeWidth={3}
-                        className="drop-shadow-lg"
-                      />
-                      <circle
-                        cx={cx}
-                        cy={cy}
-                        r={4}
-                        fill="#fff"
-                      />
-                    </g>
-                  );
-                };
-                
-                // Custom dot component for benchmarks
-                const CustomBenchmarkDot = (props: any) => {
-                  const { cx, cy } = props;
-                  return (
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={5}
-                      fill="#6b7280"
-                      stroke="#fff"
-                      strokeWidth={2}
-                    />
-                  );
-                };
-                
-                return (
-                  <div className="w-full h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={benchmarkData}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
-                        <XAxis 
-                          dataKey="percentile" 
-                          type="number"
-                          domain={[0, 100]}
-                          tickFormatter={(val) => `${val}th`}
-                          stroke="#6b7280"
-                          className="text-xs"
-                          label={{ value: 'Percentile', position: 'insideBottom', offset: -5, className: 'text-xs fill-gray-500' }}
-                        />
-                        <YAxis 
-                          domain={[minValue, maxValue]}
-                          tickFormatter={(val) => formatBenchmarkValue(val)}
-                          stroke="#6b7280"
-                          className="text-xs"
-                          label={{ value: 'Value', angle: -90, position: 'insideLeft', className: 'text-xs fill-gray-500' }}
-                        />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg">
-                                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                    {data.percentile}th Percentile
-                                  </p>
-                                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                    {formatBenchmarkValue(data.value)}
-                                  </p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        {/* Market distribution line connecting benchmarks */}
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="#94a3b8"
-                          strokeWidth={2.5}
-                          dot={<CustomBenchmarkDot />}
-                          activeDot={{ r: 7, fill: '#94a3b8', strokeWidth: 2, stroke: '#fff' }}
-                        />
-                        {/* User's value as a reference line and point */}
-                        <ReferenceLine 
-                          x={percentile} 
-                          stroke="#00C805" 
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          opacity={0.4}
-                          label={{ value: `You: ${formatValue(value)}`, position: 'top', fill: '#00C805', fontSize: 12, fontWeight: 'bold' }}
-                        />
-                        {/* User's value point overlay */}
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="transparent"
-                          dot={<CustomUserDot />}
-                          data={[{ percentile: percentile, value: value }]}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+              {/* Horizontal Percentile Bar - Apple-style */}
+              <div className="space-y-4">
+                {/* Progress bar with benchmarks */}
+                <div className="relative">
+                  <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                    {/* Background gradient zones */}
+                    <div className="absolute inset-0 flex">
+                      <div className="flex-1 bg-blue-100 dark:bg-blue-900/20"></div>
+                      <div className="flex-1 bg-green-100 dark:bg-green-900/20"></div>
+                      <div className="flex-1 bg-green-100 dark:bg-green-900/20"></div>
+                      <div className="flex-1 bg-yellow-100 dark:bg-yellow-900/20"></div>
+                      <div className="flex-1 bg-red-100 dark:bg-red-900/20"></div>
+                    </div>
                     
-                    {/* Legend with value always visible */}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-6 text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-0.5 bg-gray-400"></div>
-                          <span className="text-gray-600 dark:text-gray-400">Market Benchmarks</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-primary"></div>
-                          <span className="text-gray-900 dark:text-white font-medium">Your Value</span>
-                        </div>
+                    {/* Benchmark markers */}
+                    <div className="absolute inset-0 flex">
+                      {p25 && (
+                        <div className="absolute left-[25%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
+                      )}
+                      {p50 && (
+                        <div className="absolute left-[50%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
+                      )}
+                      {p75 && (
+                        <div className="absolute left-[75%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
+                      )}
+                      {p90 && (
+                        <div className="absolute left-[90%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
+                      )}
+                    </div>
+                    
+                    {/* Your position indicator */}
+                    <div 
+                      className="absolute top-0 bottom-0 w-1 bg-primary rounded-full shadow-lg z-10"
+                      style={{ left: `${Math.min(100, Math.max(0, percentile))}%`, transform: 'translateX(-50%)' }}
+                    >
+                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full border-2 border-white dark:border-gray-900 shadow-md"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Percentile labels */}
+                  <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span>0th</span>
+                    {p25 && <span>25th</span>}
+                    {p50 && <span>50th</span>}
+                    {p75 && <span>75th</span>}
+                    {p90 && <span>90th</span>}
+                    <span>100th</span>
+                  </div>
+                </div>
+                
+                {/* Your position card - Apple-style */}
+                <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 p-4 border border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Your Position</div>
+                      <div className="text-2xl font-light tracking-tight text-gray-900 dark:text-white">
+                        {percentile.toFixed(1)}<span className="text-lg text-gray-500 dark:text-gray-400">th percentile</span>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Current Value</div>
-                        <div className="text-sm font-bold text-gray-900 dark:text-white mt-0.5">
-                          {formatValue(value)}
-                        </div>
-                        <div className="text-xs text-primary mt-0.5">
-                          {percentile.toFixed(1)}th percentile
-                        </div>
+                    </div>
+                    <div className="text-right sm:text-left sm:border-l sm:border-gray-200 dark:sm:border-gray-700 sm:pl-4">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Your Value</div>
+                      <div className="text-xl font-light tracking-tight text-gray-900 dark:text-white">
+                        {formatValue(value)}
                       </div>
                     </div>
                   </div>
-                );
-              })()}
+                </div>
+                
+                {/* Benchmark values - Mobile-friendly grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  {p25 && (
+                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">25th</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {formatBenchmarkValue(p25)}
+                      </div>
+                    </div>
+                  )}
+                  {p50 && (
+                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">50th</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {formatBenchmarkValue(p50)}
+                      </div>
+                    </div>
+                  )}
+                  {p75 && (
+                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">75th</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {formatBenchmarkValue(p75)}
+                      </div>
+                    </div>
+                  )}
+                  {p90 && (
+                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">90th</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {formatBenchmarkValue(p90)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

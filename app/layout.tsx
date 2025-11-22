@@ -7,23 +7,24 @@ import { MainTabs } from "@/components/navigation/main-tabs";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Comp Lens | Provider Compensation Intelligence",
-  description: "wRVU modeling, FMV checks, and call-pay scenarios on your phone",
+  title: "CompLens™ | Provider Compensation Intelligence",
+  description: "wRVU modeling, FMV analysis, and call-pay scenarios",
   manifest: "/manifest.json",
   themeColor: "#6366f1",
   icons: {
     icon: [
-      { url: "/Logo.png", type: "image/png" },
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.ico", type: "image/x-icon" },
     ],
     apple: [
-      { url: "/Logo.png", sizes: "180x180", type: "image/png" },
       { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
     ],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Comp Lens",
+    title: "CompLens",
   },
   other: {
     "mobile-web-app-capable": "yes",

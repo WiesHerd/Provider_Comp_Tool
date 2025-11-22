@@ -107,3 +107,4 @@ export function hasMarketData(
   return allData.some(d => d.id === id);
 }
 
+

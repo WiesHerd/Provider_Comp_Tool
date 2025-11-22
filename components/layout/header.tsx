@@ -48,7 +48,7 @@ export function Header() {
     <div className="relative">
       <Image
         src="/Logo.png"
-        alt="Comp Lens"
+        alt="CompLens"
         width={40}
         height={40}
         className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 object-contain rounded-xl drop-shadow-lg dark:opacity-80 dark:brightness-90"
@@ -113,10 +113,10 @@ export function Header() {
                 <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
                   <Dialog.Title className="text-xl font-bold mb-2">About</Dialog.Title>
                   <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Comp Lens - Provider Compensation Intelligence
+                    CompLens™ - Provider Compensation Intelligence
                   </Dialog.Description>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    wRVU modeling, FMV checks, and call-pay scenarios on your phone.
+                    wRVU modeling, FMV analysis, and call-pay scenarios.
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500 italic">
                     For education and planning only. Not legal or FMV advice.

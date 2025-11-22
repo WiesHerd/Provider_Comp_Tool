@@ -1,7 +1,7 @@
 {
-  "name": "Comp Lens - Provider Compensation Intelligence",
-  "short_name": "Comp Lens",
-  "description": "wRVU modeling, FMV checks, and call-pay scenarios on your phone",
+  "name": "CompLens™ - Provider Compensation Intelligence",
+  "short_name": "CompLens",
+  "description": "wRVU modeling, FMV analysis, and call-pay scenarios",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

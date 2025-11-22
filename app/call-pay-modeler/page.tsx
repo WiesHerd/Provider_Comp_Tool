@@ -12,6 +12,7 @@ import { TierManager } from '@/components/call-pay/tier-manager';
 import { UsageGuide } from '@/components/call-pay/usage-guide';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { StepGuide } from '@/components/call-pay/step-guide';
+import { CallTierInfo } from '@/components/call-pay/call-tier-info';
 import {
   Accordion,
   AccordionItem,
@@ -185,7 +186,10 @@ export default function CallPayModelerPage() {
       <Card id="tier-card" className="scroll-mt-4">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-xl">Step 2: Tiered Call Categories</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xl">Step 2: Tiered Call Categories</CardTitle>
+              <CallTierInfo />
+            </div>
             <TierManager
               tiers={tiers}
               onTiersChange={handleTiersChange}

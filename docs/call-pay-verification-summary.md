@@ -126,3 +126,4 @@ The tool should provide:
 
 The Call Pay Modeler **calculates budgets correctly** and provides the necessary outputs for compensation planning. The primary output - **Total Annual Call Budget** - accurately represents what organizations need to budget for call coverage.
 
+
