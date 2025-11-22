@@ -22,6 +22,7 @@ import {
   CallPayContext,
   CallTier,
   CallPayBenchmarks,
+  Specialty,
 } from '@/types/call-pay';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
 import { cn } from '@/lib/utils/cn';
@@ -131,7 +132,7 @@ export default function CallPayModelerPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24 md:pb-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-8 pb-24 md:pb-6">
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough />
 
@@ -234,7 +235,7 @@ export default function CallPayModelerPage() {
                   <TierCard 
                     tier={tier} 
                     onTierChange={handleTierChange}
-                    specialty={context.specialty}
+                    specialty={context.specialty as Specialty | undefined}
                   />
                 </AccordionContent>
               </AccordionItem>

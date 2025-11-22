@@ -33,6 +33,12 @@ export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBud
     };
   }, [impact.totalAnnualCallSpend, annualAllowableBudget]);
 
+  // Format values to avoid template literal issues in JSX
+  const formattedTotalSpend = impact.totalAnnualCallSpend.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   // Determine progress bar color
   const getProgressColor = (percent: number) => {
     if (percent >= 95) return 'bg-red-500';
@@ -190,10 +196,7 @@ export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBud
               "text-4xl font-light tracking-tight",
               hasEnabledTiers ? "text-gray-900 dark:text-white" : "text-gray-300 dark:text-gray-600"
             )}>
-              ${impact.totalAnnualCallSpend.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              ${formattedTotalSpend}
             </div>
           </div>
         </div>

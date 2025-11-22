@@ -5,21 +5,21 @@ import { Calculator, TrendingUp, Phone, FolderOpen } from 'lucide-react';
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-4xl mx-auto px-4 pt-8 pb-12 md:pt-12 md:pb-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-green-400 dark:from-blue-400 dark:via-purple-400 dark:to-green-300 rounded-full blur-2xl opacity-30 dark:opacity-40 animate-pulse"></div>
-              <h1 className="relative text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent mb-4 tracking-tight">
+              <h1 className="relative text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent mb-4 tracking-tight leading-tight">
                 Comp Lens<sup className="text-xs font-normal ml-0.5 opacity-70">™</sup>
               </h1>
             </div>
           </div>
-          <p className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-2">
+          <p className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-2 leading-tight">
             Provider Compensation Intelligence
           </p>
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
             wRVU modeling, FMV checks, and call-pay scenarios on your phone.
           </p>
         </div>
