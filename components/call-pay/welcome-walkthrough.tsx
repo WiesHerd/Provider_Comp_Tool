@@ -113,8 +113,7 @@ export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
             <Dialog.Close asChild>
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 onClick={handleSkip}
               >
                 <X className="h-4 w-4" />
