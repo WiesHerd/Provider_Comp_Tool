@@ -113,21 +113,12 @@ export default function WRVUModelerPage() {
   const productivityPerWrvu = annualWrvus > 0 ? productivityPay / annualWrvus : 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-8">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
-          wRVU Modeler
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-          Estimate wRVUs and productivity incentives
-        </p>
-      </div>
-
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6 md:space-y-8">
       <Card>
         <CardHeader>
           <CardTitle>Inputs</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           <ScenarioLoader
             scenarioType="wrvu-modeler"
             onLoad={(scenario) => {
@@ -161,7 +152,7 @@ export default function WRVUModelerPage() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-base font-semibold">Provider Name</Label>
+              <Label className="text-sm sm:text-base font-semibold">Provider Name</Label>
               <Input
                 value={providerName}
                 onChange={(e) => setProviderName(e.target.value)}
@@ -169,7 +160,7 @@ export default function WRVUModelerPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-base font-semibold">Specialty</Label>
+              <Label className="text-sm sm:text-base font-semibold">Specialty</Label>
               <Select value={specialty} onValueChange={(value) => {
                 setSpecialty(value);
                 if (value !== 'Other') {
@@ -245,7 +236,7 @@ export default function WRVUModelerPage() {
           />
 
           <div className="space-y-2">
-            <Label className="text-base font-semibold">Conversion Factor ($/wRVU)</Label>
+            <Label className="text-sm sm:text-base font-semibold">Conversion Factor ($/wRVU)</Label>
             <CurrencyInput
               value={conversionFactor}
               onChange={setConversionFactor}
@@ -256,7 +247,7 @@ export default function WRVUModelerPage() {
       </Card>
 
       {/* KPI Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
         <KPIChip
           label="Annual wRVUs"
           value={annualWrvus}

@@ -133,22 +133,9 @@ export default function CallPayModelerPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-8 pb-24 md:pb-6">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-8 pb-24 md:pb-6">
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough />
-
-      <div className="text-center mb-6">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight">
-            Call Pay & Coverage Modeler
-          </h2>
-          <UsageGuide />
-        </div>
-        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-          Model tiered call pay structures for all specialties including primary care,
-          procedural, and medical subspecialties
-        </p>
-      </div>
 
       {/* Step-by-Step Guide */}
       <StepGuide context={context} tiers={tiers} />

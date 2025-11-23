@@ -1,12 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Info, Home, ChevronLeft } from 'lucide-react';
+import { Sun, Moon, Info, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
+
+// Page title mapping for header
+const getPageTitle = (pathname: string): string | null => {
+  if (pathname === '/') return null;
+  if (pathname === '/wrvu-modeler') return 'wRVU Modeler';
+  if (pathname === '/fmv-calculator') return 'FMV Calculator';
+  if (pathname.startsWith('/fmv-calculator/wrvu')) return 'wRVU Calculator';
+  if (pathname.startsWith('/fmv-calculator/tcc')) return 'TCC Calculator';
+  if (pathname.startsWith('/fmv-calculator/cf')) return 'CF Calculator';
+  if (pathname === '/call-pay-modeler') return 'Call Pay Modeler';
+  if (pathname === '/scenarios') return 'Scenarios';
+  if (pathname.startsWith('/scenarios/')) return 'Edit Scenario';
+  return null;
+};
 
 export function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -15,6 +29,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const isHome = mounted && pathname === '/';
+  const pageTitle = mounted && pathname ? getPageTitle(pathname) : null;
 
   useEffect(() => {
     setMounted(true);
@@ -78,26 +93,21 @@ export function Header() {
               </Button>
             )}
             
-            {/* Home button - Apple style (always visible, always clickable) */}
-            <button
-              onClick={handleLogoClick}
-              className="flex items-center gap-2 transition-opacity hover:opacity-80 active:opacity-60 touch-manipulation"
+            {/* Logo - clickable to go home (Apple style) */}
+            <Link
+              href="/"
+              className="flex items-center gap-2 transition-all hover:opacity-80 active:opacity-60 active:scale-95 touch-manipulation cursor-pointer"
               aria-label="Go to home"
+              title="Go to home"
             >
               {logoContent}
-            </button>
+            </Link>
             
-            {/* Home icon button for mobile - more obvious */}
-            {mounted && pathname && pathname !== '/' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/')}
-                className="min-w-[44px] md:hidden"
-                aria-label="Go to home"
-              >
-                <Home className="w-5 h-5" />
-              </Button>
+            {/* Page title - Apple style (subtle, in header) */}
+            {pageTitle && (
+              <h1 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white ml-1 hidden sm:block">
+                {pageTitle}
+              </h1>
             )}
           </div>
 

@@ -32,7 +32,7 @@ export default function CFCalculatorPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-8">
       {/* Back Button */}
       <Link href="/fmv-calculator">
         <Button variant="outline" className="mb-4">
@@ -40,16 +40,6 @@ export default function CFCalculatorPage() {
           Back to FMV Calculator
         </Button>
       </Link>
-
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
-          CF Calculator
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-          Calculate percentile for Conversion Factor ($/wRVU)
-        </p>
-      </div>
 
       {/* Input Section */}
       <Card>

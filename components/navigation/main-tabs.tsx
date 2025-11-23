@@ -41,8 +41,8 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="w-full">
-      {/* Desktop Top Tabs */}
-      <div className="hidden md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
+      {/* Desktop Top Tabs - Hidden per user request */}
+      {/* <div className="hidden md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-[64px] md:top-[72px] z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="flex gap-1">
             {tabs.map((tab) => {
@@ -75,7 +75,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
             })}
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="pt-[64px] sm:pt-[72px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900">
         {children}
@@ -84,7 +84,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
       {/* Mobile Bottom Tabs */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
         <div className="flex items-center justify-around h-16 px-2">
-          {tabs.map((tab) => {
+          {tabs.filter(tab => tab.id !== 'scenarios').map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (

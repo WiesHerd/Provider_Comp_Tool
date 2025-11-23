@@ -1,22 +1,25 @@
+'use client';
+
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Phone } from 'lucide-react';
+import { WelcomeWalkthrough } from '@/components/layout/welcome-walkthrough';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-8 md:pb-12">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 pb-6 sm:pb-8 md:pb-12">
         {/* Hero Section - Apple-style minimal */}
-        <div className="text-center mb-12 pt-2">
-          <div className="flex justify-center items-center mb-4">
+        <div className="text-center mb-8 sm:mb-10 md:mb-12 pt-2">
+          <div className="flex justify-center items-center mb-3 sm:mb-4">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-green-400 dark:from-blue-400 dark:via-purple-400 dark:to-green-300 rounded-full blur-2xl opacity-30 dark:opacity-40 animate-pulse"></div>
-              <h1 className="relative text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent tracking-tight leading-tight">
-                CompLen<span className="relative inline-block bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent">s<sup className="text-[8px] md:text-[10px] font-bold text-gray-900 dark:text-gray-100 leading-none -ml-0.5 -mt-1 md:-mt-1.5">TM</sup></span>
+              <h1 className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent tracking-tight leading-tight">
+                CompLen<span className="relative inline-block bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent">s<sup className="text-[7px] sm:text-[8px] md:text-[10px] font-bold text-gray-900 dark:text-gray-100 leading-none -ml-0.5 -mt-1 sm:-mt-1 md:-mt-1.5">TM</sup></span>
               </h1>
             </div>
           </div>
-          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
             Provider compensation modeling and FMV analysis
           </p>
         </div>
@@ -80,6 +83,9 @@ export default function Home() {
           For education and planning only. Not legal or FMV advice.
         </p>
       </div>
+      
+      {/* Welcome Wizard */}
+      <WelcomeWalkthrough />
     </div>
   );
 }
