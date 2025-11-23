@@ -7,7 +7,6 @@ import { CurrencyInput } from '@/components/ui/currency-input';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
-import { FMVBenchmarkPanel } from '@/components/call-pay/fmv-benchmark-panel';
 import { TierManager } from '@/components/call-pay/tier-manager';
 import { UsageGuide } from '@/components/call-pay/usage-guide';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
@@ -22,7 +21,6 @@ import {
 import {
   CallPayContext,
   CallTier,
-  CallPayBenchmarks,
   Specialty,
 } from '@/types/call-pay';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
@@ -71,7 +69,6 @@ export default function CallPayModelerPage() {
   const router = useRouter();
   const [context, setContext] = useState<CallPayContext>(DEFAULT_CONTEXT);
   const [tiers, setTiers] = useState<CallTier[]>(DEFAULT_TIERS);
-  const [benchmarks, setBenchmarks] = useState<CallPayBenchmarks>({});
   const [expandedTier, setExpandedTier] = useState<string>('C1');
   const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
 
@@ -90,29 +87,6 @@ export default function CallPayModelerPage() {
   const impact = useMemo(() => {
     return calculateCallPayImpact(tiers, context);
   }, [tiers, context]);
-
-  // Get average rates for FMV benchmark panel (from enabled tiers)
-  const averageRates = useMemo(() => {
-    const enabledTiers = tiers.filter((t) => t.enabled);
-    if (enabledTiers.length === 0) {
-      return { weekday: 0, weekend: 0, holiday: 0 };
-    }
-
-    const totals = enabledTiers.reduce(
-      (acc, tier) => ({
-        weekday: acc.weekday + tier.rates.weekday,
-        weekend: acc.weekend + tier.rates.weekend,
-        holiday: acc.holiday + tier.rates.holiday,
-      }),
-      { weekday: 0, weekend: 0, holiday: 0 }
-    );
-
-    return {
-      weekday: totals.weekday / enabledTiers.length,
-      weekend: totals.weekend / enabledTiers.length,
-      holiday: totals.holiday / enabledTiers.length,
-    };
-  }, [tiers]);
 
   const handleTierChange = (updatedTier: CallTier) => {
     setTiers(tiers.map((t) => (t.id === updatedTier.id ? updatedTier : t)));
@@ -185,7 +159,6 @@ export default function CallPayModelerPage() {
     'context-card': 'context',
     'tier-card': 'tiers',
     'impact-summary': 'impact',
-    'fmv-card': 'fmv',
   };
 
   const handleWalkthroughNavigate = (stepIndex: number, elementId: string) => {
@@ -346,33 +319,6 @@ export default function CallPayModelerPage() {
                   onAddToTCC={handleAddToTCC}
                   annualAllowableBudget={annualAllowableBudget}
                   onBudgetChange={setAnnualAllowableBudget}
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </div>
-
-        {/* FMV Benchmark Panel - Advanced feature, collapsed by default */}
-        <div id="fmv-card" className="scroll-mt-4">
-          <AccordionItem value="fmv">
-            <AccordionTrigger className="text-left min-h-[60px] sm:min-h-[64px] touch-manipulation">
-              <div className="flex-1 text-left">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-0.5">
-                  FMV Benchmark Analysis
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-normal">
-                  Compare rates against market benchmarks
-                </p>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-0">
-              <div className="px-4 pb-4">
-                <FMVBenchmarkPanel
-                  weekdayRate={averageRates.weekday}
-                  weekendRate={averageRates.weekend}
-                  holidayRate={averageRates.holiday}
-                  benchmarks={benchmarks}
-                  onBenchmarksChange={setBenchmarks}
                 />
               </div>
             </AccordionContent>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { CallPayContext, CallTier } from '@/types/call-pay';
 
@@ -14,6 +14,8 @@ interface StepGuideProps {
 }
 
 export function StepGuide({ context, tiers, currentStep, onStepClick }: StepGuideProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  
   // Determine which steps are completed
   const steps = useMemo(() => {
     const step1Complete = 
@@ -83,21 +85,80 @@ export function StepGuide({ context, tiers, currentStep, onStepClick }: StepGuid
   };
 
   return (
-    <div className="sticky top-0 z-40 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 pt-4 sm:pt-6 md:pt-8 pb-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-800/50 transition-shadow duration-200">
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent shadow-sm">
-        <CardContent className="p-3 sm:p-4">
-        {/* Header */}
-        <div className="mb-3 sm:mb-4 text-center">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-0.5 tracking-tight">
-            Quick Start Guide
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            {completedCount} of {steps.length} steps completed
-          </p>
-        </div>
+    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent shadow-sm">
+      <CardContent className="p-3 sm:p-4">
+        {/* Collapsible Header */}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-between mb-3 sm:mb-4 touch-manipulation"
+        >
+          <div className="text-left">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-0.5 tracking-tight">
+              Quick Start Guide
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              {completedCount} of {steps.length} steps completed
+            </p>
+          </div>
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2" />
+          )}
+        </button>
 
-        {/* Step Indicator with Labels */}
-        <div className="relative">
+        {/* Compact Progress Bar (when collapsed) */}
+        {!isExpanded && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+              <span>Progress</span>
+              <span className="font-medium">{Math.round((completedCount / steps.length) * 100)}%</span>
+            </div>
+            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-500 ease-out rounded-full"
+                style={{ width: `${(completedCount / steps.length) * 100}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2 pt-1">
+              {steps.map((step, index) => {
+                const isCompleted = step.completed;
+                const isCurrent = step.current;
+                return (
+                  <button
+                    key={step.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStepClick(index);
+                    }}
+                    className={cn(
+                      'flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium transition-all touch-manipulation',
+                      'min-h-[44px]',
+                      isCurrent
+                        ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
+                        : isCompleted
+                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        : 'bg-transparent text-gray-500 dark:text-gray-400'
+                    )}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                    ) : (
+                      <span className="w-4 h-4 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                        {index + 1}
+                      </span>
+                    )}
+                    <span className="truncate">{step.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Full Step Indicator with Labels (when expanded) */}
+        {isExpanded && (
+          <div className="relative">
           {/* Steps with labels */}
           <div className="flex items-center justify-between relative pb-2 gap-1 sm:gap-2">
             {steps.map((step, index) => {
@@ -191,9 +252,9 @@ export function StepGuide({ context, tiers, currentStep, onStepClick }: StepGuid
             )}
           </div>
         </div>
+        )}
       </CardContent>
     </Card>
-    </div>
   );
 }
 
