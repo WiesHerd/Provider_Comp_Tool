@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calculator, TrendingUp, Phone } from 'lucide-react';
+import { Calculator, TrendingUp, Phone, BarChart3 } from 'lucide-react';
 import { WelcomeWalkthrough } from '@/components/layout/welcome-walkthrough';
 
 export default function Home() {
@@ -25,7 +25,7 @@ export default function Home() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <Link href="/wrvu-modeler">
             <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
               <CardHeader className="space-y-4">
@@ -71,6 +71,23 @@ export default function Home() {
                   <CardTitle>Call Pay Modeler</CardTitle>
                   <CardDescription>
                     Model call-pay structures with annualized outputs
+                  </CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/wrvu-forecaster">
+            <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
+              <CardHeader className="space-y-4">
+                {/* Circular Icon Container - Apple-style */}
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
+                  <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
+                </div>
+                <div>
+                  <CardTitle>Provider Schedule & wRVU Forecaster</CardTitle>
+                  <CardDescription>
+                    Forecast annual wRVUs and compensation based on schedule
                   </CardDescription>
                 </div>
               </CardHeader>

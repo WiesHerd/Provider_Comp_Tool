@@ -8,8 +8,9 @@ interface KPIChipProps {
 }
 
 export function KPIChip({ label, value, unit, className }: KPIChipProps) {
+  const isNegative = typeof value === 'number' && value < 0;
   const formattedValue = typeof value === 'number' 
-    ? value.toLocaleString('en-US', { 
+    ? Math.abs(value).toLocaleString('en-US', { 
         minimumFractionDigits: 2, 
         maximumFractionDigits: 2 
       })
@@ -17,18 +18,28 @@ export function KPIChip({ label, value, unit, className }: KPIChipProps) {
 
   // For currency, place $ before the value
   const isCurrency = unit === '$';
-  const displayValue = isCurrency ? `$${formattedValue}` : formattedValue;
+  const displayValue = isCurrency 
+    ? `${isNegative ? '-$' : '$'}${formattedValue}`
+    : `${isNegative ? '-' : ''}${formattedValue}`;
   const displayUnit = isCurrency ? null : unit;
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 md:p-6 shadow-sm",
+      "bg-white dark:bg-gray-800 rounded-xl border p-3 sm:p-4 md:p-6 shadow-sm",
+      isNegative 
+        ? "border-red-200 dark:border-red-800" 
+        : "border-gray-100 dark:border-gray-700",
       className
     )}>
-      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">{label}</div>
-      <div className="text-2xl font-light tracking-tight text-gray-900 dark:text-white">
+      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 sm:mb-2 leading-tight">{label}</div>
+      <div className={cn(
+        "text-xl sm:text-2xl font-light tracking-tight break-words",
+        isNegative 
+          ? "text-red-600 dark:text-red-400" 
+          : "text-gray-900 dark:text-white"
+      )}>
         {displayValue}
-        {displayUnit && <span className="text-lg text-gray-500 dark:text-gray-400 ml-1">{displayUnit}</span>}
+        {displayUnit && <span className="text-base sm:text-lg text-gray-500 dark:text-gray-400 ml-1">{displayUnit}</span>}
       </div>
     </div>
   );

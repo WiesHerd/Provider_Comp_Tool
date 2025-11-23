@@ -12,6 +12,7 @@ interface ScenarioSaveButtonProps {
   annualWrvus: number;
   conversionFactor: number;
   productivityPay: number;
+  basePay?: number;
   providerName?: string;
   specialty?: string;
 }
@@ -21,6 +22,7 @@ export function ScenarioSaveButton({
   annualWrvus,
   conversionFactor,
   productivityPay,
+  basePay = 0,
   providerName,
   specialty,
 }: ScenarioSaveButtonProps) {
@@ -31,6 +33,30 @@ export function ScenarioSaveButton({
   const handleSave = () => {
     if (!name.trim()) return;
 
+    const tccComponents = [];
+    
+    // Add base pay if provided
+    if (basePay > 0) {
+      tccComponents.push({
+        id: 'base-salary',
+        label: 'Base Salary',
+        type: 'Base Salary',
+        amount: basePay,
+      });
+    }
+    
+    // Add productivity incentive if greater than 0
+    if (productivityPay > 0) {
+      tccComponents.push({
+        id: 'productivity',
+        label: 'Productivity Incentive',
+        type: 'Productivity Incentive',
+        amount: productivityPay,
+      });
+    }
+    
+    const totalTcc = basePay + productivityPay;
+
     const scenario: ProviderScenario = {
       id: `scenario-${Date.now()}`,
       name: name.trim(),
@@ -39,16 +65,9 @@ export function ScenarioSaveButton({
       specialty: specialty,
       fte,
       annualWrvus,
-      tccComponents: [
-        {
-          id: 'productivity',
-          label: 'Productivity Incentive',
-          type: 'Productivity Incentive',
-          amount: productivityPay,
-        },
-      ],
-      totalTcc: productivityPay,
-      normalizedTcc: fte > 0 ? productivityPay / fte : 0,
+      tccComponents,
+      totalTcc,
+      normalizedTcc: fte > 0 ? totalTcc / fte : 0,
       normalizedWrvus: fte > 0 ? annualWrvus / fte : 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

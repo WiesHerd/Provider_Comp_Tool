@@ -46,6 +46,20 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (min-width: 640px) {
+    .touch-target {
+      min-width: auto;
+      min-height: auto;
+    }
+  }
+
   .animate-gradient {
     background-size: 200% auto;
     animation: gradient 8s ease infinite;

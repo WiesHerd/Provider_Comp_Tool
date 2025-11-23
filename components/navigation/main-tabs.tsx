@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Calculator, TrendingUp, Phone, FolderOpen } from 'lucide-react';
+import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 const tabs = [
   { id: 'home', label: 'Home', icon: Home, path: '/' },
   { id: 'wrvu-modeler', label: 'wRVU', icon: Calculator, path: '/wrvu-modeler' },
+  { id: 'wrvu-forecaster', label: 'Forecaster', icon: BarChart3, path: '/wrvu-forecaster' },
   { id: 'fmv-calculator', label: 'FMV', icon: TrendingUp, path: '/fmv-calculator' },
   { id: 'call-pay-modeler', label: 'Call Pay', icon: Phone, path: '/call-pay-modeler' },
   { id: 'scenarios', label: 'Scenarios', icon: FolderOpen, path: '/scenarios' },

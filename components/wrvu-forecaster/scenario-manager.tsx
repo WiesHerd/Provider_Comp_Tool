@@ -1,0 +1,194 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import * as Dialog from '@radix-ui/react-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Save, Trash2, TrendingUp, Mail, Printer } from 'lucide-react';
+import {
+  WRVUForecasterInputs,
+  ProductivityMetrics,
+  WRVUForecasterScenario,
+} from '@/types/wrvu-forecaster';
+
+const STORAGE_KEY = 'wrvuForecasterScenarios';
+
+interface ScenarioManagerProps {
+  inputs: WRVUForecasterInputs;
+  metrics: ProductivityMetrics;
+  onLoadScenario: (scenario: WRVUForecasterScenario) => void;
+  onEmailReport?: () => void;
+  onPrint?: () => void;
+}
+
+export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport, onPrint }: ScenarioManagerProps) {
+  const [savedScenarios, setSavedScenarios] = useState<WRVUForecasterScenario[]>([]);
+  const [scenarioName, setScenarioName] = useState('');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string>('');
+
+  useEffect(() => {
+    loadScenarios();
+  }, []);
+
+  const loadScenarios = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        setSavedScenarios(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error loading scenarios:', error);
+    }
+  };
+
+  const handleSaveScenario = () => {
+    if (!scenarioName.trim()) return;
+
+    const newScenario: WRVUForecasterScenario = {
+      id: `scenario-${Date.now()}`,
+      name: scenarioName.trim(),
+      inputs: { ...inputs },
+      metrics: { ...metrics },
+      date: new Date().toLocaleDateString(),
+    };
+
+    const updatedScenarios = [...savedScenarios, newScenario];
+    setSavedScenarios(updatedScenarios);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScenarios));
+    setScenarioName('');
+    setShowSaveDialog(false);
+  };
+
+  const handleLoadScenario = (scenarioId: string) => {
+    if (!scenarioId) return;
+    const scenario = savedScenarios.find((s) => s.id === scenarioId);
+    if (scenario) {
+      onLoadScenario(scenario);
+      setSelectedScenarioId(''); // Reset select after loading
+    }
+  };
+
+  const handleDeleteScenario = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updatedScenarios = savedScenarios.filter((s) => s.id !== id);
+    setSavedScenarios(updatedScenarios);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScenarios));
+  };
+
+  return (
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 w-full sm:w-auto">
+      <Button 
+        variant="outline" 
+        onClick={() => setShowSaveDialog(true)}
+        className="w-full sm:w-auto min-h-[44px] touch-target"
+      >
+        <Save className="w-4 h-4 mr-2" />
+        Save Scenario
+      </Button>
+      
+      {onEmailReport && (
+        <Button 
+          variant="outline" 
+          onClick={onEmailReport}
+          className="w-full sm:w-auto min-h-[44px] touch-target"
+        >
+          <Mail className="w-4 h-4 mr-2" />
+          Email Report
+        </Button>
+      )}
+      
+      {onPrint && (
+        <Button 
+          variant="outline" 
+          onClick={onPrint}
+          className="w-full sm:w-auto min-h-[44px] touch-target"
+        >
+          <Printer className="w-4 h-4 mr-2" />
+          Print Summary
+        </Button>
+      )}
+
+      {savedScenarios.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto bg-blue-50 dark:bg-blue-900/20 rounded-lg sm:rounded-full px-3 py-2 sm:py-1.5 border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <Label className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium whitespace-nowrap">
+              Scenarios:
+            </Label>
+          </div>
+          <Select value={selectedScenarioId} onValueChange={handleLoadScenario}>
+            <SelectTrigger className="w-full sm:w-[180px] min-h-[44px] sm:min-h-auto border-none bg-transparent shadow-none focus:ring-0 touch-target">
+              <SelectValue placeholder="Select scenario" />
+            </SelectTrigger>
+            <SelectContent>
+              {savedScenarios.map((scenario) => (
+                <SelectItem key={scenario.id} value={scenario.id}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>{scenario.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleDeleteScenario(scenario.id, e)}
+                      className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-6 max-w-md w-[90vw] max-h-[90vh] overflow-y-auto z-50 shadow-xl safe-area-inset">
+            <Dialog.Title className="text-lg sm:text-xl font-bold mb-2">Save Current Scenario</Dialog.Title>
+            <Dialog.Description className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Enter a name for this scenario to save the current settings and calculations.
+            </Dialog.Description>
+            <Input
+              value={scenarioName}
+              onChange={(e) => setScenarioName(e.target.value)}
+              placeholder="Scenario name"
+              className="mb-4 text-base sm:text-sm min-h-[44px]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSaveScenario();
+                }
+              }}
+            />
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+              <Dialog.Close asChild>
+                <Button variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target">Cancel</Button>
+              </Dialog.Close>
+              <Button
+                onClick={() => {
+                  handleSaveScenario();
+                }}
+                disabled={!scenarioName.trim()}
+                className="w-full sm:w-auto min-h-[44px] touch-target"
+              >
+                Save
+              </Button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </div>
+  );
+}
+
