@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
@@ -23,7 +23,7 @@ import { calculateWRVUPercentile } from '@/lib/utils/percentile';
 import { normalizeWrvus } from '@/lib/utils/normalization';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 
-export default function WRVUCalculatorPage() {
+function WRVUCalculatorPageContent() {
   const searchParams = useSearchParams();
   const { getScenario } = useScenariosStore();
   const [specialty, setSpecialty] = useState<string>('');

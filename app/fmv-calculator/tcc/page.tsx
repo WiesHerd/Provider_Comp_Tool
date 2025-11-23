@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
@@ -22,7 +22,7 @@ import { calculateTCCPercentile } from '@/lib/utils/percentile';
 import { normalizeTcc } from '@/lib/utils/normalization';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 
-export default function TCCCalculatorPage() {
+function TCCCalculatorPageContent() {
   const searchParams = useSearchParams();
   const { getScenario } = useScenariosStore();
   const [specialty, setSpecialty] = useState<string>('');
@@ -381,5 +381,13 @@ export default function TCCCalculatorPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TCCCalculatorPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">Loading...</div>}>
+      <TCCCalculatorPageContent />
+    </Suspense>
   );
 }

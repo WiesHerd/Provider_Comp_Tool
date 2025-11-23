@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
@@ -21,7 +21,7 @@ import { MarketBenchmarks, ProviderScenario } from '@/types';
 import { calculateCFPercentile } from '@/lib/utils/percentile';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 
-export default function CFCalculatorPage() {
+function CFCalculatorPageContent() {
   const searchParams = useSearchParams();
   const { getScenario } = useScenariosStore();
   const [specialty, setSpecialty] = useState<string>('');
@@ -335,5 +335,13 @@ export default function CFCalculatorPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CFCalculatorPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">Loading...</div>}>
+      <CFCalculatorPageContent />
+    </Suspense>
   );
 }

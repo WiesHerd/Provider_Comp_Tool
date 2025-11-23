@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FTEInput } from '@/components/wrvu/fte-input';
@@ -69,7 +69,7 @@ const SPECIALTIES = [
   'Other',
 ];
 
-export default function WRVUModelerPage() {
+function WRVUModelerPageContent() {
   const searchParams = useSearchParams();
   const { getScenario } = useScenariosStore();
   const [fte, setFte] = useState<FTE>(1.0);
