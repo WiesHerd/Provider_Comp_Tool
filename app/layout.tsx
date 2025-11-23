@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { MainTabs } from "@/components/navigation/main-tabs";
+import { TourProvider } from "@/lib/tour/tour-context";
+import { TOUR_STEPS } from "@/lib/tour/tour-steps";
+import { AppTour } from "@/components/tour/app-tour";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -60,10 +63,13 @@ export default function RootLayout({
             `,
           }}
         />
-        <Header />
-        <MainTabs>
-          {children}
-        </MainTabs>
+        <TourProvider steps={TOUR_STEPS}>
+          <Header />
+          <MainTabs>
+            {children}
+          </MainTabs>
+          <AppTour />
+        </TourProvider>
       </body>
     </html>
   );

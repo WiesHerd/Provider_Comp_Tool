@@ -166,7 +166,7 @@ export default function CallPayModelerPage() {
 
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
-        <div id="context-card">
+        <div id="context-card" data-tour="call-pay-context">
           <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -218,7 +218,7 @@ export default function CallPayModelerPage() {
 
       {/* Step 2: Configure Tiers (Only show when on Step 2) */}
       {activeStep === 2 && (
-        <Card id="tier-card" className="border border-gray-200 dark:border-gray-800">
+        <Card id="tier-card" className="border border-gray-200 dark:border-gray-800" data-tour="call-pay-tiers">
           <CardHeader>
             <div className="flex items-center gap-2">
               <StepBadge number={2} variant="default" />
@@ -300,7 +300,7 @@ export default function CallPayModelerPage() {
 
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
-        <div id="impact-summary" className="space-y-6">
+        <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
           <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">

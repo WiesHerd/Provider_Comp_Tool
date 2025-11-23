@@ -59,6 +59,10 @@ const config: Config = {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'gradient': 'gradient 8s ease infinite',
         'shimmer': 'shimmer 2s linear infinite',
+        'icon-enter': 'iconEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        'logo-enter': 'logoEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'sparkle-pulse': 'sparklePulse 2s ease-in-out infinite',
+        'theme-rotate': 'themeRotate 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
         fadeIn: {
@@ -90,6 +94,23 @@ const config: Config = {
         shimmer: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
+        },
+        iconEnter: {
+          '0%': { transform: 'scale(0.8)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        logoEnter: {
+          '0%': { transform: 'scale(0.9) translateY(-4px)', opacity: '0' },
+          '100%': { transform: 'scale(1) translateY(0)', opacity: '1' },
+        },
+        sparklePulse: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+        },
+        themeRotate: {
+          '0%': { transform: 'rotate(0deg) scale(1)' },
+          '50%': { transform: 'rotate(180deg) scale(0.9)' },
+          '100%': { transform: 'rotate(360deg) scale(1)' },
         },
       },
       boxShadow: {

@@ -373,12 +373,9 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
             </div>
 
             <div className="space-y-2 flex flex-col">
-              <div className="min-h-[2.5rem] flex flex-col items-start pt-1">
-                <Label className="text-sm font-semibold">Rotation Ratio</Label>
-                <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  (1-in-N means each provider covers 1/N of total calls)
-                </span>
-              </div>
+              <Label className="text-sm font-semibold min-h-[2.5rem] flex items-start pt-1">
+                Rotation Ratio
+              </Label>
               <Select
                 value={context.rotationRatio.toString()}
                 onValueChange={(value) => updateField('rotationRatio', parseInt(value, 10))}
@@ -419,6 +416,9 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                   )}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                (1-in-N means each provider covers 1/N of total calls)
+              </p>
               {!isRotationRatioValid && (
                 <div className="flex items-start gap-1 text-xs text-amber-600 dark:text-amber-400 mt-1">
                   <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />

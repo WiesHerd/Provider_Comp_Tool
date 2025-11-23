@@ -34,7 +34,7 @@ export default function ScenariosPage() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-4 md:space-y-6" data-tour="scenarios-list">
           {scenarios.map((scenario) => (
             <ScenarioCard key={scenario.id} scenario={scenario} />
           ))}

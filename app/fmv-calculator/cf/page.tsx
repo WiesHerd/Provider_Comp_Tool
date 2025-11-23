@@ -148,7 +148,7 @@ function CFCalculatorPageContent() {
 
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
-      <Card id="provider-input" className="border border-gray-200 dark:border-gray-800">
+      <Card id="provider-input" className="border border-gray-200 dark:border-gray-800" data-tour="fmv-cf-content">
         <CardHeader>
           <div className="flex items-center gap-2">
             <StepBadge number={1} variant="default" />

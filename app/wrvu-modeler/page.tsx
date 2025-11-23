@@ -314,13 +314,14 @@ function WRVUModelerPageContent() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
+              <div className="space-y-2" data-tour="wrvu-fte">
                 <FTEInput value={fte} onChange={setFte} />
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Changing FTE will scale wRVU values proportionally. FTE also affects normalized calculations.
                 </p>
               </div>
 
+              <div data-tour="wrvu-input">
               <WRVUInput
                 annualWrvus={annualWrvus}
                 monthlyWrvus={monthlyWrvus}
@@ -329,6 +330,7 @@ function WRVUModelerPageContent() {
                 onMonthlyChange={setMonthlyWrvus}
                 onMonthlyBreakdownChange={setMonthlyBreakdown}
               />
+              </div>
 
               {annualWrvus === 0 && (
                 <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
@@ -357,7 +359,7 @@ function WRVUModelerPageContent() {
                 </CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6" data-tour="wrvu-conversion">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">Conversion Factor ($/wRVU)</Label>
                 <CurrencyInput
@@ -384,7 +386,7 @@ function WRVUModelerPageContent() {
 
         {/* Step 4: Results */}
         <ProgressiveFormStep step={4}>
-          <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg">
+          <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg" data-tour="wrvu-results">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

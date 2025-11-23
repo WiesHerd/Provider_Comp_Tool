@@ -36,7 +36,7 @@ export function MetricSelector() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-tour="fmv-selector">
       {metrics.map((metric) => {
         const Icon = metric.icon;
         return (
