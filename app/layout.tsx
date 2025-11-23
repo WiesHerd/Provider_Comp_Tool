@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { MainTabs } from "@/components/navigation/main-tabs";
-// Tour system simplified - using simple modals per screen instead
+import { ScreenGuideProvider } from "@/components/ui/screen-guide-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,10 +61,12 @@ export default function RootLayout({
             `,
           }}
         />
-        <Header />
-        <MainTabs>
-          {children}
-        </MainTabs>
+        <ScreenGuideProvider>
+          <Header />
+          <MainTabs>
+            {children}
+          </MainTabs>
+        </ScreenGuideProvider>
       </body>
     </html>
   );

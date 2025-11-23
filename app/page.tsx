@@ -4,8 +4,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Phone, BarChart3 } from 'lucide-react';
-import { ScreenGuideModal } from '@/components/ui/screen-guide-modal';
-import { SCREEN_GUIDES } from '@/lib/screen-guides';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { Button } from '@/components/ui/button';
 import { RecentScenarioCard } from '@/components/scenarios/recent-scenario-card';
@@ -137,14 +135,6 @@ export default function Home() {
         </p>
       </div>
       
-      {/* Simple Screen Guide */}
-      <ScreenGuideModal
-        title={SCREEN_GUIDES.home.title}
-        description={SCREEN_GUIDES.home.description}
-        storageKey={SCREEN_GUIDES.home.storageKey}
-        autoShow={true}
-        delay={600}
-      />
     </div>
   );
 }

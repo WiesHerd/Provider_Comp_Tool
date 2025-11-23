@@ -7,17 +7,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useTour } from '@/hooks/use-tour';
 import { cn } from '@/lib/utils/cn';
-
-// Safe tour hook that doesn't throw if provider isn't available
-function useTourSafe() {
-  try {
-    return useTour();
-  } catch {
-    return { startTour: () => {} };
-  }
-}
+import { SCREEN_GUIDES } from '@/lib/screen-guides';
 
 // Page title mapping for header
 const getPageTitle = (pathname: string): string | null => {
@@ -39,9 +30,34 @@ export function Header() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { startTour } = useTourSafe();
   const isHome = mounted && pathname === '/';
   const pageTitle = mounted && pathname ? getPageTitle(pathname) : null;
+
+  // Function to open the tour/guide modal for current screen
+  const openScreenGuide = () => {
+    if (typeof window === 'undefined') return;
+    
+    // Determine which guide to show based on current path
+    let storageKey = SCREEN_GUIDES.home.storageKey; // default to home
+    
+    if (pathname === '/') {
+      storageKey = SCREEN_GUIDES.home.storageKey;
+    } else if (pathname === '/wrvu-modeler') {
+      storageKey = SCREEN_GUIDES.wrvuModeler.storageKey;
+    } else if (pathname === '/fmv-calculator' || pathname.startsWith('/fmv-calculator/')) {
+      storageKey = SCREEN_GUIDES.fmvCalculator.storageKey;
+    } else if (pathname === '/call-pay-modeler') {
+      storageKey = SCREEN_GUIDES.callPayModeler.storageKey;
+    } else if (pathname === '/wrvu-forecaster') {
+      storageKey = SCREEN_GUIDES.wrvuForecaster.storageKey;
+    } else if (pathname === '/scenarios') {
+      storageKey = SCREEN_GUIDES.scenarios.storageKey;
+    }
+    
+    // Dispatch event to open the modal
+    const eventName = `${storageKey}-open`;
+    window.dispatchEvent(new CustomEvent(eventName));
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -182,9 +198,7 @@ export function Header() {
                 "animate-icon-enter",
                 "relative z-20"
               )}
-              onClick={() => {
-                startTour();
-              }}
+              onClick={openScreenGuide}
               aria-label="Take tour"
               title="Take tour"
               style={{ animationDelay: '0.1s' }}
@@ -312,7 +326,7 @@ export function Header() {
                     <Button
                       onClick={() => {
                         setDialogOpen(false);
-                        startTour();
+                        openScreenGuide();
                       }}
                       className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                     >

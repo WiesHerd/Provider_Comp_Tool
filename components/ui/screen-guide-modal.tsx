@@ -30,17 +30,29 @@ export function ScreenGuideModal({
     const seen = localStorage.getItem(storageKey);
     if (seen === 'true') {
       setHasSeen(true);
-      return;
     }
 
-    // Auto-show if enabled
-    if (autoShow && !hasSeen) {
+    // Auto-show if enabled and not seen
+    if (autoShow && !seen) {
       const timer = setTimeout(() => {
         setIsOpen(true);
       }, delay);
       return () => clearTimeout(timer);
     }
-  }, [storageKey, autoShow, hasSeen, delay]);
+
+    // Listen for custom event to open modal on demand
+    const handleOpenModal = () => {
+      setIsOpen(true);
+    };
+
+    // Create event name from storage key
+    const eventName = `${storageKey}-open`;
+    window.addEventListener(eventName, handleOpenModal);
+    
+    return () => {
+      window.removeEventListener(eventName, handleOpenModal);
+    };
+  }, [storageKey, autoShow, delay]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -50,10 +62,7 @@ export function ScreenGuideModal({
     }
   };
 
-  // Don't render if already seen
-  if (hasSeen && !isOpen) {
-    return null;
-  }
+  // Always render so it can be opened on demand
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => {
