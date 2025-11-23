@@ -84,7 +84,7 @@ export default function Home() {
               </Card>
             </Link>
 
-            <Link href="/wrvu-forecaster">
+            <Link href="/wrvu-forecaster" className="lg:col-start-2">
               <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
                   <div className="w-16 h-16 flex items-center justify-center">

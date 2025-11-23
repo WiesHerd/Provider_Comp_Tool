@@ -164,9 +164,21 @@ export function Header() {
                     </div>
                   </div>
 
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                    <Button
+                      onClick={() => {
+                        setDialogOpen(false);
+                        // Dispatch custom event to trigger walkthrough
+                        window.dispatchEvent(new CustomEvent('complens:show-walkthrough'));
+                      }}
+                      className="flex-1"
+                    >
+                      Take Tour
+                    </Button>
                     <Dialog.Close asChild>
-                      <Button variant="outline" className="mt-6 w-full">Close</Button>
+                      <Button variant="outline" className="flex-1">Close</Button>
                     </Dialog.Close>
+                  </div>
                   </Dialog.Content>
                 </Dialog.Portal>
               </Dialog.Root>

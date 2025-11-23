@@ -48,16 +48,34 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
 
 interface WelcomeWalkthroughProps {
   onComplete?: () => void;
+  openOnDemand?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
+export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: WelcomeWalkthroughProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [hasSeenWalkthrough, setHasSeenWalkthrough] = useState(false);
 
+  // Handle on-demand opening
+  useEffect(() => {
+    if (openOnDemand !== undefined) {
+      setIsOpen(openOnDemand);
+    }
+  }, [openOnDemand]);
+
+  // Handle controlled open state
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    onOpenChange?.(open);
+  };
+
   useEffect(() => {
     // Check if user has seen walkthrough before
     if (typeof window === 'undefined') return;
+    
+    // Don't auto-show if it's being controlled externally
+    if (openOnDemand !== undefined) return;
     
     const seen = localStorage.getItem('complens-welcome-seen');
     if (!seen) {
@@ -69,6 +87,21 @@ export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
     } else {
       setHasSeenWalkthrough(true);
     }
+  }, [openOnDemand]);
+
+  // Listen for custom event to show walkthrough on-demand
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleShowWalkthrough = () => {
+      setIsOpen(true);
+      setCurrentStep(0); // Reset to first step
+    };
+
+    window.addEventListener('complens:show-walkthrough', handleShowWalkthrough);
+    return () => {
+      window.removeEventListener('complens:show-walkthrough', handleShowWalkthrough);
+    };
   }, []);
 
   const handleNext = () => {
@@ -87,6 +120,7 @@ export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
 
   const handleComplete = () => {
     setIsOpen(false);
+    handleOpenChange(false);
     if (typeof window !== 'undefined') {
       localStorage.setItem('complens-welcome-seen', 'true');
     }
@@ -101,12 +135,11 @@ export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
   const isLastStep = currentStep === WALKTHROUGH_STEPS.length - 1;
   const isFirstStep = currentStep === 0;
 
-  if (hasSeenWalkthrough && !isOpen) {
-    return null;
-  }
+  // Always render the dialog so it can be triggered on-demand
+  // Only skip rendering if we're not open and it's the initial auto-show (not on-demand)
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 max-w-lg w-[90vw] max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
