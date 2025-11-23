@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Tooltip } from '@/components/ui/tooltip';
 
 interface TierCardProps {
   tier: CallTier;
@@ -97,18 +96,11 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
       {/* Tier Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1">
-          <Tooltip
-            content={tier.enabled 
-              ? "This tier is enabled and will be included in budget calculations. Tap to disable." 
-              : "This tier is disabled and won't be included in budget calculations. Tap to enable."}
-            side="top"
-          >
-            <Switch
-              // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
-              checked={tier.enabled}
-              onCheckedChange={(checked: boolean) => updateField('enabled', checked)}
-            />
-          </Tooltip>
+          <Switch
+            // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
+            checked={tier.enabled}
+            onCheckedChange={(checked: boolean) => updateField('enabled', checked)}
+          />
           <Label className="text-sm text-gray-600 dark:text-gray-400">
             {tier.enabled ? 'Enabled' : 'Disabled'}
           </Label>
@@ -226,36 +218,29 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 Calculate from Base Rate
               </Label>
-              <Tooltip 
-                content={tier.rates.usePercentageBasedRates 
-                  ? "Weekend and holiday rates are automatically calculated from weekday rate using percentage uplifts. Tap to switch to manual entry." 
-                  : "Enter weekend and holiday rates manually. Tap to automatically calculate from weekday rate using percentage uplifts."}
-                side="left"
-              >
-                <Switch
-                  // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
-                  checked={tier.rates.usePercentageBasedRates ?? false}
-                  onCheckedChange={(checked: boolean) => {
-                    if (checked) {
-                      // Switch to percentage-based: set defaults if not set
-                      const updates: Partial<CallTier['rates']> = {
-                        usePercentageBasedRates: true,
-                        weekendUpliftPercent: tier.rates.weekendUpliftPercent ?? 20,
-                        holidayUpliftPercent: tier.rates.holidayUpliftPercent ?? 30,
-                      };
-                      // Calculate rates from weekday
-                      if (tier.rates.weekday > 0) {
-                        updates.weekend = tier.rates.weekday * (1 + (updates.weekendUpliftPercent ?? 20) / 100);
-                        updates.holiday = tier.rates.weekday * (1 + (updates.holidayUpliftPercent ?? 30) / 100);
-                      }
-                      updateRates(updates);
-                    } else {
-                      // Switch to manual entry: keep current values but disable percentage mode
-                      updateRates({ usePercentageBasedRates: false });
+              <Switch
+                // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
+                checked={tier.rates.usePercentageBasedRates ?? false}
+                onCheckedChange={(checked: boolean) => {
+                  if (checked) {
+                    // Switch to percentage-based: set defaults if not set
+                    const updates: Partial<CallTier['rates']> = {
+                      usePercentageBasedRates: true,
+                      weekendUpliftPercent: tier.rates.weekendUpliftPercent ?? 20,
+                      holidayUpliftPercent: tier.rates.holidayUpliftPercent ?? 30,
+                    };
+                    // Calculate rates from weekday
+                    if (tier.rates.weekday > 0) {
+                      updates.weekend = tier.rates.weekday * (1 + (updates.weekendUpliftPercent ?? 20) / 100);
+                      updates.holiday = tier.rates.weekday * (1 + (updates.holidayUpliftPercent ?? 30) / 100);
                     }
-                  }}
-                />
-              </Tooltip>
+                    updateRates(updates);
+                  } else {
+                    // Switch to manual entry: keep current values but disable percentage mode
+                    updateRates({ usePercentageBasedRates: false });
+                  }
+                }}
+              />
             </div>
 
             {tier.rates.usePercentageBasedRates ? (
@@ -373,22 +358,15 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   <Label className="text-xs text-gray-600 dark:text-gray-400">
                     Trauma / High-Acuity Uplift (%)
                   </Label>
-                  <Tooltip 
-                    content={tier.rates.traumaUpliftPercent !== undefined 
-                      ? "Trauma/high-acuity uplift is enabled. Additional percentage applied to rates for high-acuity cases. Tap to disable." 
-                      : "Enable trauma/high-acuity uplift to add an additional percentage to rates for high-acuity cases. Tap to enable."}
-                    side="left"
-                  >
-                    <Switch
-                      // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
-                      checked={tier.rates.traumaUpliftPercent !== undefined}
-                      onCheckedChange={(checked: boolean) =>
-                        updateRates({
-                          traumaUpliftPercent: checked ? 0 : undefined,
-                        })
-                      }
-                    />
-                  </Tooltip>
+                  <Switch
+                    // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
+                    checked={tier.rates.traumaUpliftPercent !== undefined}
+                    onCheckedChange={(checked: boolean) =>
+                      updateRates({
+                        traumaUpliftPercent: checked ? 0 : undefined,
+                      })
+                    }
+                  />
                 </div>
                 {tier.rates.traumaUpliftPercent !== undefined && (
                   <Select

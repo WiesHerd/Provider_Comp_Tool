@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FTEInput } from '@/components/wrvu/fte-input';
@@ -26,7 +26,6 @@ import {
   ProgressiveForm,
   ProgressiveFormStep,
   ProgressiveFormNavigation,
-  useProgressiveForm,
 } from '@/components/ui/progressive-form';
 import { FTE, ProviderScenario } from '@/types';
 import { normalizeWrvus, normalizeTcc } from '@/lib/utils/normalization';
@@ -141,7 +140,7 @@ function WRVUModelerPageContent() {
     return conversionFactor > 0;
   };
 
-  const handleLoadScenario = (scenario: ProviderScenario) => {
+  const handleLoadScenario = useCallback((scenario: ProviderScenario) => {
     setFte(scenario.fte);
     const annual = scenario.annualWrvus;
     const monthly = Math.round((annual / 12) * 100) / 100;
@@ -167,7 +166,7 @@ function WRVUModelerPageContent() {
         setConversionFactor(Math.round((productivityComponent.amount / annual) * 100) / 100);
       }
     }
-  };
+  }, []);
 
   // Auto-load scenario from query parameter
   useEffect(() => {
@@ -179,7 +178,7 @@ function WRVUModelerPageContent() {
         setScenarioLoaded(true);
       }
     }
-  }, [searchParams, getScenario, scenarioLoaded]);
+  }, [searchParams, scenarioLoaded, handleLoadScenario, getScenario]);
 
   const handleStartOver = () => {
     setFte(1.0);
@@ -353,7 +352,7 @@ function WRVUModelerPageContent() {
                   Conversion Factor
                   <ScreenInfoModal
                     title="Conversion Factor"
-                    description="Enter your conversion factor to calculate productivity-based compensation.\n\n• Conversion Factor ($/wRVU): The dollar amount paid per wRVU for productivity incentives\n• This represents how much you earn per wRVU generated\n• Common CF values range from $40-$60 per wRVU depending on specialty and market\n\nCalculations:\n• Productivity Pay = Annual wRVUs × Conversion Factor\n• Normalized Productivity Pay = Productivity Pay normalized to 1.0 FTE\n• Productivity $ per wRVU = Productivity Pay ÷ Annual wRVUs\n\nThe conversion factor is a key component in determining your total compensation structure."
+                    description={'## Overview\nEnter your conversion factor to calculate productivity-based compensation. The conversion factor determines how much you earn per wRVU generated.\n\n## What is Conversion Factor?\n\n### Definition\n• Conversion Factor ($/wRVU): The dollar amount paid per wRVU for productivity incentives\n• Represents how much you earn per wRVU generated\n• A key component of productivity-based compensation models\n\n### Typical Values\n• Common CF values range from $40-$60 per wRVU\n• Values vary significantly by:\n  - Medical specialty\n  - Geographic market\n  - Practice type (academic vs. private)\n  - Market competitiveness\n\n## Calculations\n\n### Productivity Pay\n• Productivity Pay = Annual wRVUs × Conversion Factor\n• Normalized Productivity Pay = Productivity Pay normalized to 1.0 FTE\n• Productivity $ per wRVU = Productivity Pay ÷ Annual wRVUs\n\n## Impact\nThe conversion factor is a key component in determining your total compensation structure. Higher CF values result in more compensation per wRVU generated.'}
                   />
                 </CardTitle>
               </div>

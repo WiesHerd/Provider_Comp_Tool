@@ -27,7 +27,7 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 max-w-lg w-[90vw] max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 max-w-2xl w-[90vw] max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -44,8 +44,8 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
           </div>
 
           {/* Content */}
-          <div className="space-y-5 mb-6">
-            <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+          <div className="space-y-6 mb-6">
+            <div className="text-base text-gray-700 dark:text-gray-300 leading-7">
               {description.split('\n').map((line, index, array) => {
                 const trimmedLine = line.trim();
                 
@@ -57,7 +57,7 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
                 // Handle main headers (## Header)
                 if (trimmedLine.startsWith('## ')) {
                   return (
-                    <h3 key={index} className="text-lg font-bold text-gray-900 dark:text-white mt-6 mb-3 first:mt-0">
+                    <h3 key={index} className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4 first:mt-0 pb-2 border-b border-gray-200 dark:border-gray-700">
                       {trimmedLine.substring(3).trim()}
                     </h3>
                   );
@@ -66,7 +66,7 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
                 // Handle subheaders (### Subheader)
                 if (trimmedLine.startsWith('### ')) {
                   return (
-                    <h4 key={index} className="text-base font-semibold text-gray-900 dark:text-white mt-4 mb-2">
+                    <h4 key={index} className="text-lg font-semibold text-gray-900 dark:text-white mt-6 mb-3">
                       {trimmedLine.substring(4).trim()}
                     </h4>
                   );
@@ -76,9 +76,9 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
                 if (trimmedLine.match(/^\s{2,}[•-]/)) {
                   const content = trimmedLine.replace(/^\s{2,}[•-]\s*/, '');
                   return (
-                    <div key={index} className="ml-8 mb-1.5 flex items-start">
-                      <span className="mr-2 flex-shrink-0 text-gray-500 dark:text-gray-400">◦</span>
-                      <span className="flex-1">{content}</span>
+                    <div key={index} className="ml-10 mb-2 flex items-start pl-3 py-1 rounded-md bg-gray-50 dark:bg-gray-800/50">
+                      <span className="mr-3 flex-shrink-0 text-primary text-lg leading-none">◦</span>
+                      <span className="flex-1 pt-0.5">{content}</span>
                     </div>
                   );
                 }
@@ -86,9 +86,9 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
                 // Handle main bullet points (•)
                 if (trimmedLine.startsWith('•')) {
                   return (
-                    <div key={index} className="ml-4 mb-2 flex items-start">
-                      <span className="mr-2 flex-shrink-0 text-gray-900 dark:text-gray-100 font-semibold">•</span>
-                      <span className="flex-1">{trimmedLine.substring(1).trim()}</span>
+                    <div key={index} className="ml-2 mb-3 flex items-start">
+                      <span className="mr-3 flex-shrink-0 text-primary text-xl font-bold leading-none">•</span>
+                      <span className="flex-1 pt-0.5">{trimmedLine.substring(1).trim()}</span>
                     </div>
                   );
                 }
@@ -96,7 +96,7 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
                 // Handle section headers (lines that end with colon and are bold-like)
                 if (trimmedLine.endsWith(':') && trimmedLine.length < 50) {
                   return (
-                    <h4 key={index} className="text-base font-semibold text-gray-900 dark:text-white mb-2 mt-4 first:mt-0">
+                    <h4 key={index} className="text-lg font-semibold text-gray-900 dark:text-white mb-3 mt-5 first:mt-0 pb-1.5 border-b border-gray-100 dark:border-gray-800">
                       {trimmedLine}
                     </h4>
                   );
@@ -104,7 +104,7 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
                 
                 // Handle regular paragraphs
                 return (
-                  <p key={index} className="mb-3 last:mb-0">
+                  <p key={index} className="mb-4 last:mb-0">
                     {trimmedLine}
                   </p>
                 );
@@ -115,7 +115,7 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
           {/* Note */}
           {note && (
             <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-900 dark:text-blue-200">
+              <p className="text-base text-blue-900 dark:text-blue-200 leading-relaxed">
                 {note}
               </p>
             </div>

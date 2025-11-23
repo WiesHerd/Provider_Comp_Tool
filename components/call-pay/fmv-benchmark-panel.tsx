@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { NumberInput } from '@/components/ui/number-input';
 import { Switch } from '@/components/ui/switch';
-import { Tooltip } from '@/components/ui/tooltip';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { CallPayBenchmarks } from '@/types/call-pay';
 import { calculateRatePercentiles } from '@/lib/utils/call-pay-coverage';
@@ -238,14 +237,6 @@ export function FMVBenchmarkPanel({
                     }
                 }}
               />
-              <Tooltip 
-                content={usePercentageBased 
-                  ? "Weekend and holiday benchmarks are automatically calculated from weekday benchmark using percentage uplifts. Tap to switch to manual entry." 
-                  : "Enter weekend and holiday benchmarks manually. Tap to automatically calculate from weekday benchmark using percentage uplifts."}
-                side="left"
-              >
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 cursor-help">ℹ️</span>
-              </Tooltip>
             </div>
           </div>
           
