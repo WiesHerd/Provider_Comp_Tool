@@ -139,10 +139,26 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
   // Only skip rendering if we're not open and it's the initial auto-show (not on-demand)
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog.Root open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleSkip();
+      } else {
+        handleOpenChange(open);
+      }
+    }}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 md:p-8 max-w-lg w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] md:max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+        <Dialog.Overlay 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in"
+          onClick={handleSkip}
+        />
+        <Dialog.Content 
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 md:p-8 max-w-lg w-[calc(100vw-2rem)] max-h-[min(calc(100vh-6rem),600px)] md:max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+          onPointerDownOutside={(e) => {
+            e.preventDefault();
+            handleSkip();
+          }}
+          onEscapeKeyDown={handleSkip}
+        >
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -161,8 +177,13 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
             <Dialog.Close asChild>
               <Button
                 variant="ghost"
-                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                onClick={handleSkip}
+                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSkip();
+                }}
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -219,7 +240,11 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
           {/* Skip link */}
           <div className="text-center mt-4">
             <button
-              onClick={handleSkip}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSkip();
+              }}
               className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               Skip walkthrough
