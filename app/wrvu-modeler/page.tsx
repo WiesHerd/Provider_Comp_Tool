@@ -340,7 +340,7 @@ function WRVUModelerPageContent() {
               )}
             </CardContent>
           </Card>
-          <ProgressiveFormNavigation nextLabel="Continue to Conversion Factor" />
+          <ProgressiveFormNavigation nextLabel="Continue to CF" />
         </ProgressiveFormStep>
 
         {/* Step 3: Conversion Factor */}
