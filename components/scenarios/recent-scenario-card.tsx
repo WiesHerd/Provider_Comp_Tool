@@ -89,21 +89,19 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between gap-4">
-            {/* Left side - Title, tool, and metrics all on one line */}
-            <div className="flex-1 min-w-0 flex items-center gap-4 flex-wrap">
-              {/* Title */}
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate">
-                {scenario.name}
-              </h3>
-              
-              {/* Tool label */}
+        <CardContent className="p-5">
+          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6">
+            {/* Title */}
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white min-w-[120px]">
+              {scenario.name}
+            </h3>
+            
+            {/* Tool label and metrics - distributed */}
+            <div className="flex items-center gap-6 flex-wrap min-w-0">
               <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
                 {toolLabel}
               </span>
               
-              {/* Metrics inline */}
               {hasTcc && (
                 <span className="text-sm text-gray-600 dark:text-gray-400 shrink-0">
                   TCC: <span className="font-semibold text-gray-900 dark:text-white">${scenario.normalizedTcc!.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
@@ -135,88 +133,85 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
               )}
             </div>
 
-            {/* Right side - Timestamp and actions */}
-            <div className="flex items-center gap-3 shrink-0">
-              {/* Timestamp in top right */}
-              <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                <Clock className="w-3.5 h-3.5" />
-                {relativeTime}
-              </span>
-              
-              {/* Actions */}
-              <div 
-                className={cn(
-                  "flex items-center gap-2",
-                  "transition-opacity duration-200",
-                  "opacity-0 group-hover:opacity-100 sm:opacity-100"
-                )}
-                onClick={(e) => e.stopPropagation()}
+            {/* Timestamp */}
+            <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 shrink-0">
+              <Clock className="w-3.5 h-3.5" />
+              {relativeTime}
+            </span>
+            
+            {/* Actions */}
+            <div 
+              className={cn(
+                "flex items-center gap-2 shrink-0",
+                "transition-opacity duration-200",
+                "opacity-0 group-hover:opacity-100 sm:opacity-100"
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleEdit}
+                className="h-8 px-3 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleEdit}
-                  className="h-8 px-3 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <Edit className="w-3.5 h-3.5 mr-1.5" />
-                  Edit
-                </Button>
-                
-                <DropdownMenu.Root>
-                  <DropdownMenu.Trigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      aria-label="More options"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Portal>
-                    <DropdownMenu.Content
-                      className="min-w-[180px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 p-1 z-50"
-                      align="end"
-                      sideOffset={5}
-                    >
-                      <DropdownMenu.Item
-                        className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 outline-none"
-                        onClick={handleDuplicate}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Duplicate
-                      </DropdownMenu.Item>
-                      <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
-                      <DropdownMenu.Item
-                        className="flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-md cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 outline-none"
-                        onClick={() => setDeleteOpen(true)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Portal>
-                </DropdownMenu.Root>
-              </div>
+                <Edit className="w-3.5 h-3.5 mr-1.5" />
+                Edit
+              </Button>
               
-              {/* Dismiss button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDismissOpen(true);
-                }}
-                className={cn(
-                  "shrink-0 w-7 h-7 rounded-md flex items-center justify-center",
-                  "transition-all duration-200",
-                  "opacity-0 group-hover:opacity-100",
-                  "hover:bg-gray-100 dark:hover:bg-gray-800",
-                  "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                )}
-                aria-label="Dismiss from recent"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    aria-label="More options"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="min-w-[180px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 p-1 z-50"
+                    align="end"
+                    sideOffset={5}
+                  >
+                    <DropdownMenu.Item
+                      className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 outline-none"
+                      onClick={handleDuplicate}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Duplicate
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
+                    <DropdownMenu.Item
+                      className="flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-md cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 outline-none"
+                      onClick={() => setDeleteOpen(true)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
             </div>
+            
+            {/* Dismiss button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDismissOpen(true);
+              }}
+              className={cn(
+                "shrink-0 w-7 h-7 rounded-md flex items-center justify-center",
+                "transition-all duration-200",
+                "opacity-0 group-hover:opacity-100",
+                "hover:bg-gray-100 dark:hover:bg-gray-800",
+                "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              )}
+              aria-label="Dismiss from recent"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </CardContent>
       </Card>
