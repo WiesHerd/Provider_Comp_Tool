@@ -351,8 +351,8 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">
+            <div className="space-y-2 flex flex-col">
+              <Label className="text-sm font-semibold min-h-[2.5rem] flex items-start pt-1">
                 Providers on Call
               </Label>
               <Select
@@ -372,10 +372,10 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
+            <div className="space-y-2 flex flex-col">
+              <div className="min-h-[2.5rem] flex flex-col items-start pt-1">
                 <Label className="text-sm font-semibold">Rotation Ratio</Label>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   (1-in-N means each provider covers 1/N of total calls)
                 </span>
               </div>

@@ -28,32 +28,32 @@ export function PerCallForm({ onResultsChange }: PerCallFormProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Weekday Calls per Month</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Weekday Calls per Month</Label>
           <NumberInput
             value={inputs.weekdayCallsPerMonth}
             onChange={(value) => setInputs({ ...inputs, weekdayCallsPerMonth: value })}
             min={0}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Weekend/Holiday Calls per Month</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Weekend/Holiday Calls per Month</Label>
           <NumberInput
             value={inputs.weekendCallsPerMonth}
             onChange={(value) => setInputs({ ...inputs, weekendCallsPerMonth: value })}
             min={0}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Stipend per Weekday Call ($)</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Stipend per Weekday Call ($)</Label>
           <NumberInput
             value={inputs.weekdayStipend}
             onChange={(value) => setInputs({ ...inputs, weekdayStipend: value })}
             min={0}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Stipend per Weekend Call ($)</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Stipend per Weekend Call ($)</Label>
           <NumberInput
             value={inputs.weekendStipend}
             onChange={(value) => setInputs({ ...inputs, weekendStipend: value })}

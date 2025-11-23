@@ -207,7 +207,7 @@ function WRVUModelerPageContent() {
       >
         {/* Step 1: Provider Info */}
         <ProgressiveFormStep step={1}>
-          <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+          <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <StepBadge number={1} variant="default" />
@@ -301,7 +301,7 @@ function WRVUModelerPageContent() {
 
         {/* Step 2: FTE & wRVUs */}
         <ProgressiveFormStep step={2}>
-          <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+          <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <StepBadge number={2} variant="default" />
@@ -345,7 +345,7 @@ function WRVUModelerPageContent() {
 
         {/* Step 3: Conversion Factor */}
         <ProgressiveFormStep step={3}>
-          <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+          <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <StepBadge number={3} variant="default" />

@@ -63,9 +63,9 @@ export function StepIndicator({
     <div className={cn('w-full', className)}>
       {/* Progress Bar */}
       <div className="relative mb-3 sm:mb-4">
-        <div className="h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
           <div
-            className="h-full bg-primary transition-all duration-300 ease-out"
+            className="h-full bg-primary transition-all duration-300 ease-out shadow-sm"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -120,14 +120,14 @@ export function StepIndicator({
                 className={cn(
                   'w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center flex-shrink-0',
                   'text-sm font-semibold transition-all duration-200',
-                  'border-2 relative',
+                  'border-2 relative shadow-sm',
                   status === 'completed' && [
-                    'bg-primary text-white border-primary shadow-sm',
-                    isClickable && 'hover:bg-primary/90 hover:shadow-md'
+                    'bg-primary text-white border-primary shadow-md',
+                    isClickable && 'hover:bg-primary/90 hover:shadow-lg hover:scale-105'
                   ],
                   status === 'current' && [
-                    'bg-primary/10 text-primary border-primary ring-2 ring-primary/20 shadow-sm',
-                    isClickable && 'hover:bg-primary/20 hover:ring-primary/30'
+                    'bg-primary/10 text-primary border-primary ring-2 ring-primary/20 shadow-md',
+                    isClickable && 'hover:bg-primary/20 hover:ring-primary/30 hover:scale-105'
                   ],
                   status === 'upcoming' &&
                     'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-gray-300 dark:border-gray-700',

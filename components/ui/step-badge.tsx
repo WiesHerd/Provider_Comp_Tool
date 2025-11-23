@@ -33,7 +33,7 @@ export function StepBadge({
       className={cn(
         'rounded-full flex items-center justify-center font-semibold transition-all duration-200',
         sizeClasses[size],
-        variant === 'default' && 'bg-blue-500 text-white',
+        variant === 'default' && 'bg-primary text-white',
         variant === 'active' && 'bg-primary text-white ring-2 ring-primary/20 shadow-sm',
         variant === 'completed' && 'bg-primary text-white shadow-sm',
         className

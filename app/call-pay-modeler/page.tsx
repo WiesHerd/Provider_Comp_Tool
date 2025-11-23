@@ -153,20 +153,21 @@ export default function CallPayModelerPage() {
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
 
-      {/* Step Indicator - Consistent with rest of app */}
-      <StepIndicator
-        currentStep={activeStep}
-        totalSteps={totalSteps}
-        completedSteps={completedSteps}
-        onStepClick={handleStepClick}
-        stepNames={stepNames}
-        className="mb-6 sm:mb-8"
-      />
+      {/* Step Indicator - Sticky at top for better visibility */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-4 pt-2 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-gray-200 dark:border-gray-800 mb-6 sm:mb-8">
+        <StepIndicator
+          currentStep={activeStep}
+          totalSteps={totalSteps}
+          completedSteps={completedSteps}
+          onStepClick={handleStepClick}
+          stepNames={stepNames}
+        />
+      </div>
 
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
         <div id="context-card">
-          <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+          <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <StepBadge number={1} variant="default" />
@@ -217,7 +218,7 @@ export default function CallPayModelerPage() {
 
       {/* Step 2: Configure Tiers (Only show when on Step 2) */}
       {activeStep === 2 && (
-        <Card id="tier-card" className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+        <Card id="tier-card" className="border border-gray-200 dark:border-gray-800">
           <CardHeader>
             <div className="flex items-center gap-2">
               <StepBadge number={2} variant="default" />
@@ -300,7 +301,7 @@ export default function CallPayModelerPage() {
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
         <div id="impact-summary" className="space-y-6">
-          <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+          <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <StepBadge number={3} variant="default" />

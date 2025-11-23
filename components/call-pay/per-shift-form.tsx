@@ -27,32 +27,32 @@ export function PerShiftForm({ onResultsChange }: PerShiftFormProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Weekday Shifts per Month</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Weekday Shifts per Month</Label>
           <NumberInput
             value={inputs.weekdayShiftsPerMonth}
             onChange={(value) => setInputs({ ...inputs, weekdayShiftsPerMonth: value })}
             min={0}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Weekend/Holiday Shifts per Month</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Weekend/Holiday Shifts per Month</Label>
           <NumberInput
             value={inputs.weekendShiftsPerMonth}
             onChange={(value) => setInputs({ ...inputs, weekendShiftsPerMonth: value })}
             min={0}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Rate per Weekday Shift ($)</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Rate per Weekday Shift ($)</Label>
           <NumberInput
             value={inputs.weekdayRate}
             onChange={(value) => setInputs({ ...inputs, weekdayRate: value })}
             min={0}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Rate per Weekend Shift ($)</Label>
+        <div className="space-y-2 flex flex-col">
+          <Label className="min-h-[2.5rem] flex items-start pt-1">Rate per Weekend Shift ($)</Label>
           <NumberInput
             value={inputs.weekendRate}
             onChange={(value) => setInputs({ ...inputs, weekendRate: value })}
