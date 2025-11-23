@@ -33,29 +33,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12">
-        {/* Hero Section - Apple-style minimal */}
-        <div className="text-center mb-8 sm:mb-10 md:mb-12 pt-2">
-          <div className="flex justify-center items-center mb-3 sm:mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-green-400 dark:from-blue-400 dark:via-purple-400 dark:to-green-300 rounded-full blur-2xl opacity-30 dark:opacity-40 animate-pulse"></div>
-              <h1 className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent tracking-tight leading-tight">
-                CompLen<span className="relative inline-block bg-gradient-to-r from-blue-600 via-purple-600 via-pink-500 to-green-500 dark:from-blue-400 dark:via-purple-400 dark:via-pink-400 dark:to-green-400 bg-clip-text text-transparent">s<sup className="text-[7px] sm:text-[8px] md:text-[10px] font-bold text-gray-900 dark:text-gray-100 leading-none -ml-0.5 -mt-1 sm:-mt-1 md:-mt-1.5">TM</sup></span>
-              </h1>
-            </div>
-          </div>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-            Provider compensation modeling and FMV analysis
-          </p>
-        </div>
-
         {/* Tools Grid - Primary navigation */}
-        <div className="mb-8 sm:mb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="mb-8 sm:mb-10 pt-8 sm:pt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <Link href="/wrvu-modeler">
-              <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
+              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
-                    <Calculator className="w-7 h-7 text-primary" strokeWidth={2} />
+                  <div className="w-16 h-16 flex items-center justify-center">
+                    <Calculator className="w-8 h-8 text-primary" strokeWidth={2} />
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">wRVU & Incentive Modeler</CardTitle>
@@ -68,10 +53,10 @@ export default function Home() {
             </Link>
 
             <Link href="/fmv-calculator">
-              <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
+              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
-                    <TrendingUp className="w-7 h-7 text-primary" strokeWidth={2} />
+                  <div className="w-16 h-16 flex items-center justify-center">
+                    <TrendingUp className="w-8 h-8 text-primary" strokeWidth={2} />
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">FMV Calculator</CardTitle>
@@ -84,10 +69,10 @@ export default function Home() {
             </Link>
 
             <Link href="/call-pay-modeler">
-              <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
+              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
-                    <Phone className="w-7 h-7 text-primary" strokeWidth={2} />
+                  <div className="w-16 h-16 flex items-center justify-center">
+                    <Phone className="w-8 h-8 text-primary" strokeWidth={2} />
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">Call Pay Modeler</CardTitle>
@@ -100,10 +85,10 @@ export default function Home() {
             </Link>
 
             <Link href="/wrvu-forecaster">
-              <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
+              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
-                    <BarChart3 className="w-7 h-7 text-primary" strokeWidth={2} />
+                  <div className="w-16 h-16 flex items-center justify-center">
+                    <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">Provider Schedule & wRVU Forecaster</CardTitle>
