@@ -20,17 +20,20 @@ import {
   calculateCFPercentile,
 } from '@/lib/utils/percentile';
 import { Input } from '@/components/ui/input';
+import * as Dialog from '@radix-ui/react-dialog';
+import { Trash2 } from 'lucide-react';
 
 export default function ScenarioDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { getScenario, saveScenario, updateScenario } = useScenariosStore();
+  const { getScenario, saveScenario, updateScenario, deleteScenario } = useScenariosStore();
   const [scenario, setScenario] = useState<ProviderScenario | null>(null);
   const [name, setName] = useState('');
   const [fte, setFte] = useState<FTE>(1.0);
   const [annualWrvus, setAnnualWrvus] = useState(0);
   const [tccComponents, setTccComponents] = useState<TCCComponent[]>([]);
   const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
     if (params.id && typeof params.id === 'string') {
@@ -106,6 +109,13 @@ export default function ScenarioDetailPage() {
     router.push('/scenarios');
   };
 
+  const handleDelete = () => {
+    if (!scenario) return;
+    deleteScenario(scenario.id);
+    setDeleteOpen(false);
+    router.push('/scenarios');
+  };
+
   if (!scenario) {
     return (
       <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
@@ -116,16 +126,41 @@ export default function ScenarioDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-8">
-      <div className="flex items-center justify-end">
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push('/scenarios')}>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 flex-1 sm:flex-none">
+          <Button variant="outline" onClick={() => router.push('/scenarios')} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button variant="outline" onClick={handleSaveAsNew}>
+          <Button variant="outline" onClick={handleSaveAsNew} className="w-full sm:w-auto">
             Save as New
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} className="w-full sm:w-auto">Save Changes</Button>
         </div>
+        <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <Dialog.Trigger asChild>
+            <Button variant="outline" className="w-full sm:w-auto text-red-600 hover:text-red-700 border-red-200 hover:border-red-300">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
+              <Dialog.Title className="text-xl font-bold mb-2">Delete Scenario</Dialog.Title>
+              <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Are you sure you want to delete &quot;{scenario?.name}&quot;? This action cannot be undone.
+              </Dialog.Description>
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                <Dialog.Close asChild>
+                  <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
+                </Dialog.Close>
+                <Button onClick={handleDelete} variant="outline" className="w-full sm:w-auto text-red-600 hover:text-red-700">
+                  Delete
+                </Button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </div>
 
       <Card>

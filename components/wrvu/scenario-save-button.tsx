@@ -62,7 +62,7 @@ export function ScenarioSaveButton({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline">Save as Scenario</Button>
+        <Button variant="outline" className="w-full sm:w-auto">Save as Scenario</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
@@ -82,11 +82,11 @@ export function ScenarioSaveButton({
               }
             }}
           />
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
             <Dialog.Close asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
             </Dialog.Close>
-            <Button onClick={handleSave} disabled={!name.trim()}>
+            <Button onClick={handleSave} disabled={!name.trim()} className="w-full sm:w-auto">
               Save
             </Button>
           </div>

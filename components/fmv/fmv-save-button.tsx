@@ -112,11 +112,11 @@ export function FMVSaveButton({
             }}
             autoFocus
           />
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
             <Dialog.Close asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
             </Dialog.Close>
-            <Button onClick={handleSave} disabled={!name.trim()}>
+            <Button onClick={handleSave} disabled={!name.trim()} className="w-full sm:w-auto">
               Save
             </Button>
           </div>

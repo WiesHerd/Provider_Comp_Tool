@@ -121,11 +121,11 @@ export function ScenarioCard({ scenario }: ScenarioCardProps) {
                   <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     Are you sure you want to delete &quot;{scenario.name}&quot;? This action cannot be undone.
                   </Dialog.Description>
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
                     <Dialog.Close asChild>
-                      <Button variant="outline">Cancel</Button>
+                      <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
                     </Dialog.Close>
-                    <Button onClick={handleDelete} variant="outline" className="text-red-600 hover:text-red-700">
+                    <Button onClick={handleDelete} variant="outline" className="w-full sm:w-auto text-red-600 hover:text-red-700">
                       Delete
                     </Button>
                   </div>

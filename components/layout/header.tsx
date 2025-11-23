@@ -112,31 +112,64 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="min-w-[44px]"
+              onClick={() => setDialogOpen(true)}
+              aria-label="Show instructions"
+            >
+              <Info className="w-5 h-5" />
+            </Button>
             <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
-              <Dialog.Trigger asChild>
-                <Button variant="ghost" size="sm" className="min-w-[44px]">
-                  <Info className="w-5 h-5" />
-                </Button>
-              </Dialog.Trigger>
               <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-                <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
-                  <Dialog.Title className="text-xl font-bold mb-2">About</Dialog.Title>
-                  <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    CompLens™ - Provider Compensation Intelligence
-                  </Dialog.Description>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    wRVU modeling, FMV analysis, and call-pay scenarios.
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 italic">
-                    For education and planning only. Not legal or FMV advice.
-                  </p>
-                  <Dialog.Close asChild>
-                    <Button variant="outline" className="mt-4 w-full">Close</Button>
-                  </Dialog.Close>
-                </Dialog.Content>
-              </Dialog.Portal>
-            </Dialog.Root>
+                <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[100] animate-in fade-in" />
+                <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-[90vw] max-h-[85vh] overflow-y-auto z-[101] shadow-xl animate-in fade-in zoom-in-95 duration-200">
+                  <Dialog.Title className="text-xl font-bold mb-4">How to Use CompLens™</Dialog.Title>
+                  
+                  <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Navigation</h4>
+                      <ul className="list-disc list-inside space-y-1 ml-2">
+                        <li>Click the <strong>logo</strong> (top-left) to return to home</li>
+                        <li>Use the <strong>back button</strong> (chevron) to go back in history</li>
+                        <li>On mobile, use the <strong>bottom tabs</strong> to navigate between tools</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Three Main Tools</h4>
+                      <ul className="space-y-2">
+                        <li>
+                          <strong>wRVU Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
+                        </li>
+                        <li>
+                          <strong>FMV Calculator:</strong> Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.
+                        </li>
+                        <li>
+                          <strong>Call Pay Modeler:</strong> Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Saving Scenarios</h4>
+                      <p>Each tool allows you to save your work as scenarios. Use the &quot;Load Saved Scenario&quot; dropdown within each tool to reload your saved work.</p>
+                    </div>
+
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+                        <strong>Note:</strong> For education and planning only. Not legal or FMV advice.
+                      </p>
+                    </div>
+                  </div>
+
+                    <Dialog.Close asChild>
+                      <Button variant="outline" className="mt-6 w-full">Close</Button>
+                    </Dialog.Close>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog.Root>
 
             <Button
               variant="ghost"
