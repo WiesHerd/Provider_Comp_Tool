@@ -246,15 +246,11 @@ export default function WRVUModelerPage() {
         </CardContent>
       </Card>
 
-      {/* KPI Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+      {/* KPI Chips - Show only 3 key metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         <KPIChip
           label="Annual wRVUs"
           value={annualWrvus}
-        />
-        <KPIChip
-          label="wRVUs per 1.0 FTE"
-          value={normalizedWrvus}
         />
         <KPIChip
           label="Productivity Incentive (at current FTE)"
@@ -262,19 +258,9 @@ export default function WRVUModelerPage() {
           unit="$"
         />
         <KPIChip
-          label="Productivity Incentive (normalized to 1.0 FTE)"
-          value={normalizedProductivityPay}
-          unit="$"
-        />
-        <KPIChip
           label="Productivity $ per wRVU"
           value={productivityPerWrvu}
           unit="$"
-        />
-        <KPIChip
-          label="Effective Conversion Factor (normalized)"
-          value={normalizedWrvus > 0 ? normalizedProductivityPay / normalizedWrvus : 0}
-          unit="$/wRVU"
         />
       </div>
 
