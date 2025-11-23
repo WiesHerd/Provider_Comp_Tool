@@ -4,7 +4,7 @@ A mobile-first web application for provider compensation modeling, FMV (Fair Mar
 
 ## Features
 
-### 1. wRVU Modeler
+### 1. wRVU & Incentive Modeler
 - Estimate wRVUs and productivity incentives
 - FTE (Full-Time Equivalent) normalization
 - Annual or monthly wRVU input

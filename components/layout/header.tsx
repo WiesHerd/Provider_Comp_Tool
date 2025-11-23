@@ -11,7 +11,7 @@ import Image from 'next/image';
 // Page title mapping for header
 const getPageTitle = (pathname: string): string | null => {
   if (pathname === '/') return null;
-  if (pathname === '/wrvu-modeler') return 'wRVU Modeler';
+  if (pathname === '/wrvu-modeler') return 'wRVU & Incentive Modeler';
   if (pathname === '/fmv-calculator') return 'FMV Calculator';
   if (pathname.startsWith('/fmv-calculator/wrvu')) return 'wRVU Calculator';
   if (pathname.startsWith('/fmv-calculator/tcc')) return 'TCC Calculator';
@@ -141,7 +141,7 @@ export function Header() {
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Three Main Tools</h4>
                       <ul className="space-y-2">
                         <li>
-                          <strong>wRVU Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
+                          <strong>wRVU & Incentive Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
                         </li>
                         <li>
                           <strong>FMV Calculator:</strong> Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.

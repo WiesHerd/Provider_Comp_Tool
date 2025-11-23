@@ -34,7 +34,7 @@ export default function Home() {
                   <Calculator className="w-8 h-8 text-primary" strokeWidth={2} />
                 </div>
                 <div>
-                  <CardTitle>wRVU Modeler</CardTitle>
+                  <CardTitle>wRVU & Incentive Modeler</CardTitle>
                   <CardDescription>
                     Estimate wRVUs and productivity incentives
                   </CardDescription>
