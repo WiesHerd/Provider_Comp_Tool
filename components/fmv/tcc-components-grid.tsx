@@ -53,10 +53,14 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
   };
 
   const addComponent = () => {
+    // Check if Base Salary already exists
+    const hasBaseSalary = components.some(c => c.type === 'Base Salary');
+    const defaultType = hasBaseSalary ? 'Other' : 'Base Salary';
+    
     const newComponent: TCCComponent = {
       id: `component-${Date.now()}`,
       label: '',
-      type: 'Other',
+      type: defaultType,
       calculationMethod: 'fixed',
       amount: 0,
       fixedAmount: 0,

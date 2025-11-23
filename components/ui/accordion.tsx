@@ -12,6 +12,7 @@ interface AccordionItemProps {
 interface AccordionTriggerProps {
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
 }
 
 interface AccordionContentProps {
@@ -137,6 +138,7 @@ export function AccordionTrigger({
   className,
   isOpen,
   value,
+  disabled,
   ...props
 }: AccordionTriggerProps & { isOpen?: boolean; value?: string }) {
   const context = React.useContext(AccordionContext);
@@ -145,7 +147,7 @@ export function AccordionTrigger({
   }
 
   const handleClick = () => {
-    if (value) {
+    if (value && !disabled) {
       context.onValueChange(value);
     }
   };
@@ -154,12 +156,14 @@ export function AccordionTrigger({
     <button
       type="button"
       onClick={handleClick}
+      disabled={disabled}
       className={cn(
         'w-full px-4 py-3 flex items-center justify-between',
         'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700',
         'active:bg-gray-200 dark:active:bg-gray-600',
         'transition-all duration-200 ease-in-out',
         'touch-manipulation',
+        disabled && 'cursor-not-allowed opacity-60',
         className
       )}
       {...props}

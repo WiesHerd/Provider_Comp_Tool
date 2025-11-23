@@ -86,40 +86,10 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 w-full sm:w-auto">
-      <Button 
-        variant="outline" 
-        onClick={() => setShowSaveDialog(true)}
-        className="w-full sm:w-auto min-h-[44px] touch-target"
-      >
-        <Save className="w-4 h-4 mr-2" />
-        Save Scenario
-      </Button>
-      
-      {onEmailReport && (
-        <Button 
-          variant="outline" 
-          onClick={onEmailReport}
-          className="w-full sm:w-auto min-h-[44px] touch-target"
-        >
-          <Mail className="w-4 h-4 mr-2" />
-          Email Report
-        </Button>
-      )}
-      
-      {onPrint && (
-        <Button 
-          variant="outline" 
-          onClick={onPrint}
-          className="w-full sm:w-auto min-h-[44px] touch-target"
-        >
-          <Printer className="w-4 h-4 mr-2" />
-          Print Summary
-        </Button>
-      )}
-
+    <>
+      {/* Scenario Selector - Always at top */}
       {savedScenarios.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto bg-blue-50 dark:bg-blue-900/20 rounded-lg sm:rounded-full px-3 py-2 sm:py-1.5 border border-blue-200 dark:border-blue-800">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto bg-blue-50 dark:bg-blue-900/20 rounded-lg sm:rounded-full px-3 py-2 sm:py-1.5 border border-blue-200 dark:border-blue-800 mb-4 sm:mb-6">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
             <Label className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium whitespace-nowrap">
@@ -151,6 +121,65 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
           </Select>
         </div>
       )}
+
+      {/* Action Buttons - Desktop: at top, Mobile: at bottom (fixed) */}
+      <div className="hidden sm:flex flex-row items-center justify-center gap-3 mb-6 w-auto">
+        <Button 
+          variant="outline" 
+          onClick={() => setShowSaveDialog(true)}
+          className="min-h-[44px] touch-target"
+        >
+          <Save className="w-4 h-4 mr-2" />
+          Save Scenario
+        </Button>
+        
+        {onEmailReport && (
+          <Button 
+            variant="outline" 
+            onClick={onEmailReport}
+            className="min-h-[44px] touch-target"
+          >
+            <Mail className="w-4 h-4 mr-2" />
+            Email Report
+          </Button>
+        )}
+        
+        {onPrint && (
+          <Button 
+            variant="outline" 
+            onClick={onPrint}
+            className="min-h-[44px] touch-target"
+          >
+            <Printer className="w-4 h-4 mr-2" />
+            Print Summary
+          </Button>
+        )}
+      </div>
+
+      {/* Mobile: Fixed bottom buttons - Save and Email only, side by side */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-3 z-50 safe-area-inset-bottom">
+        <div className="flex gap-2 max-w-4xl mx-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowSaveDialog(true)}
+            className="flex-1 min-h-[48px] touch-target"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save Scenario
+          </Button>
+          
+          {onEmailReport && (
+            <Button 
+              variant="outline" 
+              onClick={onEmailReport}
+              className="flex-1 min-h-[48px] touch-target"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Email Report
+            </Button>
+          )}
+        </div>
+      </div>
 
       <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <Dialog.Portal>
@@ -188,7 +217,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-    </div>
+    </>
   );
 }
 

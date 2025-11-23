@@ -1,12 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { MarketBenchmarks } from '@/types';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface BenchmarkInputsProps {
   benchmarks: MarketBenchmarks;
@@ -15,7 +12,6 @@ interface BenchmarkInputsProps {
 }
 
 export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: BenchmarkInputsProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const isCurrency = type === 'tcc' || type === 'cf';
   const isTCC = type === 'tcc';
   const isCF = type === 'cf';
@@ -44,20 +40,11 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-      >
+      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
         <Label className="text-base font-semibold mb-0">{getLabel()}</Label>
-        {isOpen ? (
-          <ChevronUp className="w-5 h-5" />
-        ) : (
-          <ChevronDown className="w-5 h-5" />
-        )}
-      </button>
+      </div>
 
-      {isOpen && (
-        <div className="p-4 space-y-4 bg-white dark:bg-gray-900">
+      <div className="p-4 space-y-4 bg-white dark:bg-gray-900">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">25th Percentile</Label>
@@ -129,7 +116,6 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }

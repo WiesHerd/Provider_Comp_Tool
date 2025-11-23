@@ -57,16 +57,18 @@ const COMMON_SPECIALTIES = [
 
 interface SpecialtyInputProps {
   metricType: 'tcc' | 'wrvu' | 'cf';
+  specialty?: string; // Current specialty from parent (for persistence)
   onSpecialtyChange: (specialty: string) => void;
   onMarketDataLoad: (benchmarks: MarketBenchmarks) => void;
 }
 
 export function SpecialtyInput({
   metricType,
+  specialty: specialtyProp = '',
   onSpecialtyChange,
   onMarketDataLoad,
 }: SpecialtyInputProps) {
-  const [specialty, setSpecialty] = useState<string>('');
+  const [specialty, setSpecialty] = useState<string>(specialtyProp);
   const [customSpecialty, setCustomSpecialty] = useState<string>('');
   const [savedSpecialties, setSavedSpecialties] = useState<string[]>([]);
 
@@ -75,6 +77,25 @@ export function SpecialtyInput({
     const saved = getSavedSpecialties(metricType);
     setSavedSpecialties(saved);
   }, [metricType]);
+
+  // Sync internal state with prop (for persistence across navigation)
+  useEffect(() => {
+    if (specialtyProp) {
+      // If prop has a value, check if it's in the common specialties list
+      if (COMMON_SPECIALTIES.includes(specialtyProp)) {
+        setSpecialty(specialtyProp);
+        setCustomSpecialty('');
+      } else {
+        // It's a custom specialty
+        setSpecialty('Other');
+        setCustomSpecialty(specialtyProp);
+      }
+    } else {
+      // Clear if prop is empty
+      setSpecialty('');
+      setCustomSpecialty('');
+    }
+  }, [specialtyProp]);
 
   const handleSpecialtyChange = (value: string) => {
     setSpecialty(value);
@@ -182,7 +203,7 @@ export function SpecialtyInput({
         )}
       </div>
 
-      {/* Quick Load Saved Specialties - Scalable Design */}
+      {/* Quick Load Saved Specialties - Always visible if saved specialties exist */}
       {savedSpecialties.length > 0 && (
         <div className="pt-2">
           <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">

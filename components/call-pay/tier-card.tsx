@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { CallTier, CoverageType, PaymentMethod, Specialty, isProceduralSpecialty } from '@/types/call-pay';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,15 @@ const PAYMENT_METHODS: PaymentMethod[] = [
 ];
 
 export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
+  // Track which burden fields are in custom mode
+  const [customModes, setCustomModes] = useState({
+    weekdayCallsPerMonth: false,
+    weekendCallsPerMonth: false,
+    holidaysPerYear: false,
+    avgCallbacksPer24h: false,
+    avgCasesPer24h: false,
+  });
+
   // Handle custom specialties - check if it's in the predefined list
   const predefinedSpecialties: Specialty[] = [
     'Family Medicine', 'Internal Medicine', 'Hospitalist', 'Pediatrics',
@@ -52,6 +62,12 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
   const isProcedural = specialty && isPredefined
     ? isProceduralSpecialty(specialty as Specialty)
     : true; // Default to true for custom specialties (show procedural fields)
+
+  // Preset values for dropdowns
+  const weekdayPresets = [0, 5, 10, 12, 15, 18, 20, 22, 25, 30];
+  const weekendPresets = [0, 2, 4, 6, 8, 10, 12];
+  const holidaysPresets = [0, 6, 8, 10, 12, 14, 16];
+  const callbacksPresets = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0];
   const updateField = <K extends keyof CallTier>(
     field: K,
     value: CallTier[K]
@@ -260,20 +276,27 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                       />
                     </div>
                     <div className="w-24">
-                      <NumberInput
-                        value={tier.rates.weekendUpliftPercent ?? 20}
-                        onChange={(value) => {
-                          const uplift = value;
+                      <Select
+                        value={(tier.rates.weekendUpliftPercent ?? 20).toString()}
+                        onValueChange={(value) => {
+                          const uplift = parseFloat(value);
                           updateRates({
                             weekendUpliftPercent: uplift,
                             weekend: tier.rates.weekday * (1 + uplift / 100),
                           });
                         }}
-                        min={0}
-                        max={200}
-                        step={0.1}
-                        placeholder="20"
-                      />
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[0, 10, 15, 20, 25, 30, 35, 40, 50, 75, 100].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num}%
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400 self-center">%</span>
                   </div>
@@ -293,20 +316,27 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                       />
                     </div>
                     <div className="w-24">
-                      <NumberInput
-                        value={tier.rates.holidayUpliftPercent ?? 30}
-                        onChange={(value) => {
-                          const uplift = value;
+                      <Select
+                        value={(tier.rates.holidayUpliftPercent ?? 30).toString()}
+                        onValueChange={(value) => {
+                          const uplift = parseFloat(value);
                           updateRates({
                             holidayUpliftPercent: uplift,
                             holiday: tier.rates.weekday * (1 + uplift / 100),
                           });
                         }}
-                        min={0}
-                        max={200}
-                        step={0.1}
-                        placeholder="30"
-                      />
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[0, 15, 20, 25, 30, 35, 40, 50, 75, 100, 150, 200].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num}%
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400 self-center">%</span>
                   </div>
@@ -361,16 +391,23 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   </Tooltip>
                 </div>
                 {tier.rates.traumaUpliftPercent !== undefined && (
-                  <NumberInput
-                    value={tier.rates.traumaUpliftPercent}
-                    onChange={(value) =>
-                      updateRates({ traumaUpliftPercent: value })
+                  <Select
+                    value={tier.rates.traumaUpliftPercent.toString()}
+                    onValueChange={(value) =>
+                      updateRates({ traumaUpliftPercent: parseFloat(value) })
                     }
-                    min={0}
-                    max={100}
-                    step={0.1}
-                    placeholder="0.0"
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select uplift %" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 50, 75, 100].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num}%
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
             )}
@@ -406,28 +443,100 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
             <Label className="text-xs text-gray-600 dark:text-gray-400">
               Weekday Calls/Shifts per Month
             </Label>
-            <NumberInput
-              value={tier.burden.weekdayCallsPerMonth}
-              onChange={(value) =>
-                updateBurden({ weekdayCallsPerMonth: value })
-              }
-              min={0}
-              placeholder="0"
-            />
+            {customModes.weekdayCallsPerMonth ? (
+              <div className="space-y-2">
+                <NumberInput
+                  value={tier.burden.weekdayCallsPerMonth}
+                  onChange={(value) =>
+                    updateBurden({ weekdayCallsPerMonth: value })
+                  }
+                  min={0}
+                  placeholder="0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomModes(prev => ({ ...prev, weekdayCallsPerMonth: false }))}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Use preset values
+                </button>
+              </div>
+            ) : (
+              <Select
+                value={weekdayPresets.includes(tier.burden.weekdayCallsPerMonth) 
+                  ? tier.burden.weekdayCallsPerMonth.toString() 
+                  : 'custom'}
+                onValueChange={(value) => {
+                  if (value === 'custom') {
+                    setCustomModes(prev => ({ ...prev, weekdayCallsPerMonth: true }));
+                  } else {
+                    updateBurden({ weekdayCallsPerMonth: parseInt(value, 10) });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select weekday calls" />
+                </SelectTrigger>
+                <SelectContent>
+                  {weekdayPresets.map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">Custom...</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label className="text-xs text-gray-600 dark:text-gray-400">
               Weekend Calls/Shifts per Month
             </Label>
-            <NumberInput
-              value={tier.burden.weekendCallsPerMonth}
-              onChange={(value) =>
-                updateBurden({ weekendCallsPerMonth: value })
-              }
-              min={0}
-              placeholder="0"
-            />
+            {customModes.weekendCallsPerMonth ? (
+              <div className="space-y-2">
+                <NumberInput
+                  value={tier.burden.weekendCallsPerMonth}
+                  onChange={(value) =>
+                    updateBurden({ weekendCallsPerMonth: value })
+                  }
+                  min={0}
+                  placeholder="0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomModes(prev => ({ ...prev, weekendCallsPerMonth: false }))}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Use preset values
+                </button>
+              </div>
+            ) : (
+              <Select
+                value={weekendPresets.includes(tier.burden.weekendCallsPerMonth) 
+                  ? tier.burden.weekendCallsPerMonth.toString() 
+                  : 'custom'}
+                onValueChange={(value) => {
+                  if (value === 'custom') {
+                    setCustomModes(prev => ({ ...prev, weekendCallsPerMonth: true }));
+                  } else {
+                    updateBurden({ weekendCallsPerMonth: parseInt(value, 10) });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select weekend calls" />
+                </SelectTrigger>
+                <SelectContent>
+                  {weekendPresets.map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">Custom...</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </div>
 
@@ -435,27 +544,99 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           <Label className="text-xs text-gray-600 dark:text-gray-400">
             Holidays Covered per Year
           </Label>
-          <NumberInput
-            value={tier.burden.holidaysPerYear}
-            onChange={(value) => updateBurden({ holidaysPerYear: value })}
-            min={0}
-            placeholder="0"
-          />
+          {customModes.holidaysPerYear ? (
+            <div className="space-y-2">
+              <NumberInput
+                value={tier.burden.holidaysPerYear}
+                onChange={(value) => updateBurden({ holidaysPerYear: value })}
+                min={0}
+                placeholder="0"
+              />
+              <button
+                type="button"
+                onClick={() => setCustomModes(prev => ({ ...prev, holidaysPerYear: false }))}
+                className="text-xs text-primary hover:underline"
+              >
+                Use preset values
+              </button>
+            </div>
+          ) : (
+            <Select
+              value={holidaysPresets.includes(tier.burden.holidaysPerYear) 
+                ? tier.burden.holidaysPerYear.toString() 
+                : 'custom'}
+              onValueChange={(value) => {
+                if (value === 'custom') {
+                  setCustomModes(prev => ({ ...prev, holidaysPerYear: true }));
+                } else {
+                  updateBurden({ holidaysPerYear: parseInt(value, 10) });
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select holidays" />
+              </SelectTrigger>
+              <SelectContent>
+                {holidaysPresets.map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num}
+                  </SelectItem>
+                ))}
+                <SelectItem value="custom">Custom...</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label className="text-xs text-gray-600 dark:text-gray-400">
             Avg Callbacks per 24h
           </Label>
-          <NumberInput
-            value={tier.burden.avgCallbacksPer24h}
-            onChange={(value) =>
-              updateBurden({ avgCallbacksPer24h: value })
-            }
-            min={0}
-            step={0.1}
-            placeholder="0.0"
-          />
+          {customModes.avgCallbacksPer24h ? (
+            <div className="space-y-2">
+              <NumberInput
+                value={tier.burden.avgCallbacksPer24h}
+                onChange={(value) =>
+                  updateBurden({ avgCallbacksPer24h: value })
+                }
+                min={0}
+                step={0.1}
+                placeholder="0.0"
+              />
+              <button
+                type="button"
+                onClick={() => setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: false }))}
+                className="text-xs text-primary hover:underline"
+              >
+                Use preset values
+              </button>
+            </div>
+          ) : (
+            <Select
+              value={callbacksPresets.includes(tier.burden.avgCallbacksPer24h) 
+                ? tier.burden.avgCallbacksPer24h.toString() 
+                : 'custom'}
+              onValueChange={(value) => {
+                if (value === 'custom') {
+                  setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: true }));
+                } else {
+                  updateBurden({ avgCallbacksPer24h: parseFloat(value) });
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select callbacks" />
+              </SelectTrigger>
+              <SelectContent>
+                {callbacksPresets.map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num}
+                  </SelectItem>
+                ))}
+                <SelectItem value="custom">Custom...</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {showCasesInput && (
@@ -466,13 +647,49 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                 <span className="text-gray-400 ml-1">(optional for non-procedural specialties)</span>
               )}
             </Label>
-            <NumberInput
-              value={tier.burden.avgCasesPer24h || 0}
-              onChange={(value) => updateBurden({ avgCasesPer24h: value })}
-              min={0}
-              step={0.1}
-              placeholder="0.0"
-            />
+            {customModes.avgCasesPer24h ? (
+              <div className="space-y-2">
+                <NumberInput
+                  value={tier.burden.avgCasesPer24h || 0}
+                  onChange={(value) => updateBurden({ avgCasesPer24h: value })}
+                  min={0}
+                  step={0.1}
+                  placeholder="0.0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomModes(prev => ({ ...prev, avgCasesPer24h: false }))}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Use preset values
+                </button>
+              </div>
+            ) : (
+              <Select
+                value={callbacksPresets.includes(tier.burden.avgCasesPer24h || 0) 
+                  ? (tier.burden.avgCasesPer24h || 0).toString() 
+                  : 'custom'}
+                onValueChange={(value) => {
+                  if (value === 'custom') {
+                    setCustomModes(prev => ({ ...prev, avgCasesPer24h: true }));
+                  } else {
+                    updateBurden({ avgCasesPer24h: parseFloat(value) });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select cases" />
+                </SelectTrigger>
+                <SelectContent>
+                  {callbacksPresets.map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">Custom...</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         )}
       </div>

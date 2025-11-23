@@ -220,8 +220,8 @@ export function WRVUInput({
                 })}
               </span>
             </div>
-            {canAnnualize() && (
-              <div className="flex justify-end pt-1">
+            <div className="flex justify-end gap-2 pt-1">
+              {canAnnualize() && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -230,8 +230,22 @@ export function WRVUInput({
                 >
                   Annualize from Entered Months
                 </Button>
-              </div>
-            )}
+              )}
+              {(monthlyBreakdown || Array(12).fill(0)).some(val => val > 0) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (onMonthlyBreakdownChange) {
+                      onMonthlyBreakdownChange(Array(12).fill(0));
+                    }
+                  }}
+                  className="text-xs"
+                >
+                  Clear All
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -125,30 +125,30 @@ export function PercentileBreakdown({
 
       {/* Hero Section - Apple-style clean design */}
       <Card className="overflow-hidden border border-gray-200/80 dark:border-gray-800/80 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <CardContent className="p-8">
-          <div className="flex items-start justify-between gap-8">
-            <div className="flex-1">
+        <CardContent className="p-4 sm:p-6 md:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 sm:gap-8">
+            <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                 Percentile Rank
               </p>
               <div className="flex items-baseline gap-2 mb-4">
-                <h2 className="text-6xl font-light tracking-tight text-gray-900 dark:text-white">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-gray-900 dark:text-white">
                   {percentile.toFixed(1)}
                 </h2>
-                <span className="text-xl font-light text-gray-500 dark:text-gray-400 pb-1">
+                <span className="text-lg sm:text-xl font-light text-gray-500 dark:text-gray-400 pb-1">
                   percentile
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <PositionIcon className="w-4 h-4" />
-                <span>{positionInfo.text}</span>
+                <PositionIcon className="w-4 h-4 flex-shrink-0" />
+                <span className="break-words">{positionInfo.text}</span>
               </div>
             </div>
-            <div className="text-right border-l border-gray-200 dark:border-gray-800 pl-8">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+            <div className="text-left sm:text-right border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-gray-800 pt-6 sm:pt-0 sm:pl-8 flex-1 sm:flex-none min-w-0">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 break-words">
                 {valueLabel}
               </p>
-              <div className="text-3xl font-light tracking-tight text-gray-900 dark:text-white">
+              <div className="text-2xl sm:text-3xl font-light tracking-tight text-gray-900 dark:text-white break-words">
                 {formatValue(value)}
               </div>
             </div>

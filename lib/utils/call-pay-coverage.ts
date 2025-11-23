@@ -77,10 +77,14 @@ export function calculateTierAnnualPay(
   }
 
   // Annual pay per provider
+  // Note: monthlyPay represents TOTAL monthly pay needed for all calls (burden × rates)
   const annualPayPerProvider = monthlyPay * 12;
 
   // Adjust for rotation ratio (1-in-N means each provider covers 1/N of the calls)
+  // Industry Standard (per SullivanCotter/Gallagher): Rotation ratio distributes total burden
+  // Example: 1-in-4 rotation means each provider covers 1/4 of total calls
   // If rotation is 1-in-4, each provider gets 1/4 of the annual pay
+  // This is mathematically correct: if 4 providers rotate, each takes 1/4 of the burden
   const adjustedAnnualPay = annualPayPerProvider / rotationRatio;
 
   return adjustedAnnualPay;
@@ -175,6 +179,8 @@ export function calculateCallPayImpact(
       : 0;
 
   // Call pay per 1.0 FTE (assuming rotation ratio represents FTE distribution)
+  // Industry Standard: This represents what call pay would be if provider was taking call
+  // at the full rotation frequency (e.g., if 1-in-4, this shows pay for 1-in-1 equivalent)
   const callPayPer1FTE = averageCallPayPerProvider * context.rotationRatio;
 
   // Calculate as % of TCC if reference provided

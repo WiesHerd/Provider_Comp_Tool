@@ -38,6 +38,20 @@ export interface MarketBenchmarks {
 
 export type ScenarioType = 'wrvu-modeler' | 'fmv-tcc' | 'fmv-wrvu' | 'fmv-cf' | 'call-pay' | 'general';
 
+// Export call pay types
+export * from './call-pay';
+
+// Extended interface for call-pay scenarios
+export interface CallPayScenarioData {
+  context: import('./call-pay').CallPayContext;
+  tiers: import('./call-pay').CallTier[];
+  impact: {
+    totalAnnualCallSpend: number;
+    averageCallPayPerProvider: number;
+    callPayPer1FTE: number;
+  };
+}
+
 export interface ProviderScenario {
   id: string;
   name: string;
@@ -46,20 +60,22 @@ export interface ProviderScenario {
   specialty?: string; // Optional specialty
   fte: FTE;
   annualWrvus: number;
+  monthlyWrvus?: number; // Monthly average wRVUs
+  monthlyBreakdown?: number[]; // Array of 12 monthly wRVU values
   tccComponents: TCCComponent[];
   totalTcc?: number; // auto-calculated
   normalizedTcc?: number; // normalized to 1.0 FTE
   normalizedWrvus?: number; // normalized to 1.0 FTE
+  cfValue?: number; // Conversion factor value
   marketBenchmarks?: MarketBenchmarks;
   computedPercentiles?: {
     tccPercentile?: number;
     wrvuPercentile?: number;
     cfPercentile?: number;
   };
+  dismissedFromRecent?: boolean; // Flag to hide from Recent section without deleting
   createdAt: string;
   updatedAt: string;
+  callPayData?: CallPayScenarioData; // Call-pay specific data for restoration
 }
-
-// Export call pay types
-export * from './call-pay';
 

@@ -8,6 +8,7 @@ import { WelcomeWalkthrough } from '@/components/layout/welcome-walkthrough';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { Button } from '@/components/ui/button';
 import { RecentScenarioCard } from '@/components/scenarios/recent-scenario-card';
+import { ProviderScenario } from '@/types';
 
 export default function Home() {
   const { scenarios, loadScenarios } = useScenariosStore();
@@ -18,7 +19,10 @@ export default function Home() {
 
   // Get recent scenarios (filter out dismissed, last 3, sorted by updatedAt)
   const recentScenarios = scenarios
-    .filter((s) => !(s.dismissedFromRecent === true))
+    .filter((s) => {
+      const scenario = s as ProviderScenario;
+      return scenario.dismissedFromRecent !== true;
+    })
     .sort((a, b) => {
       const dateA = new Date(a.updatedAt || a.createdAt).getTime();
       const dateB = new Date(b.updatedAt || b.createdAt).getTime();

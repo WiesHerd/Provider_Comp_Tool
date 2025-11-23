@@ -9,6 +9,8 @@ interface ScenariosState {
   updateScenario: (id: string, updates: Partial<ProviderScenario>) => void;
   deleteScenario: (id: string) => void;
   duplicateScenario: (id: string) => void;
+  dismissFromRecent: (id: string) => void;
+  restoreToRecent: (id: string) => void;
   getScenario: (id: string) => ProviderScenario | null;
 }
 
@@ -55,9 +57,36 @@ export const useScenariosStore = create<ScenariosState>()((set, get) => ({
       name: `${scenario.name} (Copy)`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      dismissedFromRecent: undefined, // New copies should appear in recent
     };
     
     get().saveScenario(duplicated);
+  },
+  
+  dismissFromRecent: (id: string) => {
+    const scenario = get().getScenario(id);
+    if (!scenario) return;
+    
+    const updated = {
+      ...scenario,
+      dismissedFromRecent: true,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    get().saveScenario(updated);
+  },
+  
+  restoreToRecent: (id: string) => {
+    const scenario = get().getScenario(id);
+    if (!scenario) return;
+    
+    const updated = {
+      ...scenario,
+      dismissedFromRecent: false,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    get().saveScenario(updated);
   },
   
   getScenario: (id: string) => {

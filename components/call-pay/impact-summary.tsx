@@ -1,23 +1,32 @@
 'use client';
 
-import { CallPayImpact } from '@/types/call-pay';
+import { useState } from 'react';
+import { CallPayImpact, CallTier, CallPayContext } from '@/types/call-pay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useMemo } from 'react';
+import { CalculationBreakdown } from './calculation-breakdown';
 
 interface ImpactSummaryProps {
   impact: CallPayImpact;
-  onAddToTCC: () => void;
   annualAllowableBudget: number | null;
   onBudgetChange: (budget: number | null) => void;
+  tiers: CallTier[];
+  context: CallPayContext;
 }
 
-export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBudgetChange }: ImpactSummaryProps) {
+export function ImpactSummary({ 
+  impact, 
+  annualAllowableBudget, 
+  onBudgetChange,
+  tiers,
+  context,
+}: ImpactSummaryProps) {
   const hasEnabledTiers = impact.tiers.length > 0;
+  const [expandedTierId, setExpandedTierId] = useState<string | null>(null);
   
   // Calculate budget usage
   const budgetUsage = useMemo(() => {
@@ -53,157 +62,17 @@ export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBud
   };
   
   return (
-    <div className="space-y-4">
-      {/* Annual Allowable Budget Input */}
-      <Card>
-        <CardContent className="p-4 md:p-6">
-          <div className="space-y-3">
-            <div>
-              <Label className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-                Annual Allowable Budget
-              </Label>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Set your target budget to track spending as you configure call pay
-              </p>
-            </div>
-            <CurrencyInput
-              id="annual-budget"
-              value={annualAllowableBudget || undefined}
-              onChange={(value) => onBudgetChange(value > 0 ? value : null)}
-              placeholder="2,000,000"
-              className="w-full h-12 text-base touch-manipulation"
-              showDecimals={false}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Per-Tier Impact Cards */}
-      {hasEnabledTiers && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Tier Impact</h3>
-          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-            <div className="flex gap-3 pb-2 min-w-max">
-              {impact.tiers.map((tier) => (
-                <Card key={tier.tierId} className="min-w-[280px]">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">{tier.tierName}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Annual Pay per Provider
-                      </span>
-                      <span className="font-semibold">
-                        $
-                        {tier.annualPayPerProvider.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Annual Budget for Group
-                      </span>
-                      <span className="font-semibold text-primary">
-                        $
-                        {tier.annualPayForGroup.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Effective $/24h
-                      </span>
-                      <span className="font-semibold">
-                        $
-                        {tier.effectiveDollarsPer24h.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Effective $/call
-                      </span>
-                      <span className="font-semibold">
-                        $
-                        {tier.effectiveDollarsPerCall.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Combined Call Spend Impact - Apple-style minimal */}
-      <div className="space-y-6">
+    <div className="space-y-6">
+      {/* 1. Overall Budget Summary - Show First */}
+      <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-1">
-            Step 3: Annual Call Budget
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             {hasEnabledTiers 
               ? "Calculated from enabled tiers"
               : "Enable tiers and enter rates to calculate budget"
             }
           </p>
         </div>
-
-        {/* Budget Progress Bar */}
-        {budgetUsage && (
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Budget Usage
-                </span>
-                <span className={cn(
-                  "text-sm font-semibold",
-                  getProgressTextColor(budgetUsage.percent)
-                )}>
-                  {budgetUsage.percent.toFixed(1)}%
-                </span>
-              </div>
-              <div className="w-full h-2 md:h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-all duration-500 ease-out",
-                    getProgressColor(budgetUsage.percent)
-                  )}
-                  style={{ width: `${Math.min(100, budgetUsage.percent)}%` }}
-                />
-              </div>
-            </div>
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {budgetUsage.exceeded ? 'Over Budget by' : 'Remaining Budget'}
-              </span>
-              <span className={cn(
-                "text-sm font-medium",
-                budgetUsage.exceeded 
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-gray-900 dark:text-white"
-              )}>
-                {budgetUsage.exceeded ? '-' : ''}$
-                {Math.abs(budgetUsage.remaining).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Main Budget Display - Apple-style */}
         <div className="py-6 border-b border-gray-200 dark:border-gray-800">
@@ -260,30 +129,189 @@ export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBud
             </div>
           )}
         </div>
-
-        {/* Action Button */}
-        {hasEnabledTiers && impact.totalAnnualCallSpend > 0 && (
-          <div className="pt-4">
-            <Button onClick={onAddToTCC} className="w-full" size="lg" variant="outline">
-              <Plus className="w-4 h-4 mr-2" />
-              Add to TCC Components
-            </Button>
-          </div>
-        )}
-        
-        {/* Minimal Help Text - Apple-style */}
-        {!hasEnabledTiers && (
-          <p className="text-xs text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-800">
-            Enable tiers above and enter rates to calculate your annual budget automatically.
-          </p>
-        )}
-        
-        {hasEnabledTiers && impact.totalAnnualCallSpend === 0 && (
-          <p className="text-xs text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-800">
-            Enter rates and burden assumptions in your enabled tiers to calculate the budget.
-          </p>
-        )}
       </div>
+
+      {/* 2. Per-Tier Impact Breakdown */}
+      {hasEnabledTiers && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Tier Impact</h3>
+          <div className="space-y-4">
+            {impact.tiers.map((tierImpact) => {
+              const tier = tiers.find(t => t.id === tierImpact.tierId);
+              if (!tier) return null;
+              
+              const isExpanded = expandedTierId === tierImpact.tierId;
+              
+              return (
+                <div key={tierImpact.tierId} className="space-y-2">
+                  <Card 
+                    className={cn(
+                      "transition-all duration-200 cursor-pointer hover:shadow-md",
+                      isExpanded && "ring-2 ring-primary shadow-md"
+                    )}
+                    onClick={() => setExpandedTierId(isExpanded ? null : tierImpact.tierId)}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">{tierImpact.tierName}</CardTitle>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {isExpanded ? 'Tap to collapse' : 'Tap to see calculation breakdown'}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Annual Pay per Provider
+                        </span>
+                        <span className="font-semibold">
+                          $
+                          {tierImpact.annualPayPerProvider.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Annual Budget for Group
+                        </span>
+                        <span className="font-semibold text-primary">
+                          $
+                          {tierImpact.annualPayForGroup.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Effective $/24h
+                        </span>
+                        <span className="font-semibold">
+                          $
+                          {tierImpact.effectiveDollarsPer24h.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Effective $/call
+                        </span>
+                        <span className="font-semibold">
+                          $
+                          {tierImpact.effectiveDollarsPerCall.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Calculation Breakdown - Expandable */}
+                  {isExpanded && tier && (
+                    <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
+                      <CalculationBreakdown
+                        tier={tier}
+                        context={context}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 3. Budget Comparison - Optional Comparison with Target */}
+      <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+        <CardHeader>
+          <CardTitle className="text-lg">Budget Comparison</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Annual Allowable Budget Input */}
+          <div className="space-y-3">
+            <div>
+              <Label className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                Annual Allowable Budget
+              </Label>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Set your target budget to track spending as you configure call pay
+              </p>
+            </div>
+            <CurrencyInput
+              id="annual-budget"
+              value={annualAllowableBudget || undefined}
+              onChange={(value) => onBudgetChange(value > 0 ? value : null)}
+              placeholder="2,000,000"
+              className="w-full h-12 text-base touch-manipulation"
+              showDecimals={false}
+            />
+          </div>
+
+          {/* Budget Progress Bar */}
+          {budgetUsage && (
+            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Budget Usage
+                  </span>
+                  <span className={cn(
+                    "text-sm font-semibold",
+                    getProgressTextColor(budgetUsage.percent)
+                  )}>
+                    {budgetUsage.percent.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="w-full h-2 md:h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-all duration-500 ease-out",
+                      getProgressColor(budgetUsage.percent)
+                    )}
+                    style={{ width: `${Math.min(100, budgetUsage.percent)}%` }}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {budgetUsage.exceeded ? 'Over Budget by' : 'Remaining Budget'}
+                </span>
+                <span className={cn(
+                  "text-sm font-medium",
+                  budgetUsage.exceeded 
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-gray-900 dark:text-white"
+                )}>
+                  {budgetUsage.exceeded ? '-' : ''}$
+                  {Math.abs(budgetUsage.remaining).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Minimal Help Text - Apple-style */}
+      {!hasEnabledTiers && (
+        <p className="text-xs text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-800">
+          Enable tiers above and enter rates to calculate your annual budget automatically.
+        </p>
+      )}
+      
+      {hasEnabledTiers && impact.totalAnnualCallSpend === 0 && (
+        <p className="text-xs text-gray-400 dark:text-gray-500 pt-4 border-t border-gray-100 dark:border-gray-800">
+          Enter rates and burden assumptions in your enabled tiers to calculate the budget.
+        </p>
+      )}
     </div>
   );
 }
