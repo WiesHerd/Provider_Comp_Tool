@@ -40,7 +40,7 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page {
-            size: letter;
+            size: letter portrait;
             margin: 0.5in;
           }
           * {
@@ -74,8 +74,10 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
           .print-view h3,
           .print-view h4 {
             color: #000 !important;
-            page-break-after: avoid;
-            page-break-inside: avoid;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
           }
           .print-view .border {
             border-color: #000 !important;
@@ -84,17 +86,33 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
             display: none !important;
           }
           .print-view .summary-grid {
-            page-break-inside: avoid;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
             margin-bottom: 0.5rem;
           }
           .print-view .main-content {
-            page-break-inside: avoid;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
           }
           .print-view .column {
-            page-break-inside: avoid;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            overflow: visible !important;
           }
           .print-view .section {
-            page-break-inside: avoid;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            margin-bottom: 0.5rem;
+          }
+          .print-view .grid {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .print-view table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
         }
         @media screen {
@@ -106,37 +124,37 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
       <div className="print-view">
 
       {/* Header */}
-      <div className="text-center mb-4 pb-3 border-b-2 border-gray-400">
-        <h1 className="text-lg font-bold text-gray-900 mb-1">Provider Schedule & wRVU Forecast Report</h1>
-        <p className="text-sm text-gray-700">Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <div className="text-center mb-3 pb-2 border-b-2 border-gray-400" style={{ pageBreakAfter: 'avoid' }}>
+        <h1 className="text-base font-bold text-gray-900 mb-1">Provider Schedule & wRVU Forecast Report</h1>
+        <p className="text-xs text-gray-700">Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </div>
 
       {/* Top row - Summary metrics */}
-      <div className="summary-grid grid grid-cols-3 gap-3 mb-4">
-        <div className="p-3 border-2 border-gray-400">
-          <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Total Compensation</p>
-          <p className="text-lg font-bold text-gray-900">
+      <div className="summary-grid grid grid-cols-3 gap-2 mb-3">
+        <div className="p-2 border-2 border-gray-400">
+          <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Total Compensation</p>
+          <p className="text-base font-bold text-gray-900">
             {formatCurrency(metrics.estimatedTotalCompensation)}
           </p>
         </div>
 
-        <div className="p-3 border-2 border-gray-400">
-          <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Incentive Payment</p>
-          <p className="text-lg font-bold text-gray-900">{formatCurrency(currentIncentive)}</p>
+        <div className="p-2 border-2 border-gray-400">
+          <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Incentive Payment</p>
+          <p className="text-base font-bold text-gray-900">{formatCurrency(currentIncentive)}</p>
           {adjustedIncentive > currentIncentive && (
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 mt-0.5">
               Potential: {formatCurrency(adjustedIncentive)}
             </p>
           )}
         </div>
 
-        <div className="p-3 border-2 border-gray-400">
-          <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Annual wRVUs</p>
-          <p className="text-lg font-bold text-gray-900">
+        <div className="p-2 border-2 border-gray-400">
+          <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Annual wRVUs</p>
+          <p className="text-base font-bold text-gray-900">
             {formatNumber(metrics.estimatedAnnualWRVUs)}
           </p>
           {adjustedAnnualWRVUs > metrics.estimatedAnnualWRVUs && (
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 mt-0.5">
               Potential: {formatNumber(adjustedAnnualWRVUs)}
             </p>
           )}
@@ -144,19 +162,19 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
       </div>
 
       {/* Main content - Two-column layout */}
-      <div className="main-content flex justify-between gap-2">
+      <div className="main-content flex justify-between gap-2" style={{ pageBreakInside: 'avoid' }}>
         {/* Left column - Provider Input Data */}
-        <div className="column w-[49%] p-3 border-2 border-gray-400">
-          <h3 className="text-sm font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-400 uppercase tracking-wide">
+        <div className="column w-[49%] p-2 border-2 border-gray-400" style={{ pageBreakInside: 'avoid' }}>
+          <h3 className="text-xs font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-400 uppercase tracking-wide">
             Provider Input Data
           </h3>
 
           {/* Work Schedule */}
-          <div className="section mb-3">
-            <h4 className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">
+          <div className="section mb-2">
+            <h4 className="text-xs font-bold text-gray-900 mb-1 uppercase tracking-wide">
               Work Schedule
             </h4>
-            <div className="text-xs space-y-1">
+            <div className="text-xs space-y-0.5">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-700">Weeks Worked:</span>
                 <span className="text-gray-900">{formatNumber(metrics.weeksWorkedPerYear)} weeks/year</span>
@@ -177,11 +195,11 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
           </div>
 
           {/* Shift Types */}
-          <div className="section mb-3 pt-2 border-t border-gray-300">
-            <h4 className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">
+          <div className="section mb-2 pt-1 border-t border-gray-300">
+            <h4 className="text-xs font-bold text-gray-900 mb-1 uppercase tracking-wide">
               Shift Types
             </h4>
-            <div className="text-xs space-y-1">
+            <div className="text-xs space-y-0.5">
               {inputs.shifts.map((shift, i) => (
                 <div key={i} className="flex justify-between">
                   <span className="font-semibold text-gray-700">{shift.name}:</span>
@@ -194,11 +212,11 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
           </div>
 
           {/* Patient Encounters */}
-          <div className="section pt-2 border-t border-gray-300">
-            <h4 className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">
+          <div className="section pt-1 border-t border-gray-300">
+            <h4 className="text-xs font-bold text-gray-900 mb-1 uppercase tracking-wide">
               Patient Encounters
             </h4>
-            <div className="text-xs space-y-1">
+            <div className="text-xs space-y-0.5">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-700">Patients Per {inputs.isPerHour ? 'Hour' : 'Day'}:</span>
                 <span className="text-gray-900">
@@ -228,37 +246,37 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
         </div>
 
         {/* Right column - Productivity Metrics */}
-        <div className="column w-[49%] p-3 border-2 border-gray-400">
-          <h3 className="text-sm font-bold text-gray-900 mb-3 pb-2 border-b-2 border-gray-400 uppercase tracking-wide">
+        <div className="column w-[49%] p-2 border-2 border-gray-400" style={{ pageBreakInside: 'avoid' }}>
+          <h3 className="text-xs font-bold text-gray-900 mb-2 pb-1 border-b-2 border-gray-400 uppercase tracking-wide">
             Productivity Metrics
           </h3>
 
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="p-2 border border-gray-300">
-                <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Annual Clinic Days</p>
-                <p className="text-base font-bold text-gray-900">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="p-1.5 border border-gray-300">
+                <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Annual Clinic Days</p>
+                <p className="text-sm font-bold text-gray-900">
                   {formatNumber(metrics.annualClinicDays)}
                 </p>
               </div>
-              <div className="p-2 border border-gray-300">
-                <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Annual Clinical Hours</p>
-                <p className="text-base font-bold text-gray-900">
+              <div className="p-1.5 border border-gray-300">
+                <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Annual Clinical Hours</p>
+                <p className="text-sm font-bold text-gray-900">
                   {formatNumber(metrics.annualClinicalHours)}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="p-2 border border-gray-300">
-                <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Encounters per Week</p>
-                <p className="text-base font-bold text-gray-900">
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="p-1.5 border border-gray-300">
+                <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Encounters per Week</p>
+                <p className="text-sm font-bold text-gray-900">
                   {formatNumber(metrics.encountersPerWeek)}
                 </p>
               </div>
-              <div className="p-2 border border-gray-300">
-                <p className="text-xs font-semibold text-gray-700 mb-1 uppercase tracking-wide">Annual Patient Encounters</p>
-                <p className="text-base font-bold text-gray-900">
+              <div className="p-1.5 border border-gray-300">
+                <p className="text-xs font-semibold text-gray-700 mb-0.5 uppercase tracking-wide">Annual Patient Encounters</p>
+                <p className="text-sm font-bold text-gray-900">
                   {formatNumber(metrics.annualPatientEncounters)}
                 </p>
               </div>
@@ -266,11 +284,11 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
 
             {/* Projected Increase */}
             {adjustedIncentive > currentIncentive && (
-              <div className="section pt-3 border-t-2 border-gray-400">
-                <h4 className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">
+              <div className="section pt-2 border-t-2 border-gray-400">
+                <h4 className="text-xs font-bold text-gray-900 mb-1 uppercase tracking-wide">
                   Projected Increase with Adjusted wRVU
                 </h4>
-                <div className="text-xs space-y-1">
+                <div className="text-xs space-y-0.5">
                   <div className="flex justify-between">
                     <span className="font-semibold text-gray-700">Current wRVU per Encounter:</span>
                     <span className="text-gray-900">
@@ -302,13 +320,13 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
 
       {/* Footer */}
       {adjustedIncentive > currentIncentive && (
-        <div className="mt-3 pt-2 text-center border-t border-gray-300">
+        <div className="mt-2 pt-1 text-center border-t border-gray-300" style={{ pageBreakInside: 'avoid' }}>
           <p className="text-xs text-gray-600 italic">
             *Potential increases shown with adjusted wRVU per encounter
           </p>
         </div>
       )}
-      <div className="mt-2 pt-2 text-center border-t border-gray-300">
+      <div className="mt-1 pt-1 text-center border-t border-gray-300" style={{ pageBreakInside: 'avoid' }}>
         <p className="text-xs text-gray-600">
           Generated by CompLens™ Provider Compensation Intelligence
         </p>

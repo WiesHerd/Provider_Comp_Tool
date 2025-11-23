@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
-import { ProviderScenario, FTE } from '@/types';
+import { ProviderScenario, FTE, TCCComponent } from '@/types';
 
 interface ScenarioSaveButtonProps {
   fte: FTE;
@@ -33,14 +33,14 @@ export function ScenarioSaveButton({
   const handleSave = () => {
     if (!name.trim()) return;
 
-    const tccComponents = [];
+    const tccComponents: TCCComponent[] = [];
     
     // Add base pay if provided
     if (basePay > 0) {
       tccComponents.push({
         id: 'base-salary',
         label: 'Base Salary',
-        type: 'Base Salary',
+        type: 'Base Salary' as const,
         amount: basePay,
       });
     }
@@ -50,7 +50,7 @@ export function ScenarioSaveButton({
       tccComponents.push({
         id: 'productivity',
         label: 'Productivity Incentive',
-        type: 'Productivity Incentive',
+        type: 'Productivity Incentive' as const,
         amount: productivityPay,
       });
     }
