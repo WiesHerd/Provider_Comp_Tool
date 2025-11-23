@@ -61,14 +61,28 @@ export function TourSpotlight({
           setTargetRect(rect);
           onElementFound?.(element);
           
-          // Scroll element into view if needed
-          if (rect.top < 0 || rect.bottom > window.innerHeight) {
-            element.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center',
-              inline: 'nearest'
-            });
-          }
+          // Scroll element into view if needed - mobile-friendly
+          // Wait a bit after navigation before scrolling
+          const scrollDelay = 300;
+          setTimeout(() => {
+            if (element && document.contains(element)) {
+              const currentRect = element.getBoundingClientRect();
+              const viewportHeight = window.innerHeight;
+              const isMobile = window.innerWidth < 768;
+              
+              // On mobile, account for bottom nav (64px) and header
+              const bottomOffset = isMobile ? 80 : 20;
+              const topOffset = isMobile ? 80 : 20;
+              
+              if (currentRect.top < topOffset || currentRect.bottom > (viewportHeight - bottomOffset)) {
+                element.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: isMobile ? 'center' : 'center',
+                  inline: 'nearest'
+                });
+              }
+            }
+          }, scrollDelay);
         } else {
           setTargetElement(null);
           setTargetRect(null);
@@ -190,4 +204,5 @@ export function TourSpotlight({
     </div>
   );
 }
+
 

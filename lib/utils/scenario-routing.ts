@@ -56,3 +56,4 @@ export function getScenarioNavigationUrl(scenarioId: string, scenarioType?: Scen
   return `/scenarios/${scenarioId}`;
 }
 
+

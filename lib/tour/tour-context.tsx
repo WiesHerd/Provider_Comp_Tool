@@ -29,6 +29,8 @@ interface TourContextType {
   goToStep: (stepIndex: number) => void;
   currentStepData: TourStep | null;
   progress: number; // 0-100
+  isNavigating: boolean;
+  screenReady: boolean;
 }
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
@@ -45,6 +47,8 @@ export function TourProvider({
   const [isActive, setIsActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [screenReady, setScreenReady] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -76,17 +80,46 @@ export function TourProvider({
     }
   }, [currentStep, isActive, isPaused]);
 
-  // Navigate to step's screen if needed
+  // Navigate to step's screen if needed - mobile-friendly with proper wait times
   useEffect(() => {
     if (isActive && !isPaused && steps[currentStep]) {
       const step = steps[currentStep];
-      // Wait a bit for page to load before navigating
-      const timer = setTimeout(() => {
-        if (step.screen !== pathname) {
-          router.push(step.screen);
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+      
+      // Check if we need to navigate to a different screen
+      if (step.screen !== pathname) {
+        setIsNavigating(true);
+        setScreenReady(false);
+        
+        // Navigate to the new screen
+        router.push(step.screen);
+        
+        // Wait for navigation to complete and page to render
+        // Longer wait on mobile for slower devices
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const navigationDelay = isMobile ? 600 : 300;
+        
+        const timer = setTimeout(() => {
+          setIsNavigating(false);
+          // Additional delay to ensure elements are rendered
+          const readyTimer = setTimeout(() => {
+            setScreenReady(true);
+          }, isMobile ? 400 : 200);
+          
+          return () => clearTimeout(readyTimer);
+        }, navigationDelay);
+        
+        return () => clearTimeout(timer);
+      } else {
+        // Already on correct screen, mark as ready after a short delay
+        setIsNavigating(false);
+        const readyTimer = setTimeout(() => {
+          setScreenReady(true);
+        }, 200);
+        return () => clearTimeout(readyTimer);
+      }
+    } else if (!isActive) {
+      setScreenReady(false);
+      setIsNavigating(false);
     }
   }, [isActive, isPaused, currentStep, pathname, router, steps]);
 
@@ -154,6 +187,8 @@ export function TourProvider({
         goToStep,
         currentStepData,
         progress,
+        isNavigating,
+        screenReady,
       }}
     >
       {children}

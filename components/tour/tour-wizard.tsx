@@ -19,9 +19,12 @@ export function TourWizard() {
     stopTour,
     pauseTour,
     resumeTour,
+    isNavigating,
+    screenReady,
   } = useTour();
 
-  if (!isActive || !currentStepData) {
+  // Don't show wizard while navigating or before screen is ready (mobile-friendly)
+  if (!isActive || !currentStepData || isNavigating || !screenReady) {
     return null;
   }
 
@@ -29,24 +32,29 @@ export function TourWizard() {
   const isLastStep = currentStep === steps.length - 1;
   const Icon = getTourIcon(currentStepData.icon);
 
-  // Calculate position for wizard card
+  // Calculate position for wizard card - mobile-friendly
   const getCardPosition = () => {
     if (currentStepData.position === 'center') {
-      return 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+      // On mobile, account for bottom nav (64px) and safe margins
+      return 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:top-1/2 md:-translate-y-1/2';
     }
     if (currentStepData.position === 'top') {
-      return 'fixed top-4 left-1/2 -translate-x-1/2';
+      return 'fixed top-4 left-1/2 -translate-x-1/2 md:top-4';
     }
     if (currentStepData.position === 'bottom') {
-      return 'fixed bottom-4 left-1/2 -translate-x-1/2';
+      // On mobile, position above bottom nav (64px + safe margin)
+      return 'fixed bottom-20 left-1/2 -translate-x-1/2 md:bottom-4';
     }
     if (currentStepData.position === 'left') {
-      return 'fixed top-1/2 left-4 -translate-y-1/2';
+      // On mobile, use center positioning to avoid off-screen
+      return 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:left-4 md:translate-x-0';
     }
     if (currentStepData.position === 'right') {
-      return 'fixed top-1/2 right-4 -translate-y-1/2';
+      // On mobile, use center positioning to avoid off-screen
+      return 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:right-4 md:translate-x-0';
     }
-    return 'fixed bottom-4 left-1/2 -translate-x-1/2';
+    // Default to bottom, but above mobile nav
+    return 'fixed bottom-20 left-1/2 -translate-x-1/2 md:bottom-4';
   };
 
   return (
@@ -59,10 +67,11 @@ export function TourWizard() {
           transition={{ duration: 0.2 }}
           className={cn(
             getCardPosition(),
-            'z-[9999] w-[90vw] max-w-lg pointer-events-auto'
+            'z-[9999] w-[calc(100vw-2rem)] max-w-lg pointer-events-auto',
+            'max-h-[calc(100vh-8rem)] md:max-h-[85vh] overflow-y-auto'
           )}
         >
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-gray-800">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-gray-800">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3 flex-1">
@@ -160,4 +169,5 @@ export function TourWizard() {
     </AnimatePresence>
   );
 }
+
 
