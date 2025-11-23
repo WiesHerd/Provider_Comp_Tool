@@ -89,43 +89,76 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <CardContent className="p-5">
-          <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-6">
-            {/* Title */}
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white min-w-[120px]">
-              {scenario.name}
-            </h3>
-            
-            {/* Tool label and metrics - distributed */}
-            <div className="flex items-center gap-6 flex-wrap min-w-0">
-              <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
+        <CardContent className="p-4 sm:p-5">
+          {/* Mobile-first vertical layout, horizontal on desktop */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            {/* Left section: Title, tool label, metrics */}
+            <div className="flex-1 min-w-0 space-y-3">
+              {/* Header: Title and Dismiss button */}
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex-1 leading-tight">
+                  {scenario.name}
+                </h3>
+                {/* Dismiss button - always visible on mobile, hover on desktop */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDismissOpen(true);
+                  }}
+                  className={cn(
+                    "shrink-0 w-8 h-8 sm:w-7 sm:h-7 rounded-md flex items-center justify-center",
+                    "transition-all duration-200",
+                    "sm:opacity-0 sm:group-hover:opacity-100",
+                    "hover:bg-gray-100 dark:hover:bg-gray-800",
+                    "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300",
+                    "touch-manipulation"
+                  )}
+                  aria-label="Dismiss from recent"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Tool label */}
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {toolLabel}
-              </span>
-              
-              {hasTcc && (
-                <span className="text-sm text-gray-600 dark:text-gray-400 shrink-0">
-                  TCC: <span className="font-semibold text-gray-900 dark:text-white">${scenario.normalizedTcc!.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
-                </span>
-              )}
-              {hasWrvus && (
-                <span className="text-sm text-gray-600 dark:text-gray-400 shrink-0">
-                  wRVUs: <span className="font-semibold text-gray-900 dark:text-white">{scenario.normalizedWrvus!.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
-                </span>
-              )}
+              </div>
+
+              {/* Metrics grid - 2 columns on mobile, inline on desktop */}
+              <div className="grid grid-cols-2 sm:flex sm:items-center sm:gap-4 gap-2 sm:gap-0">
+                {hasTcc && (
+                  <div className="sm:flex sm:items-center sm:gap-1">
+                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">TCC:</span>
+                    <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                      ${scenario.normalizedTcc!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                )}
+                {hasWrvus && (
+                  <div className="sm:flex sm:items-center sm:gap-1">
+                    <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">wRVUs:</span>
+                    <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                      {scenario.normalizedWrvus!.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Percentile badges */}
               {hasPercentiles && scenario.computedPercentiles && (
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   {scenario.computedPercentiles.tccPercentile !== undefined && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                       TCC: {scenario.computedPercentiles.tccPercentile.toFixed(1)}th
                     </span>
                   )}
                   {scenario.computedPercentiles.wrvuPercentile !== undefined && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                       wRVU: {scenario.computedPercentiles.wrvuPercentile.toFixed(1)}th
                     </span>
                   )}
                   {scenario.computedPercentiles.cfPercentile !== undefined && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                       CF: {scenario.computedPercentiles.cfPercentile.toFixed(1)}th
                     </span>
                   )}
@@ -133,85 +166,69 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
               )}
             </div>
 
-            {/* Timestamp */}
-            <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 shrink-0">
-              <Clock className="w-3.5 h-3.5" />
-              {relativeTime}
-            </span>
-            
-            {/* Actions */}
-            <div 
-              className={cn(
-                "flex items-center gap-2 shrink-0",
-                "transition-opacity duration-200",
-                "opacity-0 group-hover:opacity-100 sm:opacity-100"
-              )}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="h-8 px-3 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <Edit className="w-3.5 h-3.5 mr-1.5" />
-                Edit
-              </Button>
+            {/* Right section: Timestamp and Actions */}
+            <div className="flex items-center justify-between sm:flex-col sm:items-end sm:justify-start gap-3 sm:gap-2 sm:min-w-[140px]">
+              {/* Timestamp */}
+              <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <Clock className="w-3.5 h-3.5" />
+                {relativeTime}
+              </span>
               
-              <DropdownMenuPrimitive.Root>
-                <DropdownMenuPrimitive.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                    aria-label="More options"
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuPrimitive.Trigger>
-                <DropdownMenuPrimitive.Portal>
-                  <DropdownMenuPrimitive.Content
-                    className="min-w-[180px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 p-1 z-50"
-                    align="end"
-                    sideOffset={5}
-                  >
-                    <DropdownMenuPrimitive.Item
-                      className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 outline-none"
-                      onClick={handleDuplicate}
+              {/* Actions - always visible on mobile, hover on desktop */}
+              <div 
+                className={cn(
+                  "flex items-center gap-2",
+                  "sm:opacity-0 sm:group-hover:opacity-100 sm:transition-opacity sm:duration-200"
+                )}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEdit}
+                  className="h-9 sm:h-8 px-3 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 touch-manipulation"
+                >
+                  <Edit className="w-4 h-4 sm:w-3.5 sm:h-3.5 sm:mr-1.5" />
+                  <span className="sm:inline">Edit</span>
+                </Button>
+                
+                <DropdownMenuPrimitive.Root>
+                  <DropdownMenuPrimitive.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 sm:h-8 sm:w-8 p-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 touch-manipulation"
+                      aria-label="More options"
                     >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Duplicate
-                    </DropdownMenuPrimitive.Item>
-                    <DropdownMenuPrimitive.Separator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
-                    <DropdownMenuPrimitive.Item
-                      className="flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-md cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 outline-none"
-                      onClick={() => setDeleteOpen(true)}
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuPrimitive.Trigger>
+                  <DropdownMenuPrimitive.Portal>
+                    <DropdownMenuPrimitive.Content
+                      className="min-w-[180px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 p-1 z-50"
+                      align="end"
+                      sideOffset={5}
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuPrimitive.Item>
-                  </DropdownMenuPrimitive.Content>
-                </DropdownMenuPrimitive.Portal>
-              </DropdownMenuPrimitive.Root>
+                      <DropdownMenuPrimitive.Item
+                        className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 outline-none"
+                        onClick={handleDuplicate}
+                      >
+                        <Copy className="w-4 h-4 mr-2" />
+                        Duplicate
+                      </DropdownMenuPrimitive.Item>
+                      <DropdownMenuPrimitive.Separator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
+                      <DropdownMenuPrimitive.Item
+                        className="flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-md cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 outline-none"
+                        onClick={() => setDeleteOpen(true)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuPrimitive.Item>
+                    </DropdownMenuPrimitive.Content>
+                  </DropdownMenuPrimitive.Portal>
+                </DropdownMenuPrimitive.Root>
+              </div>
             </div>
-            
-            {/* Dismiss button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setDismissOpen(true);
-              }}
-              className={cn(
-                "shrink-0 w-7 h-7 rounded-md flex items-center justify-center",
-                "transition-all duration-200",
-                "opacity-0 group-hover:opacity-100",
-                "hover:bg-gray-100 dark:hover:bg-gray-800",
-                "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-              )}
-              aria-label="Dismiss from recent"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
         </CardContent>
       </Card>
