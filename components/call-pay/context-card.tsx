@@ -256,7 +256,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
           <div className="space-y-2">
             <Label className="text-sm font-semibold">Specialty</Label>
             <Select
-              value={displaySpecialty}
+              value={displaySpecialty || undefined}
               onValueChange={handleSpecialtyChange}
             >
               <SelectTrigger>
@@ -356,7 +356,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 Providers on Call
               </Label>
               <Select
-                value={context.providersOnCall.toString()}
+                value={context.providersOnCall > 0 ? context.providersOnCall.toString() : undefined}
                 onValueChange={handleProvidersOnCallChange}
               >
                 <SelectTrigger>
@@ -377,11 +377,12 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 Rotation Ratio
               </Label>
               <Select
-                value={context.rotationRatio.toString()}
+                value={context.rotationRatio > 0 ? context.rotationRatio.toString() : undefined}
                 onValueChange={(value) => updateField('rotationRatio', parseInt(value, 10))}
+                disabled={context.providersOnCall === 0}
               >
-                <SelectTrigger className={!isRotationRatioValid ? 'border-amber-500' : ''}>
-                  <SelectValue placeholder="Select rotation ratio" />
+                <SelectTrigger className={!isRotationRatioValid && context.rotationRatio > 0 ? 'border-amber-500' : ''}>
+                  <SelectValue placeholder={context.providersOnCall === 0 ? "Select providers first" : "Select rotation ratio"} />
                 </SelectTrigger>
                 <SelectContent>
                   {validRotationRatios.length > 0 ? (
@@ -419,7 +420,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 (1-in-N means each provider covers 1/N of total calls)
               </p>
-              {!isRotationRatioValid && (
+              {!isRotationRatioValid && context.rotationRatio > 0 && context.providersOnCall > 0 && (
                 <div className="flex items-start gap-1 text-xs text-amber-600 dark:text-amber-400 mt-1">
                   <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
@@ -431,9 +432,14 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                   </div>
                 </div>
               )}
-              {isRotationRatioValid && (
+              {isRotationRatioValid && context.rotationRatio > 0 && context.providersOnCall > 0 && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {getRotationRatioExplanation(context.providersOnCall, context.rotationRatio)}
+                </p>
+              )}
+              {context.providersOnCall === 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Select number of providers on call first
                 </p>
               )}
             </div>

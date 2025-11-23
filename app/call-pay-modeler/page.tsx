@@ -24,10 +24,10 @@ import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
 import { cn } from '@/lib/utils/cn';
 
 const DEFAULT_CONTEXT: CallPayContext = {
-  specialty: 'Cardiology',
-  serviceLine: 'Cardiology Service Line',
-  providersOnCall: 10,
-  rotationRatio: 10, // 1-in-10 (matches providers on call for consistency)
+  specialty: '',
+  serviceLine: '',
+  providersOnCall: 0,
+  rotationRatio: 0,
   modelYear: new Date().getFullYear(),
 };
 
@@ -144,6 +144,25 @@ export default function CallPayModelerPage() {
     }
   };
 
+  const handleStartOver = () => {
+    // Reset context to empty defaults
+    setContext({
+      specialty: '',
+      serviceLine: '',
+      providersOnCall: 0,
+      rotationRatio: 0,
+      modelYear: new Date().getFullYear(),
+    });
+    // Reset tiers to default empty tiers
+    setTiers(DEFAULT_TIERS.map(t => ({ ...t, enabled: false })));
+    // Reset other state
+    setExpandedTier('C1');
+    setAnnualAllowableBudget(null);
+    setActiveStep(1);
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const totalSteps = 3;
   const stepNames = ['Set Context', 'Configure Tiers', 'Review Budget'];
   const completedSteps = step2Complete ? [1, 2] : step1Complete ? [1] : [];
@@ -169,15 +188,25 @@ export default function CallPayModelerPage() {
         <div id="context-card" data-tour="call-pay-context">
           <Card className="border border-gray-200 dark:border-gray-800">
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={1} variant="default" />
-                <CardTitle className="flex items-center gap-2">
-                  Set Your Context
-                  <ScreenInfoModal
-                    title="Set Context - Call Pay Modeler"
-                    description="Enter your call pay context information to begin modeling your call coverage structure.\n\nRequired Information:\n• Specialty: Select your medical specialty\n• Providers on Call: Number of providers in the call rotation\n• Rotation Ratio: How often each provider takes call\n\nAfter entering your context, proceed to Configure Tiers to set up your call categories."
-                  />
-                </CardTitle>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <StepBadge number={1} variant="default" />
+                  <CardTitle className="flex items-center gap-2">
+                    Set Your Context
+                    <ScreenInfoModal
+                      title="Set Context - Call Pay Modeler"
+                      description="Enter your call pay context information to begin modeling your call coverage structure.\n\nRequired Information:\n• Specialty: Select your medical specialty\n• Providers on Call: Number of providers in the call rotation\n• Rotation Ratio: How often each provider takes call\n\nAfter entering your context, proceed to Configure Tiers to set up your call categories."
+                    />
+                  </CardTitle>
+                </div>
+                <Button
+                  onClick={handleStartOver}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                >
+                  Start Over
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -316,13 +345,20 @@ export default function CallPayModelerPage() {
                 tiers={tiers}
                 context={context}
               />
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                 <CallPaySaveButton
                   context={context}
                   tiers={tiers}
                   impact={impact}
                   annualAllowableBudget={annualAllowableBudget}
                 />
+                <Button
+                  variant="outline"
+                  onClick={handleStartOver}
+                  className="w-full"
+                >
+                  Start New Calculation
+                </Button>
               </div>
             </CardContent>
           </Card>
