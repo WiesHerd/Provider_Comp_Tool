@@ -215,7 +215,7 @@ function WRVUModelerPageContent() {
                   Provider Information
                   <ScreenInfoModal
                     title="Provider Information"
-                    description="Enter optional provider information to help organize and identify your scenarios.\n\n• Provider Name: Optional identifier for this scenario\n• Specialty: Select your medical specialty from the dropdown or enter a custom specialty\n\nThis information is saved with your scenario and can help you organize multiple calculations. All fields are optional - you can proceed without entering any information."
+                    description="## Overview\nEnter optional provider information to help organize and identify your scenarios. All fields are optional—you can proceed without entering any information.\n\n## Fields\n\n### Provider Name\n• Optional identifier for this scenario\n• Helps you distinguish between different calculations\n\n### Specialty\n• Select your medical specialty from the dropdown\n• Choose \"Other\" to enter a custom specialty\n• Helps organize scenarios by specialty type\n\n## How It Works\nThis information is saved with your scenario and can help you organize multiple calculations. You can load saved scenarios later using the \"Load Saved Scenario\" dropdown above."
                   />
                 </CardTitle>
               </div>
@@ -309,7 +309,7 @@ function WRVUModelerPageContent() {
                   FTE & Projected wRVUs
                   <ScreenInfoModal
                     title="FTE & Projected wRVUs"
-                    description="Enter your Full-Time Equivalent (FTE) status and projected wRVU production.\n\n• FTE: Your employment status from 0.1 to 1.0 (1.0 = full-time)\n• Changing FTE will automatically scale your wRVU values proportionally\n• Projected wRVUs: Enter your annual wRVUs in one of three ways:\n  - Annual: Total annual wRVUs\n  - Monthly Avg: Average wRVUs per month\n  - By Month: Individual monthly breakdown\n\nKey Features:\n• Normalized calculations: All values are normalized to 1.0 FTE for comparison\n• Automatic scaling: When you change FTE, existing wRVU values scale proportionally\n• Flexible input: Choose the input method that works best for your data"
+                    description="## Overview\nEnter your Full-Time Equivalent (FTE) status and projected wRVU production. All calculations are automatically normalized to 1.0 FTE for fair comparison.\n\n## Fields\n\n### FTE (Full-Time Equivalent)\n• Your employment status from 0.1 to 1.0\n• 1.0 = full-time employment\n• Changing FTE automatically scales your wRVU values proportionally\n\n### Projected wRVUs\nEnter your annual wRVUs using one of three methods:\n  • Annual: Enter total annual wRVUs directly\n  • Monthly Avg: Enter average wRVUs per month (multiplies by 12)\n  • By Month: Enter individual monthly breakdown for precise tracking\n\n## Key Features\n\n### Normalized Calculations\n• All values are normalized to 1.0 FTE for comparison\n• Your wRVUs automatically adjust based on your FTE\n\n### Automatic Scaling\n• When you change FTE, existing wRVU values scale proportionally\n• No manual recalculation needed\n\n### Flexible Input\n• Choose the input method that works best for your data\n• Switch between methods at any time"
                   />
                 </CardTitle>
               </div>

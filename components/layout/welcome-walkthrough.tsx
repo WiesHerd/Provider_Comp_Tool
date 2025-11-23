@@ -22,20 +22,20 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
   },
   {
     id: 'step2',
-    title: 'Three Powerful Tools',
-    description: 'CompLens offers three main features:\n\n• **wRVU & Incentive Modeler**: Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.\n\n• **FMV Calculator**: Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.\n\n• **Call Pay Modeler**: Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.',
+    title: 'Four Powerful Tools',
+    description: 'CompLens offers four main features:\n\n• **wRVU & Incentive Modeler**: Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.\n\n• **FMV Calculator**: Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.\n\n• **Call Pay Modeler**: Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.\n\n• **Provider Schedule & wRVU Forecaster**: Forecast annual wRVUs and compensation based on your schedule and patient load.',
     icon: <Calculator className="w-6 h-6 text-primary" />,
   },
   {
     id: 'step3',
     title: 'Easy Navigation',
-    description: 'Navigate between tools using the tabs at the top (desktop) or bottom (mobile). The Home tab brings you back here, and you can access your saved Scenarios anytime. Each tool is designed to be intuitive and mobile-friendly.',
+    description: 'Navigate between tools using the bottom navigation tabs (mobile). Click the logo in the header to return to home, or use the back button to go back in history. You can access your saved Scenarios anytime. Each tool is designed to be intuitive and mobile-friendly.',
     icon: <Navigation className="w-6 h-6 text-primary" />,
   },
   {
     id: 'step4',
     title: 'Getting Started',
-    description: 'Choose the tool that matches your needs:\n\n• Start with **wRVU & Incentive Modeler** if you need to estimate productivity-based compensation\n• Use **FMV Calculator** to check if compensation is within market benchmarks\n• Try **Call Pay Modeler** to structure call coverage payments\n\nYou can save scenarios and compare multiple options as you work.',
+    description: 'Choose the tool that matches your needs:\n\n• Start with **wRVU & Incentive Modeler** if you need to estimate productivity-based compensation\n• Use **FMV Calculator** to check if compensation is within market benchmarks\n• Try **Call Pay Modeler** to structure call coverage payments\n• Use **Provider Schedule & wRVU Forecaster** to forecast annual wRVUs based on your schedule\n\nYou can save scenarios and compare multiple options as you work.',
     icon: <TrendingUp className="w-6 h-6 text-primary" />,
   },
   {

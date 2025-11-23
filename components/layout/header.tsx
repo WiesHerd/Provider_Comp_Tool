@@ -133,12 +133,12 @@ export function Header() {
                       <ul className="list-disc list-inside space-y-1 ml-2">
                         <li>Click the <strong>logo</strong> (top-left) to return to home</li>
                         <li>Use the <strong>back button</strong> (chevron) to go back in history</li>
-                        <li>On mobile, use the <strong>bottom tabs</strong> to navigate between tools</li>
+                        <li>On mobile, use the <strong>bottom navigation tabs</strong> to navigate between tools</li>
                       </ul>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Three Main Tools</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Four Main Tools</h4>
                       <ul className="space-y-2">
                         <li>
                           <strong>wRVU & Incentive Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
@@ -148,6 +148,9 @@ export function Header() {
                         </li>
                         <li>
                           <strong>Call Pay Modeler:</strong> Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.
+                        </li>
+                        <li>
+                          <strong>Provider Schedule & wRVU Forecaster:</strong> Forecast annual wRVUs and compensation based on your schedule and patient load.
                         </li>
                       </ul>
                     </div>

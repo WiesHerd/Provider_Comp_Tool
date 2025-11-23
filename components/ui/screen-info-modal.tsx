@@ -44,32 +44,61 @@ export function ScreenInfoModal({ title, description, note }: ScreenInfoModalPro
           </div>
 
           {/* Content */}
-          <div className="space-y-4 mb-6">
+          <div className="space-y-5 mb-6">
             <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               {description.split('\n').map((line, index, array) => {
                 const trimmedLine = line.trim();
                 
                 // Skip empty lines but add spacing
                 if (trimmedLine === '') {
-                  return <div key={index} className="h-3" />;
+                  return <div key={index} className="h-2" />;
                 }
                 
-                // Handle bullet points with proper indentation
+                // Handle main headers (## Header)
+                if (trimmedLine.startsWith('## ')) {
+                  return (
+                    <h3 key={index} className="text-lg font-bold text-gray-900 dark:text-white mt-6 mb-3 first:mt-0">
+                      {trimmedLine.substring(3).trim()}
+                    </h3>
+                  );
+                }
+                
+                // Handle subheaders (### Subheader)
+                if (trimmedLine.startsWith('### ')) {
+                  return (
+                    <h4 key={index} className="text-base font-semibold text-gray-900 dark:text-white mt-4 mb-2">
+                      {trimmedLine.substring(4).trim()}
+                    </h4>
+                  );
+                }
+                
+                // Handle nested bullet points (  - or  •)
+                if (trimmedLine.match(/^\s{2,}[•-]/)) {
+                  const content = trimmedLine.replace(/^\s{2,}[•-]\s*/, '');
+                  return (
+                    <div key={index} className="ml-8 mb-1.5 flex items-start">
+                      <span className="mr-2 flex-shrink-0 text-gray-500 dark:text-gray-400">◦</span>
+                      <span className="flex-1">{content}</span>
+                    </div>
+                  );
+                }
+                
+                // Handle main bullet points (•)
                 if (trimmedLine.startsWith('•')) {
                   return (
                     <div key={index} className="ml-4 mb-2 flex items-start">
-                      <span className="mr-2 flex-shrink-0">•</span>
+                      <span className="mr-2 flex-shrink-0 text-gray-900 dark:text-gray-100 font-semibold">•</span>
                       <span className="flex-1">{trimmedLine.substring(1).trim()}</span>
                     </div>
                   );
                 }
                 
-                // Handle section headers (lines that end with colon)
-                if (trimmedLine.endsWith(':')) {
+                // Handle section headers (lines that end with colon and are bold-like)
+                if (trimmedLine.endsWith(':') && trimmedLine.length < 50) {
                   return (
-                    <p key={index} className="font-semibold mb-2 mt-4 first:mt-0 text-gray-900 dark:text-white">
+                    <h4 key={index} className="text-base font-semibold text-gray-900 dark:text-white mb-2 mt-4 first:mt-0">
                       {trimmedLine}
-                    </p>
+                    </h4>
                   );
                 }
                 
