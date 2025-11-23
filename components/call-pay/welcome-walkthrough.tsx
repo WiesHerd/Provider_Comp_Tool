@@ -37,9 +37,10 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
 
 interface WelcomeWalkthroughProps {
   onComplete?: () => void;
+  onNavigateToStep?: (stepIndex: number, elementId: string) => void;
 }
 
-export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
+export function WelcomeWalkthrough({ onComplete, onNavigateToStep }: WelcomeWalkthroughProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [hasSeenWalkthrough, setHasSeenWalkthrough] = useState(false);
@@ -60,7 +61,13 @@ export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
 
   const handleNext = () => {
     if (currentStep < WALKTHROUGH_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      // Navigate to the highlighted section for the next step
+      const nextStepData = WALKTHROUGH_STEPS[nextStep];
+      if (nextStepData.highlight && onNavigateToStep) {
+        onNavigateToStep(nextStep, nextStepData.highlight);
+      }
     } else {
       handleComplete();
     }
@@ -68,13 +75,26 @@ export function WelcomeWalkthrough({ onComplete }: WelcomeWalkthroughProps) {
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      // Navigate to the highlighted section for the previous step
+      const prevStepData = WALKTHROUGH_STEPS[prevStep];
+      if (prevStepData.highlight && onNavigateToStep) {
+        onNavigateToStep(prevStep, prevStepData.highlight);
+      }
     }
   };
 
   const handleComplete = () => {
     setIsOpen(false);
     localStorage.setItem('call-pay-walkthrough-seen', 'true');
+    // Navigate to first step on completion
+    const firstStepData = WALKTHROUGH_STEPS[0];
+    if (firstStepData.highlight && onNavigateToStep) {
+      setTimeout(() => {
+        onNavigateToStep(0, firstStepData.highlight!);
+      }, 300);
+    }
     onComplete?.();
   };
 

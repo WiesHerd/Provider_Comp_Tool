@@ -54,6 +54,30 @@ export function ImpactSummary({ impact, onAddToTCC, annualAllowableBudget, onBud
   
   return (
     <div className="space-y-4">
+      {/* Annual Allowable Budget Input */}
+      <Card>
+        <CardContent className="p-4 md:p-6">
+          <div className="space-y-3">
+            <div>
+              <Label className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                Annual Allowable Budget
+              </Label>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Set your target budget to track spending as you configure call pay
+              </p>
+            </div>
+            <CurrencyInput
+              id="annual-budget"
+              value={annualAllowableBudget || undefined}
+              onChange={(value) => onBudgetChange(value > 0 ? value : null)}
+              placeholder="2,000,000"
+              className="w-full h-12 text-base touch-manipulation"
+              showDecimals={false}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Per-Tier Impact Cards */}
       {hasEnabledTiers && (
         <div className="space-y-3">

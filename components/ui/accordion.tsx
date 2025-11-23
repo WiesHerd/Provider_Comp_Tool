@@ -114,7 +114,11 @@ export function AccordionItem({ value, children }: AccordionItemProps) {
   const isOpen = context.value.includes(value);
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+    <div className={cn(
+      'border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden',
+      'transition-all duration-200',
+      isOpen && 'shadow-sm border-primary/20 dark:border-primary/30'
+    )}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {
@@ -153,16 +157,19 @@ export function AccordionTrigger({
       className={cn(
         'w-full px-4 py-3 flex items-center justify-between',
         'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700',
-        'transition-colors',
+        'active:bg-gray-200 dark:active:bg-gray-600',
+        'transition-all duration-200 ease-in-out',
+        'touch-manipulation',
         className
       )}
       {...props}
     >
-      <span className="text-base font-semibold">{children}</span>
+      <span className="text-base font-semibold flex-1 text-left">{children}</span>
       <ChevronDown
         className={cn(
-          'w-5 h-5 transition-transform',
-          isOpen && 'rotate-180'
+          'w-5 h-5 transition-transform duration-300 ease-in-out flex-shrink-0 ml-2',
+          isOpen && 'rotate-180',
+          'text-gray-500 dark:text-gray-400'
         )}
       />
     </button>
@@ -178,13 +185,15 @@ export function AccordionContent({
   return (
     <div
       className={cn(
-        'overflow-hidden transition-all',
+        'overflow-hidden transition-all duration-300 ease-in-out',
         isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0',
         className
       )}
       {...props}
     >
-      <div className="px-4 py-4">{children}</div>
+      <div className={cn('transition-all duration-300', isOpen ? 'translate-y-0' : '-translate-y-2')}>
+        {children}
+      </div>
     </div>
   );
 }

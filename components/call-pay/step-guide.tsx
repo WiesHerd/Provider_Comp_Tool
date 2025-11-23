@@ -10,9 +10,10 @@ interface StepGuideProps {
   context: CallPayContext;
   tiers: CallTier[];
   currentStep?: number;
+  onStepClick?: (index: number) => void;
 }
 
-export function StepGuide({ context, tiers, currentStep }: StepGuideProps) {
+export function StepGuide({ context, tiers, currentStep, onStepClick }: StepGuideProps) {
   // Determine which steps are completed
   const steps = useMemo(() => {
     const step1Complete = 
@@ -56,18 +57,35 @@ export function StepGuide({ context, tiers, currentStep }: StepGuideProps) {
   const stepElementIds = ['context-card', 'tier-card', 'impact-summary'];
 
   const handleStepClick = (index: number) => {
+    // Add visual feedback
     const elementId = stepElementIds[index];
     if (elementId) {
       const element = document.getElementById(elementId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        element.classList.add('animate-pulse');
+        setTimeout(() => {
+          element.classList.remove('animate-pulse');
+        }, 1000);
+      }
+    }
+    
+    if (onStepClick) {
+      onStepClick(index);
+    } else {
+      // Fallback to original behavior
+      if (elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
   };
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent shadow-sm">
-      <CardContent className="p-3 sm:p-4">
+    <div className="sticky top-0 z-40 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 pt-4 sm:pt-6 md:pt-8 pb-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-800/50 transition-shadow duration-200">
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent shadow-sm">
+        <CardContent className="p-3 sm:p-4">
         {/* Header */}
         <div className="mb-3 sm:mb-4 text-center">
           <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-0.5 tracking-tight">
@@ -175,6 +193,7 @@ export function StepGuide({ context, tiers, currentStep }: StepGuideProps) {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
 
