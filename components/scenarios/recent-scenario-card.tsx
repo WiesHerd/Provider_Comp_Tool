@@ -10,6 +10,14 @@ import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { getScenarioNavigationUrl, getScenarioTypeLabel } from '@/lib/utils/scenario-routing';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+
+// Type assertion for React 19 compatibility
+const DropdownMenuRoot = DropdownMenuPrimitive.Root as any;
+const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger as any;
+const DropdownMenuPortal = DropdownMenuPrimitive.Portal as any;
+const DropdownMenuContent = DropdownMenuPrimitive.Content as any;
+const DropdownMenuItem = DropdownMenuPrimitive.Item as any;
+const DropdownMenuSeparator = DropdownMenuPrimitive.Separator as any;
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils/cn';
 
@@ -192,8 +200,8 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
                   <span className="sm:inline">Edit</span>
                 </Button>
                 
-                <DropdownMenuPrimitive.Root>
-                  <DropdownMenuPrimitive.Trigger asChild>
+                <DropdownMenuRoot>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -202,31 +210,31 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
                     >
                       <MoreVertical className="w-4 h-4" />
                     </Button>
-                  </DropdownMenuPrimitive.Trigger>
-                  <DropdownMenuPrimitive.Portal>
-                    <DropdownMenuPrimitive.Content
+                  </DropdownMenuTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuContent
                       className="min-w-[180px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 p-1 z-50"
                       align="end"
                       sideOffset={5}
                     >
-                      <DropdownMenuPrimitive.Item
+                      <DropdownMenuItem
                         className="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 outline-none"
                         onClick={handleDuplicate}
                       >
                         <Copy className="w-4 h-4 mr-2" />
                         Duplicate
-                      </DropdownMenuPrimitive.Item>
-                      <DropdownMenuPrimitive.Separator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
-                      <DropdownMenuPrimitive.Item
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
+                      <DropdownMenuItem
                         className="flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-md cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 outline-none"
                         onClick={() => setDeleteOpen(true)}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
-                      </DropdownMenuPrimitive.Item>
-                    </DropdownMenuPrimitive.Content>
-                  </DropdownMenuPrimitive.Portal>
-                </DropdownMenuPrimitive.Root>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuRoot>
               </div>
             </div>
           </div>
