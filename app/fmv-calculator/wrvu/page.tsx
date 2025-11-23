@@ -381,3 +381,11 @@ function WRVUCalculatorPageContent() {
     </div>
   );
 }
+
+export default function WRVUCalculatorPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">Loading...</div>}>
+      <WRVUCalculatorPageContent />
+    </Suspense>
+  );
+}
