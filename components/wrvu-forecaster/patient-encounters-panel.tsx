@@ -6,7 +6,6 @@ import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Tooltip } from '@/components/ui/tooltip';
 import { Users, TrendingUp, DollarSign } from 'lucide-react';
 import { WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 
@@ -40,97 +39,73 @@ export function PatientEncountersPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4">
-        <Tooltip
-          content={
-            inputs.isPerHour
-              ? 'Enter the average number of patients seen per hour'
-              : 'Enter the average number of patients seen per day'
+        <NumberInputWithButtons
+          label={inputs.isPerHour ? 'Patients Seen Per Hour' : 'Patients Seen Per Day'}
+          value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
+          onChange={(value) =>
+            onInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value)
           }
-        >
-          <div>
-            <NumberInputWithButtons
-              label={inputs.isPerHour ? 'Patients Seen Per Hour' : 'Patients Seen Per Day'}
-              value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
-              onChange={(value) =>
-                onInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value)
-              }
-              icon={<Users className="w-5 h-5" />}
-              min={0}
-              step={1}
-              integerOnly
-            />
-          </div>
-        </Tooltip>
+          icon={<Users className="w-5 h-5" />}
+          min={0}
+          step={1}
+          integerOnly
+        />
 
-        <Tooltip content="Enter your current average wRVU per patient encounter">
-          <div>
-            <NumberInputWithButtons
-              label="Average wRVU Per Encounter"
-              value={inputs.avgWRVUPerEncounter}
-              onChange={(value) => onInputChange('avgWRVUPerEncounter', value)}
-              icon={<TrendingUp className="w-5 h-5" />}
-              min={0}
-              step={0.01}
-            />
-          </div>
-        </Tooltip>
+        <NumberInputWithButtons
+          label="Average wRVU Per Encounter"
+          value={inputs.avgWRVUPerEncounter}
+          onChange={(value) => onInputChange('avgWRVUPerEncounter', value)}
+          icon={<TrendingUp className="w-5 h-5" />}
+          min={0}
+          step={0.01}
+        />
 
-        <Tooltip content="Enter an adjusted wRVU per encounter to see how changes in billing efficiency affect your compensation">
-          <div>
-            <NumberInputWithButtons
-              label="Adjusted wRVU Per Encounter"
-              value={inputs.adjustedWRVUPerEncounter}
-              onChange={(value) => onInputChange('adjustedWRVUPerEncounter', value)}
-              icon={<TrendingUp className="w-5 h-5" />}
-              min={0}
-              step={0.01}
-            />
-          </div>
-        </Tooltip>
+        <NumberInputWithButtons
+          label="Adjusted wRVU Per Encounter"
+          value={inputs.adjustedWRVUPerEncounter}
+          onChange={(value) => onInputChange('adjustedWRVUPerEncounter', value)}
+          icon={<TrendingUp className="w-5 h-5" />}
+          min={0}
+          step={0.01}
+        />
 
-        <Tooltip content="Enter your base salary (minimum guaranteed compensation)">
-          <div>
-            <Label className="text-sm font-semibold mb-2 block">Base Salary</Label>
-            <CurrencyInput
-              value={inputs.baseSalary}
-              onChange={(value) => onInputChange('baseSalary', value)}
-              placeholder="150000"
-              showDecimals={false}
-            />
-          </div>
-        </Tooltip>
+        <div>
+          <Label className="text-sm font-semibold mb-2 block">Base Salary</Label>
+          <CurrencyInput
+            value={inputs.baseSalary}
+            onChange={(value) => onInputChange('baseSalary', value)}
+            placeholder="150000"
+            showDecimals={false}
+          />
+        </div>
 
-        <Tooltip content="Enter the dollar amount paid per wRVU">
-          <div>
-            <NumberInputWithButtons
-              label="wRVU Conversion Factor"
-              value={inputs.wrvuConversionFactor}
-              onChange={(value) => onInputChange('wrvuConversionFactor', value)}
-              icon={<DollarSign className="w-5 h-5" />}
-              min={0}
-              step={0.01}
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">/ wRVU</p>
-          </div>
-        </Tooltip>
+        <div>
+          <NumberInputWithButtons
+            label="wRVU Conversion Factor"
+            value={inputs.wrvuConversionFactor}
+            onChange={(value) => onInputChange('wrvuConversionFactor', value)}
+            icon={<DollarSign className="w-5 h-5" />}
+            min={0}
+            step={0.01}
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">/ wRVU</p>
+        </div>
 
-        <Tooltip content="Number of wRVUs needed to exceed base salary compensation">
-          <div>
-            <Label className="text-sm font-semibold mb-2 block">Target Annual wRVUs</Label>
-            <Input
-              value={
-                inputs.wrvuConversionFactor > 0
-                  ? Math.round(inputs.baseSalary / inputs.wrvuConversionFactor).toLocaleString()
-                  : '0'
-              }
-              readOnly
-              className="bg-gray-50 dark:bg-gray-800"
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)
-            </p>
-          </div>
-        </Tooltip>
+        <div>
+          <Label className="text-sm font-semibold mb-2 block">Target Annual wRVUs</Label>
+          <Input
+            value={
+              inputs.wrvuConversionFactor > 0
+                ? Math.round(inputs.baseSalary / inputs.wrvuConversionFactor).toLocaleString()
+                : '0'
+            }
+            readOnly
+            className="bg-gray-50 dark:bg-gray-800"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

@@ -1,7 +1,6 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tooltip } from '@/components/ui/tooltip';
 import {
   DollarSign,
   Calendar,
@@ -22,28 +21,23 @@ interface StatItemProps {
   label: string;
   value: string;
   difference?: string;
-  tooltipText: string;
 }
 
-function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps) {
+function StatItem({ icon, label, value, difference }: StatItemProps) {
   return (
     <Card className="h-full hover:shadow-md transition-shadow">
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center gap-2 mb-2">
           <div className="text-primary flex-shrink-0">{icon}</div>
-          <Tooltip content={tooltipText} side="top" className="max-w-[250px] sm:max-w-[300px]">
-            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{label}</span>
-          </Tooltip>
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{label}</span>
         </div>
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 break-words">{value}</span>
           {difference && (
-            <Tooltip content="Potential increase using adjusted wRVU per encounter" side="top">
-              <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold flex-shrink-0 touch-target">
-                {difference}
-                <Info className="w-3 h-3" />
-              </div>
-            </Tooltip>
+            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold flex-shrink-0 touch-target">
+              {difference}
+              <Info className="w-3 h-3" />
+            </div>
           )}
         </div>
       </CardContent>
@@ -88,57 +82,43 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       icon: <DollarSign className="w-6 h-6" />,
       label: 'Estimated Total Compensation',
       value: formatCurrency(metrics.estimatedTotalCompensation),
-      tooltipText:
-        'Total annual compensation including base salary and wRVU-based incentive payments',
     },
     {
       icon: <DollarSign className="w-6 h-6" />,
       label: 'Estimated Incentive Payment',
       value: formatCurrency(currentIncentive),
       difference: formatDifference(currentIncentive, adjustedIncentive),
-      tooltipText:
-        'Additional compensation earned above base salary based on wRVU production',
     },
     {
       icon: <Calendar className="w-6 h-6" />,
       label: 'Weeks Worked Per Year',
       value: formatNumber(metrics.weeksWorkedPerYear),
-      tooltipText:
-        'Total working weeks per year after subtracting vacation, CME, and holidays',
     },
     {
       icon: <Users className="w-6 h-6" />,
       label: 'Encounters per Week',
       value: formatNumber(metrics.encountersPerWeek),
-      tooltipText: 'Average number of patient encounters per week based on your schedule',
     },
     {
       icon: <Calendar className="w-6 h-6" />,
       label: 'Annual Clinic Days',
       value: formatNumber(metrics.annualClinicDays),
-      tooltipText:
-        'Total clinic days per year after subtracting vacation, CME, and holidays',
     },
     {
       icon: <Clock className="w-6 h-6" />,
       label: 'Annual Clinical Hours',
       value: formatNumber(metrics.annualClinicalHours),
-      tooltipText: 'Total clinical hours per year based on your schedule',
     },
     {
       icon: <Users className="w-6 h-6" />,
       label: 'Annual Patient Encounters',
       value: formatNumber(metrics.annualPatientEncounters),
-      tooltipText:
-        'Total patient encounters per year based on your schedule and daily/hourly patient load',
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
       label: 'Estimated Annual wRVUs',
       value: formatNumber(metrics.estimatedAnnualWRVUs),
       difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs),
-      tooltipText:
-        'Total annual wRVUs based on patient encounters and average wRVU per encounter',
     },
   ];
 

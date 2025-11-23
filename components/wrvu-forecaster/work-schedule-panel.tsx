@@ -5,7 +5,6 @@ import { NumberInputWithButtons } from '@/components/ui/number-input-with-button
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Tooltip } from '@/components/ui/tooltip';
 import { Gift, CalendarCheck, BookOpen, Plus, Trash2 } from 'lucide-react';
 import { ShiftType, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 
@@ -28,50 +27,38 @@ export function WorkSchedulePanel({
         <CardTitle className="text-base sm:text-lg font-bold text-primary">Work Schedule</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4">
-        <Tooltip content="Enter the number of vacation weeks you take per year">
-          <div>
-            <NumberInputWithButtons
-              label="Vacation Weeks per Year"
-              value={inputs.vacationWeeks}
-              onChange={(value) => onInputChange('vacationWeeks', value)}
-              icon={<Gift className="w-5 h-5" />}
-              min={0}
-              max={52}
-              step={1}
-              integerOnly
-            />
-          </div>
-        </Tooltip>
+        <NumberInputWithButtons
+          label="Vacation Weeks per Year"
+          value={inputs.vacationWeeks}
+          onChange={(value) => onInputChange('vacationWeeks', value)}
+          icon={<Gift className="w-5 h-5" />}
+          min={0}
+          max={52}
+          step={1}
+          integerOnly
+        />
 
-        <Tooltip content="Enter the number of statutory holidays per year">
-          <div>
-            <NumberInputWithButtons
-              label="Statutory Holidays per Year"
-              value={inputs.statutoryHolidays}
-              onChange={(value) => onInputChange('statutoryHolidays', value)}
-              icon={<CalendarCheck className="w-5 h-5" />}
-              min={0}
-              max={365}
-              step={1}
-              integerOnly
-            />
-          </div>
-        </Tooltip>
+        <NumberInputWithButtons
+          label="Statutory Holidays per Year"
+          value={inputs.statutoryHolidays}
+          onChange={(value) => onInputChange('statutoryHolidays', value)}
+          icon={<CalendarCheck className="w-5 h-5" />}
+          min={0}
+          max={365}
+          step={1}
+          integerOnly
+        />
 
-        <Tooltip content="Enter the number of CME (Continuing Medical Education) days per year">
-          <div>
-            <NumberInputWithButtons
-              label="CME Days per Year"
-              value={inputs.cmeDays}
-              onChange={(value) => onInputChange('cmeDays', value)}
-              icon={<BookOpen className="w-5 h-5" />}
-              min={0}
-              max={365}
-              step={1}
-              integerOnly
-            />
-          </div>
-        </Tooltip>
+        <NumberInputWithButtons
+          label="CME Days per Year"
+          value={inputs.cmeDays}
+          onChange={(value) => onInputChange('cmeDays', value)}
+          icon={<BookOpen className="w-5 h-5" />}
+          min={0}
+          max={365}
+          step={1}
+          integerOnly
+        />
 
         <div className="pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
           <Label className="text-sm font-semibold mb-2 sm:mb-3 block">Shift Types</Label>
