@@ -179,13 +179,20 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
 
   // Auto-select rotation ratio when providers change
   useEffect(() => {
-    // If current rotation ratio is invalid, auto-select the default (1-in-N)
-    if (!isRotationRatioValid && validRotationRatios.length > 0) {
-      const defaultRatio = context.providersOnCall; // 1-in-N
-      updateField('rotationRatio', defaultRatio);
+    // When providers on call changes and is > 0, auto-select the default (1-in-N)
+    if (context.providersOnCall > 0 && validRotationRatios.length > 0) {
+      // Only auto-select if rotation ratio is 0 (not set) or invalid for current providers
+      // Don't reset if user has selected a valid ratio
+      if (context.rotationRatio === 0 || (context.rotationRatio > 0 && !validRotationRatios.includes(context.rotationRatio))) {
+        const defaultRatio = context.providersOnCall; // 1-in-N
+        updateField('rotationRatio', defaultRatio);
+      }
+    } else if (context.providersOnCall === 0) {
+      // Reset rotation ratio when providers is set to 0
+      updateField('rotationRatio', 0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [context.providersOnCall, isRotationRatioValid, validRotationRatios.length]);
+  }, [context.providersOnCall, validRotationRatios.length]);
 
   // Auto-suggest service line when specialty changes (if not manually edited)
   useEffect(() => {
@@ -222,8 +229,8 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
   const handleProvidersOnCallChange = (value: string) => {
     const newProviders = parseInt(value, 10);
     updateField('providersOnCall', newProviders);
-    // Auto-select default rotation ratio (1-in-N)
-    updateField('rotationRatio', newProviders);
+    // Auto-select default rotation ratio (1-in-N) will be handled by useEffect
+    // This ensures validRotationRatios is calculated first
   };
 
   const handleServiceLineSuggestionClick = (suggestion: string) => {
@@ -292,13 +299,13 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 <SelectSeparator />
                 <SelectGroup>
                   <SelectLabel>Other</SelectLabel>
-                  {SPECIALTIES.slice(23).map((specialty) => (
+                  {SPECIALTIES.slice(23).filter(specialty => specialty !== 'Other').map((specialty) => (
                     <SelectItem key={specialty} value={specialty}>
                       {specialty}
                     </SelectItem>
                   ))}
                   <SelectItem value="Other">
-                    Other (Custom)
+                    Custom
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -377,6 +384,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 Rotation Ratio
               </Label>
               <Select
+                key={`rotation-${context.providersOnCall}`}
                 value={context.rotationRatio > 0 ? context.rotationRatio.toString() : undefined}
                 onValueChange={(value) => updateField('rotationRatio', parseInt(value, 10))}
                 disabled={context.providersOnCall === 0}
