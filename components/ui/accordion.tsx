@@ -21,7 +21,7 @@ interface AccordionContentProps {
 
 interface AccordionContextValue {
   value: string[];
-  onValueChange: (value: string[]) => void;
+  onValueChange: (value: string) => void;
   type: 'single' | 'multiple';
 }
 

@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calculator, TrendingUp, Phone, FolderOpen } from 'lucide-react';
+import { Calculator, TrendingUp, Phone } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-8 md:pb-12">
         {/* Hero Section - Apple-style minimal */}
         <div className="text-center mb-12 pt-2">
@@ -22,7 +22,7 @@ export default function Home() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Link href="/wrvu-modeler">
             <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
               <CardHeader className="space-y-4">
@@ -68,23 +68,6 @@ export default function Home() {
                   <CardTitle>Call Pay Modeler</CardTitle>
                   <CardDescription>
                     Model call-pay structures with annualized outputs
-                  </CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
-
-          <Link href="/scenarios">
-            <Card className="hover:shadow-md transition-all duration-150 cursor-pointer h-full group">
-              <CardHeader className="space-y-4">
-                {/* Circular Icon Container - Apple-style */}
-                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
-                  <FolderOpen className="w-8 h-8 text-primary" strokeWidth={2} />
-                </div>
-                <div>
-                  <CardTitle>Scenarios</CardTitle>
-                  <CardDescription>
-                    Save and compare compensation scenarios
                   </CardDescription>
                 </div>
               </CardHeader>

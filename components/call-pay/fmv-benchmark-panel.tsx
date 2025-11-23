@@ -185,65 +185,68 @@ export function FMVBenchmarkPanel({
             <Label className="text-sm font-semibold">
               Calculate from Base Rate
             </Label>
-            <Tooltip 
-              content={usePercentageBased 
-                ? "Weekend and holiday benchmarks are automatically calculated from weekday benchmark using percentage uplifts. Tap to switch to manual entry." 
-                : "Enter weekend and holiday benchmarks manually. Tap to automatically calculate from weekday benchmark using percentage uplifts."}
-              side="left"
-            >
+            <div className="flex items-center gap-2">
               <Switch
+                // @ts-ignore
                 checked={usePercentageBased}
-                onCheckedChange={(checked) => {
-                  setUsePercentageBased(checked);
-                  if (checked && benchmarks.weekday) {
-                  // Auto-calculate weekend/holiday from weekday benchmarks
-                  // Use a temporary function that doesn't check usePercentageBased state
-                  const updatedBenchmarks = { ...benchmarks };
-                  
-                  // Calculate all weekend percentiles
-                  const weekendBenchmarks: any = {};
-                  if (benchmarks.weekday.p25 !== undefined && benchmarks.weekday.p25 > 0) {
-                    weekendBenchmarks.p25 = benchmarks.weekday.p25 * (1 + weekendUpliftPercent / 100);
-                  }
-                  if (benchmarks.weekday.p50 !== undefined && benchmarks.weekday.p50 > 0) {
-                    weekendBenchmarks.p50 = benchmarks.weekday.p50 * (1 + weekendUpliftPercent / 100);
-                  }
-                  if (benchmarks.weekday.p75 !== undefined && benchmarks.weekday.p75 > 0) {
-                    weekendBenchmarks.p75 = benchmarks.weekday.p75 * (1 + weekendUpliftPercent / 100);
-                  }
-                  if (benchmarks.weekday.p90 !== undefined && benchmarks.weekday.p90 > 0) {
-                    weekendBenchmarks.p90 = benchmarks.weekday.p90 * (1 + weekendUpliftPercent / 100);
-                  }
-                  
-                  // Calculate all holiday percentiles
-                  const holidayBenchmarks: any = {};
-                  if (benchmarks.weekday.p25 !== undefined && benchmarks.weekday.p25 > 0) {
-                    holidayBenchmarks.p25 = benchmarks.weekday.p25 * (1 + holidayUpliftPercent / 100);
-                  }
-                  if (benchmarks.weekday.p50 !== undefined && benchmarks.weekday.p50 > 0) {
-                    holidayBenchmarks.p50 = benchmarks.weekday.p50 * (1 + holidayUpliftPercent / 100);
-                  }
-                  if (benchmarks.weekday.p75 !== undefined && benchmarks.weekday.p75 > 0) {
-                    holidayBenchmarks.p75 = benchmarks.weekday.p75 * (1 + holidayUpliftPercent / 100);
-                  }
-                  if (benchmarks.weekday.p90 !== undefined && benchmarks.weekday.p90 > 0) {
-                    holidayBenchmarks.p90 = benchmarks.weekday.p90 * (1 + holidayUpliftPercent / 100);
-                  }
-                  
-                  updatedBenchmarks.weekend = weekendBenchmarks;
-                  updatedBenchmarks.holiday = holidayBenchmarks;
-                  onBenchmarksChange(updatedBenchmarks);
-                } else if (!checked) {
-                  // When disabling, clear weekend/holiday benchmarks
-                  onBenchmarksChange({
-                    ...benchmarks,
-                    weekend: undefined,
-                    holiday: undefined,
-                  });
-                }
-              }}
-            />
-            </Tooltip>
+                onCheckedChange={(checked: boolean) => {
+                    setUsePercentageBased(checked);
+                    if (checked && benchmarks.weekday) {
+                      // Auto-calculate weekend/holiday from weekday benchmarks
+                      const updatedBenchmarks = { ...benchmarks };
+                      
+                      // Calculate all weekend percentiles
+                      const weekendBenchmarks: any = {};
+                      if (benchmarks.weekday.p25 !== undefined && benchmarks.weekday.p25 > 0) {
+                        weekendBenchmarks.p25 = benchmarks.weekday.p25 * (1 + weekendUpliftPercent / 100);
+                      }
+                      if (benchmarks.weekday.p50 !== undefined && benchmarks.weekday.p50 > 0) {
+                        weekendBenchmarks.p50 = benchmarks.weekday.p50 * (1 + weekendUpliftPercent / 100);
+                      }
+                      if (benchmarks.weekday.p75 !== undefined && benchmarks.weekday.p75 > 0) {
+                        weekendBenchmarks.p75 = benchmarks.weekday.p75 * (1 + weekendUpliftPercent / 100);
+                      }
+                      if (benchmarks.weekday.p90 !== undefined && benchmarks.weekday.p90 > 0) {
+                        weekendBenchmarks.p90 = benchmarks.weekday.p90 * (1 + weekendUpliftPercent / 100);
+                      }
+                      
+                      // Calculate all holiday percentiles
+                      const holidayBenchmarks: any = {};
+                      if (benchmarks.weekday.p25 !== undefined && benchmarks.weekday.p25 > 0) {
+                        holidayBenchmarks.p25 = benchmarks.weekday.p25 * (1 + holidayUpliftPercent / 100);
+                      }
+                      if (benchmarks.weekday.p50 !== undefined && benchmarks.weekday.p50 > 0) {
+                        holidayBenchmarks.p50 = benchmarks.weekday.p50 * (1 + holidayUpliftPercent / 100);
+                      }
+                      if (benchmarks.weekday.p75 !== undefined && benchmarks.weekday.p75 > 0) {
+                        holidayBenchmarks.p75 = benchmarks.weekday.p75 * (1 + holidayUpliftPercent / 100);
+                      }
+                      if (benchmarks.weekday.p90 !== undefined && benchmarks.weekday.p90 > 0) {
+                        holidayBenchmarks.p90 = benchmarks.weekday.p90 * (1 + holidayUpliftPercent / 100);
+                      }
+                      
+                      updatedBenchmarks.weekend = weekendBenchmarks;
+                      updatedBenchmarks.holiday = holidayBenchmarks;
+                      onBenchmarksChange(updatedBenchmarks);
+                    } else if (!checked) {
+                      // When disabling, clear weekend/holiday benchmarks
+                      onBenchmarksChange({
+                        ...benchmarks,
+                        weekend: undefined,
+                        holiday: undefined,
+                      });
+                    }
+                }}
+              />
+              <Tooltip 
+                content={usePercentageBased 
+                  ? "Weekend and holiday benchmarks are automatically calculated from weekday benchmark using percentage uplifts. Tap to switch to manual entry." 
+                  : "Enter weekend and holiday benchmarks manually. Tap to automatically calculate from weekday benchmark using percentage uplifts."}
+                side="left"
+              >
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 cursor-help">ℹ️</span>
+              </Tooltip>
+            </div>
           </div>
           
           {/* Benchmark Inputs */}
