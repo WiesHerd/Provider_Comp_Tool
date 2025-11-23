@@ -380,7 +380,7 @@ function WRVUModelerPageContent() {
               )}
             </CardContent>
           </Card>
-          <ProgressiveFormNavigation nextLabel="Calculate Results" />
+          <ProgressiveFormNavigation nextLabel="Results" />
         </ProgressiveFormStep>
 
         {/* Step 4: Results */}
