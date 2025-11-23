@@ -66,27 +66,27 @@ export function Header() {
         alt="CompLens"
         width={40}
         height={40}
-        className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 object-contain rounded-xl drop-shadow-lg dark:opacity-80 dark:brightness-90"
+        className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 object-contain rounded-xl drop-shadow-md dark:drop-shadow-lg dark:opacity-90 dark:brightness-95 transition-all duration-200"
         priority
         quality={100}
         unoptimized
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-green-400 dark:from-blue-500 dark:via-purple-500 dark:to-green-500 rounded-xl opacity-20 dark:opacity-15 blur-sm animate-pulse-slow"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-green-400 dark:from-blue-500 dark:via-purple-500 dark:to-green-500 rounded-xl opacity-15 dark:opacity-12 blur-sm animate-pulse-slow"></div>
     </div>
   );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800 bg-gray-50/98 dark:bg-gray-900/98 backdrop-blur-2xl safe-area-inset-top" suppressHydrationWarning>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/80 dark:border-gray-800/80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-sm safe-area-inset-top" suppressHydrationWarning>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 md:py-4.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3.5">
             {/* Back button - Apple style (only show when not on home) */}
             {mounted && pathname && pathname !== '/' && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.back()}
-                className="min-w-[44px] -ml-2"
+                className="min-w-[44px] h-[44px] -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
                 aria-label="Go back"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -96,7 +96,7 @@ export function Header() {
             {/* Logo - clickable to go home (Apple style) */}
             <Link
               href="/"
-              className="flex items-center gap-2 transition-all hover:opacity-80 active:opacity-60 active:scale-95 touch-manipulation cursor-pointer"
+              className="flex items-center gap-3 transition-all duration-200 hover:opacity-80 active:opacity-70 active:scale-95 touch-manipulation cursor-pointer"
               aria-label="Go to home"
               title="Go to home"
             >
@@ -105,17 +105,17 @@ export function Header() {
             
             {/* Page title - Apple style (subtle, in header) */}
             {pageTitle && (
-              <h1 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white ml-1 hidden sm:block">
+              <h1 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white ml-0.5 hidden sm:block tracking-tight">
                 {pageTitle}
               </h1>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="min-w-[44px]"
+              className="min-w-[44px] h-[44px] rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
               onClick={() => setDialogOpen(true)}
               aria-label="Show instructions"
             >
@@ -190,13 +190,13 @@ export function Header() {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="min-w-[44px]"
+              className="min-w-[44px] h-[44px] rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
+                <Sun className="w-5 h-5 transition-transform duration-200 hover:rotate-12" />
               ) : (
-                <Moon className="w-5 h-5" />
+                <Moon className="w-5 h-5 transition-transform duration-200 hover:rotate-12" />
               )}
             </Button>
           </div>

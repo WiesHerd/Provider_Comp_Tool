@@ -32,7 +32,7 @@ export function PatientEncountersPanel({
             <Switch
               id="toggle-mode"
               checked={inputs.isPerHour}
-              onCheckedChange={(checked) => onInputChange('isPerHour', checked)}
+              onCheckedChange={(checked: boolean) => onInputChange('isPerHour', checked)}
               className="touch-target"
             />
           </div>
