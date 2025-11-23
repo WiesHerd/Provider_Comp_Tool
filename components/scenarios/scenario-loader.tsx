@@ -95,8 +95,8 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
         </div>
       ) : (
         <div className="space-y-2">
-          <div className="flex gap-2 items-end">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+            <div className="flex-1 min-w-0">
               <Select 
                 key={`scenario-select-${typeFilteredScenarios.length}-${scenarios.length}`}
                 value={selectedId} 
@@ -104,7 +104,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
                 open={selectOpen} 
                 onOpenChange={setSelectOpen}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a scenario..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -158,7 +158,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               onClick={handleLoad}
               disabled={!selectedId}
               variant="outline"
-              className="mb-0"
+              className="w-full sm:w-auto shrink-0"
             >
               <Download className="w-4 h-4 mr-1" />
               Load
