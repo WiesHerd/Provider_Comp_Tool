@@ -181,7 +181,6 @@ Enter your conversion factor (CF) to calculate your percentile ranking against m
 ## Next Steps
 After entering your CF, proceed to Market Data to add benchmark percentiles for comparison.`}
               />
-            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
