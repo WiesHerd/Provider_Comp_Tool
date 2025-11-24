@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 interface ContextCardProps {
   context: CallPayContext;
   onContextChange: (context: CallPayContext) => void;
+  showTopBorder?: boolean;
 }
 
 const SPECIALTIES: Specialty[] = [
@@ -143,7 +144,7 @@ function getRotationRatioExplanation(providersOnCall: number, rotationRatio: num
   }
 }
 
-export function ContextCard({ context, onContextChange }: ContextCardProps) {
+export function ContextCard({ context, onContextChange, showTopBorder = true }: ContextCardProps) {
   const [serviceLineManuallyEdited, setServiceLineManuallyEdited] = useState(false);
   
   // Check if current specialty is a custom one (not in the predefined list)
@@ -242,7 +243,10 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
   };
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
+    <div className={cn(
+      showTopBorder && "border-t border-gray-200 dark:border-gray-800",
+      "pt-6"
+    )}>
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Context</h3>
       <div className="space-y-4">
           {/* Row 1: Model Year and Specialty side by side */}

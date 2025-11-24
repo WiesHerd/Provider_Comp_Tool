@@ -419,9 +419,6 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2 flex flex-col">
-            <Label className="text-xs text-gray-600 dark:text-gray-400 min-h-[2.5rem] flex items-start pt-1">
-              Weekday Calls/Shifts per Month
-            </Label>
             {customModes.weekdayCallsPerMonth ? (
               <div className="space-y-2">
                 <NumberInput
@@ -430,7 +427,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                     updateBurden({ weekdayCallsPerMonth: value })
                   }
                   min={0}
-                  placeholder="0"
+                  placeholder="Weekday calls/month"
                 />
                 <button
                   type="button"
@@ -454,7 +451,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select weekday calls" />
+                  <SelectValue placeholder="Weekday calls/month" />
                 </SelectTrigger>
                 <SelectContent>
                   {weekdayPresets.map((num) => (
@@ -469,9 +466,6 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           </div>
 
           <div className="space-y-2 flex flex-col">
-            <Label className="text-xs text-gray-600 dark:text-gray-400 min-h-[2.5rem] flex items-start pt-1">
-              Weekend Calls/Shifts per Month
-            </Label>
             {customModes.weekendCallsPerMonth ? (
               <div className="space-y-2">
                 <NumberInput
@@ -480,7 +474,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                     updateBurden({ weekendCallsPerMonth: value })
                   }
                   min={0}
-                  placeholder="0"
+                  placeholder="Weekend calls/month"
                 />
                 <button
                   type="button"
@@ -504,7 +498,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select weekend calls" />
+                  <SelectValue placeholder="Weekend calls/month" />
                 </SelectTrigger>
                 <SelectContent>
                   {weekendPresets.map((num) => (

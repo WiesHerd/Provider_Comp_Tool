@@ -216,26 +216,29 @@ export default function CallPayModelerPage() {
           {/* Content - No container */}
           <div className="space-y-6">
             {/* Segmented Control for Tier Selection with Add/Remove buttons */}
-            <div className="flex gap-2 overflow-x-auto pb-3 -mx-1 px-1 items-center">
-              {tiers.map((tier) => (
-                <button
-                  key={tier.id}
-                  onClick={() => setExpandedTier(tier.id)}
-                  className={cn(
-                    'px-4 py-3 rounded-lg font-semibold text-sm whitespace-nowrap',
-                    'transition-all duration-150',
-                    'min-w-[48px] min-h-[44px] touch-manipulation',
-                    expandedTier === tier.id
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-                  )}
-                >
-                  {tier.name}
-                </button>
-              ))}
+            <div className="space-y-3">
+              {/* Tier buttons - wrap to multiple lines */}
+              <div className="flex flex-wrap gap-2">
+                {tiers.map((tier) => (
+                  <button
+                    key={tier.id}
+                    onClick={() => setExpandedTier(tier.id)}
+                    className={cn(
+                      'px-4 py-3 rounded-lg font-semibold text-sm whitespace-nowrap',
+                      'transition-all duration-150',
+                      'min-w-[48px] min-h-[44px] touch-manipulation',
+                      expandedTier === tier.id
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                    )}
+                  >
+                    {tier.name}
+                  </button>
+                ))}
+              </div>
               
-              {/* Add Tier and Remove Last buttons - Icon-only on mobile, icon+text on desktop */}
-              <div className="flex items-center gap-1.5 sm:gap-2 ml-auto flex-shrink-0">
+              {/* Add Tier and Remove Last buttons - Always on their own row */}
+              <div className="flex items-center gap-2">
                 {tiers.length < 10 && (
                   <button
                     onClick={() => {
@@ -325,7 +328,7 @@ export default function CallPayModelerPage() {
               className="flex-1 min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              Configure Tiers →
+              Configure Tiers
             </Button>
           </div>
         </div>
@@ -338,7 +341,7 @@ export default function CallPayModelerPage() {
             className="w-full min-h-[48px] text-base font-semibold"
             size="lg"
           >
-            Review Budget →
+            Review Budget
           </Button>
         </div>
       )}
