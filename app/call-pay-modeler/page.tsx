@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
 import { ProviderScenario } from '@/types';
+import { useScenariosStore } from '@/lib/store/scenarios-store';
 import {
   CallPayContext,
   CallTier,
@@ -63,11 +64,22 @@ const DEFAULT_TIERS: CallTier[] = [
 
 export default function CallPayModelerPage() {
   const router = useRouter();
+  const { scenarios, loadScenarios } = useScenariosStore();
   const [context, setContext] = useState<CallPayContext>(DEFAULT_CONTEXT);
   const [tiers, setTiers] = useState<CallTier[]>(DEFAULT_TIERS);
   const [expandedTier, setExpandedTier] = useState<string>('C1');
   const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
   const [activeStep, setActiveStep] = useState<number>(1);
+  
+  // Load scenarios on mount
+  useEffect(() => {
+    loadScenarios();
+  }, [loadScenarios]);
+  
+  // Check if there are call-pay scenarios to show border above Context
+  const hasCallPayScenarios = useMemo(() => {
+    return scenarios.some(s => s.scenarioType === 'call-pay');
+  }, [scenarios]);
 
   // Initialize first tier as enabled by default on mount
   useEffect(() => {
@@ -205,7 +217,11 @@ export default function CallPayModelerPage() {
                 }}
                 className="mb-4"
               />
-            <ContextCard context={context} onContextChange={setContext} />
+            <ContextCard 
+              context={context} 
+              onContextChange={setContext}
+              showTopBorder={hasCallPayScenarios}
+            />
           </div>
         </div>
       )}

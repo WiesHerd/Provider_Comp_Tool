@@ -17,6 +17,7 @@ import {
 import { AlertCircle } from 'lucide-react';
 import { CallPayContext, Specialty } from '@/types/call-pay';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils/cn';
 
 interface ContextCardProps {
   context: CallPayContext;
