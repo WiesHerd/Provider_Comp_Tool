@@ -172,15 +172,7 @@ export function StepIndicator({
         })}
       </div>
 
-      {/* Step Text - Current step info */}
-      <div className="text-center mt-2 sm:mt-3">
-        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
-          Step {currentStep} of {totalSteps}
-          {stepNames && stepNames[currentStep - 1] && (
-            <span className="hidden sm:inline">: {stepNames[currentStep - 1]}</span>
-          )}
-        </span>
-      </div>
+      {/* Step Text - Removed to save space, balls and labels are sufficient */}
     </div>
   );
 }
