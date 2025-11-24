@@ -123,7 +123,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           }
         >
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
             {COVERAGE_TYPES.map((type) => (
@@ -145,7 +145,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           }
         >
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue placeholder="Select method" />
           </SelectTrigger>
           <SelectContent>
             {PAYMENT_METHODS.map((method) => (

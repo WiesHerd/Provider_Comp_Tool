@@ -14,13 +14,13 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-12 w-full items-center justify-between rounded-xl border border-gray-300 bg-white px-4 py-3 text-base",
+      "flex h-12 w-full items-center justify-between rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white px-4 py-3 text-base",
       "text-gray-900 dark:text-gray-100",
       "ring-offset-white dark:ring-offset-gray-950",
       "placeholder:text-gray-400 dark:placeholder:text-gray-500",
-      "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+      "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary",
       "disabled:cursor-not-allowed disabled:opacity-50",
-      "dark:border-gray-700 dark:bg-gray-900",
+      "dark:bg-gray-900 shadow-sm",
       "min-h-[44px] touch-manipulation cursor-pointer", // iOS-friendly touch target
       className
     )}

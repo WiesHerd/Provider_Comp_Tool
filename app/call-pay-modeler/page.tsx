@@ -171,19 +171,6 @@ export default function CallPayModelerPage() {
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
 
-      {/* Step Indicator - Sticky so it stays visible when scrolling, perfectly aligned with content */}
-      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
-        <StepIndicator
-          currentStep={activeStep}
-          totalSteps={totalSteps}
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-          stepNames={stepNames}
-          showProgressBar={false}
-          sticky={true}
-        />
-      </div>
-
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
         <div id="context-card" data-tour="call-pay-context" className="space-y-6">

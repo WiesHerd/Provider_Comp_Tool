@@ -245,7 +245,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
     <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Context</h3>
       <div className="space-y-4">
-          {/* Top row: Model Year and Specialty side by side */}
+          {/* Row 1: Model Year and Specialty side by side */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-semibold">Model Year</Label>
@@ -322,7 +322,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
             </div>
           </div>
 
-          {/* Show custom specialty input when "Other" is selected - full width below */}
+          {/* Show custom specialty input when "Other" is selected - full width */}
           {(displaySpecialty === 'Other' || isCustomSpecialty) && (
             <div className="space-y-2">
               <Input
@@ -336,37 +336,8 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">
-              Service Line / Hospital
-            </Label>
-            <Input
-              value={context.serviceLine}
-              onChange={(e) => handleServiceLineInputChange(e.target.value)}
-              placeholder="e.g., Cardiac Surgery, Main Campus"
-            />
-            {serviceLineSuggestions.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
-                  Suggestions:
-                </span>
-                {serviceLineSuggestions.map((suggestion) => (
-                  <Button
-                    key={suggestion}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => handleServiceLineSuggestionClick(suggestion)}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          {/* Row 2: Core calculation inputs - Providers and Rotation (moved up for priority) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2 flex flex-col">
               <Label className="text-sm font-semibold min-h-[2.5rem] flex items-start pt-1">
                 Providers on Call
@@ -376,7 +347,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 onValueChange={handleProvidersOnCallChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select number of providers" />
+                  <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
                   {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
@@ -399,7 +370,7 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 disabled={context.providersOnCall === 0}
               >
                 <SelectTrigger className={!isRotationRatioValid && context.rotationRatio > 0 ? 'border-amber-500' : ''}>
-                  <SelectValue placeholder={context.providersOnCall === 0 ? "Select providers first" : "Select rotation ratio"} />
+                  <SelectValue placeholder={context.providersOnCall === 0 ? "Select providers" : "Select"} />
                 </SelectTrigger>
                 <SelectContent>
                   {validRotationRatios.length > 0 ? (
@@ -452,6 +423,37 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Row 3: Service Line / Hospital (descriptive/optional, moved down) */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">
+              Service Line / Hospital
+            </Label>
+            <Input
+              value={context.serviceLine}
+              onChange={(e) => handleServiceLineInputChange(e.target.value)}
+              placeholder="e.g., Cardiac Surgery, Main Campus"
+            />
+            {serviceLineSuggestions.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
+                  Suggestions:
+                </span>
+                {serviceLineSuggestions.map((suggestion) => (
+                  <Button
+                    key={suggestion}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => handleServiceLineSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
     </div>

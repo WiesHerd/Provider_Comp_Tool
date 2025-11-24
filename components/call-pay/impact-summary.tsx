@@ -62,31 +62,22 @@ export function ImpactSummary({
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* 1. Overall Budget Summary - Show First */}
-      <div className="space-y-4">
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            {hasEnabledTiers 
-              ? "Calculated from enabled tiers"
-              : "Enable tiers and enter rates to calculate budget"
-            }
-          </p>
-        </div>
-
-        {/* Main Budget Display - Apple-style */}
-        <div className="py-6 border-b border-gray-200 dark:border-gray-800">
+      <div className="space-y-6">
+        {/* Main Budget Display - Prominent */}
+        <div className="pb-6 border-b-2 border-gray-200 dark:border-gray-800">
           <div className="flex items-baseline justify-between">
             <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+              <div className="text-base font-semibold text-gray-900 dark:text-white mb-1">
                 Total Annual Call Budget
               </div>
-              <div className="text-xs text-gray-400 dark:text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Annual budget for call coverage
               </div>
             </div>
             <div className={cn(
-              "text-4xl font-light tracking-tight",
+              "text-4xl sm:text-5xl font-light tracking-tight",
               hasEnabledTiers ? "text-gray-900 dark:text-white" : "text-gray-300 dark:text-gray-600"
             )}>
               ${formattedTotalSpend}
@@ -94,24 +85,24 @@ export function ImpactSummary({
           </div>
         </div>
 
-        {/* Secondary Metrics - Apple-style list */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+        {/* Secondary Metrics - Grouped with better spacing */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Average Call Pay per Provider
             </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
+            <span className="text-base font-semibold text-gray-900 dark:text-white">
               ${impact.averageCallPayPerProvider.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </span>
           </div>
-          <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Call Pay per 1.0 FTE
             </span>
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
+            <span className="text-base font-semibold text-gray-900 dark:text-white">
               ${impact.callPayPer1FTE.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -119,11 +110,11 @@ export function ImpactSummary({
             </span>
           </div>
           {impact.callPayAsPercentOfTCC !== undefined && (
-            <div className="flex justify-between items-center py-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Call Pay as % of TCC
               </span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-base font-semibold text-gray-900 dark:text-white">
                 {impact.callPayAsPercentOfTCC.toFixed(1)}%
               </span>
             </div>
@@ -133,9 +124,9 @@ export function ImpactSummary({
 
       {/* 2. Per-Tier Impact Breakdown */}
       {hasEnabledTiers && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Tier Impact</h3>
-          <div className="space-y-4">
+        <div className="space-y-6 border-t-2 border-gray-200 dark:border-gray-800 pt-8">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Tier Impact</h3>
+          <div className="space-y-6">
             {impact.tiers.map((tierImpact) => {
               const tier = tiers.find(t => t.id === tierImpact.tierId);
               if (!tier) return null;
@@ -143,77 +134,76 @@ export function ImpactSummary({
               const isExpanded = expandedTierId === tierImpact.tierId;
               
               return (
-                <div key={tierImpact.tierId} className="space-y-2">
-                  <Card 
-                    className={cn(
-                      "transition-all duration-200 cursor-pointer hover:shadow-md",
-                      isExpanded && "ring-2 ring-primary shadow-md"
-                    )}
+                <div key={tierImpact.tierId} className="space-y-3">
+                  {/* Tier Header - Clickable */}
+                  <button
                     onClick={() => setExpandedTierId(isExpanded ? null : tierImpact.tierId)}
+                    className={cn(
+                      "w-full text-left transition-all duration-200",
+                      "hover:opacity-80 active:opacity-70"
+                    )}
                   >
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{tierImpact.tierName}</CardTitle>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {isExpanded ? 'Tap to collapse' : 'Tap to see calculation breakdown'}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Annual Pay per Provider
-                        </span>
-                        <span className="font-semibold">
-                          $
-                          {tierImpact.annualPayPerProvider.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Annual Budget for Group
-                        </span>
-                        <span className="font-semibold text-primary">
-                          $
-                          {tierImpact.annualPayForGroup.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Effective $/24h
-                        </span>
-                        <span className="font-semibold">
-                          $
-                          {tierImpact.effectiveDollarsPer24h.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Effective $/call
-                        </span>
-                        <span className="font-semibold">
-                          $
-                          {tierImpact.effectiveDollarsPerCall.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    <div className="flex items-center justify-between pb-3 border-b-2 border-gray-200 dark:border-gray-800">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {tierImpact.tierName}
+                      </h4>
+                      <span className="text-xs font-medium text-primary">
+                        {isExpanded ? 'Hide details' : 'Show details'}
+                      </span>
+                    </div>
+                  </button>
+                  
+                  {/* Tier Metrics - Always visible */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Annual Pay per Provider
+                      </span>
+                      <span className="text-base font-semibold text-gray-900 dark:text-white">
+                        ${tierImpact.annualPayPerProvider.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Annual Budget for Group
+                      </span>
+                      <span className="text-base font-semibold text-primary">
+                        ${tierImpact.annualPayForGroup.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Effective $/24h
+                      </span>
+                      <span className="text-base font-semibold text-gray-900 dark:text-white">
+                        ${tierImpact.effectiveDollarsPer24h.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2.5">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Effective $/call
+                      </span>
+                      <span className="text-base font-semibold text-gray-900 dark:text-white">
+                        ${tierImpact.effectiveDollarsPerCall.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  </div>
                   
                   {/* Calculation Breakdown - Expandable */}
                   {isExpanded && tier && (
-                    <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-top-2 duration-200">
                       <CalculationBreakdown
                         tier={tier}
                         context={context}
