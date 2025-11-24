@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils/cn';
 import { useMemo } from 'react';
 import { CalculationBreakdown } from './calculation-breakdown';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ImpactSummaryProps {
   impact: CallPayImpact;
@@ -135,7 +136,7 @@ export function ImpactSummary({
               
               return (
                 <div key={tierImpact.tierId} className="space-y-3">
-                  {/* Tier Header - Clickable */}
+                  {/* Tier Header - Clickable with icon */}
                   <button
                     onClick={() => setExpandedTierId(isExpanded ? null : tierImpact.tierId)}
                     className={cn(
@@ -147,11 +148,26 @@ export function ImpactSummary({
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {tierImpact.tierName}
                       </h4>
-                      <span className="text-xs font-medium text-primary">
-                        {isExpanded ? 'Hide details' : 'Show details'}
-                      </span>
+                      <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                        <span>{isExpanded ? 'Hide' : 'Show'}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </div>
                     </div>
                   </button>
+                  
+                  {/* Calculation Breakdown - Expandable, shown right below header */}
+                  {isExpanded && tier && (
+                    <div className="pb-4 border-b border-gray-200 dark:border-gray-800 animate-in slide-in-from-top-2 duration-200">
+                      <CalculationBreakdown
+                        tier={tier}
+                        context={context}
+                      />
+                    </div>
+                  )}
                   
                   {/* Tier Metrics - Always visible */}
                   <div className="space-y-3 pt-2">
@@ -200,16 +216,6 @@ export function ImpactSummary({
                       </span>
                     </div>
                   </div>
-                  
-                  {/* Calculation Breakdown - Expandable */}
-                  {isExpanded && tier && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-top-2 duration-200">
-                      <CalculationBreakdown
-                        tier={tier}
-                        context={context}
-                      />
-                    </div>
-                  )}
                 </div>
               );
             })}
