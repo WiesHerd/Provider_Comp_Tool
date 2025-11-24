@@ -124,8 +124,7 @@ function ResultsStepContent({
           />
           <KPIChip
             label="Conversion Factor"
-            value={conversionFactor}
-            unit="$/wRVU"
+            value={`$${conversionFactor.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/wRVU`}
           />
         </div>
 
