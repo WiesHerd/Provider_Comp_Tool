@@ -328,15 +328,14 @@ function WRVUModelerPageContent() {
       >
         {/* Step 1: Provider Info */}
         <ProgressiveFormStep step={1}>
-          <Card className="border border-gray-200 dark:border-gray-800">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={1} variant="default" />
-                <CardTitle className="flex items-center gap-2">
-                  Provider Information
-                  <ScreenInfoModal
-                    title="Provider Information"
-                    description={`## Overview
+          <div className="space-y-6">
+            {/* Header - No container, just spacing */}
+            <div className="flex items-center gap-2">
+              <StepBadge number={1} variant="default" />
+              {/* Title removed - header shows page context */}
+              <ScreenInfoModal
+                title="Provider Information"
+                description={`## Overview
 Enter optional provider information to help organize and identify your scenarios. All fields are optional—you can proceed without entering any information.
 
 ## Fields
@@ -352,11 +351,11 @@ Enter optional provider information to help organize and identify your scenarios
 
 ## How It Works
 This information is saved with your scenario and can help you organize multiple calculations. You can load saved scenarios later using the Load Saved Scenario dropdown above.`}
-                  />
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              />
+            </div>
+            
+            {/* Content - No container, just direct content */}
+            <div className="space-y-6">
               <ScenarioLoader
                 scenarioType="wrvu-modeler"
                 onLoad={handleLoadScenario}
@@ -430,19 +429,19 @@ This information is saved with your scenario and can help you organize multiple 
                   )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           <ProgressiveFormNavigation nextLabel="Continue to FTE & wRVUs" />
         </ProgressiveFormStep>
 
         {/* Step 2: FTE & wRVUs */}
         <ProgressiveFormStep step={2}>
-          <Card variant="borderless">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={2} variant="default" />
-                {/* Title removed - header shows page context */}
-                  <ScreenInfoModal
+          <div className="space-y-6">
+            {/* Header - No container */}
+            <div className="flex items-center gap-2">
+              <StepBadge number={2} variant="default" />
+              {/* Title removed - header shows page context */}
+              <ScreenInfoModal
                     title="FTE & Projected wRVUs"
                     description={`## Overview
 Enter your Full-Time Equivalent (FTE) status and projected wRVU production. All calculations are automatically normalized to 1.0 FTE for fair comparison.
@@ -473,10 +472,11 @@ Enter your annual wRVUs using one of three methods:
 ### Flexible Input
 • Choose the input method that works best for your data
 • Switch between methods at any time`}
-                  />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              />
+            </div>
+            
+            {/* Content - No container */}
+            <div className="space-y-6">
               <div className="space-y-2" data-tour="wrvu-fte">
                 <FTEInput value={fte} onChange={setFte} />
                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -502,20 +502,19 @@ Enter your annual wRVUs using one of three methods:
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           <ProgressiveFormNavigation nextLabel="Continue to CF" />
         </ProgressiveFormStep>
 
         {/* Step 3: Conversion Factor */}
         <ProgressiveFormStep step={3}>
-          <Card className="border border-gray-200 dark:border-gray-800">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={3} variant="default" />
-                <CardTitle className="flex items-center gap-2">
-                  Conversion Factor
-                  <ScreenInfoModal
+          <div className="space-y-6">
+            {/* Header - No container */}
+            <div className="flex items-center gap-2">
+              <StepBadge number={3} variant="default" />
+              {/* Title removed - header shows page context */}
+              <ScreenInfoModal
                     title="Conversion Factor"
                     description={`## Overview
 Enter your conversion factor to calculate productivity-based compensation. The conversion factor determines how much you earn per wRVU generated.
@@ -544,11 +543,11 @@ Enter your conversion factor to calculate productivity-based compensation. The c
 
 ## Impact
 The conversion factor is a key component in determining your total compensation structure. Higher CF values result in more compensation per wRVU generated.`}
-                  />
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6" data-tour="wrvu-conversion">
+              />
+            </div>
+            
+            {/* Content - No container */}
+            <div className="space-y-6" data-tour="wrvu-conversion">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">Conversion Factor ($/wRVU)</Label>
                 <CurrencyInput
@@ -568,8 +567,8 @@ The conversion factor is a key component in determining your total compensation 
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           <ProgressiveFormNavigation nextLabel="Results" />
         </ProgressiveFormStep>
 

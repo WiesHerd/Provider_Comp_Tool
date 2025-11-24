@@ -185,13 +185,12 @@ function TCCCalculatorPageContent() {
 
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
-      <Card id="provider-input" className="border border-gray-200 dark:border-gray-800" data-tour="fmv-tcc-content">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <StepBadge number={1} variant="default" />
-            <CardTitle className="flex items-center gap-2">
-              Provider Input
-              <ScreenInfoModal
+      <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
+        {/* Header - No container */}
+        <div className="flex items-center gap-2">
+          <StepBadge number={1} variant="default" />
+          {/* Title removed - header shows "TCC Calculator" */}
+          <ScreenInfoModal
                 title="Provider Input - TCC Calculator"
                 description={`## Overview
 Enter your provider information and Total Cash Compensation (TCC) components to calculate your percentile ranking against market benchmarks. TCC represents your complete cash compensation package.
@@ -230,11 +229,11 @@ Add all components of your total cash compensation:
 
 ## Next Steps
 After entering your data, proceed to Market Data to add benchmark percentiles for comparison.`}
-              />
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          />
+        </div>
+        
+        {/* Content - No container */}
+        <div className="space-y-6">
           <ScenarioLoader
             scenarioType="fmv-tcc"
             onLoad={(scenario) => {
@@ -284,20 +283,19 @@ After entering your data, proceed to Market Data to add benchmark percentiles fo
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       )}
 
       {/* Step 2: Market Data (Only show when on Step 2) */}
       {currentStep === 2 && (
-      <Card id="market-data" className="border border-gray-200 dark:border-gray-800">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <StepBadge number={2} variant="default" />
-            <CardTitle className="flex items-center gap-2">
-              Market Data
-              <ScreenInfoModal
-                title="Market Data - TCC Calculator"
+      <div id="market-data" className="space-y-6">
+        {/* Header - No container */}
+        <div className="flex items-center gap-2">
+          <StepBadge number={2} variant="default" />
+          {/* Title removed - header shows "TCC Calculator" */}
+          <ScreenInfoModal
+            title="Market Data - TCC Calculator"
                 description={`## Overview
 Add market benchmark data to compare your Total Cash Compensation (TCC) against industry standards and calculate your percentile ranking. Market benchmarks represent TCC levels at different percentiles for your specialty.
 
@@ -335,11 +333,11 @@ Add market benchmark data to compare your Total Cash Compensation (TCC) against 
 • You can save market data by specialty for quick loading in future calculations
 • Saved data persists across sessions
 • Update benchmarks as market data changes`}
-              />
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          />
+        </div>
+        
+        {/* Content - No container */}
+        <div className="space-y-6">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             <strong>Required:</strong> Add market benchmarks to compare your TCC against market data for percentile analysis. At least one benchmark (25th, 50th, 75th, or 90th percentile) is required to calculate percentiles.
           </p>
@@ -360,8 +358,8 @@ Add market benchmark data to compare your Total Cash Compensation (TCC) against 
             metricType="tcc"
             benchmarks={marketBenchmarks}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       )}
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}

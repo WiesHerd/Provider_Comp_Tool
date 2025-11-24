@@ -321,11 +321,11 @@ Set up your call coverage tiers and enter rates and call burden for each tier. E
 
 ## Next Steps
 After configuring your tiers, proceed to Review Budget to see your annual call pay impact.`}
-                />
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
+            />
+          </div>
+          
+          {/* Content - No container */}
+          <div className="space-y-6">
             <TierManager
               tiers={tiers}
               onTiersChange={handleTiersChange}
@@ -395,14 +395,14 @@ After configuring your tiers, proceed to Review Budget to see your annual call p
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
         <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
-          <Card className="border border-gray-200 dark:border-gray-800">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={3} variant="default" />
-                <CardTitle>Review Budget</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          {/* Header - No container */}
+          <div className="flex items-center gap-2">
+            <StepBadge number={3} variant="default" />
+            {/* Title removed - header shows page context */}
+          </div>
+          
+          {/* Content - No container */}
+          <div className="space-y-6">
               <ImpactSummary 
                 impact={impact} 
                 annualAllowableBudget={annualAllowableBudget}
@@ -425,8 +425,7 @@ After configuring your tiers, proceed to Review Budget to see your annual call p
                   Start New Calculation
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       )}
     </div>
