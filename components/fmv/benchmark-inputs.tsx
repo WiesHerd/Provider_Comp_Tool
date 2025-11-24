@@ -4,6 +4,7 @@ import { MarketBenchmarks } from '@/types';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
+import { DollarSign, Activity } from 'lucide-react';
 
 interface BenchmarkInputsProps {
   benchmarks: MarketBenchmarks;

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { MarketBenchmarks } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Stethoscope } from 'lucide-react';
 import {
   Select,
   SelectContent,
