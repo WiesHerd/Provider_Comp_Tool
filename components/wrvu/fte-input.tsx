@@ -1,7 +1,11 @@
 'use client';
 
+import * as React from 'react';
 import { FTE } from '@/types';
 import { Label } from '@/components/ui/label';
+import { NumberInput } from '@/components/ui/number-input';
+import { Button } from '@/components/ui/button';
+import { Plus, Minus } from 'lucide-react';
 
 interface FTEInputProps {
   value: FTE;
@@ -9,26 +13,60 @@ interface FTEInputProps {
 }
 
 export function FTEInput({ value, onChange }: FTEInputProps) {
+  const step = 0.01;
+  const min = 0;
+  const max = 1.0;
+
+  const handleIncrement = () => {
+    const newValue = Number((value + step).toFixed(2));
+    onChange(Math.min(newValue, max) as FTE);
+  };
+
+  const handleDecrement = () => {
+    const newValue = Number((value - step).toFixed(2));
+    onChange(Math.max(newValue, min) as FTE);
+  };
+
   return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label className="text-base font-semibold">FTE (Full-Time Equivalent)</Label>
-          <span className="text-2xl font-bold text-primary">{value.toFixed(2)}</span>
+    <div className="space-y-2">
+      <Label className="text-sm font-semibold">FTE (Full-Time Equivalent)</Label>
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <NumberInput
+            value={value}
+            onChange={(val) => {
+              // Constrain value to FTE range
+              const constrained = Math.max(min, Math.min(max, val));
+              onChange(constrained as FTE);
+            }}
+            min={min}
+            max={max}
+            step={step}
+          />
         </div>
-        <input
-          type="range"
-          min="0.1"
-          max="1.0"
-          step="0.01"
-          value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value) as FTE)}
-          className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
-        />
-        <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-          <span>0.1</span>
-          <span>0.5</span>
-          <span>1.0</span>
+        <div className="flex gap-1.5 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 sm:p-0.5 flex-shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleDecrement}
+            className="h-11 w-11 sm:h-8 sm:w-8 p-0 hover:bg-primary hover:text-white rounded-md active:scale-95 transition-transform touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center"
+            disabled={value <= min}
+            aria-label="Decrease FTE"
+          >
+            <Minus className="h-5 w-5 sm:h-4 sm:w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleIncrement}
+            className="h-11 w-11 sm:h-8 sm:w-8 p-0 hover:bg-primary hover:text-white rounded-md active:scale-95 transition-transform touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center"
+            disabled={value >= max}
+            aria-label="Increase FTE"
+          >
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
+          </Button>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 
 const TCC_COMPONENT_TYPES: TCCComponentType[] = [
   'Base Salary',
@@ -119,237 +120,254 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {components.map((component) => (
-          <div
-            key={component.id}
-            className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-xl"
-          >
-            <div className="sm:col-span-3">
-              <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Type</label>
-              {component.type === 'Custom' ? (
-                <Input
-                  value={component.label || ''}
-                  onChange={(e) => {
-                    const customType = e.target.value;
-                    updateComponent(component.id, { 
-                      type: 'Custom',
-                      label: customType 
-                    });
-                  }}
-                  placeholder="Enter custom type"
-                />
-              ) : (
-                <Select
-                  value={component.type}
-                  onValueChange={(value) => {
-                    if (value === 'Custom') {
-                      updateComponent(component.id, { type: 'Custom', label: '' });
-                    } else {
-                      updateComponent(component.id, { type: value as TCCComponentType });
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TCC_COMPONENT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-
-            {component.type !== 'Custom' && (
-              <div className="sm:col-span-2">
-                <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Label</label>
-                <Input
-                  value={component.label}
-                  onChange={(e) => updateComponent(component.id, { label: e.target.value })}
-                  placeholder="Optional"
-                />
-              </div>
-            )}
-            {component.type === 'Custom' && (
-              <div className="sm:col-span-2">
-                {/* Spacer to maintain grid layout when Custom type is selected */}
-              </div>
-            )}
-
-            {/* Calculation Method Selector - only show for non-base-salary components */}
-            {component.type !== 'Base Salary' && (
-              <div className="sm:col-span-2">
-                <label className="text-sm text-gray-600 dark:text-gray-400 mb-2 block">Method</label>
-                <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Clear local input state when switching away from percentage
-                      setPercentageInputs(prev => {
-                        const updated = { ...prev };
-                        delete updated[component.id];
-                        return updated;
-                      });
-                      updateComponent(component.id, { 
-                        calculationMethod: 'fixed',
-                        fixedAmount: component.fixedAmount || component.amount || 0,
-                        percentage: component.percentage || 0,
-                      });
-                    }}
-                    className={cn(
-                      "flex-1 px-2 py-2.5 rounded-md font-semibold text-xs sm:text-sm transition-all",
-                      "min-h-[44px] flex items-center justify-center",
-                      (component.calculationMethod || 'fixed') === 'fixed'
-                        ? "bg-white dark:bg-gray-900 text-primary shadow-sm"
-                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-                    )}
-                  >
-                    Amount
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      updateComponent(component.id, { 
-                        calculationMethod: 'percentage',
-                        percentage: component.percentage || 0,
-                        fixedAmount: component.fixedAmount || 0,
-                      });
-                    }}
-                    className={cn(
-                      "flex-1 px-2 py-2.5 rounded-md font-semibold text-xs sm:text-sm transition-all",
-                      "min-h-[44px] flex items-center justify-center",
-                      component.calculationMethod === 'percentage'
-                        ? "bg-white dark:bg-gray-900 text-primary shadow-sm"
-                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-                    )}
-                  >
-                    <span className="hidden sm:inline">% Base</span>
-                    <span className="sm:hidden">%</span>
-                  </button>
-                </div>
-              </div>
-            )}
-            {component.type === 'Base Salary' && (
-              <div className="sm:col-span-2">
-                {/* Spacer for base salary */}
-              </div>
-            )}
-
-            {/* Amount Input - varies based on calculation method */}
-            <div className="sm:col-span-4">
-              {component.type === 'Base Salary' ? (
-                <>
-                  <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Annual Amount</label>
-                  <CurrencyInput
-                    value={component.amount}
-                    onChange={(value) => updateComponent(component.id, { 
-                      amount: value,
-                      fixedAmount: value,
-                      calculationMethod: 'fixed',
-                    })}
-                  />
-                </>
-              ) : component.calculationMethod === 'percentage' ? (
-                <>
-                  <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">
-                    Percentage of Base Pay
-                    {basePayAmount > 0 && (
-                      <span className="text-xs text-gray-500 ml-1">
-                        (${((basePayAmount * (component.percentage || 0)) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-                      </span>
-                    )}
-                  </label>
-                  <div className="relative">
+          <Card key={component.id} variant="default" className="relative">
+            <CardContent className="p-4 md:p-6">
+              {/* Row 1: Type + Label + Delete Button */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <div className="flex-1">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Type</label>
+                  {component.type === 'Custom' ? (
                     <Input
-                      type="text"
-                      inputMode="decimal"
-                      value={getPercentageDisplayValue(component)}
+                      value={component.label || ''}
                       onChange={(e) => {
-                        const inputValue = e.target.value;
-                        
-                        // Update local state immediately to show what user is typing
-                        setPercentageInputs(prev => ({ ...prev, [component.id]: inputValue }));
-                        
-                        // Allow empty input
-                        if (inputValue === '') {
-                          updateComponent(component.id, { percentage: 0 });
-                          return;
-                        }
-                        
-                        // Allow just a decimal point (user might be typing "15.")
-                        if (inputValue === '.') {
-                          return; // Don't update component yet, just show the decimal
-                        }
-                        
-                        // Remove any non-numeric characters except decimal point
-                        const cleaned = inputValue.replace(/[^0-9.]/g, '');
-                        
-                        // Only allow one decimal point
-                        const parts = cleaned.split('.');
-                        if (parts.length > 2) {
-                          return; // Invalid input, don't update
-                        }
-                        
-                        // Allow up to 4 decimal places for precision (e.g., 15.7525%)
-                        if (parts.length === 2 && parts[1].length > 4) {
-                          return; // Too many decimals, don't update
-                        }
-                        
-                        const numValue = parseFloat(cleaned);
-                        if (!isNaN(numValue) && numValue >= 0 && numValue <= 1000) {
-                          updateComponent(component.id, { percentage: numValue });
-                        }
+                        const customType = e.target.value;
+                        updateComponent(component.id, { 
+                          type: 'Custom',
+                          label: customType 
+                        });
                       }}
-                      onBlur={(e) => {
-                        // On blur, clean up the input - remove trailing decimal if no digits after
-                        const inputValue = e.target.value;
-                        if (inputValue.endsWith('.')) {
-                          const numValue = parseFloat(inputValue);
-                          if (!isNaN(numValue)) {
-                            setPercentageInputs(prev => ({ ...prev, [component.id]: numValue.toString() }));
-                          }
-                        }
-                      }}
-                      placeholder="0.00"
-                      className="pr-8"
+                      placeholder="Enter custom type"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">%</span>
-                  </div>
-                  {basePayAmount === 0 && (
-                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                      Add Base Salary first to calculate percentage
-                    </p>
+                  ) : (
+                    <Select
+                      value={component.type}
+                      onValueChange={(value) => {
+                        if (value === 'Custom') {
+                          updateComponent(component.id, { type: 'Custom', label: '' });
+                        } else {
+                          updateComponent(component.id, { type: value as TCCComponentType });
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TCC_COMPONENT_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
-                </>
-              ) : (
-                <>
-                  <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Annual Amount</label>
-                  <CurrencyInput
-                    value={component.fixedAmount || component.amount || 0}
-                    onChange={(value) => updateComponent(component.id, { 
-                      fixedAmount: value,
-                      amount: value,
-                    })}
-                  />
-                </>
-              )}
-            </div>
+                </div>
 
-            <div className="sm:col-span-1">
+                {component.type !== 'Custom' && (
+                  <div className="flex-1">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Label</label>
+                    <Input
+                      value={component.label}
+                      onChange={(e) => updateComponent(component.id, { label: e.target.value })}
+                      placeholder="Optional"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Delete Button - Top Right */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => removeComponent(component.id)}
-                className="w-full"
+                className="absolute top-4 right-4"
+                aria-label="Delete component"
               >
                 <Trash2 className="w-4 h-4 text-red-500" />
               </Button>
-            </div>
-          </div>
+
+              {/* Row 2: Method + Amount */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Calculation Method Selector - only show for non-base-salary components */}
+                {component.type !== 'Base Salary' && (
+                  <div className="sm:w-48">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Method</label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={(component.calculationMethod || 'fixed') === 'fixed' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          // Clear local input state when switching away from percentage
+                          setPercentageInputs(prev => {
+                            const updated = { ...prev };
+                            delete updated[component.id];
+                            return updated;
+                          });
+                          updateComponent(component.id, { 
+                            calculationMethod: 'fixed',
+                            fixedAmount: component.fixedAmount || component.amount || 0,
+                            percentage: component.percentage || 0,
+                          });
+                        }}
+                        className="flex-1"
+                      >
+                        Amount
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={component.calculationMethod === 'percentage' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          updateComponent(component.id, { 
+                            calculationMethod: 'percentage',
+                            percentage: component.percentage || 0,
+                            fixedAmount: component.fixedAmount || 0,
+                          });
+                        }}
+                        className="flex-1"
+                      >
+                        <span className="hidden sm:inline">% Base</span>
+                        <span className="sm:hidden">%</span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Amount Input - varies based on calculation method */}
+                <div className="flex-1">
+                  {component.type === 'Base Salary' ? (
+                    <>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Annual Amount</label>
+                      <CurrencyInput
+                        value={component.amount}
+                        onChange={(value) => updateComponent(component.id, { 
+                          amount: value,
+                          fixedAmount: value,
+                          calculationMethod: 'fixed',
+                        })}
+                      />
+                    </>
+                  ) : component.calculationMethod === 'percentage' ? (
+                    <>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                        Percentage of Base Pay
+                        {basePayAmount > 0 && (
+                          <span className="text-xs text-gray-500 ml-1 font-normal">
+                            (${((basePayAmount * (component.percentage || 0)) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                          </span>
+                        )}
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          inputMode="decimal"
+                          value={getPercentageDisplayValue(component)}
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+                            
+                            // Update local state immediately to show what user is typing
+                            setPercentageInputs(prev => ({ ...prev, [component.id]: inputValue }));
+                            
+                            // Allow empty input
+                            if (inputValue === '') {
+                              updateComponent(component.id, { percentage: 0 });
+                              return;
+                            }
+                            
+                            // Allow just a decimal point (user might be typing "15.")
+                            if (inputValue === '.') {
+                              return; // Don't update component yet, just show the decimal
+                            }
+                            
+                            // Remove any non-numeric characters except decimal point
+                            const cleaned = inputValue.replace(/[^0-9.]/g, '');
+                            
+                            // Only allow one decimal point
+                            const parts = cleaned.split('.');
+                            if (parts.length > 2) {
+                              return; // Invalid input, don't update
+                            }
+                            
+                            // Allow up to 4 decimal places for precision (e.g., 15.7525%)
+                            if (parts.length === 2 && parts[1].length > 4) {
+                              return; // Too many decimals, don't update
+                            }
+                            
+                            const numValue = parseFloat(cleaned);
+                            if (!isNaN(numValue) && numValue >= 0 && numValue <= 1000) {
+                              updateComponent(component.id, { percentage: numValue });
+                            }
+                          }}
+                          onBlur={(e) => {
+                            // On blur, preserve the value - format it properly but don't clear it
+                            const inputValue = e.target.value.trim();
+                            
+                            // If empty, keep it as 0 but preserve the display
+                            if (inputValue === '' || inputValue === '.') {
+                              // Only clear if the component percentage is actually 0
+                              if (component.percentage === 0 || component.percentage === undefined) {
+                                setPercentageInputs(prev => {
+                                  const updated = { ...prev };
+                                  delete updated[component.id];
+                                  return updated;
+                                });
+                              } else {
+                                // Preserve the component's percentage value
+                                setPercentageInputs(prev => ({ ...prev, [component.id]: component.percentage!.toString() }));
+                              }
+                              return;
+                            }
+                            
+                            // If it's a valid number, preserve it
+                            const numValue = parseFloat(inputValue);
+                            if (!isNaN(numValue) && numValue >= 0) {
+                              // Format the value nicely (remove trailing zeros if whole number)
+                              const formatted = numValue % 1 === 0 ? numValue.toString() : numValue.toString();
+                              setPercentageInputs(prev => ({ ...prev, [component.id]: formatted }));
+                            } else {
+                              // Invalid input - restore the component's actual percentage value
+                              if (component.percentage !== undefined && component.percentage !== 0) {
+                                setPercentageInputs(prev => ({ ...prev, [component.id]: component.percentage!.toString() }));
+                              } else {
+                                // Clear the local state to show empty
+                                setPercentageInputs(prev => {
+                                  const updated = { ...prev };
+                                  delete updated[component.id];
+                                  return updated;
+                                });
+                              }
+                            }
+                          }}
+                          placeholder="0.00"
+                          className="pr-8"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">%</span>
+                      </div>
+                      {basePayAmount === 0 && (
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                          Add Base Salary first to calculate percentage
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Annual Amount</label>
+                      <CurrencyInput
+                        value={component.fixedAmount || component.amount || 0}
+                        onChange={(value) => updateComponent(component.id, { 
+                          fixedAmount: value,
+                          amount: value,
+                        })}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
