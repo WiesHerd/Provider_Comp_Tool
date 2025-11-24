@@ -156,7 +156,31 @@ function CFCalculatorPageContent() {
               Provider Input
               <ScreenInfoModal
                 title="Provider Input - Conversion Factor Calculator"
-                description="## Overview\nEnter your conversion factor (CF) to calculate your percentile ranking against market benchmarks. The conversion factor determines how much you earn per wRVU generated.\n\n## What is Conversion Factor?\n\n### Definition\n• **Conversion Factor ($/wRVU)**: The dollar amount paid per wRVU for productivity incentives\n• Represents how much you earn per wRVU generated\n• A key component of productivity-based compensation models\n\n### Typical Values\n• Common CF values range from $40-$60 per wRVU\n• Values vary significantly by:\n  - Medical specialty\n  - Geographic market\n  - Practice type (academic vs. private)\n  - Market competitiveness\n\n### How It's Used\n• Multiplied by your annual wRVUs to calculate productivity pay\n• Higher CF = more compensation per wRVU\n• Often combined with base salary guarantees\n\n## Next Steps\nAfter entering your CF, proceed to Market Data to add benchmark percentiles for comparison."
+                description={`## Overview
+Enter your conversion factor (CF) to calculate your percentile ranking against market benchmarks. The conversion factor determines how much you earn per wRVU generated.
+
+## What is Conversion Factor?
+
+### Definition
+• **Conversion Factor ($/wRVU)**: The dollar amount paid per wRVU for productivity incentives
+• Represents how much you earn per wRVU generated
+• A key component of productivity-based compensation models
+
+### Typical Values
+• Common CF values range from $40-$60 per wRVU
+• Values vary significantly by:
+  - Medical specialty
+  - Geographic market
+  - Practice type (academic vs. private)
+  - Market competitiveness
+
+### How It's Used
+• Multiplied by your annual wRVUs to calculate productivity pay
+• Higher CF = more compensation per wRVU
+• Often combined with base salary guarantees
+
+## Next Steps
+After entering your CF, proceed to Market Data to add benchmark percentiles for comparison.`}
               />
             </CardTitle>
           </div>
@@ -220,7 +244,38 @@ function CFCalculatorPageContent() {
               Market Data
               <ScreenInfoModal
                 title="Market Data - Conversion Factor Calculator"
-                description="## Overview\nAdd market benchmark data to compare your conversion factor against industry standards. Market benchmarks represent CF values at different percentiles for your specialty.\n\n## Required Information\n\n### Benchmark Percentiles\n• **At least one percentile is required** to calculate your ranking\n• Available percentiles: 25th, 50th, 75th, and 90th\n• More percentiles provide more accurate percentile calculation\n\n### Specialty Selection\n• Select your medical specialty to load saved market data\n• Market data can be saved by specialty for quick loading\n• CF benchmarks vary significantly by specialty and market\n\n## How It Works\n\n### Percentile Calculation\n• Your percentile indicates where your CF ranks compared to market data\n• **Higher percentiles** indicate more competitive compensation per wRVU\n• Percentiles are calculated using linear interpolation between benchmark values\n\n### Understanding Percentiles\n• **25th Percentile**: Lower end of market range\n• **50th Percentile**: Median market value\n• **75th Percentile**: Above average, competitive\n• **90th Percentile**: Top tier, highly competitive\n\n## Saving Market Data\n• You can save market data by specialty for quick loading in future calculations\n• Saved data persists across sessions\n• Update benchmarks as market data changes"
+                description={`## Overview
+Add market benchmark data to compare your conversion factor against industry standards. Market benchmarks represent CF values at different percentiles for your specialty.
+
+## Required Information
+
+### Benchmark Percentiles
+• **At least one percentile is required** to calculate your ranking
+• Available percentiles: 25th, 50th, 75th, and 90th
+• More percentiles provide more accurate percentile calculation
+
+### Specialty Selection
+• Select your medical specialty to load saved market data
+• Market data can be saved by specialty for quick loading
+• CF benchmarks vary significantly by specialty and market
+
+## How It Works
+
+### Percentile Calculation
+• Your percentile indicates where your CF ranks compared to market data
+• **Higher percentiles** indicate more competitive compensation per wRVU
+• Percentiles are calculated using linear interpolation between benchmark values
+
+### Understanding Percentiles
+• **25th Percentile**: Lower end of market range
+• **50th Percentile**: Median market value
+• **75th Percentile**: Above average, competitive
+• **90th Percentile**: Top tier, highly competitive
+
+## Saving Market Data
+• You can save market data by specialty for quick loading in future calculations
+• Saved data persists across sessions
+• Update benchmarks as market data changes`}
               />
             </CardTitle>
           </div>

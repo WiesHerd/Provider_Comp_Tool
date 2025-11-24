@@ -33,6 +33,9 @@ import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
+import { useProgressiveForm } from '@/components/ui/progressive-form';
+import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
+import { FTE } from '@/types';
 
 // Common medical specialties (matching the pattern from other components)
 const SPECIALTIES = [
@@ -67,6 +70,126 @@ const SPECIALTIES = [
   'Pathology',
   'Other',
 ];
+
+interface ResultsStepContentProps {
+  annualWrvus: number;
+  productivityPay: number;
+  productivityPerWrvu: number;
+  monthlyBreakdown: number[];
+  conversionFactor: number;
+  normalizedWrvus: number;
+  normalizedProductivityPay: number;
+  fte: FTE;
+  providerName: string;
+  specialty: string;
+  customSpecialty: string;
+  onStartOver: () => void;
+}
+
+function ResultsStepContent({
+  annualWrvus,
+  productivityPay,
+  productivityPerWrvu,
+  monthlyBreakdown,
+  conversionFactor,
+  normalizedWrvus,
+  normalizedProductivityPay,
+  fte,
+  providerName,
+  specialty,
+  customSpecialty,
+  onStartOver,
+}: ResultsStepContentProps) {
+  const { goToStep } = useProgressiveForm();
+
+  const handleStartOver = () => {
+    onStartOver();
+    goToStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg" data-tour="wrvu-results">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <StepBadge number={4} variant="completed" />
+            <CardTitle>Results</CardTitle>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleStartOver}
+            className="gap-2"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Start Over
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* KPI Chips */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <KPIChip
+            label="Annual wRVUs"
+            value={annualWrvus}
+          />
+          <KPIChip
+            label="Productivity Incentive (at current FTE)"
+            value={productivityPay}
+            unit="$"
+          />
+          <KPIChip
+            label="Productivity $ per wRVU"
+            value={productivityPerWrvu}
+            unit="$"
+          />
+        </div>
+
+        {/* Monthly Breakdown Chart */}
+        {monthlyBreakdown.some(val => val > 0) && (
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+              Monthly Breakdown
+            </h3>
+            <MonthlyBreakdownChart
+              monthlyBreakdown={monthlyBreakdown}
+              conversionFactor={conversionFactor}
+            />
+          </div>
+        )}
+
+        {/* Additional Metrics */}
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Normalized wRVUs (1.0 FTE)</span>
+            <span className="font-semibold text-lg text-primary">
+              {normalizedWrvus.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Normalized Productivity Pay (1.0 FTE)</span>
+            <span className="font-semibold text-lg text-primary">
+              ${normalizedProductivityPay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <ScenarioSaveButton
+            fte={fte}
+            annualWrvus={annualWrvus}
+            conversionFactor={conversionFactor}
+            productivityPay={productivityPay}
+            providerName={providerName.trim() || undefined}
+            specialty={specialty === 'Other' ? (customSpecialty.trim() || undefined) : (specialty || undefined)}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function WRVUModelerPageContent() {
   const searchParams = useSearchParams();
@@ -214,7 +337,22 @@ function WRVUModelerPageContent() {
                   Provider Information
                   <ScreenInfoModal
                     title="Provider Information"
-                    description={'## Overview\nEnter optional provider information to help organize and identify your scenarios. All fields are optional—you can proceed without entering any information.\n\n## Fields\n\n### Provider Name\n• Optional identifier for this scenario\n• Helps you distinguish between different calculations\n\n### Specialty\n• Select your medical specialty from the dropdown\n• Choose Other to enter a custom specialty\n• Helps organize scenarios by specialty type\n\n## How It Works\nThis information is saved with your scenario and can help you organize multiple calculations. You can load saved scenarios later using the Load Saved Scenario dropdown above.'}
+                    description={`## Overview
+Enter optional provider information to help organize and identify your scenarios. All fields are optional—you can proceed without entering any information.
+
+## Fields
+
+### Provider Name
+• Optional identifier for this scenario
+• Helps you distinguish between different calculations
+
+### Specialty
+• Select your medical specialty from the dropdown
+• Choose Other to enter a custom specialty
+• Helps organize scenarios by specialty type
+
+## How It Works
+This information is saved with your scenario and can help you organize multiple calculations. You can load saved scenarios later using the Load Saved Scenario dropdown above.`}
                   />
                 </CardTitle>
               </div>
@@ -308,7 +446,35 @@ function WRVUModelerPageContent() {
                   FTE & Projected wRVUs
                   <ScreenInfoModal
                     title="FTE & Projected wRVUs"
-                    description={'## Overview\nEnter your Full-Time Equivalent (FTE) status and projected wRVU production. All calculations are automatically normalized to 1.0 FTE for fair comparison.\n\n## Fields\n\n### FTE (Full-Time Equivalent)\n• Your employment status from 0.1 to 1.0\n• 1.0 = full-time employment\n• Changing FTE automatically scales your wRVU values proportionally\n\n### Projected wRVUs\nEnter your annual wRVUs using one of three methods:\n  • Annual: Enter total annual wRVUs directly\n  • Monthly Avg: Enter average wRVUs per month (multiplies by 12)\n  • By Month: Enter individual monthly breakdown for precise tracking\n\n## Key Features\n\n### Normalized Calculations\n• All values are normalized to 1.0 FTE for comparison\n• Your wRVUs automatically adjust based on your FTE\n\n### Automatic Scaling\n• When you change FTE, existing wRVU values scale proportionally\n• No manual recalculation needed\n\n### Flexible Input\n• Choose the input method that works best for your data\n• Switch between methods at any time'}
+                    description={`## Overview
+Enter your Full-Time Equivalent (FTE) status and projected wRVU production. All calculations are automatically normalized to 1.0 FTE for fair comparison.
+
+## Fields
+
+### FTE (Full-Time Equivalent)
+• Your employment status from 0.1 to 1.0
+• 1.0 = full-time employment
+• Changing FTE automatically scales your wRVU values proportionally
+
+### Projected wRVUs
+Enter your annual wRVUs using one of three methods:
+  • Annual: Enter total annual wRVUs directly
+  • Monthly Avg: Enter average wRVUs per month (multiplies by 12)
+  • By Month: Enter individual monthly breakdown for precise tracking
+
+## Key Features
+
+### Normalized Calculations
+• All values are normalized to 1.0 FTE for comparison
+• Your wRVUs automatically adjust based on your FTE
+
+### Automatic Scaling
+• When you change FTE, existing wRVU values scale proportionally
+• No manual recalculation needed
+
+### Flexible Input
+• Choose the input method that works best for your data
+• Switch between methods at any time`}
                   />
                 </CardTitle>
               </div>
@@ -354,7 +520,33 @@ function WRVUModelerPageContent() {
                   Conversion Factor
                   <ScreenInfoModal
                     title="Conversion Factor"
-                    description={'## Overview\nEnter your conversion factor to calculate productivity-based compensation. The conversion factor determines how much you earn per wRVU generated.\n\n## What is Conversion Factor?\n\n### Definition\n• Conversion Factor ($/wRVU): The dollar amount paid per wRVU for productivity incentives\n• Represents how much you earn per wRVU generated\n• A key component of productivity-based compensation models\n\n### Typical Values\n• Common CF values range from $40-$60 per wRVU\n• Values vary significantly by:\n  - Medical specialty\n  - Geographic market\n  - Practice type (academic vs. private)\n  - Market competitiveness\n\n## Calculations\n\n### Productivity Pay\n• Productivity Pay = Annual wRVUs × Conversion Factor\n• Normalized Productivity Pay = Productivity Pay normalized to 1.0 FTE\n• Productivity $ per wRVU = Productivity Pay ÷ Annual wRVUs\n\n## Impact\nThe conversion factor is a key component in determining your total compensation structure. Higher CF values result in more compensation per wRVU generated.'}
+                    description={`## Overview
+Enter your conversion factor to calculate productivity-based compensation. The conversion factor determines how much you earn per wRVU generated.
+
+## What is Conversion Factor?
+
+### Definition
+• Conversion Factor ($/wRVU): The dollar amount paid per wRVU for productivity incentives
+• Represents how much you earn per wRVU generated
+• A key component of productivity-based compensation models
+
+### Typical Values
+• Common CF values range from $40-$60 per wRVU
+• Values vary significantly by:
+  - Medical specialty
+  - Geographic market
+  - Practice type (academic vs. private)
+  - Market competitiveness
+
+## Calculations
+
+### Productivity Pay
+• Productivity Pay = Annual wRVUs × Conversion Factor
+• Normalized Productivity Pay = Productivity Pay normalized to 1.0 FTE
+• Productivity $ per wRVU = Productivity Pay ÷ Annual wRVUs
+
+## Impact
+The conversion factor is a key component in determining your total compensation structure. Higher CF values result in more compensation per wRVU generated.`}
                   />
                 </CardTitle>
               </div>
@@ -386,72 +578,20 @@ function WRVUModelerPageContent() {
 
         {/* Step 4: Results */}
         <ProgressiveFormStep step={4}>
-          <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg" data-tour="wrvu-results">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <StepBadge number={4} variant="completed" />
-                  <CardTitle>Results</CardTitle>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleStartOver}
-                  className="gap-2"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Start Over
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* KPI Chips */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <KPIChip
-                  label="Annual wRVUs"
-                  value={annualWrvus}
-                />
-                <KPIChip
-                  label="Productivity Incentive (at current FTE)"
-                  value={productivityPay}
-                  unit="$"
-                />
-                <KPIChip
-                  label="Productivity $ per wRVU"
-                  value={productivityPerWrvu}
-                  unit="$"
-                />
-              </div>
-
-              {/* Additional Metrics */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Normalized wRVUs (1.0 FTE)</span>
-                  <span className="font-semibold text-lg text-primary">
-                    {normalizedWrvus.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Normalized Productivity Pay (1.0 FTE)</span>
-                  <span className="font-semibold text-lg text-primary">
-                    ${normalizedProductivityPay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-
-              {/* Save Button */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <ScenarioSaveButton
-                  fte={fte}
-                  annualWrvus={annualWrvus}
-                  conversionFactor={conversionFactor}
-                  productivityPay={productivityPay}
-                  providerName={providerName.trim() || undefined}
-                  specialty={specialty === 'Other' ? (customSpecialty.trim() || undefined) : (specialty || undefined)}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ResultsStepContent
+            annualWrvus={annualWrvus}
+            productivityPay={productivityPay}
+            productivityPerWrvu={productivityPerWrvu}
+            monthlyBreakdown={monthlyBreakdown}
+            conversionFactor={conversionFactor}
+            normalizedWrvus={normalizedWrvus}
+            normalizedProductivityPay={normalizedProductivityPay}
+            fte={fte}
+            providerName={providerName}
+            specialty={specialty}
+            customSpecialty={customSpecialty}
+            onStartOver={handleStartOver}
+          />
           <div className="mt-8 sm:mt-10" />
         </ProgressiveFormStep>
       </ProgressiveForm>

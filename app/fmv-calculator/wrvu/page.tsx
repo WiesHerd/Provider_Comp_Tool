@@ -175,7 +175,37 @@ function WRVUCalculatorPageContent() {
               Provider Input
               <ScreenInfoModal
                 title="Provider Input - wRVU Calculator"
-                description="## Overview\nEnter your provider information and wRVU data to calculate your percentile ranking against market benchmarks. This step collects your personal productivity data for comparison.\n\n## Required Fields\n\n### FTE (Full-Time Equivalent)\n• Your employment status from 0.1 to 1.0\n• 1.0 = full-time employment\n• 0.5 = half-time employment\n• Used to normalize your wRVUs for fair comparison\n\n### Projected wRVUs\nEnter your annual wRVUs using one of three methods:\n  • **Annual Total**: Enter your total annual wRVUs directly\n  • **Monthly Average**: Enter average wRVUs per month (automatically multiplies by 12)\n  • **Monthly Breakdown**: Enter individual monthly values for precise tracking\n\n## Key Features\n\n### Normalized Calculations\n• Market benchmarks are normalized to 1.0 FTE for fair comparison\n• Your wRVUs are automatically normalized based on your FTE\n• This ensures accurate percentile rankings regardless of employment status\n\n### Flexible Input Methods\n• Choose the input method that works best for your data\n• Switch between methods at any time\n• Monthly breakdown allows for seasonal variation tracking\n\n## Next Steps\nAfter entering your data, proceed to Market Data to add benchmark percentiles for comparison."
+                description={`## Overview
+Enter your provider information and wRVU data to calculate your percentile ranking against market benchmarks. This step collects your personal productivity data for comparison.
+
+## Required Fields
+
+### FTE (Full-Time Equivalent)
+• Your employment status from 0.1 to 1.0
+• 1.0 = full-time employment
+• 0.5 = half-time employment
+• Used to normalize your wRVUs for fair comparison
+
+### Projected wRVUs
+Enter your annual wRVUs using one of three methods:
+  • **Annual Total**: Enter your total annual wRVUs directly
+  • **Monthly Average**: Enter average wRVUs per month (automatically multiplies by 12)
+  • **Monthly Breakdown**: Enter individual monthly values for precise tracking
+
+## Key Features
+
+### Normalized Calculations
+• Market benchmarks are normalized to 1.0 FTE for fair comparison
+• Your wRVUs are automatically normalized based on your FTE
+• This ensures accurate percentile rankings regardless of employment status
+
+### Flexible Input Methods
+• Choose the input method that works best for your data
+• Switch between methods at any time
+• Monthly breakdown allows for seasonal variation tracking
+
+## Next Steps
+After entering your data, proceed to Market Data to add benchmark percentiles for comparison.`}
               />
             </CardTitle>
           </div>
@@ -264,7 +294,37 @@ function WRVUCalculatorPageContent() {
               Market Data
               <ScreenInfoModal
                 title="Market Data - wRVU Calculator"
-                description="## Overview\nAdd market benchmark data to compare your wRVUs against industry standards and calculate your percentile ranking. Market benchmarks represent wRVU production levels at different percentiles for your specialty.\n\n## Required Information\n\n### Benchmark Percentiles\n• **At least one percentile is required** to calculate your ranking\n• Available percentiles: 25th, 50th, 75th, and 90th\n• More percentiles provide more accurate percentile calculation\n\n### Specialty Selection\n• Select your medical specialty to load saved market data\n• Market data can be saved by specialty for quick loading\n• Benchmarks vary significantly by specialty\n\n## How It Works\n\n### Normalized Comparison\n• All benchmarks are normalized to 1.0 FTE for fair comparison\n• Your normalized wRVUs are compared against these benchmarks\n• This ensures accurate rankings regardless of employment status\n\n### Percentile Calculation\n• Your percentile indicates where you rank compared to market data\n• **Example**: If you're at the 75th percentile, you generate more wRVUs than 75% of providers in your specialty\n• Percentiles are calculated using linear interpolation between benchmark values\n\n## Saving Market Data\n• You can save market data by specialty for quick loading in future calculations\n• Saved data persists across sessions\n• Update benchmarks as market data changes"
+                description={`## Overview
+Add market benchmark data to compare your wRVUs against industry standards and calculate your percentile ranking. Market benchmarks represent wRVU production levels at different percentiles for your specialty.
+
+## Required Information
+
+### Benchmark Percentiles
+• **At least one percentile is required** to calculate your ranking
+• Available percentiles: 25th, 50th, 75th, and 90th
+• More percentiles provide more accurate percentile calculation
+
+### Specialty Selection
+• Select your medical specialty to load saved market data
+• Market data can be saved by specialty for quick loading
+• Benchmarks vary significantly by specialty
+
+## How It Works
+
+### Normalized Comparison
+• All benchmarks are normalized to 1.0 FTE for fair comparison
+• Your normalized wRVUs are compared against these benchmarks
+• This ensures accurate rankings regardless of employment status
+
+### Percentile Calculation
+• Your percentile indicates where you rank compared to market data
+• **Example**: If you're at the 75th percentile, you generate more wRVUs than 75% of providers in your specialty
+• Percentiles are calculated using linear interpolation between benchmark values
+
+## Saving Market Data
+• You can save market data by specialty for quick loading in future calculations
+• Saved data persists across sessions
+• Update benchmarks as market data changes`}
               />
             </CardTitle>
           </div>

@@ -49,18 +49,18 @@ export function ScenarioCard({ scenario }: ScenarioCardProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-sm text-gray-600 dark:text-gray-400">FTE</div>
-              <div className="text-lg font-semibold">{scenario.fte.toFixed(2)}</div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">{scenario.fte.toFixed(2)}</div>
             </div>
             <div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Total TCC</div>
-              <div className="text-lg font-semibold">
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 ${(scenario.totalTcc || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </div>
             {scenario.normalizedTcc && (
               <div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Normalized TCC</div>
-                <div className="text-lg font-semibold">
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">
                   ${scenario.normalizedTcc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
@@ -68,7 +68,7 @@ export function ScenarioCard({ scenario }: ScenarioCardProps) {
             {scenario.normalizedWrvus && (
               <div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Normalized wRVUs</div>
-                <div className="text-lg font-semibold">
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">
                   {scenario.normalizedWrvus.toLocaleString('en-US', { maximumFractionDigits: 2 })}
                 </div>
               </div>
@@ -117,7 +117,7 @@ export function ScenarioCard({ scenario }: ScenarioCardProps) {
               <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
                 <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
-                  <Dialog.Title className="text-xl font-bold mb-2">Delete Scenario</Dialog.Title>
+                  <Dialog.Title className="text-xl font-bold mb-2 text-gray-900 dark:text-white">Delete Scenario</Dialog.Title>
                   <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     Are you sure you want to delete &quot;{scenario.name}&quot;? This action cannot be undone.
                   </Dialog.Description>

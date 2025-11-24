@@ -130,7 +130,7 @@ export default function Home() {
         )}
 
         {/* Disclaimer - Apple-style minimal */}
-        <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-12 mb-8">
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-12 mb-8">
           For education and planning only. Not legal or FMV advice.
         </p>
       </div>

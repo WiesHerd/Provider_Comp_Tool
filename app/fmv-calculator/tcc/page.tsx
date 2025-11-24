@@ -190,7 +190,43 @@ function TCCCalculatorPageContent() {
               Provider Input
               <ScreenInfoModal
                 title="Provider Input - TCC Calculator"
-                description="## Overview\nEnter your provider information and Total Cash Compensation (TCC) components to calculate your percentile ranking against market benchmarks. TCC represents your complete cash compensation package.\n\n## Required Fields\n\n### Specialty\n• Select your medical specialty to load relevant market benchmarks\n• Specialty selection helps identify appropriate market data\n• Benchmarks vary significantly by specialty\n\n### FTE (Full-Time Equivalent)\n• Your employment status from 0.1 to 1.0\n• 1.0 = full-time employment\n• Used to normalize your TCC for fair comparison\n\n### TCC Components\nAdd all components of your total cash compensation:\n  • **Base Salary**: Guaranteed annual base compensation\n  • **Productivity Incentive**: Performance-based compensation tied to wRVUs or other metrics\n  • **Retention Bonus**: Bonuses for staying with the organization\n  • **Long-Term Incentive**: Multi-year incentive programs\n  • **Other Compensation**: Any additional cash compensation components\n\n## Key Features\n\n### Normalized Calculations\n• Market benchmarks are normalized to 1.0 FTE for fair comparison\n• Your TCC is automatically normalized based on your FTE\n• This ensures accurate percentile rankings regardless of employment status\n\n### Total TCC Calculation\n• Total TCC is the sum of all components you add\n• Each component is included in the final calculation\n• You can add or remove components as needed\n\n## Next Steps\nAfter entering your data, proceed to Market Data to add benchmark percentiles for comparison."
+                description={`## Overview
+Enter your provider information and Total Cash Compensation (TCC) components to calculate your percentile ranking against market benchmarks. TCC represents your complete cash compensation package.
+
+## Required Fields
+
+### Specialty
+• Select your medical specialty to load relevant market benchmarks
+• Specialty selection helps identify appropriate market data
+• Benchmarks vary significantly by specialty
+
+### FTE (Full-Time Equivalent)
+• Your employment status from 0.1 to 1.0
+• 1.0 = full-time employment
+• Used to normalize your TCC for fair comparison
+
+### TCC Components
+Add all components of your total cash compensation:
+  • **Base Salary**: Guaranteed annual base compensation
+  • **Productivity Incentive**: Performance-based compensation tied to wRVUs or other metrics
+  • **Retention Bonus**: Bonuses for staying with the organization
+  • **Long-Term Incentive**: Multi-year incentive programs
+  • **Other Compensation**: Any additional cash compensation components
+
+## Key Features
+
+### Normalized Calculations
+• Market benchmarks are normalized to 1.0 FTE for fair comparison
+• Your TCC is automatically normalized based on your FTE
+• This ensures accurate percentile rankings regardless of employment status
+
+### Total TCC Calculation
+• Total TCC is the sum of all components you add
+• Each component is included in the final calculation
+• You can add or remove components as needed
+
+## Next Steps
+After entering your data, proceed to Market Data to add benchmark percentiles for comparison.`}
               />
             </CardTitle>
           </div>
@@ -259,7 +295,43 @@ function TCCCalculatorPageContent() {
               Market Data
               <ScreenInfoModal
                 title="Market Data - TCC Calculator"
-                description="## Overview\nAdd market benchmark data to compare your Total Cash Compensation (TCC) against industry standards and calculate your percentile ranking. Market benchmarks represent TCC levels at different percentiles for your specialty.\n\n## Required Information\n\n### Benchmark Percentiles\n• **At least one percentile is required** to calculate your ranking\n• Available percentiles: 25th, 50th, 75th, and 90th\n• More percentiles provide more accurate percentile calculation\n\n### Specialty Selection\n• Select your medical specialty to load saved market data\n• Market data can be saved by specialty for quick loading\n• TCC benchmarks vary significantly by specialty and geographic market\n\n## How It Works\n\n### Normalized Comparison\n• All benchmarks are normalized to 1.0 FTE for fair comparison\n• Your normalized TCC is compared against these benchmarks\n• This ensures accurate rankings regardless of employment status\n\n### Percentile Calculation\n• Your percentile indicates where you rank compared to market data\n• **Example**: If you're at the 75th percentile, your TCC is higher than 75% of providers in your specialty\n• Percentiles are calculated using linear interpolation between benchmark values\n\n### Understanding Percentiles\n• **25th Percentile**: Lower end of market range\n• **50th Percentile**: Median market value\n• **75th Percentile**: Above average, competitive\n• **90th Percentile**: Top tier, highly competitive\n\n## Saving Market Data\n• You can save market data by specialty for quick loading in future calculations\n• Saved data persists across sessions\n• Update benchmarks as market data changes"
+                description={`## Overview
+Add market benchmark data to compare your Total Cash Compensation (TCC) against industry standards and calculate your percentile ranking. Market benchmarks represent TCC levels at different percentiles for your specialty.
+
+## Required Information
+
+### Benchmark Percentiles
+• **At least one percentile is required** to calculate your ranking
+• Available percentiles: 25th, 50th, 75th, and 90th
+• More percentiles provide more accurate percentile calculation
+
+### Specialty Selection
+• Select your medical specialty to load saved market data
+• Market data can be saved by specialty for quick loading
+• TCC benchmarks vary significantly by specialty and geographic market
+
+## How It Works
+
+### Normalized Comparison
+• All benchmarks are normalized to 1.0 FTE for fair comparison
+• Your normalized TCC is compared against these benchmarks
+• This ensures accurate rankings regardless of employment status
+
+### Percentile Calculation
+• Your percentile indicates where you rank compared to market data
+• **Example**: If you're at the 75th percentile, your TCC is higher than 75% of providers in your specialty
+• Percentiles are calculated using linear interpolation between benchmark values
+
+### Understanding Percentiles
+• **25th Percentile**: Lower end of market range
+• **50th Percentile**: Median market value
+• **75th Percentile**: Above average, competitive
+• **90th Percentile**: Top tier, highly competitive
+
+## Saving Market Data
+• You can save market data by specialty for quick loading in future calculations
+• Saved data persists across sessions
+• Update benchmarks as market data changes`}
               />
             </CardTitle>
           </div>

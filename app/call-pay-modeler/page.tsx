@@ -195,7 +195,14 @@ export default function CallPayModelerPage() {
                     Set Your Context
                     <ScreenInfoModal
                       title="Set Context - Call Pay Modeler"
-                      description="Enter your call pay context information to begin modeling your call coverage structure.\n\nRequired Information:\n• Specialty: Select your medical specialty\n• Providers on Call: Number of providers in the call rotation\n• Rotation Ratio: How often each provider takes call\n\nAfter entering your context, proceed to Configure Tiers to set up your call categories."
+                      description={`Enter your call pay context information to begin modeling your call coverage structure.
+
+Required Information:
+• Specialty: Select your medical specialty
+• Providers on Call: Number of providers in the call rotation
+• Rotation Ratio: How often each provider takes call
+
+After entering your context, proceed to Configure Tiers to set up your call categories.`}
                     />
                   </CardTitle>
                 </div>
@@ -255,7 +262,67 @@ export default function CallPayModelerPage() {
                 Configure Tiers
                 <ScreenInfoModal
                   title="Configure Tiers - Call Pay Modeler"
-                  description={'## Overview\nSet up your call coverage tiers and enter rates and call burden for each tier. Each tier represents a different level of call coverage responsibility.\n\n## Configuration Options\n\n### Tier Management\n• Enable/Disable Toggle: Use the switch next to each tier to enable or disable it\n  - Enabled tiers are included in budget calculations\n  - Disabled tiers are excluded from calculations but remain saved\n  - The label shows Enabled or Disabled based on the toggle state\n\n### Tier Settings\n• Tier Name: Customize the tier identifier (e.g., C1, C2, C3)\n• Coverage Type: Select from In-house, Restricted home, Unrestricted home, or Backup only\n• Payment Method: Choose Daily/shift rate, Hourly rate, Per procedure, or Per wRVU\n\n### Rate Configuration\n• Weekday Rate: Base rate for weekday call coverage\n• Weekend Rate: Rate for weekend call coverage\n• Holiday Rate: Rate for holiday call coverage\n\n### Rate Calculation Options\n• Percentage-Based Calculation Toggle: When enabled, weekend and holiday rates are automatically calculated from weekday rate using percentage uplifts\n  - Weekend Uplift %: Percentage increase for weekend rates (default: 20%)\n  - Holiday Uplift %: Percentage increase for holiday rates (default: 30%)\n  - When disabled, enter rates manually for each period\n\n### Additional Options\n• Trauma/High-Acuity Uplift Toggle: Enable to add an additional percentage uplift for high-acuity cases\n  - When enabled, enter the uplift percentage\n  - Applied to all rates (weekday, weekend, holiday)\n\n### Call Burden\n• Enter call volume data for each tier:\n  - Calls per month\n  - Hours per call\n  - Cases per month (for procedural payment methods)\n\n## Understanding Call Tiers\n\n### C1 (First Call)\n• Primary on-call coverage with highest frequency\n• Immediate response requirements\n• Typically highest compensation rate\n\n### C2 (Second Call)\n• Backup coverage when C1 is unavailable or needs support\n• Lower frequency than C1\n• Moderate compensation rate\n\n### C3 (Third Call)\n• Tertiary coverage for specialized situations\n• Lowest frequency\n• Lower compensation rate\n\n### C4, C5\n• Additional tiers for further stratification as needed\n• Customize based on your call structure\n\n## Next Steps\nAfter configuring your tiers, proceed to Review Budget to see your annual call pay impact.'}
+                  description={`## Overview
+Set up your call coverage tiers and enter rates and call burden for each tier. Each tier represents a different level of call coverage responsibility.
+
+## Configuration Options
+
+### Tier Management
+• Enable/Disable Toggle: Use the switch next to each tier to enable or disable it
+  - Enabled tiers are included in budget calculations
+  - Disabled tiers are excluded from calculations but remain saved
+  - The label shows Enabled or Disabled based on the toggle state
+
+### Tier Settings
+• Tier Name: Customize the tier identifier (e.g., C1, C2, C3)
+• Coverage Type: Select from In-house, Restricted home, Unrestricted home, or Backup only
+• Payment Method: Choose Daily/shift rate, Hourly rate, Per procedure, or Per wRVU
+
+### Rate Configuration
+• Weekday Rate: Base rate for weekday call coverage
+• Weekend Rate: Rate for weekend call coverage
+• Holiday Rate: Rate for holiday call coverage
+
+### Rate Calculation Options
+• Percentage-Based Calculation Toggle: When enabled, weekend and holiday rates are automatically calculated from weekday rate using percentage uplifts
+  - Weekend Uplift %: Percentage increase for weekend rates (default: 20%)
+  - Holiday Uplift %: Percentage increase for holiday rates (default: 30%)
+  - When disabled, enter rates manually for each period
+
+### Additional Options
+• Trauma/High-Acuity Uplift Toggle: Enable to add an additional percentage uplift for high-acuity cases
+  - When enabled, enter the uplift percentage
+  - Applied to all rates (weekday, weekend, holiday)
+
+### Call Burden
+• Enter call volume data for each tier:
+  - Calls per month
+  - Hours per call
+  - Cases per month (for procedural payment methods)
+
+## Understanding Call Tiers
+
+### C1 (First Call)
+• Primary on-call coverage with highest frequency
+• Immediate response requirements
+• Typically highest compensation rate
+
+### C2 (Second Call)
+• Backup coverage when C1 is unavailable or needs support
+• Lower frequency than C1
+• Moderate compensation rate
+
+### C3 (Third Call)
+• Tertiary coverage for specialized situations
+• Lowest frequency
+• Lower compensation rate
+
+### C4, C5
+• Additional tiers for further stratification as needed
+• Customize based on your call structure
+
+## Next Steps
+After configuring your tiers, proceed to Review Budget to see your annual call pay impact.`}
                 />
               </CardTitle>
             </div>
