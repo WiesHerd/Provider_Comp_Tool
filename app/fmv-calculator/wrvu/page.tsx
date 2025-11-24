@@ -113,7 +113,8 @@ function WRVUCalculatorPageContent() {
   const currentStep = activeStep;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12 space-y-6 sm:space-y-8">
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-wrvu-content">
@@ -225,7 +226,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}
       {currentStep === 1 && normalizedWrvus > 0 && !showResults && (
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
+        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <Button
             onClick={() => setActiveStep(2)}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -238,7 +239,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Calculate Button - Always visible on Step 2 */}
       {currentStep === 2 && normalizedWrvus > 0 && (
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
+        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <Button
             onClick={handleCalculate}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -259,56 +260,50 @@ function WRVUCalculatorPageContent() {
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedWrvus > 0 && (
         <div id="results-section" className="space-y-6">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
-            </div>
-            <div className="space-y-6">
-              <PercentileBreakdown
-                value={normalizedWrvus}
-                percentile={percentile}
-                benchmarks={{
-                  p25: marketBenchmarks.wrvu25,
-                  p50: marketBenchmarks.wrvu50,
-                  p75: marketBenchmarks.wrvu75,
-                  p90: marketBenchmarks.wrvu90,
-                }}
-                formatValue={formatValue}
-                valueLabel="Your Normalized wRVUs (1.0 FTE)"
-              />
+          <PercentileBreakdown
+            value={normalizedWrvus}
+            percentile={percentile}
+            benchmarks={{
+              p25: marketBenchmarks.wrvu25,
+              p50: marketBenchmarks.wrvu50,
+              p75: marketBenchmarks.wrvu75,
+              p90: marketBenchmarks.wrvu90,
+            }}
+            formatValue={formatValue}
+            valueLabel="Your Normalized wRVUs (1.0 FTE)"
+          />
 
-              {/* Save and Start Over Buttons */}
-              <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <FMVSaveButton
-                      metricType="wrvu"
-                      value={normalizedWrvus}
-                      benchmarks={marketBenchmarks}
-                      percentile={percentile}
-                      fte={fte}
-                    />
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={handleStartNew}
-                    className="w-full sm:w-auto gap-2"
-                  >
-                    Start Over
-                  </Button>
-                </div>
+          {/* Save and Start Over Buttons */}
+          <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <FMVSaveButton
+                  metricType="wrvu"
+                  value={normalizedWrvus}
+                  benchmarks={marketBenchmarks}
+                  percentile={percentile}
+                  fte={fte}
+                />
               </div>
+              <Button
+                variant="outline"
+                onClick={handleStartNew}
+                className="w-full sm:w-auto gap-2"
+              >
+                Start Over
+              </Button>
             </div>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
 
 export default function WRVUCalculatorPage() {
   return (
-    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6"><div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12">Loading...</div></div>}>
       <WRVUCalculatorPageContent />
     </Suspense>
   );

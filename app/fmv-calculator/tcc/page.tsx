@@ -129,7 +129,8 @@ function TCCCalculatorPageContent() {
   const currentStep = activeStep;
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12 space-y-6 sm:space-y-8">
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
@@ -221,7 +222,7 @@ function TCCCalculatorPageContent() {
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}
       {currentStep === 1 && normalizedTcc > 0 && !showResults && (
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
+        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <Button
             onClick={() => setActiveStep(2)}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -234,7 +235,7 @@ function TCCCalculatorPageContent() {
       
       {/* Calculate Button - Always visible on Step 2 for easy recalculation */}
       {currentStep === 2 && (
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <Button
             onClick={handleCalculate}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -260,58 +261,52 @@ function TCCCalculatorPageContent() {
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedTcc > 0 && (
         <div id="results-section" className="space-y-6">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
-            </div>
-            <div className="space-y-6">
-              <PercentileBreakdown
-                value={normalizedTcc}
-                percentile={percentile}
-                benchmarks={{
-                  p25: marketBenchmarks.tcc25,
-                  p50: marketBenchmarks.tcc50,
-                  p75: marketBenchmarks.tcc75,
-                  p90: marketBenchmarks.tcc90,
-                }}
-                formatValue={formatValue}
-                valueLabel="Your Normalized TCC"
-              />
+          <PercentileBreakdown
+            value={normalizedTcc}
+            percentile={percentile}
+            benchmarks={{
+              p25: marketBenchmarks.tcc25,
+              p50: marketBenchmarks.tcc50,
+              p75: marketBenchmarks.tcc75,
+              p90: marketBenchmarks.tcc90,
+            }}
+            formatValue={formatValue}
+            valueLabel="Your Normalized TCC"
+          />
 
-              {/* Save and Start Over Buttons */}
-              <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <FMVSaveButton
-                      metricType="tcc"
-                      value={normalizedTcc}
-                      benchmarks={marketBenchmarks}
-                      percentile={percentile}
-                      tccComponents={tccComponents}
-                      fte={fte}
-                      totalTcc={totalTcc}
-                    />
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={handleStartNew}
-                    className="w-full sm:w-auto gap-2"
-                  >
-                    Start Over
-                  </Button>
-                </div>
+          {/* Save and Start Over Buttons */}
+          <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <FMVSaveButton
+                  metricType="tcc"
+                  value={normalizedTcc}
+                  benchmarks={marketBenchmarks}
+                  percentile={percentile}
+                  tccComponents={tccComponents}
+                  fte={fte}
+                  totalTcc={totalTcc}
+                />
               </div>
+              <Button
+                variant="outline"
+                onClick={handleStartNew}
+                className="w-full sm:w-auto gap-2"
+              >
+                Start Over
+              </Button>
             </div>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
 
 export default function TCCCalculatorPage() {
   return (
-    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6"><div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12">Loading...</div></div>}>
       <TCCCalculatorPageContent />
     </Suspense>
   );
