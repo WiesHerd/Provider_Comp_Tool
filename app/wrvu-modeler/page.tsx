@@ -35,7 +35,6 @@ import { RotateCcw } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { useProgressiveForm } from '@/components/ui/progressive-form';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
-import { FTE } from '@/types';
 
 // Common medical specialties (matching the pattern from other components)
 const SPECIALTIES = [
