@@ -135,21 +135,23 @@ function TCCCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <ScenarioLoader
-            scenarioType="fmv-tcc"
-            onLoad={(scenario) => {
-              setFte(scenario.fte);
-              if (scenario.tccComponents && scenario.tccComponents.length > 0) {
-                setTccComponents(scenario.tccComponents);
-              }
-              if (scenario.marketBenchmarks) {
-                setMarketBenchmarks(scenario.marketBenchmarks);
-              }
-              if (scenario.specialty) {
-                setSpecialty(scenario.specialty);
-              }
-            }}
-          />
+          <div className="flex items-center justify-end">
+            <ScenarioLoader
+              scenarioType="fmv-tcc"
+              onLoad={(scenario) => {
+                setFte(scenario.fte);
+                if (scenario.tccComponents && scenario.tccComponents.length > 0) {
+                  setTccComponents(scenario.tccComponents);
+                }
+                if (scenario.marketBenchmarks) {
+                  setMarketBenchmarks(scenario.marketBenchmarks);
+                }
+                if (scenario.specialty) {
+                  setSpecialty(scenario.specialty);
+                }
+              }}
+            />
+          </div>
           
           <FTEInput value={fte} onChange={setFte} />
           

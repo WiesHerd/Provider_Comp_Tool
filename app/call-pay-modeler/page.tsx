@@ -188,6 +188,7 @@ export default function CallPayModelerPage() {
         <div id="context-card" data-tour="call-pay-context" className="space-y-4">
           {/* Content - No container, just direct content */}
           <div className="space-y-4">
+            <div className="flex items-center justify-end">
               <ScenarioLoader
                 scenarioType="call-pay"
                 onLoad={(scenario: ProviderScenario) => {
@@ -215,8 +216,8 @@ export default function CallPayModelerPage() {
                     setActiveStep(3); // Jump to review budget
                   }
                 }}
-                className="mb-4"
               />
+            </div>
             <ContextCard 
               context={context} 
               onContextChange={setContext}

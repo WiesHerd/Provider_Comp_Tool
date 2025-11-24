@@ -100,23 +100,25 @@ function CFCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-cf-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <ScenarioLoader
-            scenarioType="fmv-cf"
-            onLoad={(scenario) => {
-              // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
-              if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
-                setCfValue(scenario.cfValue);
-              } else if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
-                setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
-              }
-              if (scenario.marketBenchmarks) {
-                setMarketBenchmarks(scenario.marketBenchmarks);
-              }
-              if (scenario.specialty) {
-                setSpecialty(scenario.specialty);
-              }
-            }}
-          />
+          <div className="flex items-center justify-end">
+            <ScenarioLoader
+              scenarioType="fmv-cf"
+              onLoad={(scenario) => {
+                // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
+                if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
+                  setCfValue(scenario.cfValue);
+                } else if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
+                  setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
+                }
+                if (scenario.marketBenchmarks) {
+                  setMarketBenchmarks(scenario.marketBenchmarks);
+                }
+                if (scenario.specialty) {
+                  setSpecialty(scenario.specialty);
+                }
+              }}
+            />
+          </div>
           
           <div className="space-y-2">
             <Label className="text-base font-semibold">Conversion Factor ($/wRVU)</Label>

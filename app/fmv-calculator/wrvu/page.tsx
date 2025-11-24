@@ -119,35 +119,37 @@ function WRVUCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-wrvu-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <ScenarioLoader
-            scenarioType="fmv-wrvu"
-            onLoad={(scenario) => {
-              if (scenario.fte) {
-                setFte(scenario.fte);
-              }
-              // Load annual wRVUs - prefer annualWrvus if available, otherwise calculate from normalized
-              if (scenario.annualWrvus && scenario.annualWrvus > 0) {
-                setAnnualWrvus(scenario.annualWrvus);
-              } else if (scenario.normalizedWrvus) {
-                const loadedFte = scenario.fte || 1.0;
-                setAnnualWrvus(scenario.normalizedWrvus * loadedFte);
-              }
-              // Load monthly breakdown if available
-              if (scenario.monthlyBreakdown && scenario.monthlyBreakdown.length === 12) {
-                setMonthlyBreakdown([...scenario.monthlyBreakdown]);
-              }
-              // Load monthly average if available
-              if (scenario.monthlyWrvus !== undefined) {
-                setMonthlyWrvus(scenario.monthlyWrvus);
-              }
-              if (scenario.marketBenchmarks) {
-                setMarketBenchmarks(scenario.marketBenchmarks);
-              }
-              if (scenario.specialty) {
-                setSpecialty(scenario.specialty);
-              }
-            }}
-          />
+          <div className="flex items-center justify-end">
+            <ScenarioLoader
+              scenarioType="fmv-wrvu"
+              onLoad={(scenario) => {
+                if (scenario.fte) {
+                  setFte(scenario.fte);
+                }
+                // Load annual wRVUs - prefer annualWrvus if available, otherwise calculate from normalized
+                if (scenario.annualWrvus && scenario.annualWrvus > 0) {
+                  setAnnualWrvus(scenario.annualWrvus);
+                } else if (scenario.normalizedWrvus) {
+                  const loadedFte = scenario.fte || 1.0;
+                  setAnnualWrvus(scenario.normalizedWrvus * loadedFte);
+                }
+                // Load monthly breakdown if available
+                if (scenario.monthlyBreakdown && scenario.monthlyBreakdown.length === 12) {
+                  setMonthlyBreakdown([...scenario.monthlyBreakdown]);
+                }
+                // Load monthly average if available
+                if (scenario.monthlyWrvus !== undefined) {
+                  setMonthlyWrvus(scenario.monthlyWrvus);
+                }
+                if (scenario.marketBenchmarks) {
+                  setMarketBenchmarks(scenario.marketBenchmarks);
+                }
+                if (scenario.specialty) {
+                  setSpecialty(scenario.specialty);
+                }
+              }}
+            />
+          </div>
           
           <FTEInput value={fte} onChange={setFte} />
           

@@ -334,12 +334,14 @@ function WRVUModelerPageContent() {
         {/* Step 1: Provider Info */}
         <ProgressiveFormStep step={1}>
           <div className="space-y-6">
-            <ScenarioLoader
-              scenarioType="wrvu-modeler"
-              onLoad={handleLoadScenario}
-            />
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Information</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Information</h3>
+                <ScenarioLoader
+                  scenarioType="wrvu-modeler"
+                  onLoad={handleLoadScenario}
+                />
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Provider Name</Label>
