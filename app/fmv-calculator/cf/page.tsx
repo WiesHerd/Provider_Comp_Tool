@@ -9,7 +9,6 @@ import { SpecialtyInput } from '@/components/fmv/specialty-input';
 import { MarketDataSaveButton } from '@/components/fmv/market-data-save-button';
 import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-button';
 import { CurrencyInput } from '@/components/ui/currency-input';
-import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Calculator } from 'lucide-react';
@@ -99,38 +98,6 @@ function CFCalculatorPageContent() {
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-cf-content">
-        {/* Header - No container */}
-        <div className="flex items-center gap-2">
-          <ScreenInfoModal
-            title="Provider Input - Conversion Factor Calculator"
-            description={`## Overview
-Enter your conversion factor (CF) to calculate your percentile ranking against market benchmarks. The conversion factor determines how much you earn per wRVU generated.
-
-## What is Conversion Factor?
-
-### Definition
-• **Conversion Factor ($/wRVU)**: The dollar amount paid per wRVU for productivity incentives
-• Represents how much you earn per wRVU generated
-• A key component of productivity-based compensation models
-
-### Typical Values
-• Common CF values range from $40-$60 per wRVU
-• Values vary significantly by:
-  - Medical specialty
-  - Geographic market
-  - Practice type (academic vs. private)
-  - Market competitiveness
-
-### How It's Used
-• Multiplied by your annual wRVUs to calculate productivity pay
-• Higher CF = more compensation per wRVU
-• Often combined with base salary guarantees
-
-## Next Steps
-After entering your CF, proceed to Market Data to add benchmark percentiles for comparison.`}
-          />
-        </div>
-        
         {/* Content - No container */}
         <div className="space-y-6">
           <ScenarioLoader
@@ -184,45 +151,6 @@ After entering your CF, proceed to Market Data to add benchmark percentiles for 
       {/* Step 2: Market Data (Only show when on Step 2) */}
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
-        {/* Header - No container */}
-        <div className="flex items-center gap-2">
-          <ScreenInfoModal
-            title="Market Data - Conversion Factor Calculator"
-            description={`## Overview
-Add market benchmark data to compare your conversion factor against industry standards. Market benchmarks represent CF values at different percentiles for your specialty.
-
-## Required Information
-
-### Benchmark Percentiles
-• **At least one percentile is required** to calculate your ranking
-• Available percentiles: 25th, 50th, 75th, and 90th
-• More percentiles provide more accurate percentile calculation
-
-### Specialty Selection
-• Select your medical specialty to load saved market data
-• Market data can be saved by specialty for quick loading
-• CF benchmarks vary significantly by specialty and market
-
-## How It Works
-
-### Percentile Calculation
-• Your percentile indicates where your CF ranks compared to market data
-• **Higher percentiles** indicate more competitive compensation per wRVU
-• Percentiles are calculated using linear interpolation between benchmark values
-
-### Understanding Percentiles
-• **25th Percentile**: Lower end of market range
-• **50th Percentile**: Median market value
-• **75th Percentile**: Above average, competitive
-• **90th Percentile**: Top tier, highly competitive
-
-## Saving Market Data
-• You can save market data by specialty for quick loading in future calculations
-• Saved data persists across sessions
-• Update benchmarks as market data changes`}
-          />
-        </div>
-        
         {/* Content - No container */}
         <div className="space-y-6">
           <p className="text-sm text-gray-600 dark:text-gray-400">
