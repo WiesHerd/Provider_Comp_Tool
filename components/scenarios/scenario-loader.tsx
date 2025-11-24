@@ -159,17 +159,13 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               Select a model to automatically load its data
             </p>
           </div>
-        </div>
-      )}
-    </div>
-  );
 
           {/* Delete Confirmation Dialog */}
           <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
             <Dialog.Portal>
               <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
               <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
-                <Dialog.Title className="text-xl font-bold mb-2">Delete Scenario</Dialog.Title>
+                <Dialog.Title className="text-xl font-bold mb-2">Delete Model</Dialog.Title>
                 <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Are you sure you want to delete &quot;{scenarioToDelete?.name}&quot;? This action cannot be undone.
                 </Dialog.Description>
