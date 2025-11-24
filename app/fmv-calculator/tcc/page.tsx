@@ -10,7 +10,6 @@ import { MarketDataSaveButton } from '@/components/fmv/market-data-save-button';
 import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-button';
 import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
-import { StepIndicator } from '@/components/ui/step-indicator';
 import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Button } from '@/components/ui/button';
 import { Calculator } from 'lucide-react';
@@ -128,59 +127,10 @@ function TCCCalculatorPageContent() {
     }
   }, [marketBenchmarks, activeStep, showResults]);
 
-  // Determine what steps are available based on state
-  const getAvailableStep = () => {
-    if (showResults) return 3;
-    if (hasMarketData && normalizedTcc > 0) return 2;
-    return 1;
-  };
-
-  const availableStep = getAvailableStep();
   const currentStep = activeStep;
-
-  const handleStepClick = (step: number) => {
-    // Always allow going back to step 1
-    if (step === 1) {
-      setActiveStep(1);
-      return;
-    }
-    
-    // Allow going to step 2 if they have TCC data
-    if (step === 2 && normalizedTcc > 0) {
-      setActiveStep(2);
-      return;
-    }
-    
-    // Allow going to step 3 if results are ready
-    if (step === 3) {
-      if (showResults) {
-        setActiveStep(3);
-      } else if (normalizedTcc > 0 && hasMarketData) {
-        // If clicking on results step and ready, trigger calculation
-        handleCalculate();
-        setActiveStep(3);
-      }
-    }
-  };
-  const totalSteps = 3; // Always show all 3 steps
-  const stepNames = ['Provider Input', 'Market Data', 'Results'];
-  const completedSteps = showResults ? [1, 2] : hasMarketData && normalizedTcc > 0 ? [1] : [];
 
   return (
     <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
-      {/* Step Indicator - Sticky so it stays visible when scrolling, perfectly aligned with content */}
-      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
-        <StepIndicator
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-          stepNames={stepNames}
-          showProgressBar={false}
-          sticky={true}
-        />
-      </div>
-
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
