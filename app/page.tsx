@@ -51,6 +51,22 @@ export default function Home() {
               </Card>
             </Link>
 
+            <Link href="/wrvu-forecaster">
+              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                <CardHeader className="space-y-4">
+                  <div className="w-16 h-16 flex items-center justify-center">
+                    <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base sm:text-lg">Provider Schedule & wRVU Forecaster</CardTitle>
+                    <CardDescription>
+                      Forecast annual wRVUs and compensation based on schedule
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
+            </Link>
+
             <Link href="/fmv-calculator">
               <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
@@ -67,7 +83,7 @@ export default function Home() {
               </Card>
             </Link>
 
-            <Link href="/call-pay-modeler">
+            <Link href="/call-pay-modeler" className="lg:col-start-2">
               <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
                   <div className="w-16 h-16 flex items-center justify-center">
@@ -77,22 +93,6 @@ export default function Home() {
                     <CardTitle className="text-base sm:text-lg">Call Pay Modeler</CardTitle>
                     <CardDescription>
                       Model call-pay structures with annualized outputs
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/wrvu-forecaster" className="lg:col-start-2">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
-                <CardHeader className="space-y-4">
-                  <div className="w-16 h-16 flex items-center justify-center">
-                    <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg">Provider Schedule & wRVU Forecaster</CardTitle>
-                    <CardDescription>
-                      Forecast annual wRVUs and compensation based on schedule
                     </CardDescription>
                   </div>
                 </CardHeader>
