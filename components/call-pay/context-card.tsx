@@ -14,7 +14,7 @@ import {
   SelectLabel,
   SelectSeparator,
 } from '@/components/ui/select';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Building2 } from 'lucide-react';
 import { CallPayContext, Specialty } from '@/types/call-pay';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
@@ -446,6 +446,7 @@ export function ContextCard({ context, onContextChange, showTopBorder = true }: 
                   setTimeout(() => setServiceLineFocused(false), 200);
                 }}
                 placeholder="e.g., Cardiac Surgery, Main Campus"
+                icon={<Building2 className="w-5 h-5" />}
               />
               {/* Show suggestions dropdown only when specialty is selected and field is focused */}
               {context.specialty && serviceLineFocused && serviceLineSuggestions.length > 0 && (

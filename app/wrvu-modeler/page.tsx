@@ -28,7 +28,7 @@ import { FTE, ProviderScenario } from '@/types';
 import { normalizeWrvus, normalizeTcc } from '@/lib/utils/normalization';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, User, Stethoscope } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { useProgressiveForm } from '@/components/ui/progressive-form';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
@@ -124,7 +124,9 @@ function ResultsStepContent({
           />
           <KPIChip
             label="Conversion Factor"
-            value={`$${conversionFactor.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/wRVU`}
+            value={conversionFactor}
+            unit="$"
+            unitBelow="/wRVU"
           />
         </div>
 
@@ -349,6 +351,7 @@ function WRVUModelerPageContent() {
                     value={providerName}
                     onChange={(e) => setProviderName(e.target.value)}
                     placeholder="Enter name"
+                    icon={<User className="w-5 h-5" />}
                   />
                 </div>
                 <div className="space-y-2">
@@ -409,6 +412,7 @@ function WRVUModelerPageContent() {
                     value={customSpecialty}
                     onChange={(e) => setCustomSpecialty(e.target.value)}
                     placeholder="Enter custom specialty"
+                    icon={<Stethoscope className="w-5 h-5" />}
                   />
                 </div>
               )}
@@ -420,7 +424,7 @@ function WRVUModelerPageContent() {
         {/* Step 2: FTE & wRVUs */}
         <ProgressiveFormStep step={2}>
           <div className="space-y-6">
-            <div className="space-y-2" data-tour="wrvu-fte">
+            <div className="flex items-center justify-between" data-tour="wrvu-fte">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">FTE & wRVUs</h3>
               <FTEInput value={fte} onChange={setFte} />
             </div>
@@ -436,15 +440,11 @@ function WRVUModelerPageContent() {
               />
             </div>
 
-            {annualWrvus === 0 && (
-              <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  Please enter projected wRVUs to continue.
-                </p>
-              </div>
-            )}
           </div>
-          <ProgressiveFormNavigation nextLabel="Conversion Factor" />
+          <ProgressiveFormNavigation 
+            nextLabel="Conversion Factor" 
+            disabled={annualWrvus === 0}
+          />
         </ProgressiveFormStep>
 
         {/* Step 3: Conversion Factor */}
@@ -457,16 +457,9 @@ function WRVUModelerPageContent() {
                 value={conversionFactor}
                 onChange={setConversionFactor}
                 placeholder="45.52"
+                disabled={annualWrvus === 0}
               />
             </div>
-
-            {conversionFactor === 0 && (
-              <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  Please enter a conversion factor to continue.
-                </p>
-              </div>
-            )}
           </div>
           <ProgressiveFormNavigation nextLabel="Results" />
         </ProgressiveFormStep>

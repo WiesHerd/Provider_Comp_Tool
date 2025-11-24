@@ -57,7 +57,39 @@ export function PercentileBreakdown({
 
   return (
     <div className="space-y-6">
-      {/* Alert Warnings - Simplified styling */}
+      {/* Hero Section - Match call pay large number display style */}
+      <div className="pb-6 border-b-2 border-gray-200 dark:border-gray-800">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <div className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              Percentile Rank
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {positionInfo.text}
+            </div>
+          </div>
+          <div className={cn(
+            "text-4xl sm:text-5xl font-light tracking-tight",
+            "text-gray-900 dark:text-white"
+          )}>
+            {percentile.toFixed(1)}<span className="text-lg sm:text-xl text-gray-500 dark:text-gray-400">th</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Value Display - Secondary metric */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {valueLabel}
+          </span>
+          <span className="text-base font-semibold text-gray-900 dark:text-white">
+            {formatValue(value)}
+          </span>
+        </div>
+      </div>
+
+      {/* Alert Warnings - After market position */}
       {isBelow25th && (
         <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
           <div className="p-4">
@@ -99,38 +131,6 @@ export function PercentileBreakdown({
           </div>
         </div>
       )}
-
-      {/* Hero Section - Match call pay large number display style */}
-      <div className="pb-6 border-b-2 border-gray-200 dark:border-gray-800">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <div className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-              Percentile Rank
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {positionInfo.text}
-            </div>
-          </div>
-          <div className={cn(
-            "text-4xl sm:text-5xl font-light tracking-tight",
-            "text-gray-900 dark:text-white"
-          )}>
-            {percentile.toFixed(1)}<span className="text-lg sm:text-xl text-gray-500 dark:text-gray-400">th</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Value Display - Secondary metric */}
-      <div className="space-y-3">
-        <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {valueLabel}
-          </span>
-          <span className="text-base font-semibold text-gray-900 dark:text-white">
-            {formatValue(value)}
-          </span>
-        </div>
-      </div>
 
       {/* Market Position - Match call pay metric row pattern */}
       {(p25 && p90) && (

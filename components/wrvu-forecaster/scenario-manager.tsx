@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, Trash2, TrendingUp, Mail, Printer } from 'lucide-react';
+import { Save, Trash2, TrendingUp, Mail, Printer, RotateCcw } from 'lucide-react';
 import {
   WRVUForecasterInputs,
   ProductivityMetrics,
@@ -27,9 +27,10 @@ interface ScenarioManagerProps {
   onLoadScenario: (scenario: WRVUForecasterScenario) => void;
   onEmailReport?: () => void;
   onPrint?: () => void;
+  onStartOver?: () => void;
 }
 
-export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport, onPrint }: ScenarioManagerProps) {
+export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport, onPrint, onStartOver }: ScenarioManagerProps) {
   const [savedScenarios, setSavedScenarios] = useState<WRVUForecasterScenario[]>([]);
   const [scenarioName, setScenarioName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -124,36 +125,49 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
 
       {/* Action Buttons - Sticky at bottom on mobile, regular on desktop */}
       <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-b sm:border-gray-200 sm:dark:border-gray-800">
-        <div className="fixed sm:static bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-50">
-          <div className="flex flex-row items-center justify-center gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowSaveDialog(true)}
-              className="min-h-[44px] touch-target flex-1 sm:flex-initial"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Scenario
-            </Button>
-            
-            {onEmailReport && (
+        <div className="fixed sm:static bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-50">
+          <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
+            <div className="flex flex-row items-center justify-center gap-3 flex-wrap flex-1">
               <Button 
                 variant="outline" 
-                onClick={onEmailReport}
+                onClick={() => setShowSaveDialog(true)}
                 className="min-h-[44px] touch-target flex-1 sm:flex-initial"
               >
-                <Mail className="w-4 h-4 mr-2" />
-                Email Report
+                <Save className="w-4 h-4 mr-2" />
+                Save Scenario
               </Button>
-            )}
+              
+              {onEmailReport && (
+                <Button 
+                  variant="outline" 
+                  onClick={onEmailReport}
+                  className="min-h-[44px] touch-target flex-1 sm:flex-initial"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email Report
+                </Button>
+              )}
+              
+              {onPrint && (
+                <Button 
+                  variant="outline" 
+                  onClick={onPrint}
+                  className="hidden sm:inline-flex min-h-[44px] touch-target"
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print Summary
+                </Button>
+              )}
+            </div>
             
-            {onPrint && (
+            {onStartOver && (
               <Button 
                 variant="outline" 
-                onClick={onPrint}
-                className="hidden sm:inline-flex min-h-[44px] touch-target"
+                onClick={onStartOver}
+                className="min-h-[44px] touch-target sm:ml-auto"
               >
-                <Printer className="w-4 h-4 mr-2" />
-                Print Summary
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Start Over
               </Button>
             )}
           </div>

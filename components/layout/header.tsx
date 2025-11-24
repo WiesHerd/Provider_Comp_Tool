@@ -13,7 +13,7 @@ import { SCREEN_GUIDES } from '@/lib/screen-guides';
 // Page title mapping for header
 const getPageTitle = (pathname: string): string | null => {
   if (pathname === '/') return null;
-  if (pathname === '/wrvu-modeler') return 'wRVU & Incentive Modeler';
+  if (pathname === '/wrvu-modeler') return 'Productivity Incentive Calculator';
   if (pathname === '/fmv-calculator') return 'FMV Calculator';
   if (pathname.startsWith('/fmv-calculator/wrvu')) return 'wRVU Calculator';
   if (pathname.startsWith('/fmv-calculator/tcc')) return 'TCC Calculator';
@@ -453,7 +453,7 @@ export function Header() {
                                 </h4>
                                 <ul className="space-y-3 text-gray-700 dark:text-gray-300">
                                   <li>
-                                    <strong className="text-gray-900 dark:text-white">wRVU & Incentive Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
+                                    <strong className="text-gray-900 dark:text-white">Productivity Incentive Calculator:</strong> Calculate productivity-based compensation and incentives based on FTE and conversion factors.
                                   </li>
                                   <li>
                                     <strong className="text-gray-900 dark:text-white">FMV Calculator:</strong> Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.
@@ -462,7 +462,7 @@ export function Header() {
                                     <strong className="text-gray-900 dark:text-white">Call Pay Modeler:</strong> Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.
                                   </li>
                                   <li>
-                                    <strong className="text-gray-900 dark:text-white">Provider Schedule & wRVU Forecaster:</strong> Forecast annual wRVUs and compensation based on your schedule and patient load.
+                                    <strong className="text-gray-900 dark:text-white">Schedule-Based Productivity Calculator:</strong> Forecast annual productivity and compensation based on your work schedule and patient load.
                                   </li>
                                 </ul>
                               </div>

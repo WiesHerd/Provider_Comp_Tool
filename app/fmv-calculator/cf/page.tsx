@@ -148,9 +148,6 @@ function CFCalculatorPageContent() {
 
           {/* Market Data Section */}
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              <strong>Required:</strong> Add market benchmarks to compare your CF against market data for percentile analysis. At least one benchmark (25th, 50th, 75th, or 90th percentile) is required to calculate percentiles.
-            </p>
             <SpecialtyInput
               metricType="cf"
               specialty={specialty}
@@ -185,17 +182,12 @@ function CFCalculatorPageContent() {
             <Calculator className="w-5 h-5 mr-2" />
             Calculate Percentile
           </Button>
-          {!hasMarketData && (
-            <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-2">
-              Please add market benchmark data to calculate percentile
-            </p>
-          )}
         </div>
       )}
 
       {/* Results (Only shown after calculation) */}
       {showResults && cfValue > 0 && (
-        <div id="results-section" className="space-y-6">
+        <div id="results-section" className="space-y-6 pt-12">
           <PercentileBreakdown
             value={cfValue}
             percentile={percentile}

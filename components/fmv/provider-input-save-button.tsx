@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { ProviderScenario, TCCComponent, FTE } from '@/types';
-import { Save } from 'lucide-react';
+import { Save, User } from 'lucide-react';
 
 interface ProviderInputSaveButtonProps {
   scenarioType: 'fmv-tcc' | 'fmv-wrvu' | 'fmv-cf';
@@ -101,6 +101,7 @@ export function ProviderInputSaveButton({
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Dr. Smith - Cardiology"
             className="mb-4"
+            icon={<User className="w-5 h-5" />}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSave();

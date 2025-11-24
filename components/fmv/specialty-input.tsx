@@ -256,6 +256,7 @@ export function SpecialtyInput({
             onChange={(e) => handleCustomSpecialtyChange(e.target.value)}
             placeholder="Enter specialty name"
             className="flex-1"
+            icon={<Stethoscope className="w-5 h-5" />}
           />
         )}
       </div>

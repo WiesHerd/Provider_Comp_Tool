@@ -120,7 +120,8 @@ function WRVUCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-wrvu-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between pt-12">
+            <FTEInput value={fte} onChange={setFte} />
             <ScenarioLoader
               scenarioType="fmv-wrvu"
               onLoad={(scenario) => {
@@ -160,11 +161,7 @@ function WRVUCalculatorPageContent() {
               onAnnualChange={setAnnualWrvus}
               onMonthlyChange={setMonthlyWrvus}
               onMonthlyBreakdownChange={setMonthlyBreakdown}
-              fteInput={<FTEInput value={fte} onChange={setFte} />}
             />
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Market benchmarks are normalized to 1.0 FTE
-            </p>
           </div>
           
           {annualWrvus > 0 && fte > 0 && (
@@ -197,10 +194,7 @@ function WRVUCalculatorPageContent() {
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
         {/* Content - No container */}
-        <div className="space-y-6">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            <strong>Required:</strong> Add market benchmarks to compare your wRVUs against market data for percentile analysis. At least one benchmark (25th, 50th, 75th, or 90th percentile) is required to calculate percentiles.
-          </p>
+        <div className="space-y-6 pt-8">
           <SpecialtyInput
             metricType="wrvu"
             specialty={specialty}
@@ -247,17 +241,12 @@ function WRVUCalculatorPageContent() {
             <Calculator className="w-5 h-5 mr-2" />
             Calculate Percentile
           </Button>
-          {!hasMarketData && (
-            <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-2">
-              Please add market benchmark data to calculate percentile
-            </p>
-          )}
         </div>
       )}
 
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedWrvus > 0 && (
-        <div id="results-section" className="space-y-6">
+        <div id="results-section" className="space-y-6 pt-12">
           <PercentileBreakdown
             value={normalizedWrvus}
             percentile={percentile}

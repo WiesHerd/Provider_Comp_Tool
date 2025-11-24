@@ -7,10 +7,11 @@ export interface CurrencyInputProps extends Omit<InputProps, 'type' | 'inputMode
   onChange?: (value: number) => void;
   prefix?: string;
   showDecimals?: boolean; // Whether to show decimal places (default: true for currency, false for large numbers)
+  icon?: React.ReactNode; // Optional icon to display in the input field
 }
 
 const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ value, onChange, prefix = "$", showDecimals = true, className, ...props }, ref) => {
+  ({ value, onChange, prefix = "$", showDecimals = true, icon, className, ...props }, ref) => {
     const [isFocused, setIsFocused] = React.useState(false);
     const [displayValue, setDisplayValue] = React.useState('');
 
@@ -73,10 +74,23 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
       props.onBlur?.(e);
     };
 
+    // Calculate left padding based on what's shown
+    const leftPadding = icon 
+      ? (prefix ? "pl-[4.5rem]" : "pl-10")
+      : (prefix ? "pl-[3.5rem]" : "");
+
     return (
       <div className="relative">
+        {icon && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 z-10 pointer-events-none">
+            {icon}
+          </div>
+        )}
         {prefix && (
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-base pointer-events-none z-10">
+          <span className={cn(
+            "absolute top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-base pointer-events-none z-10",
+            icon ? "left-10" : "left-4"
+          )}>
             {prefix}
           </span>
         )}
@@ -88,7 +102,7 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className={cn(prefix && "pl-[3.5rem]", className)}
+          className={cn(leftPadding, className)}
           {...props}
         />
       </div>

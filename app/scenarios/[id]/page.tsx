@@ -21,7 +21,7 @@ import {
 } from '@/lib/utils/percentile';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Activity } from 'lucide-react';
 
 export default function ScenarioDetailPage() {
   const params = useParams();
@@ -187,6 +187,7 @@ export default function ScenarioDetailPage() {
                 onChange={setAnnualWrvus}
                 placeholder="Enter annual wRVUs"
                 min={0}
+                icon={<Activity className="w-5 h-5" />}
               />
             </div>
 

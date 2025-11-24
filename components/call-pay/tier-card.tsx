@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Calendar, Tag, DollarSign } from 'lucide-react';
 
 interface TierCardProps {
   tier: CallTier;
@@ -110,6 +111,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           onChange={(e) => updateField('name', e.target.value)}
           className="font-semibold text-base max-w-[120px]"
           placeholder="C1"
+          icon={<Tag className="w-5 h-5" />}
         />
       </div>
 
@@ -211,6 +213,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   updateRates(updates);
                 }}
                 placeholder="0.00"
+                icon={<DollarSign className="w-5 h-5" />}
               />
             </div>
 
@@ -259,6 +262,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                         placeholder="0.00"
                         disabled
                         className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:text-gray-900 dark:disabled:text-gray-100 disabled:opacity-100"
+                        icon={<Calendar className="w-5 h-5" />}
                       />
                     </div>
                     <div className="w-24">
@@ -299,6 +303,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                         placeholder="0.00"
                         disabled
                         className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 disabled:text-gray-900 dark:disabled:text-gray-100 disabled:opacity-100"
+                        icon={<Calendar className="w-5 h-5" />}
                       />
                     </div>
                     <div className="w-24">
@@ -339,6 +344,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                     value={tier.rates.weekend}
                     onChange={(value) => updateRates({ weekend: value })}
                     placeholder="0.00"
+                    icon={<Calendar className="w-5 h-5" />}
                   />
                 </div>
                 <div className="space-y-2">
@@ -349,6 +355,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                     value={tier.rates.holiday}
                     onChange={(value) => updateRates({ holiday: value })}
                     placeholder="0.00"
+                    icon={<Calendar className="w-5 h-5" />}
                   />
                 </div>
               </div>

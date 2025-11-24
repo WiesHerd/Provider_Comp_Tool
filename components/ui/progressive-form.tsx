@@ -153,6 +153,7 @@ interface ProgressiveFormNavigationProps {
   nextLabel?: string;
   previousLabel?: string;
   showPrevious?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -162,11 +163,13 @@ export function ProgressiveFormNavigation({
   nextLabel = 'Continue',
   previousLabel = 'Back',
   showPrevious = true,
+  disabled = false,
   className,
 }: ProgressiveFormNavigationProps) {
   const { currentStep, totalSteps, nextStep, previousStep } = useProgressiveForm();
 
   const handleNext = () => {
+    if (disabled) return;
     onNext?.();
     nextStep();
   };
@@ -198,6 +201,7 @@ export function ProgressiveFormNavigation({
       )}
       <Button
         onClick={handleNext}
+        disabled={disabled}
         className={cn(
           'flex-1 sm:flex-initial sm:ml-auto',
           isLastStep && 'sm:min-w-[140px]',

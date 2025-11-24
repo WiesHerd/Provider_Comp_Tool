@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TCCComponent, TCCComponentType, TCCCalculationMethod } from '@/types';
+import { TCCComponent, TCCComponentType, TCCCalculationMethod, FTE } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { NumberInput } from '@/components/ui/number-input';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import {
   Select,
@@ -70,7 +70,10 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
   };
 
   const removeComponent = (id: string) => {
-    onComponentsChange(components.filter(c => c.id !== id));
+    // Always keep at least one component
+    if (components.length > 1) {
+      onComponentsChange(components.filter(c => c.id !== id));
+    }
   };
 
   const updateComponent = (id: string, updates: Partial<TCCComponent>) => {
@@ -113,9 +116,9 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">TCC Components</h3>
-        <Button onClick={addComponent} size="sm" variant="outline">
-          <Plus className="w-4 h-4 mr-1" />
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white">TCC Components</h3>
+        <Button onClick={addComponent} size="sm" variant="default" className="gap-1.5">
+          <Plus className="w-4 h-4" />
           Add Component
         </Button>
       </div>
@@ -129,17 +132,18 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
                 <div className="flex-1">
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Type</label>
                   {component.type === 'Custom' ? (
-                    <Input
-                      value={component.label || ''}
-                      onChange={(e) => {
-                        const customType = e.target.value;
-                        updateComponent(component.id, { 
-                          type: 'Custom',
-                          label: customType 
-                        });
-                      }}
-                      placeholder="Enter custom type"
-                    />
+                          <Input
+                            value={component.label || ''}
+                            onChange={(e) => {
+                              const customType = e.target.value;
+                              updateComponent(component.id, {
+                                type: 'Custom',
+                                label: customType
+                              });
+                            }}
+                            placeholder="Enter custom type"
+                            icon={<Tag className="w-5 h-5" />}
+                          />
                   ) : (
                     <Select
                       value={component.type}
@@ -172,6 +176,7 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
                       value={component.label}
                       onChange={(e) => updateComponent(component.id, { label: e.target.value })}
                       placeholder="Optional"
+                      icon={<Tag className="w-5 h-5" />}
                     />
                   </div>
                 )}
@@ -371,11 +376,6 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
         ))}
       </div>
 
-      {components.length === 0 && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          No components added yet. Click &quot;Add Component&quot; to get started.
-        </div>
-      )}
 
     </div>
   );

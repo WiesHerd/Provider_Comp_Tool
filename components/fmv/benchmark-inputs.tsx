@@ -54,12 +54,14 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}25` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('25')}
                   showDecimals={isCF}
+                  icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
                 <NumberInput
                   value={benchmarks[`${type}25` as keyof MarketBenchmarks] as number}
                   onChange={(value) => updateBenchmark(`${type}25` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('25')}
+                  icon={<Activity className="w-5 h-5" />}
                 />
               )}
             </div>
@@ -71,12 +73,14 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}50` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('50')}
                   showDecimals={isCF}
+                  icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
                 <NumberInput
                   value={benchmarks[`${type}50` as keyof MarketBenchmarks] as number}
                   onChange={(value) => updateBenchmark(`${type}50` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('50')}
+                  icon={<Activity className="w-5 h-5" />}
                 />
               )}
             </div>
@@ -88,12 +92,14 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}75` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('75')}
                   showDecimals={isCF}
+                  icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
                 <NumberInput
                   value={benchmarks[`${type}75` as keyof MarketBenchmarks] as number}
                   onChange={(value) => updateBenchmark(`${type}75` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('75')}
+                  icon={<Activity className="w-5 h-5" />}
                 />
               )}
             </div>
@@ -105,12 +111,14 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}90` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('90')}
                   showDecimals={isCF}
+                  icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
                 <NumberInput
                   value={benchmarks[`${type}90` as keyof MarketBenchmarks] as number}
                   onChange={(value) => updateBenchmark(`${type}90` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('90')}
+                  icon={<Activity className="w-5 h-5" />}
                 />
               )}
             </div>

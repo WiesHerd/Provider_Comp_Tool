@@ -4,7 +4,7 @@ import { NumberInputWithButtons } from '@/components/ui/number-input-with-button
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Gift, CalendarCheck, BookOpen, Plus, Trash2 } from 'lucide-react';
+import { Plane, CalendarCheck, BookOpen, Plus, Trash2, Clock } from 'lucide-react';
 import { ShiftType, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 
 interface WorkSchedulePanelProps {
@@ -29,7 +29,7 @@ export function WorkSchedulePanel({
           label="Vacation Weeks"
           value={inputs.vacationWeeks}
           onChange={(value) => onInputChange('vacationWeeks', value)}
-          icon={<Gift className="w-5 h-5" />}
+          icon={<Plane className="w-5 h-5" />}
           min={0}
           max={52}
           step={1}
@@ -69,6 +69,7 @@ export function WorkSchedulePanel({
                 onChange={(e) => onShiftChange(index, 'name', e.target.value)}
                 placeholder="Shift name"
                 className="flex-1 min-w-[120px] text-sm sm:text-base"
+                icon={<Clock className="w-5 h-5" />}
               />
               <Input
                 type="number"
@@ -77,6 +78,7 @@ export function WorkSchedulePanel({
                 placeholder="Hours"
                 className="w-16 sm:w-20 text-sm sm:text-base"
                 min={0}
+                icon={<Clock className="w-4 h-4" />}
               />
               <Input
                 type="number"
@@ -85,6 +87,7 @@ export function WorkSchedulePanel({
                 placeholder="Per week"
                 className="w-20 sm:w-24 text-sm sm:text-base"
                 min={0}
+                icon={<CalendarCheck className="w-4 h-4" />}
               />
               <Button
                 type="button"

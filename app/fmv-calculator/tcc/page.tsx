@@ -23,7 +23,16 @@ function TCCCalculatorPageContent() {
   const { getScenario } = useScenariosStore();
   const [specialty, setSpecialty] = useState<string>('');
   const [fte, setFte] = useState<FTE>(1.0);
-  const [tccComponents, setTccComponents] = useState<TCCComponent[]>([]);
+  const [tccComponents, setTccComponents] = useState<TCCComponent[]>([
+    {
+      id: `component-${Date.now()}`,
+      label: '',
+      type: 'Base Salary',
+      calculationMethod: 'fixed',
+      amount: 0,
+      fixedAmount: 0,
+    }
+  ]);
   const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
   const [showResults, setShowResults] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(1);
@@ -48,10 +57,17 @@ function TCCCalculatorPageContent() {
   };
 
   const handleStartNew = () => {
-    // Clear all form data
+    // Clear all form data but keep one empty component
     setSpecialty('');
     setFte(1.0);
-    setTccComponents([]);
+    setTccComponents([{
+      id: `component-${Date.now()}`,
+      label: '',
+      type: 'Base Salary',
+      calculationMethod: 'fixed',
+      amount: 0,
+      fixedAmount: 0,
+    }]);
     setMarketBenchmarks({});
     setShowResults(false);
     setActiveStep(1); // Go back to Step 1
@@ -136,7 +152,8 @@ function TCCCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between pt-8">
+            <FTEInput value={fte} onChange={setFte} />
             <ScenarioLoader
               scenarioType="fmv-tcc"
               onLoad={(scenario) => {
@@ -154,8 +171,6 @@ function TCCCalculatorPageContent() {
             />
           </div>
           
-          <FTEInput value={fte} onChange={setFte} />
-          
           <TCCComponentsGrid
             components={tccComponents}
             onComponentsChange={setTccComponents}
@@ -163,20 +178,24 @@ function TCCCalculatorPageContent() {
 
           {totalTcc > 0 && (
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-              {/* Itemized breakdown */}
-              <div className="space-y-1.5">
-                {tccComponents.map((component) => {
-                  const displayLabel = component.label || component.type;
-                  return (
-                    <div key={component.id} className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600 dark:text-gray-400 truncate pr-2">{displayLabel}</span>
-                      <span className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                        {formatValue(component.amount)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              {/* Itemized breakdown - only show components with amounts > 0 */}
+              {tccComponents.some(c => c.amount > 0) && (
+                <div className="space-y-1.5">
+                  {tccComponents
+                    .filter(component => component.amount > 0)
+                    .map((component) => {
+                      const displayLabel = component.label || component.type;
+                      return (
+                        <div key={component.id} className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600 dark:text-gray-400 truncate pr-2">{displayLabel}</span>
+                          <span className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                            {formatValue(component.amount)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
               {/* Totals */}
               <div className="pt-2 space-y-1.5 border-t border-gray-200 dark:border-gray-800">
                 <div className="flex justify-between items-center">
@@ -210,10 +229,7 @@ function TCCCalculatorPageContent() {
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
         {/* Content - No container */}
-        <div className="space-y-6">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            <strong>Required:</strong> Add market benchmarks to compare your TCC against market data for percentile analysis. At least one benchmark (25th, 50th, 75th, or 90th percentile) is required to calculate percentiles.
-          </p>
+        <div className="space-y-6 pt-8">
           <SpecialtyInput
             metricType="tcc"
             specialty={specialty}
@@ -260,22 +276,12 @@ function TCCCalculatorPageContent() {
             <Calculator className="w-5 h-5 mr-2" />
             {showResults ? 'Recalculate Percentile' : 'Calculate Percentile'}
           </Button>
-          {!hasMarketData && (
-            <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-2">
-              Please add at least one market benchmark to calculate percentile
-            </p>
-          )}
-          {hasMarketData && normalizedTcc === 0 && (
-            <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-2">
-              Please add TCC components in Step 1 to calculate percentile
-            </p>
-          )}
         </div>
       )}
 
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedTcc > 0 && (
-        <div id="results-section" className="space-y-6">
+        <div id="results-section" className="space-y-6 pt-12">
           <PercentileBreakdown
             value={normalizedTcc}
             percentile={percentile}

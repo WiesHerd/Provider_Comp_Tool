@@ -42,7 +42,7 @@ export default function Home() {
                     <Calculator className="w-8 h-8 text-primary" strokeWidth={2} />
                   </div>
                   <div>
-                    <CardTitle className="text-base sm:text-lg">wRVU & Incentive Modeler</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Productivity Incentive Calculator</CardTitle>
                     <CardDescription>
                       Estimate wRVUs and productivity incentives
                     </CardDescription>
@@ -58,7 +58,7 @@ export default function Home() {
                     <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
                   </div>
                   <div>
-                    <CardTitle className="text-base sm:text-lg">Provider Schedule & wRVU Forecaster</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Schedule-Based Productivity Calculator</CardTitle>
                     <CardDescription>
                       Forecast annual wRVUs and compensation based on schedule
                     </CardDescription>
@@ -101,19 +101,21 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Recent Models Section */}
-        {recentScenarios.length > 0 && (
-          <div className="mb-8 sm:mb-10">
-            <div className="flex items-center justify-between mb-4 sm:mb-5">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                Recent Models
-              </h2>
+        {/* Recent Models Section - Always visible on mobile */}
+        <div className="mb-8 sm:mb-10">
+          <div className="flex items-center justify-between mb-4 sm:mb-5">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+              Recent Models
+            </h2>
+            {recentScenarios.length > 0 && (
               <Link href="/scenarios">
                 <Button variant="outline" size="sm" className="text-xs sm:text-sm">
                   View All
                 </Button>
               </Link>
-            </div>
+            )}
+          </div>
+          {recentScenarios.length > 0 ? (
             <div className="space-y-4">
               {recentScenarios.map((scenario) => (
                 <RecentScenarioCard
@@ -126,8 +128,19 @@ export default function Home() {
                 />
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center py-8 sm:py-12">
+              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4">
+                No recent models yet. Create and save a model to see it here.
+              </p>
+              <Link href="/fmv-calculator">
+                <Button size="sm" variant="outline">
+                  Create Your First Model
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* Disclaimer - Apple-style minimal */}
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-12 mb-8">
