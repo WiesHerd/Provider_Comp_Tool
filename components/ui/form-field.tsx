@@ -22,7 +22,8 @@ export function FormField({
   children,
   className,
 }: FormFieldProps) {
-  const id = htmlFor || React.useId();
+  const generatedId = React.useId();
+  const id = htmlFor || generatedId;
   const errorId = error ? `${id}-error` : undefined;
   const hintId = hint ? `${id}-hint` : undefined;
   const describedBy = [errorId, hintId].filter(Boolean).join(' ') || undefined;
