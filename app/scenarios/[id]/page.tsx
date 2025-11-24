@@ -118,7 +118,7 @@ export default function ScenarioDetailPage() {
 
   if (!scenario) {
     return (
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8">
         <p>Scenario not found</p>
       </div>
     );

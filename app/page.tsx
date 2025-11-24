@@ -31,7 +31,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-6 sm:pb-8 md:pb-12">
         {/* Tools Grid - Primary navigation */}
         <div className="mb-8 sm:mb-10 pt-8 sm:pt-12" data-tour="home-tools">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">

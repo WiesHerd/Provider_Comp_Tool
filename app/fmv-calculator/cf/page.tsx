@@ -135,7 +135,7 @@ function CFCalculatorPageContent() {
   const completedSteps = showResults ? [1, 2] : hasMarketData && cfValue > 0 ? [1] : [];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
       {/* Step Indicator */}
       <StepIndicator
         currentStep={currentStep}
@@ -395,7 +395,7 @@ Add market benchmark data to compare your conversion factor against industry sta
 
 export default function CFCalculatorPage() {
   return (
-    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 md:py-8">Loading...</div>}>
+    <Suspense fallback={<div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8">Loading...</div>}>
       <CFCalculatorPageContent />
     </Suspense>
   );

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { MainTabs } from "@/components/navigation/main-tabs";
 import { ScreenGuideProvider } from "@/components/ui/screen-guide-provider";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,12 +62,14 @@ export default function RootLayout({
             `,
           }}
         />
-        <ScreenGuideProvider>
-          <Header />
-          <MainTabs>
-            {children}
-          </MainTabs>
-        </ScreenGuideProvider>
+        <ErrorBoundary>
+          <ScreenGuideProvider>
+            <Header />
+            <MainTabs>
+              {children}
+            </MainTabs>
+          </ScreenGuideProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

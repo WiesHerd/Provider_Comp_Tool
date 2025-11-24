@@ -78,12 +78,12 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
         </div>
       </div> */}
 
-      <div className="pt-[64px] sm:pt-[72px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900">
+      <main id="main-content" className="pt-[64px] sm:pt-[72px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900" role="main">
         {children}
-      </div>
+      </main>
 
       {/* Mobile Bottom Tabs */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] safe-area-inset-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] safe-area-inset-bottom" role="navigation" aria-label="Main navigation">
         <div className="flex items-center justify-around h-16 px-2">
           {tabs.filter(tab => tab.id !== 'scenarios').map((tab) => {
             const Icon = tab.icon;
@@ -95,10 +95,13 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] sm:text-xs font-semibold transition-all outline-none",
                   "min-w-0 min-h-[44px] relative",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:rounded-lg",
                   isActive
                     ? "text-primary"
                     : "text-gray-600 dark:text-gray-400"
                 )}
+                aria-label={tab.label}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <div className="relative w-full flex justify-center">
                   <motion.div
@@ -128,7 +131,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
             );
           })}
         </div>
-      </div>
+      </nav>
     </div>
   );
 }

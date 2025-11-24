@@ -114,18 +114,28 @@ export function Header() {
   );
 
   return (
-    <header 
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 safe-area-inset-top",
-        "border-b transition-colors duration-500",
-        "border-gray-200/60 dark:border-gray-800/60",
-        "bg-white/80 dark:bg-gray-900/80",
-        "backdrop-blur-2xl backdrop-saturate-150",
-        "shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)]",
-        "supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70"
-      )}
-      suppressHydrationWarning
-    >
+    <>
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:font-semibold focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        aria-label="Skip to main content"
+      >
+        Skip to main content
+      </a>
+      <header 
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 safe-area-inset-top",
+          "border-b transition-colors duration-500",
+          "border-gray-200/60 dark:border-gray-800/60",
+          "bg-white/80 dark:bg-gray-900/80",
+          "backdrop-blur-2xl backdrop-saturate-150",
+          "shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)]",
+          "supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70"
+        )}
+        suppressHydrationWarning
+        role="banner"
+      >
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent dark:from-gray-900/50 pointer-events-none" />
       
@@ -386,6 +396,7 @@ export function Header() {
         </div>
       </div>
     </header>
+    </>
   );
 }
 

@@ -7,7 +7,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", ...props }, ref) => {
+  ({ className, variant = "default", size = "default", children, ...props }, ref) => {
+    // Auto-generate aria-label if button only contains icon and no aria-label provided
+    const ariaLabel = props['aria-label'] || (typeof children === 'string' ? undefined : props['aria-label']);
+    
     return (
       <button
         className={cn(
@@ -26,7 +29,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         ref={ref}
         {...props}
-      />
+      >
+        {children}
+      </button>
     );
   }
 );
