@@ -81,19 +81,19 @@ export function ScenarioSaveButton({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline" className="w-full sm:w-auto">Save as Scenario</Button>
+        <Button className="w-full sm:w-auto">Save Model</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
-          <Dialog.Title className="text-xl font-bold mb-2">Save Scenario</Dialog.Title>
+          <Dialog.Title className="text-xl font-bold mb-2">Save Model</Dialog.Title>
           <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Enter a name for this scenario
+            Enter a name for this model
           </Dialog.Description>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Scenario name"
+            placeholder="Model name"
             className="mb-4"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {

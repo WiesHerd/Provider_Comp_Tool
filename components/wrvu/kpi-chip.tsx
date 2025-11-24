@@ -33,7 +33,7 @@ export function KPIChip({ label, value, unit, className }: KPIChipProps) {
     )}>
       <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 sm:mb-2 leading-tight">{label}</div>
       <div className={cn(
-        "text-xl sm:text-2xl font-light tracking-tight break-words",
+        "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight break-words",
         isNegative 
           ? "text-red-600 dark:text-red-400" 
           : "text-gray-900 dark:text-white"

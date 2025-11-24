@@ -18,19 +18,20 @@ export default function ScenariosPage() {
   return (
     <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-8">
       <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Models</h1>
         <Button onClick={() => router.push('/fmv-calculator')}>
           <Plus className="w-4 h-4 mr-1" />
-          New Scenario
+          New Model
         </Button>
       </div>
 
       {scenarios.length === 0 ? (
         <div className="text-center py-12 md:py-16">
           <p className="text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-            No scenarios saved yet. Create your first scenario to get started.
+            No models saved yet. Create your first model to get started.
           </p>
           <Button onClick={() => router.push('/fmv-calculator')}>
-            Create Scenario
+            Create Model
           </Button>
         </div>
       ) : (

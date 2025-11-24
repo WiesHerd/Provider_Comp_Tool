@@ -119,7 +119,7 @@ export default function ScenarioDetailPage() {
   if (!scenario) {
     return (
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8">
-        <p>Scenario not found</p>
+        <p>Model not found</p>
       </div>
     );
   }
@@ -146,7 +146,7 @@ export default function ScenarioDetailPage() {
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
             <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
-              <Dialog.Title className="text-xl font-bold mb-2">Delete Scenario</Dialog.Title>
+              <Dialog.Title className="text-xl font-bold mb-2">Delete Model</Dialog.Title>
               <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Are you sure you want to delete &quot;{scenario?.name}&quot;? This action cannot be undone.
               </Dialog.Description>

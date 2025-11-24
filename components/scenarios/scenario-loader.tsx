@@ -92,7 +92,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Label className="text-sm font-semibold text-gray-900 dark:text-white mb-0">
-                Load Saved Scenario
+                My Models
               </Label>
             </div>
             <Select 
@@ -106,7 +106,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               onOpenChange={setSelectOpen}
             >
               <SelectTrigger className="w-full bg-white dark:bg-gray-900">
-                <SelectValue placeholder="Select a scenario to load..." />
+                <SelectValue placeholder="Select a model to load..." />
               </SelectTrigger>
               <SelectContent>
                 {typeFilteredScenarios.map((scenario) => (
@@ -156,7 +156,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Select a scenario to automatically load its data
+              Select a model to automatically load its data
             </p>
           </div>
         </div>

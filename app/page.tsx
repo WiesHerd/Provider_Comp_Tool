@@ -101,12 +101,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Recent Scenarios Section */}
+        {/* Recent Models Section */}
         {recentScenarios.length > 0 && (
           <div className="mb-8 sm:mb-10">
             <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                Recent Scenarios
+                Recent Models
               </h2>
               <Link href="/scenarios">
                 <Button variant="outline" size="sm" className="text-xs sm:text-sm">

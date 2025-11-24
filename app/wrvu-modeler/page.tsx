@@ -109,32 +109,23 @@ function ResultsStepContent({
     <div className="space-y-6" data-tour="wrvu-results">
       <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleStartOver}
-          className="gap-2"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Start Over
-        </Button>
       </div>
       <div className="space-y-6">
         {/* KPI Chips */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <KPIChip
-            label="Annual wRVUs"
-            value={annualWrvus}
-          />
-          <KPIChip
-            label="Productivity Incentive (at current FTE)"
+            label="Productivity Incentive"
             value={productivityPay}
             unit="$"
           />
           <KPIChip
-            label="Productivity $ per wRVU"
-            value={productivityPerWrvu}
-            unit="$"
+            label="Annual wRVUs"
+            value={annualWrvus}
+          />
+          <KPIChip
+            label="Conversion Factor"
+            value={conversionFactor}
+            unit="$/wRVU"
           />
         </div>
 
@@ -167,16 +158,28 @@ function ResultsStepContent({
           </div>
         </div>
 
-        {/* Save Button */}
+        {/* Save and Start Over Buttons */}
         <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
-          <ScenarioSaveButton
-            fte={fte}
-            annualWrvus={annualWrvus}
-            conversionFactor={conversionFactor}
-            productivityPay={productivityPay}
-            providerName={providerName.trim() || undefined}
-            specialty={specialty === 'Other' ? (customSpecialty.trim() || undefined) : (specialty || undefined)}
-          />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <ScenarioSaveButton
+                fte={fte}
+                annualWrvus={annualWrvus}
+                conversionFactor={conversionFactor}
+                productivityPay={productivityPay}
+                providerName={providerName.trim() || undefined}
+                specialty={specialty === 'Other' ? (customSpecialty.trim() || undefined) : (specialty || undefined)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleStartOver}
+              className="w-full sm:w-auto gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Start Over
+            </Button>
+          </div>
         </div>
       </div>
     </div>
