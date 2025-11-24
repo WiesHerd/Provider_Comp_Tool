@@ -135,7 +135,7 @@ function CFCalculatorPageContent() {
   const completedSteps = showResults ? [1, 2] : hasMarketData && cfValue > 0 ? [1] : [];
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="w-full px-3 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
       {/* Step Indicator */}
       <StepIndicator
         currentStep={currentStep}
@@ -148,12 +148,11 @@ function CFCalculatorPageContent() {
 
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
-      <Card id="provider-input" className="border border-gray-200 dark:border-gray-800" data-tour="fmv-cf-content">
+      <Card id="provider-input" variant="borderless" data-tour="fmv-cf-content">
         <CardHeader>
           <div className="flex items-center gap-2">
             <StepBadge number={1} variant="default" />
-            <CardTitle className="flex items-center gap-2">
-              Provider Input
+            {/* Title removed - header shows "CF Calculator" */}
               <ScreenInfoModal
                 title="Provider Input - Conversion Factor Calculator"
                 description={`## Overview
@@ -236,13 +235,12 @@ After entering your CF, proceed to Market Data to add benchmark percentiles for 
 
       {/* Step 2: Market Data (Only show when on Step 2) */}
       {currentStep === 2 && (
-      <Card id="market-data" className="border border-gray-200 dark:border-gray-800">
+      <Card id="market-data" variant="borderless">
         <CardHeader>
           <div className="flex items-center gap-2">
             <StepBadge number={2} variant="default" />
-            <CardTitle className="flex items-center gap-2">
-              Market Data
-              <ScreenInfoModal
+            {/* Title removed - header shows "CF Calculator" */}
+            <ScreenInfoModal
                 title="Market Data - Conversion Factor Calculator"
                 description={`## Overview
 Add market benchmark data to compare your conversion factor against industry standards. Market benchmarks represent CF values at different percentiles for your specialty.
@@ -277,7 +275,6 @@ Add market benchmark data to compare your conversion factor against industry sta
 • Saved data persists across sessions
 • Update benchmarks as market data changes`}
               />
-            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">

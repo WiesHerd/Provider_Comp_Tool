@@ -437,12 +437,11 @@ This information is saved with your scenario and can help you organize multiple 
 
         {/* Step 2: FTE & wRVUs */}
         <ProgressiveFormStep step={2}>
-          <Card className="border border-gray-200 dark:border-gray-800">
+          <Card variant="borderless">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <StepBadge number={2} variant="default" />
-                <CardTitle className="flex items-center gap-2">
-                  FTE & Projected wRVUs
+                {/* Title removed - header shows page context */}
                   <ScreenInfoModal
                     title="FTE & Projected wRVUs"
                     description={`## Overview
@@ -475,7 +474,6 @@ Enter your annual wRVUs using one of three methods:
 • Choose the input method that works best for your data
 • Switch between methods at any time`}
                   />
-                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">

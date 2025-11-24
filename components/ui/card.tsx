@@ -3,14 +3,32 @@ import { cn } from "@/lib/utils/cn";
 
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & {
+    variant?: "default" | "borderless" | "subtle";
+  }
+>(({ className, variant = "default", ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-xl sm:rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900",
-      "shadow-sm hover:shadow-md transition-shadow duration-150",
-      "p-3 md:p-6",
+      // Base styles
+      "bg-white dark:bg-gray-900",
+      // Variant styles
+      variant === "default" && [
+        "rounded-xl sm:rounded-2xl border border-gray-100 dark:border-gray-800",
+        "shadow-sm hover:shadow-md transition-shadow duration-150",
+        "p-3 md:p-6",
+      ],
+      variant === "borderless" && [
+        "md:rounded-xl md:border md:border-gray-100 md:dark:border-gray-800",
+        "md:shadow-sm md:hover:shadow-md md:transition-shadow md:duration-150",
+        "p-3 md:p-6",
+        // Mobile: no border, no shadow, edge-to-edge
+      ],
+      variant === "subtle" && [
+        "border-b border-gray-100 dark:border-gray-800",
+        "pb-4 md:pb-6",
+        // Just a bottom border, minimal styling
+      ],
       className
     )}
     role="article"
