@@ -10,7 +10,6 @@ import { MarketDataSaveButton } from '@/components/fmv/market-data-save-button';
 import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-button';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { StepIndicator } from '@/components/ui/step-indicator';
-import { StepBadge } from '@/components/ui/step-badge';
 import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -153,8 +152,6 @@ function CFCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-cf-content">
         {/* Header - No container */}
         <div className="flex items-center gap-2">
-          <StepBadge number={1} variant="default" />
-          {/* Title removed - header shows "CF Calculator" */}
           <ScreenInfoModal
             title="Provider Input - Conversion Factor Calculator"
             description={`## Overview
@@ -240,8 +237,6 @@ After entering your CF, proceed to Market Data to add benchmark percentiles for 
       <div id="market-data" className="space-y-6">
         {/* Header - No container */}
         <div className="flex items-center gap-2">
-          <StepBadge number={2} variant="default" />
-          {/* Title removed - header shows "CF Calculator" */}
           <ScreenInfoModal
             title="Market Data - Conversion Factor Calculator"
             description={`## Overview

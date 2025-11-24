@@ -11,7 +11,6 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { StepIndicator } from '@/components/ui/step-indicator';
-import { StepBadge } from '@/components/ui/step-badge';
 import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Button } from '@/components/ui/button';
 import { Calculator } from 'lucide-react';
@@ -187,8 +186,6 @@ function TCCCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
         {/* Header - No container */}
         <div className="flex items-center gap-2">
-          <StepBadge number={1} variant="default" />
-          {/* Title removed - header shows "TCC Calculator" */}
           <ScreenInfoModal
                 title="Provider Input - TCC Calculator"
                 description={`## Overview
@@ -291,8 +288,6 @@ After entering your data, proceed to Market Data to add benchmark percentiles fo
       <div id="market-data" className="space-y-6">
         {/* Header - No container */}
         <div className="flex items-center gap-2">
-          <StepBadge number={2} variant="default" />
-          {/* Title removed - header shows "TCC Calculator" */}
           <ScreenInfoModal
             title="Market Data - TCC Calculator"
                 description={`## Overview

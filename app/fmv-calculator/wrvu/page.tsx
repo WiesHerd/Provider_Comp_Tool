@@ -11,7 +11,6 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { WRVUInput } from '@/components/wrvu/wrvu-input';
 import { StepIndicator } from '@/components/ui/step-indicator';
-import { StepBadge } from '@/components/ui/step-badge';
 import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -172,8 +171,6 @@ function WRVUCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-wrvu-content">
         {/* Header - No container */}
         <div className="flex items-center gap-2">
-          <StepBadge number={1} variant="default" />
-          {/* Title removed - header shows "wRVU Calculator" */}
           <ScreenInfoModal
             title="Provider Input - wRVU Calculator"
                 description={`## Overview
@@ -290,8 +287,6 @@ After entering your data, proceed to Market Data to add benchmark percentiles fo
       <div id="market-data" className="space-y-6">
         {/* Header - No container */}
         <div className="flex items-center gap-2">
-          <StepBadge number={2} variant="default" />
-          {/* Title removed - header shows "wRVU Calculator" */}
           <ScreenInfoModal
             title="Market Data - wRVU Calculator"
             description={`## Overview
