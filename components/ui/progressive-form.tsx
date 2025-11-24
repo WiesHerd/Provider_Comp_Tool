@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, ReactNode, createContext, useContext } from 'react';
-import { StepIndicator } from './step-indicator';
 import { Button } from './button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 interface ProgressiveFormContextType {
@@ -117,18 +116,6 @@ export function ProgressiveForm({
   return (
     <ProgressiveFormContext.Provider value={contextValue}>
       <div className={cn('w-full', className)}>
-        {/* Step Indicator - Perfectly aligned with content below */}
-        <div className="-mx-3 sm:-mx-6 px-3 sm:px-6">
-          <StepIndicator
-            currentStep={currentStep}
-            totalSteps={totalSteps}
-            completedSteps={completedSteps}
-            onStepClick={handleStepClick}
-            stepNames={stepNames}
-            showProgressBar={false}
-            sticky={true}
-          />
-        </div>
         {children}
       </div>
     </ProgressiveFormContext.Provider>
@@ -195,7 +182,7 @@ export function ProgressiveFormNavigation({
     <div
       className={cn(
         'flex gap-3 sm:gap-4 mt-8 sm:mt-10',
-        'sticky bottom-0 bg-white dark:bg-gray-900',
+        'sticky bottom-0',
         'pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800',
         'safe-area-inset-bottom',
         className
@@ -214,13 +201,12 @@ export function ProgressiveFormNavigation({
       <Button
         onClick={handleNext}
         className={cn(
-          'flex-1 sm:flex-initial',
+          'flex-1 sm:flex-initial sm:ml-auto',
           isLastStep && 'sm:min-w-[140px]',
           !isLastStep && 'sm:min-w-[140px]'
         )}
       >
         {isLastStep ? 'Complete' : nextLabel}
-        {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
       </Button>
     </div>
   );

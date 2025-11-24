@@ -122,8 +122,8 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
         </div>
       )}
 
-      {/* Action Buttons - Desktop: at top, Mobile: at bottom (fixed) */}
-      <div className="hidden sm:flex flex-row items-center justify-center gap-3 mb-6 w-auto">
+      {/* Action Buttons - Centered at bottom */}
+      <div className="flex flex-row items-center justify-center gap-3 flex-wrap mt-6 pt-6">
         <Button 
           variant="outline" 
           onClick={() => setShowSaveDialog(true)}
@@ -155,31 +155,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
           </Button>
         )}
       </div>
-
-      {/* Mobile: Fixed bottom buttons - Save and Email only, side by side */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-3 z-50 safe-area-inset-bottom">
-        <div className="flex gap-2 max-w-4xl mx-auto">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowSaveDialog(true)}
-            className="flex-1 min-h-[48px] touch-target"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save Scenario
-          </Button>
-          
-          {onEmailReport && (
-            <Button 
-              variant="outline" 
-              onClick={onEmailReport}
-              className="flex-1 min-h-[48px] touch-target"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              Email Report
-            </Button>
-          )}
-        </div>
-      </div>
+      <div className="border-b border-gray-200 dark:border-gray-800 pb-6"></div>
 
       <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <Dialog.Portal>

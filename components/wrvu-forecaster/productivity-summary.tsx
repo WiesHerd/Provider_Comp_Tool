@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip } from '@/components/ui/tooltip';
 import {
   DollarSign,
@@ -11,6 +10,7 @@ import {
   Info,
 } from 'lucide-react';
 import { ProductivityMetrics, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
+import { cn } from '@/lib/utils/cn';
 
 interface ProductivitySummaryProps {
   metrics: ProductivityMetrics;
@@ -27,34 +27,32 @@ interface StatItemProps {
 
 function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps) {
   return (
-    <Card className="h-full hover:shadow-md transition-shadow">
-      <CardContent className="p-3 sm:p-4">
-        {/* Icon above label - Mobile-friendly vertical layout */}
-        <div className="flex flex-col items-center sm:items-start gap-2 mb-3">
-          <div className="text-primary flex-shrink-0">{icon}</div>
-          <Tooltip content={tooltipText} side="top" className="max-w-[250px] sm:max-w-[300px]">
-            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left leading-tight block w-full">
-              {label}
-            </span>
-          </Tooltip>
-        </div>
-        
-        {/* Value and difference */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 text-center sm:text-left break-words">
-            {value}
+    <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-900">
+      {/* Icon and label - Compact layout for mobile */}
+      <div className="flex items-start gap-2 mb-2 sm:mb-3">
+        <div className="text-primary flex-shrink-0 mt-0.5">{icon}</div>
+        <Tooltip content={tooltipText} side="top" className="max-w-[250px] sm:max-w-[300px]">
+          <span className="text-xs text-gray-600 dark:text-gray-400 leading-tight block flex-1">
+            {label}
           </span>
-          {difference && (
-            <Tooltip content="Potential increase using adjusted wRVU per encounter" side="top">
-              <div className="flex items-center justify-center sm:justify-start gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold flex-shrink-0 touch-target w-fit mx-auto sm:mx-0">
-                {difference}
-                <Info className="w-3 h-3" />
-              </div>
-            </Tooltip>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </Tooltip>
+      </div>
+      
+      {/* Value and difference */}
+      <div className="flex flex-col gap-1.5 sm:gap-2">
+        <span className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100 break-words">
+          {value}
+        </span>
+        {difference && (
+          <Tooltip content="Potential increase using adjusted wRVU per encounter" side="top">
+            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold w-fit touch-target">
+              {difference}
+              <Info className="w-3 h-3" />
+            </div>
+          </Tooltip>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -90,7 +88,8 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
     return `+${formatNumber(diff)}`;
   };
 
-  const summaryItems: StatItemProps[] = [
+  // Group metrics into logical sections
+  const compensationMetrics: StatItemProps[] = [
     {
       icon: <DollarSign className="w-6 h-6" />,
       label: 'Estimated Total Compensation',
@@ -104,17 +103,14 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       difference: formatDifference(currentIncentive, adjustedIncentive),
       tooltipText: 'Additional compensation earned above base salary based on wRVU production',
     },
+  ];
+
+  const timeMetrics: StatItemProps[] = [
     {
       icon: <Calendar className="w-6 h-6" />,
       label: 'Weeks Worked Per Year',
       value: formatNumber(metrics.weeksWorkedPerYear),
       tooltipText: 'Total working weeks per year after subtracting vacation, CME, and holidays',
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      label: 'Encounters per Week',
-      value: formatNumber(metrics.encountersPerWeek),
-      tooltipText: 'Average number of patient encounters per week based on your schedule',
     },
     {
       icon: <Calendar className="w-6 h-6" />,
@@ -127,6 +123,15 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       label: 'Annual Clinical Hours',
       value: formatNumber(metrics.annualClinicalHours),
       tooltipText: 'Total clinical hours per year based on your schedule',
+    },
+  ];
+
+  const productivityMetrics: StatItemProps[] = [
+    {
+      icon: <Users className="w-6 h-6" />,
+      label: 'Encounters per Week',
+      value: formatNumber(metrics.encountersPerWeek),
+      tooltipText: 'Average number of patient encounters per week based on your schedule',
     },
     {
       icon: <Users className="w-6 h-6" />,
@@ -144,18 +149,39 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
   ];
 
   return (
-    <Card className="mt-4 sm:mt-6 productivity-summary">
-      <CardHeader className="pb-3 sm:pb-4">
-        <CardTitle className="text-base sm:text-lg font-bold text-primary">Productivity Summary</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {summaryItems.map((item, index) => (
-            <StatItem key={index} {...item} />
+    <div className="space-y-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Forecast Results</h3>
+      
+      {/* Compensation Section */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Compensation</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {compensationMetrics.map((item, index) => (
+            <StatItem key={`comp-${index}`} {...item} />
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Time Section */}
+      <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Time</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {timeMetrics.map((item, index) => (
+            <StatItem key={`time-${index}`} {...item} />
+          ))}
+        </div>
+      </div>
+
+      {/* Productivity Section */}
+      <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Productivity</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {productivityMetrics.map((item, index) => (
+            <StatItem key={`prod-${index}`} {...item} />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
