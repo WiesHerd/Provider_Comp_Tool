@@ -66,7 +66,7 @@ export function StepIndicator({
   return (
     <div className={cn(
       'w-full',
-      sticky && 'sticky top-[56px] sm:top-[72px] z-20 bg-white dark:bg-gray-900 pb-3 pt-2 border-b border-gray-100 dark:border-gray-800 mb-4 sm:mb-6',
+      sticky && 'sticky top-[56px] sm:top-[72px] z-20 bg-white dark:bg-gray-900 pb-3 pt-2 border-b border-gray-100 dark:border-gray-800 mb-4 sm:mb-6 sm:rounded-lg',
       className
     )}>
       {/* Progress Bar - Optional, hidden by default to save space */}

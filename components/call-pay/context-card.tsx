@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
@@ -15,7 +14,7 @@ import {
   SelectLabel,
   SelectSeparator,
 } from '@/components/ui/select';
-import { ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { CallPayContext, Specialty } from '@/types/call-pay';
 import { Button } from '@/components/ui/button';
 
@@ -145,7 +144,6 @@ function getRotationRatioExplanation(providersOnCall: number, rotationRatio: num
 }
 
 export function ContextCard({ context, onContextChange }: ContextCardProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [serviceLineManuallyEdited, setServiceLineManuallyEdited] = useState(false);
   
   // Check if current specialty is a custom one (not in the predefined list)
@@ -244,88 +242,99 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between"
-        >
-          <CardTitle className="text-lg font-semibold">Context</CardTitle>
-          {isExpanded ? (
-            <ChevronUp className="w-5 h-5" />
-          ) : (
-            <ChevronDown className="w-5 h-5" />
-          )}
-        </button>
-      </CardHeader>
-      {isExpanded && (
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">Specialty</Label>
-            <Select
-              value={displaySpecialty || undefined}
-              onValueChange={handleSpecialtyChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select specialty" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                <SelectGroup>
-                  <SelectLabel>Primary Care / Hospital Medicine</SelectLabel>
-                  {SPECIALTIES.slice(0, 4).map((specialty) => (
-                    <SelectItem key={specialty} value={specialty}>
-                      {specialty}
+    <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Context</h3>
+      <div className="space-y-4">
+          {/* Top row: Model Year and Specialty side by side */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Model Year</Label>
+              <Select
+                value={context.modelYear.toString()}
+                onValueChange={(value) => updateField('modelYear', parseInt(value, 10))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {Array.from({ length: 81 }, (_, i) => {
+                    const year = 2020 + i;
+                    return (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Specialty</Label>
+              <Select
+                value={displaySpecialty || undefined}
+                onValueChange={handleSpecialtyChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select specialty" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <SelectGroup>
+                    <SelectLabel>Primary Care / Hospital Medicine</SelectLabel>
+                    {SPECIALTIES.slice(0, 4).map((specialty) => (
+                      <SelectItem key={specialty} value={specialty}>
+                        {specialty}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectSeparator />
+                  <SelectGroup>
+                    <SelectLabel>Procedural / Surgical</SelectLabel>
+                    {SPECIALTIES.slice(4, 15).map((specialty) => (
+                      <SelectItem key={specialty} value={specialty}>
+                        {specialty}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectSeparator />
+                  <SelectGroup>
+                    <SelectLabel>Medical Subspecialties</SelectLabel>
+                    {SPECIALTIES.slice(15, 23).map((specialty) => (
+                      <SelectItem key={specialty} value={specialty}>
+                        {specialty}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectSeparator />
+                  <SelectGroup>
+                    <SelectLabel>Other</SelectLabel>
+                    {SPECIALTIES.slice(23).filter(specialty => specialty !== 'Other').map((specialty) => (
+                      <SelectItem key={specialty} value={specialty}>
+                        {specialty}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="Other">
+                      Custom
                     </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectSeparator />
-                <SelectGroup>
-                  <SelectLabel>Procedural / Surgical</SelectLabel>
-                  {SPECIALTIES.slice(4, 15).map((specialty) => (
-                    <SelectItem key={specialty} value={specialty}>
-                      {specialty}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectSeparator />
-                <SelectGroup>
-                  <SelectLabel>Medical Subspecialties</SelectLabel>
-                  {SPECIALTIES.slice(15, 23).map((specialty) => (
-                    <SelectItem key={specialty} value={specialty}>
-                      {specialty}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                <SelectSeparator />
-                <SelectGroup>
-                  <SelectLabel>Other</SelectLabel>
-                  {SPECIALTIES.slice(23).filter(specialty => specialty !== 'Other').map((specialty) => (
-                    <SelectItem key={specialty} value={specialty}>
-                      {specialty}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="Other">
-                    Custom
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            
-            {/* Show custom input when "Other" is selected */}
-            {(displaySpecialty === 'Other' || isCustomSpecialty) && (
-              <div className="mt-2">
-                <Input
-                  value={customSpecialtyValue}
-                  onChange={(e) => handleCustomSpecialtyChange(e.target.value)}
-                  placeholder="Enter custom specialty"
-                  className="mt-1"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Enter any specialty not listed above
-                </p>
-              </div>
-            )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Show custom specialty input when "Other" is selected - full width below */}
+          {(displaySpecialty === 'Other' || isCustomSpecialty) && (
+            <div className="space-y-2">
+              <Input
+                value={customSpecialtyValue}
+                onChange={(e) => handleCustomSpecialtyChange(e.target.value)}
+                placeholder="Enter custom specialty"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Enter any specialty not listed above
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label className="text-sm font-semibold">
@@ -425,9 +434,6 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                   )}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                (1-in-N means each provider covers 1/N of total calls)
-              </p>
               {!isRotationRatioValid && context.rotationRatio > 0 && context.providersOnCall > 0 && (
                 <div className="flex items-start gap-1 text-xs text-amber-600 dark:text-amber-400 mt-1">
                   <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
@@ -445,38 +451,10 @@ export function ContextCard({ context, onContextChange }: ContextCardProps) {
                   {getRotationRatioExplanation(context.providersOnCall, context.rotationRatio)}
                 </p>
               )}
-              {context.providersOnCall === 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Select number of providers on call first
-                </p>
-              )}
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">Model Year</Label>
-            <Select
-              value={context.modelYear.toString()}
-              onValueChange={(value) => updateField('modelYear', parseInt(value, 10))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select year" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                {Array.from({ length: 81 }, (_, i) => {
-                  const year = 2020 + i;
-                  return (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      )}
-    </Card>
+        </div>
+    </div>
   );
 }
 

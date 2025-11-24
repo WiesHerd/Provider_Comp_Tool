@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
@@ -9,8 +10,6 @@ import { ImpactSummary } from '@/components/call-pay/impact-summary';
 import { TierManager } from '@/components/call-pay/tier-manager';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { StepIndicator } from '@/components/ui/step-indicator';
-import { StepBadge } from '@/components/ui/step-badge';
-import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Button } from '@/components/ui/button';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
@@ -188,33 +187,6 @@ export default function CallPayModelerPage() {
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
         <div id="context-card" data-tour="call-pay-context" className="space-y-6">
-          {/* Header - No container, just spacing */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <StepBadge number={1} variant="default" />
-              {/* Title removed - header shows page context */}
-              <ScreenInfoModal
-                title="Set Context - Call Pay Modeler"
-                description={`Enter your call pay context information to begin modeling your call coverage structure.
-
-Required Information:
-• Specialty: Select your medical specialty
-• Providers on Call: Number of providers in the call rotation
-• Rotation Ratio: How often each provider takes call
-
-After entering your context, proceed to Configure Tiers to set up your call categories.`}
-              />
-            </div>
-            <Button
-              onClick={handleStartOver}
-              variant="outline"
-              size="sm"
-              className="shrink-0"
-            >
-              Start Over
-            </Button>
-          </div>
-          
           {/* Content - No container, just direct content */}
           <div className="space-y-6">
               <ScenarioLoader
@@ -254,86 +226,10 @@ After entering your context, proceed to Configure Tiers to set up your call cate
       {/* Step 2: Configure Tiers (Only show when on Step 2) */}
       {activeStep === 2 && (
         <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
-          {/* Header - No container */}
-          <div className="flex items-center gap-2">
-            <StepBadge number={2} variant="default" />
-            {/* Title removed - header shows page context */}
-            <ScreenInfoModal
-                  title="Configure Tiers - Call Pay Modeler"
-                  description={`## Overview
-Set up your call coverage tiers and enter rates and call burden for each tier. Each tier represents a different level of call coverage responsibility.
-
-## Configuration Options
-
-### Tier Management
-• Enable/Disable Toggle: Use the switch next to each tier to enable or disable it
-  - Enabled tiers are included in budget calculations
-  - Disabled tiers are excluded from calculations but remain saved
-  - The label shows Enabled or Disabled based on the toggle state
-
-### Tier Settings
-• Tier Name: Customize the tier identifier (e.g., C1, C2, C3)
-• Coverage Type: Select from In-house, Restricted home, Unrestricted home, or Backup only
-• Payment Method: Choose Daily/shift rate, Hourly rate, Per procedure, or Per wRVU
-
-### Rate Configuration
-• Weekday Rate: Base rate for weekday call coverage
-• Weekend Rate: Rate for weekend call coverage
-• Holiday Rate: Rate for holiday call coverage
-
-### Rate Calculation Options
-• Percentage-Based Calculation Toggle: When enabled, weekend and holiday rates are automatically calculated from weekday rate using percentage uplifts
-  - Weekend Uplift %: Percentage increase for weekend rates (default: 20%)
-  - Holiday Uplift %: Percentage increase for holiday rates (default: 30%)
-  - When disabled, enter rates manually for each period
-
-### Additional Options
-• Trauma/High-Acuity Uplift Toggle: Enable to add an additional percentage uplift for high-acuity cases
-  - When enabled, enter the uplift percentage
-  - Applied to all rates (weekday, weekend, holiday)
-
-### Call Burden
-• Enter call volume data for each tier:
-  - Calls per month
-  - Hours per call
-  - Cases per month (for procedural payment methods)
-
-## Understanding Call Tiers
-
-### C1 (First Call)
-• Primary on-call coverage with highest frequency
-• Immediate response requirements
-• Typically highest compensation rate
-
-### C2 (Second Call)
-• Backup coverage when C1 is unavailable or needs support
-• Lower frequency than C1
-• Moderate compensation rate
-
-### C3 (Third Call)
-• Tertiary coverage for specialized situations
-• Lowest frequency
-• Lower compensation rate
-
-### C4, C5
-• Additional tiers for further stratification as needed
-• Customize based on your call structure
-
-## Next Steps
-After configuring your tiers, proceed to Review Budget to see your annual call pay impact.`}
-            />
-          </div>
-          
           {/* Content - No container */}
           <div className="space-y-6">
-            <TierManager
-              tiers={tiers}
-              onTiersChange={handleTiersChange}
-              onCreateTier={() => createDefaultTier('', '')}
-            />
-            
-            {/* Segmented Control for Tier Selection */}
-            <div className="flex gap-2 overflow-x-auto pb-3 -mx-1 px-1">
+            {/* Segmented Control for Tier Selection with Add/Remove buttons */}
+            <div className="flex gap-2 overflow-x-auto pb-3 -mx-1 px-1 items-center">
               {tiers.map((tier) => (
                 <button
                   key={tier.id}
@@ -350,6 +246,62 @@ After configuring your tiers, proceed to Review Budget to see your annual call p
                   {tier.name}
                 </button>
               ))}
+              
+              {/* Add Tier and Remove Last buttons at the end */}
+              <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+                {tiers.length < 10 && (
+                  <button
+                    onClick={() => {
+                      const nextNumber = tiers.length + 1;
+                      const newTier = createDefaultTier(`C${nextNumber}`, `C${nextNumber}`);
+                      handleTiersChange([...tiers, newTier]);
+                    }}
+                    className={cn(
+                      "inline-flex items-center justify-center gap-1.5",
+                      "px-3.5 py-2.5 rounded-lg",
+                      "text-sm font-medium",
+                      "bg-white dark:bg-gray-800",
+                      "border border-gray-200 dark:border-gray-700",
+                      "text-gray-700 dark:text-gray-300",
+                      "hover:bg-gray-50 dark:hover:bg-gray-700",
+                      "active:bg-gray-100 dark:active:bg-gray-600",
+                      "transition-all duration-150",
+                      "shadow-sm hover:shadow",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+                      "min-h-[44px] touch-manipulation"
+                    )}
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Tier</span>
+                  </button>
+                )}
+                {tiers.length > 1 && (
+                  <button
+                    onClick={() => {
+                      if (tiers.length <= 1) return;
+                      const updatedTiers = tiers.filter((t) => t.id !== tiers[tiers.length - 1].id);
+                      handleTiersChange(updatedTiers);
+                    }}
+                    className={cn(
+                      "inline-flex items-center justify-center gap-1.5",
+                      "px-3.5 py-2.5 rounded-lg",
+                      "text-sm font-medium",
+                      "bg-white dark:bg-gray-800",
+                      "border border-red-200 dark:border-red-800/50",
+                      "text-red-600 dark:text-red-400",
+                      "hover:bg-red-50 dark:hover:bg-red-900/20",
+                      "active:bg-red-100 dark:active:bg-red-900/30",
+                      "transition-all duration-150",
+                      "shadow-sm hover:shadow",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1",
+                      "min-h-[44px] touch-manipulation"
+                    )}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove Last</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Tier Card - Show selected tier directly without accordion */}
@@ -370,13 +322,23 @@ After configuring your tiers, proceed to Review Budget to see your annual call p
       {/* Navigation Buttons - Show when on Step 1 or 2 */}
       {activeStep === 1 && step1Complete && (
         <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
-          <Button
-            onClick={() => setActiveStep(2)}
-            className="w-full min-h-[48px] text-base font-semibold"
-            size="lg"
-          >
-            Continue to Configure Tiers →
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleStartOver}
+              variant="outline"
+              className="flex-1 min-h-[48px] text-base font-semibold"
+              size="lg"
+            >
+              Start Over
+            </Button>
+            <Button
+              onClick={() => setActiveStep(2)}
+              className="flex-1 min-h-[48px] text-base font-semibold"
+              size="lg"
+            >
+              Continue to Configure Tiers →
+            </Button>
+          </div>
         </div>
       )}
 
@@ -395,11 +357,7 @@ After configuring your tiers, proceed to Review Budget to see your annual call p
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
         <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
-          {/* Header - No container */}
-          <div className="flex items-center gap-2">
-            <StepBadge number={3} variant="default" />
-            {/* Title removed - header shows page context */}
-          </div>
+          {/* Header removed - step indicator above provides context */}
           
           {/* Content - No container */}
           <div className="space-y-6">

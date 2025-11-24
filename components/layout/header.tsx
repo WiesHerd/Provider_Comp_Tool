@@ -24,6 +24,155 @@ const getPageTitle = (pathname: string): string | null => {
   return null;
 };
 
+// Get screen guide based on pathname
+const getScreenGuide = (pathname: string) => {
+  if (pathname === '/') {
+    return SCREEN_GUIDES.home;
+  } else if (pathname === '/wrvu-modeler') {
+    return SCREEN_GUIDES.wrvuModeler;
+  } else if (pathname === '/fmv-calculator' || pathname.startsWith('/fmv-calculator/')) {
+    return SCREEN_GUIDES.fmvCalculator;
+  } else if (pathname === '/call-pay-modeler') {
+    return SCREEN_GUIDES.callPayModeler;
+  } else if (pathname === '/wrvu-forecaster') {
+    return SCREEN_GUIDES.wrvuForecaster;
+  } else if (pathname === '/scenarios') {
+    return SCREEN_GUIDES.scenarios;
+  }
+  return SCREEN_GUIDES.home; // Default to home
+};
+
+// Parse description text into formatted React elements (simplified version)
+function parseDescription(description: string): React.ReactNode[] {
+  if (!description || typeof description !== 'string') {
+    return [];
+  }
+  
+  const normalizedDescription = description.replace(/\\n/g, '\n');
+  const lines = normalizedDescription.split(/\r?\n/);
+  const elements: React.ReactNode[] = [];
+  let currentList: React.ReactNode[] = [];
+  let inList = false;
+
+  const flushList = () => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`list-${elements.length}`} className="list-disc list-outside space-y-2 ml-5 pl-1 text-gray-700 dark:text-gray-300">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+      inList = false;
+    }
+  };
+
+  const processBoldText = (text: string): React.ReactNode[] => {
+    const parts: React.ReactNode[] = [];
+    const boldRegex = /\*\*([^*]+)\*\*/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = boldRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      parts.push(
+        <strong key={`bold-${match.index}`} className="text-gray-900 dark:text-white">
+          {match[1]}
+        </strong>
+      );
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : [text];
+  };
+
+  lines.forEach((line, index) => {
+    const trimmedLine = line.trim();
+    
+    if (trimmedLine === '') {
+      if (inList) {
+        flushList();
+      }
+      return;
+    }
+
+    // Handle headers (## Header)
+    if (trimmedLine.startsWith('## ')) {
+      flushList();
+      const headerText = trimmedLine.substring(3).trim();
+      elements.push(
+        <h3
+          key={`header-${index}`}
+          className={cn(
+            "font-semibold text-gray-900 dark:text-white mb-4 mt-6 first:mt-0",
+            "text-lg sm:text-xl"
+          )}
+        >
+          {headerText}
+        </h3>
+      );
+      return;
+    }
+
+    // Handle subheaders (### Subheader)
+    if (trimmedLine.startsWith('### ')) {
+      flushList();
+      const subheaderText = trimmedLine.substring(4).trim();
+      elements.push(
+        <h4
+          key={`subheader-${index}`}
+          className={cn(
+            "font-semibold text-gray-900 dark:text-white mb-3 mt-5 first:mt-0",
+            "text-base sm:text-lg"
+          )}
+        >
+          {subheaderText}
+        </h4>
+      );
+      return;
+    }
+
+    // Handle bullet points
+    const bulletMatch = trimmedLine.match(/^[\u2022\-\*]|^\s{2,}[\u2022\-\*]/);
+    if (bulletMatch) {
+      if (!inList) {
+        inList = true;
+      }
+      const content = trimmedLine.replace(/^[\u2022\-\*]\s*|^\s{2,}[\u2022\-\*]\s*/, '').trim();
+      const processedContent = processBoldText(content);
+      currentList.push(
+        <li key={`bullet-${index}`} className="leading-relaxed">
+          {processedContent}
+        </li>
+      );
+      return;
+    }
+
+    // If we hit a non-list item while in a list, flush it
+    if (inList) {
+      flushList();
+    }
+
+    // Handle regular paragraphs
+    const processedContent = processBoldText(trimmedLine);
+    elements.push(
+      <p key={`para-${index}`} className="text-gray-700 dark:text-gray-300 mb-3 leading-relaxed last:mb-0">
+        {processedContent}
+      </p>
+    );
+  });
+
+  // Flush any remaining lists
+  flushList();
+
+  return elements;
+}
+
 export function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
@@ -262,95 +411,115 @@ export function Header() {
                     "supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-gray-900/90"
                   )}
                 >
-                  <Dialog.Title className={cn(
-                    "text-2xl sm:text-3xl font-bold mb-6",
-                    "text-gray-900 dark:text-white",
-                    "tracking-tight"
-                  )}>
-                    How to Use CompLens™
-                  </Dialog.Title>
-                  
-                  <div className="space-y-5 sm:space-y-6 text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                    <div>
-                      <h4 className={cn(
-                        "font-semibold text-gray-900 dark:text-white mb-3",
-                        "text-base sm:text-lg"
-                      )}>
-                        Navigation
-                      </h4>
-                      <ul className="list-disc list-inside space-y-2 ml-2 text-gray-600 dark:text-gray-400">
-                        <li>Click the <strong className="text-gray-900 dark:text-white">logo</strong> (top-left) to return to home</li>
-                        <li>Use the <strong className="text-gray-900 dark:text-white">back button</strong> (chevron) to go back in history</li>
-                        <li>On mobile, use the <strong className="text-gray-900 dark:text-white">bottom navigation tabs</strong> to navigate between tools</li>
-                      </ul>
-                    </div>
+                  {(() => {
+                    const screenGuide = mounted && pathname ? getScreenGuide(pathname) : SCREEN_GUIDES.home;
+                    const isHome = mounted && pathname === '/';
+                    
+                    // On home, show full app info; on other screens, show screen-specific info
+                    return (
+                      <>
+                        <Dialog.Title className={cn(
+                          "text-2xl sm:text-3xl font-bold mb-6",
+                          "text-gray-900 dark:text-white",
+                          "tracking-tight"
+                        )}>
+                          {isHome ? 'How to Use CompLens™' : screenGuide.title}
+                        </Dialog.Title>
+                        
+                        <div className="space-y-5 sm:space-y-6 text-sm sm:text-base leading-relaxed">
+                          {isHome ? (
+                            // Home screen: Show full app information
+                            <>
+                              <div>
+                                <h4 className={cn(
+                                  "font-semibold text-gray-900 dark:text-white mb-3",
+                                  "text-base sm:text-lg"
+                                )}>
+                                  Navigation
+                                </h4>
+                                <ul className="list-disc list-outside space-y-2 ml-5 pl-1 text-gray-700 dark:text-gray-300">
+                                  <li>Click the <strong className="text-gray-900 dark:text-white">logo</strong> (top-left) to return to home</li>
+                                  <li>Use the <strong className="text-gray-900 dark:text-white">back button</strong> (chevron) to go back in history</li>
+                                  <li>On mobile, use the <strong className="text-gray-900 dark:text-white">bottom navigation tabs</strong> to navigate between tools</li>
+                                </ul>
+                              </div>
 
-                    <div>
-                      <h4 className={cn(
-                        "font-semibold text-gray-900 dark:text-white mb-3",
-                        "text-base sm:text-lg"
-                      )}>
-                        Four Main Tools
-                      </h4>
-                      <ul className="space-y-3 text-gray-600 dark:text-gray-400">
-                        <li>
-                          <strong className="text-gray-900 dark:text-white">wRVU & Incentive Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
-                        </li>
-                        <li>
-                          <strong className="text-gray-900 dark:text-white">FMV Calculator:</strong> Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.
-                        </li>
-                        <li>
-                          <strong className="text-gray-900 dark:text-white">Call Pay Modeler:</strong> Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.
-                        </li>
-                        <li>
-                          <strong className="text-gray-900 dark:text-white">Provider Schedule & wRVU Forecaster:</strong> Forecast annual wRVUs and compensation based on your schedule and patient load.
-                        </li>
-                      </ul>
-                    </div>
+                              <div>
+                                <h4 className={cn(
+                                  "font-semibold text-gray-900 dark:text-white mb-3",
+                                  "text-base sm:text-lg"
+                                )}>
+                                  Four Main Tools
+                                </h4>
+                                <ul className="space-y-3 text-gray-700 dark:text-gray-300">
+                                  <li>
+                                    <strong className="text-gray-900 dark:text-white">wRVU & Incentive Modeler:</strong> Estimate work Relative Value Units and calculate productivity incentives based on FTE and conversion factors.
+                                  </li>
+                                  <li>
+                                    <strong className="text-gray-900 dark:text-white">FMV Calculator:</strong> Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.
+                                  </li>
+                                  <li>
+                                    <strong className="text-gray-900 dark:text-white">Call Pay Modeler:</strong> Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.
+                                  </li>
+                                  <li>
+                                    <strong className="text-gray-900 dark:text-white">Provider Schedule & wRVU Forecaster:</strong> Forecast annual wRVUs and compensation based on your schedule and patient load.
+                                  </li>
+                                </ul>
+                              </div>
 
-                    <div>
-                      <h4 className={cn(
-                        "font-semibold text-gray-900 dark:text-white mb-3",
-                        "text-base sm:text-lg"
-                      )}>
-                        Saving Scenarios
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        Each tool allows you to save your work as scenarios. Use the &quot;Load Saved Scenario&quot; dropdown within each tool to reload your saved work.
-                      </p>
-                    </div>
+                              <div>
+                                <h4 className={cn(
+                                  "font-semibold text-gray-900 dark:text-white mb-3",
+                                  "text-base sm:text-lg"
+                                )}>
+                                  Saving Scenarios
+                                </h4>
+                                <p className="text-gray-700 dark:text-gray-300">
+                                  Each tool allows you to save your work as scenarios. Use the &quot;Load Saved Scenario&quot; dropdown within each tool to reload your saved work.
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            // Other screens: Show screen-specific information
+                            <div className="space-y-4">
+                              {parseDescription(screenGuide.description)}
+                            </div>
+                          )}
 
-                    <div className={cn(
-                      "bg-blue-50/80 dark:bg-blue-900/30",
-                      "backdrop-blur-sm",
-                      "p-4 rounded-xl",
-                      "border border-blue-200/50 dark:border-blue-800/50"
-                    )}>
-                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
-                        <strong className="text-gray-900 dark:text-white">Note:</strong> For education and planning only. Not legal or FMV advice.
-                      </p>
-                    </div>
-                  </div>
+                          <div className={cn(
+                            "bg-blue-50/80 dark:bg-blue-900/30",
+                            "backdrop-blur-sm",
+                            "p-4 rounded-xl",
+                            "border border-blue-200/50 dark:border-blue-800/50"
+                          )}>
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
+                              <strong className="text-gray-900 dark:text-white">Note:</strong> For education and planning only. Not legal or FMV advice.
+                            </p>
+                          </div>
+                        </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                    <Button
-                      onClick={() => {
-                        setDialogOpen(false);
-                        openScreenGuide();
-                      }}
-                      className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      Take Tour
-                    </Button>
-                    <Dialog.Close asChild>
-                      <Button 
-                        variant="outline" 
-                        className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        Close
-                      </Button>
-                    </Dialog.Close>
-                  </div>
+                        <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                          <Button
+                            onClick={() => {
+                              setDialogOpen(false);
+                              openScreenGuide();
+                            }}
+                            className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                          >
+                            Take Tour
+                          </Button>
+                          <Dialog.Close asChild>
+                            <Button 
+                              variant="outline" 
+                              className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                              Close
+                            </Button>
+                          </Dialog.Close>
+                        </div>
+                      </>
+                    );
+                  })()}
                   </Dialog.Content>
                 </Dialog.Portal>
               </Dialog.Root>

@@ -86,9 +86,6 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
 
   return (
     <div className={`space-y-2 ${className || ''}`}>
-      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-        Load Saved Scenario
-      </label>
       {typeFilteredScenarios.length === 0 ? (
         <div className="text-sm text-gray-500 dark:text-gray-400 italic">
           No saved scenarios available. Save a scenario to load it here.
