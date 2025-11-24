@@ -11,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Download, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import * as Dialog from '@radix-ui/react-dialog';
 
 interface ScenarioLoaderProps {
@@ -53,9 +54,9 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
   );
 
 
-  const handleLoad = () => {
-    if (!selectedId) return;
-    const scenario = scenarios.find((s) => s.id === selectedId);
+  const handleLoad = (scenarioId: string) => {
+    if (!scenarioId) return;
+    const scenario = scenarios.find((s) => s.id === scenarioId);
     if (scenario) {
       onLoad(scenario);
       setSelectedId(''); // Clear selection after loading
@@ -88,74 +89,68 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
     <div className={`space-y-2 ${className || ''}`}>
       {typeFilteredScenarios.length > 0 && (
         <div className="space-y-2">
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
-            <div className="flex-1 min-w-0">
-              <Select 
-                key={`scenario-select-${typeFilteredScenarios.length}-${scenarios.length}`}
-                value={selectedId} 
-                onValueChange={setSelectedId} 
-                open={selectOpen} 
-                onOpenChange={setSelectOpen}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a scenario..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {typeFilteredScenarios.map((scenario) => (
-                    <SelectItem 
-                      key={scenario.id} 
-                      value={scenario.id}
-                      className="group pr-8"
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="flex-1 truncate pointer-events-none">
-                          {scenario.name}
-                          {scenario.providerName && ` - ${scenario.providerName}`}
-                          {scenario.specialty && ` (${scenario.specialty})`}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            e.nativeEvent.stopImmediatePropagation();
-                            setSelectOpen(false);
-                            handleDeleteClick(scenario, e);
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            e.nativeEvent.stopImmediatePropagation();
-                          }}
-                          onPointerDown={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            e.nativeEvent.stopImmediatePropagation();
-                          }}
-                          onTouchStart={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                          }}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-500 shrink-0 -mr-2 pointer-events-auto z-10 relative"
-                          title="Delete scenario"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              onClick={handleLoad}
-              disabled={!selectedId}
-              variant="outline"
-              className="w-full sm:w-auto shrink-0"
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-gray-900 dark:text-white">Load Saved Scenario</Label>
+            <Select 
+              key={`scenario-select-${typeFilteredScenarios.length}-${scenarios.length}`}
+              value={selectedId} 
+              onValueChange={(value) => {
+                setSelectedId(value);
+                handleLoad(value); // Auto-load when selection changes
+              }}
+              open={selectOpen} 
+              onOpenChange={setSelectOpen}
             >
-              <Download className="w-4 h-4 mr-1" />
-              Load
-            </Button>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a scenario to load..." />
+              </SelectTrigger>
+              <SelectContent>
+                {typeFilteredScenarios.map((scenario) => (
+                  <SelectItem 
+                    key={scenario.id} 
+                    value={scenario.id}
+                    className="group pr-8"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="flex-1 truncate pointer-events-none">
+                        {scenario.name}
+                        {scenario.providerName && ` - ${scenario.providerName}`}
+                        {scenario.specialty && ` (${scenario.specialty})`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          e.nativeEvent.stopImmediatePropagation();
+                          setSelectOpen(false);
+                          handleDeleteClick(scenario, e);
+                        }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          e.nativeEvent.stopImmediatePropagation();
+                        }}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          e.nativeEvent.stopImmediatePropagation();
+                        }}
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-500 shrink-0 -mr-2 pointer-events-auto z-10 relative"
+                        title="Delete scenario"
+                        aria-label={`Delete scenario ${scenario.name}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Delete Confirmation Dialog */}
