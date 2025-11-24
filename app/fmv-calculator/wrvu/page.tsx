@@ -391,52 +391,47 @@ Add market benchmark data to compare your wRVUs against industry standards and c
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedWrvus > 0 && (
         <div id="results-section" className="space-y-6">
-          <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={3} variant="completed" />
-                <CardTitle>Results</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="pt-4 sm:pt-6">
-                <PercentileBreakdown
-                  value={normalizedWrvus}
-                  percentile={percentile}
-                  benchmarks={{
-                    p25: marketBenchmarks.wrvu25,
-                    p50: marketBenchmarks.wrvu50,
-                    p75: marketBenchmarks.wrvu75,
-                    p90: marketBenchmarks.wrvu90,
-                  }}
-                  formatValue={formatValue}
-                  valueLabel="Your Normalized wRVUs (1.0 FTE)"
-                />
-              </div>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
+            </div>
+            <div className="space-y-6">
+              <PercentileBreakdown
+                value={normalizedWrvus}
+                percentile={percentile}
+                benchmarks={{
+                  p25: marketBenchmarks.wrvu25,
+                  p50: marketBenchmarks.wrvu50,
+                  p75: marketBenchmarks.wrvu75,
+                  p90: marketBenchmarks.wrvu90,
+                }}
+                formatValue={formatValue}
+                valueLabel="Your Normalized wRVUs (1.0 FTE)"
+              />
 
-              {/* Save Button */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <FMVSaveButton
-                  metricType="wrvu"
-                  value={normalizedWrvus}
-                  benchmarks={marketBenchmarks}
-                  percentile={percentile}
-                  fte={fte}
-                />
+              {/* Save and Start Over Buttons */}
+              <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <FMVSaveButton
+                      metricType="wrvu"
+                      value={normalizedWrvus}
+                      benchmarks={marketBenchmarks}
+                      percentile={percentile}
+                      fte={fte}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleStartNew}
+                    className="w-full sm:w-auto gap-2"
+                  >
+                    Start Over
+                  </Button>
+                </div>
               </div>
-
-              {/* Start New Calculation */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  variant="outline"
-                  onClick={handleStartNew}
-                  className="w-full"
-                >
-                  Start New Calculation
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
 import { PercentileBreakdown } from '@/components/fmv/percentile-breakdown';
 import { FMVSaveButton } from '@/components/fmv/fmv-save-button';
@@ -135,9 +134,9 @@ function CFCalculatorPageContent() {
   const completedSteps = showResults ? [1, 2] : hasMarketData && cfValue > 0 ? [1] : [];
 
   return (
-    <div className="w-full px-3 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
       {/* Step Indicator - Sticky so it stays visible when scrolling, perfectly aligned with content */}
-      <div className="-mx-3 sm:-mx-6 px-3 sm:px-6">
+      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
         <StepIndicator
           currentStep={currentStep}
           totalSteps={totalSteps}
@@ -151,14 +150,14 @@ function CFCalculatorPageContent() {
 
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
-      <Card id="provider-input" variant="borderless" data-tour="fmv-cf-content">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <StepBadge number={1} variant="default" />
-            {/* Title removed - header shows "CF Calculator" */}
-              <ScreenInfoModal
-                title="Provider Input - Conversion Factor Calculator"
-                description={`## Overview
+      <div id="provider-input" className="space-y-6" data-tour="fmv-cf-content">
+        {/* Header - No container */}
+        <div className="flex items-center gap-2">
+          <StepBadge number={1} variant="default" />
+          {/* Title removed - header shows "CF Calculator" */}
+          <ScreenInfoModal
+            title="Provider Input - Conversion Factor Calculator"
+            description={`## Overview
 Enter your conversion factor (CF) to calculate your percentile ranking against market benchmarks. The conversion factor determines how much you earn per wRVU generated.
 
 ## What is Conversion Factor?
@@ -183,10 +182,11 @@ Enter your conversion factor (CF) to calculate your percentile ranking against m
 
 ## Next Steps
 After entering your CF, proceed to Market Data to add benchmark percentiles for comparison.`}
-              />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          />
+        </div>
+        
+        {/* Content - No container */}
+        <div className="space-y-6">
           <ScenarioLoader
             scenarioType="fmv-cf"
             onLoad={(scenario) => {
@@ -231,20 +231,20 @@ After entering your CF, proceed to Market Data to add benchmark percentiles for 
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       )}
 
       {/* Step 2: Market Data (Only show when on Step 2) */}
       {currentStep === 2 && (
-      <Card id="market-data" variant="borderless">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <StepBadge number={2} variant="default" />
-            {/* Title removed - header shows "CF Calculator" */}
-            <ScreenInfoModal
-                title="Market Data - Conversion Factor Calculator"
-                description={`## Overview
+      <div id="market-data" className="space-y-6">
+        {/* Header - No container */}
+        <div className="flex items-center gap-2">
+          <StepBadge number={2} variant="default" />
+          {/* Title removed - header shows "CF Calculator" */}
+          <ScreenInfoModal
+            title="Market Data - Conversion Factor Calculator"
+            description={`## Overview
 Add market benchmark data to compare your conversion factor against industry standards. Market benchmarks represent CF values at different percentiles for your specialty.
 
 ## Required Information
@@ -276,10 +276,11 @@ Add market benchmark data to compare your conversion factor against industry sta
 • You can save market data by specialty for quick loading in future calculations
 • Saved data persists across sessions
 • Update benchmarks as market data changes`}
-              />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+          />
+        </div>
+        
+        {/* Content - No container */}
+        <div className="space-y-6">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             <strong>Required:</strong> Add market benchmarks to compare your CF against market data for percentile analysis. At least one benchmark (25th, 50th, 75th, or 90th percentile) is required to calculate percentiles.
           </p>
@@ -300,8 +301,8 @@ Add market benchmark data to compare your conversion factor against industry sta
             metricType="cf"
             benchmarks={marketBenchmarks}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       )}
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}
@@ -340,52 +341,47 @@ Add market benchmark data to compare your conversion factor against industry sta
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && cfValue > 0 && (
         <div id="results-section" className="space-y-6">
-          <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={3} variant="completed" />
-                <CardTitle>Results</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="pt-4 sm:pt-6">
-                <PercentileBreakdown
-                  value={cfValue}
-                  percentile={percentile}
-                  benchmarks={{
-                    p25: marketBenchmarks.cf25,
-                    p50: marketBenchmarks.cf50,
-                    p75: marketBenchmarks.cf75,
-                    p90: marketBenchmarks.cf90,
-                  }}
-                  formatValue={formatValue}
-                  formatBenchmark={formatBenchmark}
-                  valueLabel="Your CF"
-                />
-              </div>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
+            </div>
+            <div className="space-y-6">
+              <PercentileBreakdown
+                value={cfValue}
+                percentile={percentile}
+                benchmarks={{
+                  p25: marketBenchmarks.cf25,
+                  p50: marketBenchmarks.cf50,
+                  p75: marketBenchmarks.cf75,
+                  p90: marketBenchmarks.cf90,
+                }}
+                formatValue={formatValue}
+                formatBenchmark={formatBenchmark}
+                valueLabel="Your CF"
+              />
 
-              {/* Save Button */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <FMVSaveButton
-                  metricType="cf"
-                  value={cfValue}
-                  benchmarks={marketBenchmarks}
-                  percentile={percentile}
-                />
+              {/* Save and Start Over Buttons */}
+              <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <FMVSaveButton
+                      metricType="cf"
+                      value={cfValue}
+                      benchmarks={marketBenchmarks}
+                      percentile={percentile}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleStartNew}
+                    className="w-full sm:w-auto gap-2"
+                  >
+                    Start Over
+                  </Button>
+                </div>
               </div>
-
-              {/* Start New Calculation */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  variant="outline"
-                  onClick={handleStartNew}
-                  className="w-full"
-                >
-                  Start New Calculation
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
     </div>

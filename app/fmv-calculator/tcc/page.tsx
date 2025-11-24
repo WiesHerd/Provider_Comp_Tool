@@ -403,54 +403,49 @@ Add market benchmark data to compare your Total Cash Compensation (TCC) against 
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedTcc > 0 && (
         <div id="results-section" className="space-y-6">
-          <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <StepBadge number={3} variant="completed" />
-                <CardTitle>Results</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="pt-4 sm:pt-6">
-                <PercentileBreakdown
-                  value={normalizedTcc}
-                  percentile={percentile}
-                  benchmarks={{
-                    p25: marketBenchmarks.tcc25,
-                    p50: marketBenchmarks.tcc50,
-                    p75: marketBenchmarks.tcc75,
-                    p90: marketBenchmarks.tcc90,
-                  }}
-                  formatValue={formatValue}
-                  valueLabel="Your Normalized TCC"
-                />
-              </div>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
+            </div>
+            <div className="space-y-6">
+              <PercentileBreakdown
+                value={normalizedTcc}
+                percentile={percentile}
+                benchmarks={{
+                  p25: marketBenchmarks.tcc25,
+                  p50: marketBenchmarks.tcc50,
+                  p75: marketBenchmarks.tcc75,
+                  p90: marketBenchmarks.tcc90,
+                }}
+                formatValue={formatValue}
+                valueLabel="Your Normalized TCC"
+              />
 
-              {/* Save Button */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <FMVSaveButton
-                  metricType="tcc"
-                  value={normalizedTcc}
-                  benchmarks={marketBenchmarks}
-                  percentile={percentile}
-                  tccComponents={tccComponents}
-                  fte={fte}
-                  totalTcc={totalTcc}
-                />
+              {/* Save and Start Over Buttons */}
+              <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <FMVSaveButton
+                      metricType="tcc"
+                      value={normalizedTcc}
+                      benchmarks={marketBenchmarks}
+                      percentile={percentile}
+                      tccComponents={tccComponents}
+                      fte={fte}
+                      totalTcc={totalTcc}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleStartNew}
+                    className="w-full sm:w-auto gap-2"
+                  >
+                    Start Over
+                  </Button>
+                </div>
               </div>
-
-              {/* Start New Calculation */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  variant="outline"
-                  onClick={handleStartNew}
-                  className="w-full"
-                >
-                  Start New Calculation
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
     </div>
