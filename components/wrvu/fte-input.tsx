@@ -28,10 +28,12 @@ export function FTEInput({ value, onChange }: FTEInputProps) {
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-semibold">FTE (Full-Time Equivalent)</Label>
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        FTE
+      </Label>
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+        <div className="relative w-20">
           <NumberInput
             value={value}
             onChange={(val) => {
@@ -42,6 +44,7 @@ export function FTEInput({ value, onChange }: FTEInputProps) {
             min={min}
             max={max}
             step={step}
+            className="text-center"
           />
         </div>
         <div className="flex gap-1.5 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 sm:p-0.5 flex-shrink-0">

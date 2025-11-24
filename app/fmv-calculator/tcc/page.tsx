@@ -162,22 +162,37 @@ function TCCCalculatorPageContent() {
           />
 
           {totalTcc > 0 && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Total TCC</span>
-                  <span className="font-semibold text-lg">
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+              {/* Itemized breakdown */}
+              <div className="space-y-1.5">
+                {tccComponents.map((component) => {
+                  const displayLabel = component.label || component.type;
+                  return (
+                    <div key={component.id} className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600 dark:text-gray-400 truncate pr-2">{displayLabel}</span>
+                      <span className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                        {formatValue(component.amount)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Totals */}
+              <div className="pt-2 space-y-1.5 border-t border-gray-200 dark:border-gray-800">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total TCC</span>
+                  <span className="font-semibold text-base text-gray-900 dark:text-white">
                     {formatValue(totalTcc)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Normalized TCC (1.0 FTE)</span>
-                  <span className="font-semibold text-lg text-primary">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Normalized TCC (1.0 FTE)</span>
+                  <span className="font-semibold text-base text-primary">
                     {formatValue(normalizedTcc)}
                   </span>
                 </div>
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <ProviderInputSaveButton
                   scenarioType="fmv-tcc"
                   fte={fte}

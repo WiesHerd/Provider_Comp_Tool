@@ -182,9 +182,7 @@ export function ProgressiveFormNavigation({
     <div
       className={cn(
         'flex gap-3 sm:gap-4 mt-8 sm:mt-10',
-        'sticky bottom-0',
         'pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800',
-        'safe-area-inset-bottom',
         className
       )}
     >

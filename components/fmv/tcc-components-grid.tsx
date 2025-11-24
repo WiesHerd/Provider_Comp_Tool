@@ -377,14 +377,6 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
         </div>
       )}
 
-      <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-semibold">Total TCC</span>
-          <span className="text-2xl font-bold text-primary">
-            ${totalTcc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-        </div>
-      </div>
     </div>
   );
 }

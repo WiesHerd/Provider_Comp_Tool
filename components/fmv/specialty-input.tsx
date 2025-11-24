@@ -146,6 +146,63 @@ export function SpecialtyInput({
 
   return (
     <div className="space-y-3">
+      {/* Quick Load Saved Specialties - Show first, always visible if saved specialties exist */}
+      {savedSpecialties.length > 0 && (
+        <div>
+          <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
+            Quick load saved market data:
+          </Label>
+          {savedSpecialties.length <= 5 ? (
+            // For 5 or fewer: Show buttons (quick access)
+            <div className="flex flex-wrap gap-2">
+              {savedSpecialties.map((savedSpec) => (
+                <button
+                  key={savedSpec}
+                  type="button"
+                  onClick={() => handleLoadSaved(savedSpec)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
+                    "min-h-[32px] touch-manipulation",
+                    currentSpecialty === savedSpec
+                      ? "bg-primary text-white shadow-sm"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  )}
+                >
+                  {savedSpec}
+                </button>
+              ))}
+            </div>
+          ) : (
+            // For 6+: Use dropdown (scalable, mobile-friendly)
+            <Select value={currentSpecialty} onValueChange={(value) => handleLoadSaved(value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={`Select from ${savedSpecialties.length} saved specialties...`} />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectGroup>
+                  <SelectLabel>Saved Market Data ({savedSpecialties.length})</SelectLabel>
+                  {savedSpecialties.map((savedSpec) => (
+                    <SelectItem key={savedSpec} value={savedSpec}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{savedSpec}</span>
+                        {currentSpecialty === savedSpec && (
+                          <span className="text-primary text-xs ml-2">●</span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+          {savedSpecialties.length > 5 && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              {savedSpecialties.length} saved specialties available
+            </p>
+          )}
+        </div>
+      )}
+
       <Label className="text-base font-semibold">Specialty</Label>
       
       <div className="flex gap-2">
@@ -202,63 +259,6 @@ export function SpecialtyInput({
           />
         )}
       </div>
-
-      {/* Quick Load Saved Specialties - Always visible if saved specialties exist */}
-      {savedSpecialties.length > 0 && (
-        <div className="pt-2">
-          <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
-            Quick load saved market data:
-          </Label>
-          {savedSpecialties.length <= 5 ? (
-            // For 5 or fewer: Show buttons (quick access)
-            <div className="flex flex-wrap gap-2">
-              {savedSpecialties.map((savedSpec) => (
-                <button
-                  key={savedSpec}
-                  type="button"
-                  onClick={() => handleLoadSaved(savedSpec)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
-                    "min-h-[32px] touch-manipulation",
-                    currentSpecialty === savedSpec
-                      ? "bg-primary text-white shadow-sm"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                  )}
-                >
-                  {savedSpec}
-                </button>
-              ))}
-            </div>
-          ) : (
-            // For 6+: Use dropdown (scalable, mobile-friendly)
-            <Select value={currentSpecialty} onValueChange={(value) => handleLoadSaved(value)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={`Select from ${savedSpecialties.length} saved specialties...`} />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                <SelectGroup>
-                  <SelectLabel>Saved Market Data ({savedSpecialties.length})</SelectLabel>
-                  {savedSpecialties.map((savedSpec) => (
-                    <SelectItem key={savedSpec} value={savedSpec}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{savedSpec}</span>
-                        {currentSpecialty === savedSpec && (
-                          <span className="text-primary text-xs ml-2">●</span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          )}
-          {savedSpecialties.length > 5 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              {savedSpecialties.length} saved specialties available
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }

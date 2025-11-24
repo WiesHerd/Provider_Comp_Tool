@@ -1,8 +1,7 @@
 'use client';
 
-import { PercentileChip } from '@/components/ui/percentile-chip';
-import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
 interface PercentileBreakdownProps {
   value: number;
@@ -48,24 +47,6 @@ export function PercentileBreakdown({
     return { text: 'Insufficient benchmark data', icon: Minus, color: 'text-gray-600 dark:text-gray-400' };
   };
 
-  const getProgressBarValue = () => {
-    if (!p25 || !p90) return 0;
-    if (value < p25) return 0;
-    if (value > p90) return 100;
-    return ((value - p25) / (p90 - p25)) * 100;
-  };
-
-  const getBenchmarkPosition = (benchmark: number | undefined) => {
-    if (!p25 || !p90 || !benchmark) return 0;
-    return ((benchmark - p25) / (p90 - p25)) * 100;
-  };
-
-  const getPercentileColor = () => {
-    if (percentile < 25) return 'from-blue-500 to-blue-600';
-    if (percentile < 75) return 'from-green-500 to-green-600';
-    if (percentile < 90) return 'from-yellow-500 to-yellow-600';
-    return 'from-red-500 to-red-600';
-  };
 
   const positionInfo = getPositionDescription();
   const PositionIcon = positionInfo.icon;
@@ -75,23 +56,21 @@ export function PercentileBreakdown({
   const isAbove90th = percentile >= 90;
 
   return (
-    <div className="space-y-5">
-      {/* Alert Warnings - Apple-style subtle design */}
+    <div className="space-y-6">
+      {/* Alert Warnings - Simplified styling */}
       {isBelow25th && (
-        <div className="rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm">
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
           <div className="p-4">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                </div>
+                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1 pt-0.5">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                   Below 25th Percentile
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Your value of <span className="font-medium text-gray-900 dark:text-gray-100">{formatValue(value)}</span> is below the 25th percentile ({p25 ? formatBenchmarkValue(p25) : 'N/A'}). 
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Your value of <span className="font-medium text-gray-900 dark:text-white">{formatValue(value)}</span> is below the 25th percentile ({p25 ? formatBenchmarkValue(p25) : 'N/A'}). 
                   This may require additional documentation or justification for FMV compliance.
                 </p>
               </div>
@@ -101,20 +80,18 @@ export function PercentileBreakdown({
       )}
 
       {isAbove90th && (
-        <div className="rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/50 backdrop-blur-sm">
+        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
           <div className="p-4">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                </div>
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div className="flex-1 pt-0.5">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                   Above 90th Percentile
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Your value of <span className="font-medium text-gray-900 dark:text-gray-100">{formatValue(value)}</span> is above the 90th percentile ({p90 ? formatBenchmarkValue(p90) : 'N/A'}). 
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Your value of <span className="font-medium text-gray-900 dark:text-white">{formatValue(value)}</span> is above the 90th percentile ({p90 ? formatBenchmarkValue(p90) : 'N/A'}). 
                   This requires enhanced scrutiny and documentation for FMV compliance.
                 </p>
               </div>
@@ -123,160 +100,134 @@ export function PercentileBreakdown({
         </div>
       )}
 
-      {/* Hero Section - Apple-style clean design */}
-      <Card className="overflow-hidden border border-gray-200/80 dark:border-gray-800/80 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <CardContent className="p-4 sm:p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 sm:gap-8">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-                Percentile Rank
-              </p>
-              <div className="flex items-baseline gap-2 mb-4">
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-light tracking-tight text-gray-900 dark:text-white">
-                  {percentile.toFixed(1)}
-                </h2>
-                <span className="text-lg sm:text-xl font-light text-gray-500 dark:text-gray-400 pb-1">
-                  percentile
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <PositionIcon className="w-4 h-4 flex-shrink-0" />
-                <span className="break-words">{positionInfo.text}</span>
-              </div>
+      {/* Hero Section - Match call pay large number display style */}
+      <div className="pb-6 border-b-2 border-gray-200 dark:border-gray-800">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <div className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              Percentile Rank
             </div>
-            <div className="text-left sm:text-right border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-gray-800 pt-6 sm:pt-0 sm:pl-8 flex-1 sm:flex-none min-w-0">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 break-words">
-                {valueLabel}
-              </p>
-              <div className="text-2xl sm:text-3xl font-light tracking-tight text-gray-900 dark:text-white break-words">
-                {formatValue(value)}
-              </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {positionInfo.text}
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className={cn(
+            "text-4xl sm:text-5xl font-light tracking-tight",
+            "text-gray-900 dark:text-white"
+          )}>
+            {percentile.toFixed(1)}<span className="text-lg sm:text-xl text-gray-500 dark:text-gray-400">th</span>
+          </div>
+        </div>
+      </div>
 
-      {/* Market Position - Apple-style simple visualization */}
+      {/* Value Display - Secondary metric */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {valueLabel}
+          </span>
+          <span className="text-base font-semibold text-gray-900 dark:text-white">
+            {formatValue(value)}
+          </span>
+        </div>
+      </div>
+
+      {/* Market Position - Match call pay metric row pattern */}
       {(p25 && p90) && (
-        <Card className="border border-gray-200/80 dark:border-gray-800/80 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-          <CardContent className="p-4 md:p-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-tight mb-1">
-                  Market Position
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Your value compared to market benchmarks
-                </p>
-              </div>
-              
-              {/* Horizontal Percentile Bar - Apple-style */}
-              <div className="space-y-4">
-                {/* Progress bar with benchmarks */}
-                <div className="relative">
-                  <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                    {/* Background gradient zones */}
-                    <div className="absolute inset-0 flex">
-                      <div className="flex-1 bg-blue-100 dark:bg-blue-900/20"></div>
-                      <div className="flex-1 bg-green-100 dark:bg-green-900/20"></div>
-                      <div className="flex-1 bg-green-100 dark:bg-green-900/20"></div>
-                      <div className="flex-1 bg-yellow-100 dark:bg-yellow-900/20"></div>
-                      <div className="flex-1 bg-red-100 dark:bg-red-900/20"></div>
-                    </div>
-                    
-                    {/* Benchmark markers */}
-                    <div className="absolute inset-0 flex">
-                      {p25 && (
-                        <div className="absolute left-[25%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
-                      )}
-                      {p50 && (
-                        <div className="absolute left-[50%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
-                      )}
-                      {p75 && (
-                        <div className="absolute left-[75%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
-                      )}
-                      {p90 && (
-                        <div className="absolute left-[90%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
-                      )}
-                    </div>
-                    
-                    {/* Your position indicator */}
-                    <div 
-                      className="absolute top-0 bottom-0 w-1 bg-primary rounded-full shadow-lg z-10"
-                      style={{ left: `${Math.min(100, Math.max(0, percentile))}%`, transform: 'translateX(-50%)' }}
-                    >
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full border-2 border-white dark:border-gray-900 shadow-md"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Percentile labels */}
-                  <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span>0th</span>
-                    {p25 && <span>25th</span>}
-                    {p50 && <span>50th</span>}
-                    {p75 && <span>75th</span>}
-                    {p90 && <span>90th</span>}
-                    <span>100th</span>
-                  </div>
+        <div className="space-y-6 border-t-2 border-gray-200 dark:border-gray-800 pt-8">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Market Position</h3>
+          <div className="space-y-3">
+            {/* Progress bar with benchmarks */}
+            <div className="relative pb-6">
+              <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                {/* Background gradient zones */}
+                <div className="absolute inset-0 flex">
+                  <div className="flex-1 bg-blue-100 dark:bg-blue-900/20"></div>
+                  <div className="flex-1 bg-green-100 dark:bg-green-900/20"></div>
+                  <div className="flex-1 bg-green-100 dark:bg-green-900/20"></div>
+                  <div className="flex-1 bg-yellow-100 dark:bg-yellow-900/20"></div>
+                  <div className="flex-1 bg-red-100 dark:bg-red-900/20"></div>
                 </div>
                 
-                {/* Your position card - Apple-style */}
-                <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 p-4 border border-gray-200 dark:border-gray-700">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Your Position</div>
-                      <div className="text-2xl font-light tracking-tight text-gray-900 dark:text-white">
-                        {percentile.toFixed(1)}<span className="text-lg text-gray-500 dark:text-gray-400">th percentile</span>
-                      </div>
-                    </div>
-                    <div className="text-right sm:text-left sm:border-l sm:border-gray-200 dark:sm:border-gray-700 sm:pl-4">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Your Value</div>
-                      <div className="text-xl font-light tracking-tight text-gray-900 dark:text-white">
-                        {formatValue(value)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Benchmark values - Mobile-friendly grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                {/* Benchmark markers */}
+                <div className="absolute inset-0 flex">
                   {p25 && (
-                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">25th</div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {formatBenchmarkValue(p25)}
-                      </div>
-                    </div>
+                    <div className="absolute left-[25%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
                   )}
                   {p50 && (
-                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">50th</div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {formatBenchmarkValue(p50)}
-                      </div>
-                    </div>
+                    <div className="absolute left-[50%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
                   )}
                   {p75 && (
-                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">75th</div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {formatBenchmarkValue(p75)}
-                      </div>
-                    </div>
+                    <div className="absolute left-[75%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
                   )}
                   {p90 && (
-                    <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">90th</div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {formatBenchmarkValue(p90)}
-                      </div>
-                    </div>
+                    <div className="absolute left-[90%] top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-600"></div>
                   )}
                 </div>
+                
+                {/* Your position indicator */}
+                <div 
+                  className="absolute top-0 bottom-0 w-1 bg-primary rounded-full shadow-lg z-10"
+                  style={{ left: `${Math.min(100, Math.max(0, percentile))}%`, transform: 'translateX(-50%)' }}
+                >
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full border-2 border-white dark:border-gray-900 shadow-md"></div>
+                </div>
+              </div>
+              
+              {/* Percentile labels */}
+              <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>0th</span>
+                {p25 && <span>25th</span>}
+                {p50 && <span>50th</span>}
+                {p75 && <span>75th</span>}
+                {p90 && <span>90th</span>}
+                <span>100th</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            
+            {/* Benchmark values - Match call pay metric row pattern */}
+            {p25 && (
+              <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  25th Percentile
+                </span>
+                <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  {formatBenchmarkValue(p25)}
+                </span>
+              </div>
+            )}
+            {p50 && (
+              <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  50th Percentile
+                </span>
+                <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  {formatBenchmarkValue(p50)}
+                </span>
+              </div>
+            )}
+            {p75 && (
+              <div className="flex justify-between items-center py-2.5 border-b border-gray-100 dark:border-gray-800">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  75th Percentile
+                </span>
+                <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  {formatBenchmarkValue(p75)}
+                </span>
+              </div>
+            )}
+            {p90 && (
+              <div className="flex justify-between items-center py-2.5">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  90th Percentile
+                </span>
+                <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  {formatBenchmarkValue(p90)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
     </div>

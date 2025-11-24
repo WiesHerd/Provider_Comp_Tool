@@ -152,10 +152,7 @@ function WRVUCalculatorPageContent() {
             />
           </div>
           
-          <FTEInput value={fte} onChange={setFte} />
-          
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">wRVUs</Label>
+          <div className="space-y-4">
             <WRVUInput
               annualWrvus={annualWrvus}
               monthlyWrvus={monthlyWrvus}
@@ -163,6 +160,7 @@ function WRVUCalculatorPageContent() {
               onAnnualChange={setAnnualWrvus}
               onMonthlyChange={setMonthlyWrvus}
               onMonthlyBreakdownChange={setMonthlyBreakdown}
+              fteInput={<FTEInput value={fte} onChange={setFte} />}
             />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Market benchmarks are normalized to 1.0 FTE

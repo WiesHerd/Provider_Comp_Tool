@@ -12,6 +12,7 @@ interface WRVUInputProps {
   onAnnualChange: (value: number) => void;
   onMonthlyChange: (value: number) => void;
   onMonthlyBreakdownChange?: (values: number[]) => void;
+  fteInput?: React.ReactNode;
 }
 
 const MONTH_NAMES = [
@@ -36,6 +37,7 @@ export function WRVUInput({
   onAnnualChange,
   onMonthlyChange,
   onMonthlyBreakdownChange,
+  fteInput,
 }: WRVUInputProps) {
   const [mode, setMode] = useState<'annual' | 'monthly' | 'breakdown'>('annual');
 
@@ -148,51 +150,119 @@ export function WRVUInput({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <Label className="text-base font-semibold">Projected wRVUs</Label>
-        <div className="flex gap-2">
-          <Button
-            variant={mode === 'annual' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setMode('annual')}
-          >
-            Annual
-          </Button>
-          <Button
-            variant={mode === 'monthly' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setMode('monthly')}
-          >
-            Monthly Avg
-          </Button>
-          <Button
-            variant={mode === 'breakdown' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setMode('breakdown')}
-          >
-            By Month
-          </Button>
-        </div>
+      <div>
+        <Label className="text-base font-semibold text-gray-900 dark:text-white mb-4 block">Productivity</Label>
       </div>
       
       {mode === 'annual' ? (
-        <NumberInput
-          value={annualWrvus}
-          onChange={handleAnnualChange}
-          placeholder="Enter annual wRVUs"
-          min={0}
-          step={0.01}
-        />
+        <div className="flex items-start gap-4">
+          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-3 whitespace-nowrap">Projected wRVUs</Label>
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center justify-end gap-2">
+              <div className="flex gap-2">
+                <Button
+                  variant={mode === 'annual' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setMode('annual')}
+                >
+                  Annual
+                </Button>
+                <Button
+                  variant={mode === 'monthly' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setMode('monthly')}
+                >
+                  Monthly Avg
+                </Button>
+                <Button
+                  variant={mode === 'breakdown' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setMode('breakdown')}
+                >
+                  By Month
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-end gap-3">
+              {fteInput && <div className="flex-shrink-0">{fteInput}</div>}
+              <div className="flex-1">
+                <NumberInput
+                  value={annualWrvus}
+                  onChange={handleAnnualChange}
+                  placeholder="Enter annual wRVUs"
+                  min={0}
+                  step={0.01}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       ) : mode === 'monthly' ? (
-        <NumberInput
-          value={monthlyWrvus}
-          onChange={handleMonthlyChange}
-          placeholder="Enter monthly average wRVUs"
-          min={0}
-          step={0.01}
-        />
+        <div className="flex items-start gap-4">
+          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-3 whitespace-nowrap">Projected wRVUs</Label>
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center justify-end gap-2">
+              <div className="flex gap-2">
+                <Button
+                  variant={mode === 'annual' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setMode('annual')}
+                >
+                  Annual
+                </Button>
+                <Button
+                  variant={mode === 'monthly' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setMode('monthly')}
+                >
+                  Monthly Avg
+                </Button>
+                <Button
+                  variant={mode === 'breakdown' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setMode('breakdown')}
+                >
+                  By Month
+                </Button>
+              </div>
+            </div>
+            <NumberInput
+              value={monthlyWrvus}
+              onChange={handleMonthlyChange}
+              placeholder="Enter monthly average wRVUs"
+              min={0}
+              step={0.01}
+            />
+          </div>
+        </div>
       ) : (
         <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Projected wRVUs</Label>
+            <div className="flex gap-2">
+              <Button
+                variant={mode === 'annual' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setMode('annual')}
+              >
+                Annual
+              </Button>
+              <Button
+                variant={mode === 'monthly' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setMode('monthly')}
+              >
+                Monthly Avg
+              </Button>
+              <Button
+                variant={mode === 'breakdown' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setMode('breakdown')}
+              >
+                By Month
+              </Button>
+            </div>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {MONTH_NAMES.map((month, index) => (
               <div key={month} className="space-y-1">
