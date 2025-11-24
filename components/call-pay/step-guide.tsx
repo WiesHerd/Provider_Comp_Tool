@@ -198,13 +198,13 @@ export function StepGuide({ context, tiers, currentStep, onStepClick }: StepGuid
                   <div className="text-center px-0.5">
                     {isCurrent && (
                       <div className="mb-0.5">
-                        <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
                           Current
                         </span>
                       </div>
                     )}
                     <div className={cn(
-                      'text-[10px] sm:text-xs transition-colors duration-200 leading-tight font-medium',
+                      'text-xs sm:text-sm transition-colors duration-200 leading-tight font-medium',
                       isCompleted || isCurrent
                         ? 'text-gray-900 dark:text-white'
                         : 'text-gray-500 dark:text-gray-400'

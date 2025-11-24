@@ -30,7 +30,7 @@ export function MetricSelector() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-tour="fmv-selector">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" data-tour="fmv-selector">
       {metrics.map((metric) => {
         const Icon = metric.icon;
         return (
@@ -42,7 +42,7 @@ export function MetricSelector() {
                 </div>
                 <div>
                   <CardTitle className="text-base sm:text-lg">{metric.title}</CardTitle>
-                  <CardDescription className="text-xs sm:text-sm">
+                  <CardDescription>
                     {metric.description}
                   </CardDescription>
                 </div>

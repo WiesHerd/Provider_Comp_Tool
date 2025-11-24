@@ -144,7 +144,7 @@ export function StepIndicator({
               {/* Step Label - Mobile: 2 lines if needed, Desktop: single line */}
               <div className="text-center w-full min-h-[32px] sm:min-h-[32px] flex items-start sm:items-center justify-center pt-0.5 sm:pt-0">
                 {/* Mobile: Abbreviated name with line breaks */}
-                <span className="text-[10px] sm:hidden font-medium leading-[1.2] text-center block max-w-full">
+                <span className="text-xs sm:hidden font-medium leading-[1.2] text-center block max-w-full">
                   {abbreviatedName.split(' ').map((word, idx, arr) => (
                     <span key={idx}>
                       {word}

@@ -139,7 +139,7 @@ export function Header() {
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent dark:from-gray-900/50 pointer-events-none" />
       
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-4 md:py-5 z-10">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-2 md:py-5 z-10">
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-4 sm:gap-5">
             {/* Back button - Apple style (only show when not on home) */}

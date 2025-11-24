@@ -34,7 +34,7 @@ export default function Home() {
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-6 sm:pb-8 md:pb-12">
         {/* Tools Grid - Primary navigation */}
         <div className="mb-8 sm:mb-10 pt-8 sm:pt-12" data-tour="home-tools">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             <Link href="/wrvu-modeler">
               <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
                 <CardHeader className="space-y-4">
@@ -43,7 +43,7 @@ export default function Home() {
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">wRVU & Incentive Modeler</CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">
+                    <CardDescription>
                       Estimate wRVUs and productivity incentives
                     </CardDescription>
                   </div>
@@ -59,7 +59,7 @@ export default function Home() {
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">FMV Calculator</CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">
+                    <CardDescription>
                       Fast FMV reasonableness checks and percentile analysis
                     </CardDescription>
                   </div>
@@ -75,7 +75,7 @@ export default function Home() {
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">Call Pay Modeler</CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">
+                    <CardDescription>
                       Model call-pay structures with annualized outputs
                     </CardDescription>
                   </div>
@@ -91,7 +91,7 @@ export default function Home() {
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg">Provider Schedule & wRVU Forecaster</CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">
+                    <CardDescription>
                       Forecast annual wRVUs and compensation based on schedule
                     </CardDescription>
                   </div>

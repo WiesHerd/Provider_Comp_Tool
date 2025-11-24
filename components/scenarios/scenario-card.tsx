@@ -33,7 +33,7 @@ export function ScenarioCard({ scenario }: ScenarioCardProps) {
 
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4 md:p-6">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div>

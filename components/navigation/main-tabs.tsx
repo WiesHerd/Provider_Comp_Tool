@@ -78,7 +78,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
         </div>
       </div> */}
 
-      <main id="main-content" className="pt-[64px] sm:pt-[72px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900" role="main">
+      <main id="main-content" className="pt-[56px] sm:pt-[72px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900" role="main">
         {children}
       </main>
 
@@ -93,7 +93,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
                 key={tab.id}
                 href={tab.path}
                 className={cn(
-                  "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] sm:text-xs font-semibold transition-all outline-none",
+                  "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-xs sm:text-sm font-semibold transition-all outline-none",
                   "min-w-0 min-h-[44px] relative",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:rounded-lg",
                   isActive
