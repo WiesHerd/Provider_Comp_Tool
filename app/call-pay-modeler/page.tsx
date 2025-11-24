@@ -325,7 +325,7 @@ export default function CallPayModelerPage() {
               className="flex-1 min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              Continue to Configure Tiers →
+              Configure Tiers →
             </Button>
           </div>
         </div>
@@ -338,7 +338,7 @@ export default function CallPayModelerPage() {
             className="w-full min-h-[48px] text-base font-semibold"
             size="lg"
           >
-            Continue to Review Budget →
+            Review Budget →
           </Button>
         </div>
       )}

@@ -86,13 +86,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
 
   return (
     <div className={`space-y-2 ${className || ''}`}>
-      {typeFilteredScenarios.length === 0 ? (
-        <Select disabled>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="No scenarios" />
-          </SelectTrigger>
-        </Select>
-      ) : (
+      {typeFilteredScenarios.length > 0 && (
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
             <div className="flex-1 min-w-0">
