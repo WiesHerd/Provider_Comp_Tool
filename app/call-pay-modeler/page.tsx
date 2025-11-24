@@ -172,30 +172,30 @@ export default function CallPayModelerPage() {
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
 
-      {/* Step Indicator - Sticky at top for better visibility */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pb-4 pt-2 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-gray-200 dark:border-gray-800 mb-6 sm:mb-8">
+      {/* Step Indicator - Sticky so it stays visible when scrolling, perfectly aligned with content */}
+      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
         <StepIndicator
           currentStep={activeStep}
           totalSteps={totalSteps}
           completedSteps={completedSteps}
           onStepClick={handleStepClick}
           stepNames={stepNames}
+          showProgressBar={false}
+          sticky={true}
         />
       </div>
 
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
-        <div id="context-card" data-tour="call-pay-context">
-          <Card className="border border-gray-200 dark:border-gray-800">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <StepBadge number={1} variant="default" />
-                  <CardTitle className="flex items-center gap-2">
-                    Set Your Context
-                    <ScreenInfoModal
-                      title="Set Context - Call Pay Modeler"
-                      description={`Enter your call pay context information to begin modeling your call coverage structure.
+        <div id="context-card" data-tour="call-pay-context" className="space-y-6">
+          {/* Header - No container, just spacing */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <StepBadge number={1} variant="default" />
+              {/* Title removed - header shows page context */}
+              <ScreenInfoModal
+                title="Set Context - Call Pay Modeler"
+                description={`Enter your call pay context information to begin modeling your call coverage structure.
 
 Required Information:
 • Specialty: Select your medical specialty
@@ -203,20 +203,20 @@ Required Information:
 • Rotation Ratio: How often each provider takes call
 
 After entering your context, proceed to Configure Tiers to set up your call categories.`}
-                    />
-                  </CardTitle>
-                </div>
-                <Button
-                  onClick={handleStartOver}
-                  variant="outline"
-                  size="sm"
-                  className="shrink-0"
-                >
-                  Start Over
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              />
+            </div>
+            <Button
+              onClick={handleStartOver}
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+            >
+              Start Over
+            </Button>
+          </div>
+          
+          {/* Content - No container, just direct content */}
+          <div className="space-y-6">
               <ScenarioLoader
                 scenarioType="call-pay"
                 onLoad={(scenario: ProviderScenario) => {
@@ -246,21 +246,19 @@ After entering your context, proceed to Configure Tiers to set up your call cate
                 }}
                 className="mb-4"
               />
-              <ContextCard context={context} onContextChange={setContext} />
-            </CardContent>
-          </Card>
+            <ContextCard context={context} onContextChange={setContext} />
+          </div>
         </div>
       )}
 
       {/* Step 2: Configure Tiers (Only show when on Step 2) */}
       {activeStep === 2 && (
-        <Card id="tier-card" className="border border-gray-200 dark:border-gray-800" data-tour="call-pay-tiers">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <StepBadge number={2} variant="default" />
-              <CardTitle className="flex items-center gap-2">
-                Configure Tiers
-                <ScreenInfoModal
+        <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
+          {/* Header - No container */}
+          <div className="flex items-center gap-2">
+            <StepBadge number={2} variant="default" />
+            {/* Title removed - header shows page context */}
+            <ScreenInfoModal
                   title="Configure Tiers - Call Pay Modeler"
                   description={`## Overview
 Set up your call coverage tiers and enter rates and call burden for each tier. Each tier represents a different level of call coverage responsibility.
@@ -365,8 +363,8 @@ After configuring your tiers, proceed to Review Budget to see your annual call p
                   specialty={context.specialty as Specialty | undefined}
                 />
               ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}

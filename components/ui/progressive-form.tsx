@@ -117,14 +117,18 @@ export function ProgressiveForm({
   return (
     <ProgressiveFormContext.Provider value={contextValue}>
       <div className={cn('w-full', className)}>
-        <StepIndicator
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          completedSteps={completedSteps}
-          onStepClick={handleStepClick}
-          stepNames={stepNames}
-          className="mb-6 sm:mb-8"
-        />
+        {/* Step Indicator - Perfectly aligned with content below */}
+        <div className="-mx-3 sm:-mx-6 px-3 sm:px-6">
+          <StepIndicator
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            completedSteps={completedSteps}
+            onStepClick={handleStepClick}
+            stepNames={stepNames}
+            showProgressBar={false}
+            sticky={true}
+          />
+        </div>
         {children}
       </div>
     </ProgressiveFormContext.Provider>

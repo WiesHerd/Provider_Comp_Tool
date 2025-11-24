@@ -11,6 +11,8 @@ interface StepIndicatorProps {
   onStepClick?: (step: number) => void;
   stepNames?: string[];
   className?: string;
+  showProgressBar?: boolean; // Option to hide progress bar line
+  sticky?: boolean; // Option to make sticky
 }
 
 export function StepIndicator({
@@ -20,6 +22,8 @@ export function StepIndicator({
   onStepClick,
   stepNames,
   className,
+  showProgressBar = false, // Default to false - progress bar takes space without much value
+  sticky = true, // Default to sticky so it stays visible when scrolling
 }: StepIndicatorProps) {
   const [pressedStep, setPressedStep] = useState<number | null>(null);
   const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
@@ -60,16 +64,22 @@ export function StepIndicator({
   };
 
   return (
-    <div className={cn('w-full', className)}>
-      {/* Progress Bar */}
-      <div className="relative mb-3 sm:mb-4">
-        <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
-          <div
-            className="h-full bg-primary transition-all duration-300 ease-out shadow-sm"
-            style={{ width: `${progress}%` }}
-          />
+    <div className={cn(
+      'w-full',
+      sticky && 'sticky top-[56px] sm:top-[72px] z-20 bg-white dark:bg-gray-900 pb-3 pt-2 border-b border-gray-100 dark:border-gray-800 mb-4 sm:mb-6',
+      className
+    )}>
+      {/* Progress Bar - Optional, hidden by default to save space */}
+      {showProgressBar && (
+        <div className="relative mb-3 sm:mb-4">
+          <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
+            <div
+              className="h-full bg-primary transition-all duration-300 ease-out shadow-sm"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Step Numbers with Names - Mobile optimized layout */}
       <div className="flex justify-between items-start gap-0.5 sm:gap-2">

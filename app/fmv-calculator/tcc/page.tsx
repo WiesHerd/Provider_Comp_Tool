@@ -170,15 +170,18 @@ function TCCCalculatorPageContent() {
 
   return (
     <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
-      {/* Step Indicator */}
-      <StepIndicator
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        completedSteps={completedSteps}
-        onStepClick={handleStepClick}
-        stepNames={stepNames}
-        className="mb-6 sm:mb-8"
-      />
+      {/* Step Indicator - Sticky so it stays visible when scrolling, perfectly aligned with content */}
+      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
+        <StepIndicator
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          completedSteps={completedSteps}
+          onStepClick={handleStepClick}
+          stepNames={stepNames}
+          showProgressBar={false}
+          sticky={true}
+        />
+      </div>
 
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
