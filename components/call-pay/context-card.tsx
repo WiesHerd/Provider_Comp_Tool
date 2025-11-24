@@ -147,6 +147,7 @@ function getRotationRatioExplanation(providersOnCall: number, rotationRatio: num
 
 export function ContextCard({ context, onContextChange, showTopBorder = true }: ContextCardProps) {
   const [serviceLineManuallyEdited, setServiceLineManuallyEdited] = useState(false);
+  const [serviceLineFocused, setServiceLineFocused] = useState(false);
   
   // Check if current specialty is a custom one (not in the predefined list)
   const isCustomSpecialty = !SPECIALTIES.includes(context.specialty as Specialty);
@@ -435,30 +436,37 @@ export function ContextCard({ context, onContextChange, showTopBorder = true }: 
             <Label className="text-sm font-semibold">
               Service Line / Hospital
             </Label>
-            <Input
-              value={context.serviceLine}
-              onChange={(e) => handleServiceLineInputChange(e.target.value)}
-              placeholder="e.g., Cardiac Surgery, Main Campus"
-            />
-            {serviceLineSuggestions.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
-                  Suggestions:
-                </span>
-                {serviceLineSuggestions.map((suggestion) => (
-                  <Button
-                    key={suggestion}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => handleServiceLineSuggestionClick(suggestion)}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
-            )}
+            <div className="relative">
+              <Input
+                value={context.serviceLine}
+                onChange={(e) => handleServiceLineInputChange(e.target.value)}
+                onFocus={() => setServiceLineFocused(true)}
+                onBlur={() => {
+                  // Delay to allow clicking on suggestions
+                  setTimeout(() => setServiceLineFocused(false), 200);
+                }}
+                placeholder="e.g., Cardiac Surgery, Main Campus"
+              />
+              {/* Show suggestions dropdown only when specialty is selected and field is focused */}
+              {context.specialty && serviceLineFocused && serviceLineSuggestions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-auto">
+                  {serviceLineSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent blur before click
+                        handleServiceLineSuggestionClick(suggestion);
+                        setServiceLineFocused(false);
+                      }}
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
     </div>
