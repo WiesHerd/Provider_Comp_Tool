@@ -246,7 +246,7 @@ export function ContextCard({ context, onContextChange, showTopBorder = true }: 
   return (
     <div className={cn(
       showTopBorder && "border-t border-gray-200 dark:border-gray-800",
-      "pt-6"
+      showTopBorder ? "pt-4" : "pt-0"
     )}>
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Context</h3>
       <div className="space-y-4">

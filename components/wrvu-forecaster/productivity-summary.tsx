@@ -29,23 +29,23 @@ function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps
   return (
     <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-900">
       {/* Icon and label - Compact layout for mobile */}
-      <div className="flex items-start gap-2 mb-2 sm:mb-3">
+      <div className="flex items-start gap-2 mb-3 sm:mb-4">
         <div className="text-primary flex-shrink-0 mt-0.5">{icon}</div>
         <Tooltip content={tooltipText} side="top" className="max-w-[250px] sm:max-w-[300px]">
-          <span className="text-xs text-gray-600 dark:text-gray-400 leading-tight block flex-1">
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight block flex-1">
             {label}
           </span>
         </Tooltip>
       </div>
       
-      {/* Value and difference */}
-      <div className="flex flex-col gap-1.5 sm:gap-2">
-        <span className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100 break-words">
+      {/* Value and difference - Apple-style: value large, pill on right */}
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 break-words flex-1">
           {value}
         </span>
         {difference && (
           <Tooltip content="Potential increase using adjusted wRVU per encounter" side="top">
-            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold w-fit touch-target">
+            <div className="flex items-center gap-1 px-2.5 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold flex-shrink-0 touch-target">
               {difference}
               <Info className="w-3 h-3" />
             </div>

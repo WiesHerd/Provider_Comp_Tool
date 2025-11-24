@@ -9,8 +9,8 @@ import Link from 'next/link';
 
 const tabs = [
   { id: 'home', label: 'Home', icon: Home, path: '/' },
-  { id: 'wrvu-modeler', label: 'Modeler', icon: Calculator, path: '/wrvu-modeler' },
-  { id: 'wrvu-forecaster', label: 'Forecast', icon: BarChart3, path: '/wrvu-forecaster' },
+  { id: 'wrvu-modeler', label: 'wRVU', icon: Calculator, path: '/wrvu-modeler' },
+  { id: 'wrvu-forecaster', label: 'Schedule', icon: BarChart3, path: '/wrvu-forecaster' },
   { id: 'fmv-calculator', label: 'FMV', icon: TrendingUp, path: '/fmv-calculator' },
   { id: 'call-pay-modeler', label: 'Call Pay', icon: Phone, path: '/call-pay-modeler' },
   { id: 'scenarios', label: 'Scenarios', icon: FolderOpen, path: '/scenarios' },

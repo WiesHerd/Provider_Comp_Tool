@@ -185,9 +185,9 @@ export default function CallPayModelerPage() {
 
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
-        <div id="context-card" data-tour="call-pay-context" className="space-y-6">
+        <div id="context-card" data-tour="call-pay-context" className="space-y-4">
           {/* Content - No container, just direct content */}
-          <div className="space-y-6">
+          <div className="space-y-4">
               <ScenarioLoader
                 scenarioType="call-pay"
                 onLoad={(scenario: ProviderScenario) => {

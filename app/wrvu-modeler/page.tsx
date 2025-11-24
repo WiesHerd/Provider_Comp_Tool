@@ -2,14 +2,11 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { WRVUInput } from '@/components/wrvu/wrvu-input';
 import { KPIChip } from '@/components/wrvu/kpi-chip';
 import { ScenarioSaveButton } from '@/components/wrvu/scenario-save-button';
 import { CurrencyInput } from '@/components/ui/currency-input';
-import { StepBadge } from '@/components/ui/step-badge';
-import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -35,6 +32,7 @@ import { RotateCcw } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { useProgressiveForm } from '@/components/ui/progressive-form';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
+import { cn } from '@/lib/utils/cn';
 
 // Common medical specialties (matching the pattern from other components)
 const SPECIALTIES = [
@@ -108,25 +106,20 @@ function ResultsStepContent({
   };
 
   return (
-    <Card className="border-2 border-primary/20 dark:border-primary/30 bg-white dark:bg-gray-900 shadow-lg" data-tour="wrvu-results">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <StepBadge number={4} variant="completed" />
-            <CardTitle>Results</CardTitle>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleStartOver}
-            className="gap-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Start Over
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className="space-y-6" data-tour="wrvu-results">
+      <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Results</h3>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleStartOver}
+          className="gap-2"
+        >
+          <RotateCcw className="w-4 h-4" />
+          Start Over
+        </Button>
+      </div>
+      <div className="space-y-6">
         {/* KPI Chips */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <KPIChip
@@ -175,7 +168,7 @@ function ResultsStepContent({
         </div>
 
         {/* Save Button */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
           <ScenarioSaveButton
             fte={fte}
             annualWrvus={annualWrvus}
@@ -185,14 +178,14 @@ function ResultsStepContent({
             specialty={specialty === 'Other' ? (customSpecialty.trim() || undefined) : (specialty || undefined)}
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
 function WRVUModelerPageContent() {
   const searchParams = useSearchParams();
-  const { getScenario } = useScenariosStore();
+  const { getScenario, scenarios, loadScenarios } = useScenariosStore();
   const [fte, setFte] = useState<FTE>(1.0);
   const previousFteRef = React.useRef<FTE>(1.0);
   const [annualWrvus, setAnnualWrvus] = useState(0);
@@ -262,6 +255,16 @@ function WRVUModelerPageContent() {
     return conversionFactor > 0;
   };
 
+  // Load scenarios on mount
+  useEffect(() => {
+    loadScenarios();
+  }, [loadScenarios]);
+
+  // Check if there are wrvu-modeler scenarios to show border above Provider Info
+  const hasWRVUModelerScenarios = React.useMemo(() => {
+    return scenarios.some(s => s.scenarioType === 'wrvu-modeler' || (!s.scenarioType && s.annualWrvus));
+  }, [scenarios]);
+
   const handleLoadScenario = useCallback((scenario: ProviderScenario) => {
     setFte(scenario.fte);
     const annual = scenario.annualWrvus;
@@ -328,50 +331,29 @@ function WRVUModelerPageContent() {
       >
         {/* Step 1: Provider Info */}
         <ProgressiveFormStep step={1}>
-          <div className="space-y-6">
-            {/* Header - No container, just spacing */}
-            <div className="flex items-center gap-2">
-              <StepBadge number={1} variant="default" />
-              {/* Title removed - header shows page context */}
-              <ScreenInfoModal
-                title="Provider Information"
-                description={`## Overview
-Enter optional provider information to help organize and identify your scenarios. All fields are optional—you can proceed without entering any information.
-
-## Fields
-
-### Provider Name
-• Optional identifier for this scenario
-• Helps you distinguish between different calculations
-
-### Specialty
-• Select your medical specialty from the dropdown
-• Choose Other to enter a custom specialty
-• Helps organize scenarios by specialty type
-
-## How It Works
-This information is saved with your scenario and can help you organize multiple calculations. You can load saved scenarios later using the Load Saved Scenario dropdown above.`}
-              />
-            </div>
-            
-            {/* Content - No container, just direct content */}
-            <div className="space-y-6">
-              <ScenarioLoader
-                scenarioType="wrvu-modeler"
-                onLoad={handleLoadScenario}
-                className="pb-4 border-b border-gray-200 dark:border-gray-700"
-              />
-              <div className="space-y-4">
+          <div className="space-y-4">
+            <ScenarioLoader
+              scenarioType="wrvu-modeler"
+              onLoad={handleLoadScenario}
+              className="mb-4"
+            />
+            <div className={cn(
+              "space-y-4",
+              hasWRVUModelerScenarios && "pt-4 border-t border-gray-200 dark:border-gray-800",
+              !hasWRVUModelerScenarios && "pt-0"
+            )}>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Information</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-base font-semibold">Provider Name (Optional)</Label>
+                  <Label className="text-sm font-semibold">Provider Name</Label>
                   <Input
                     value={providerName}
                     onChange={(e) => setProviderName(e.target.value)}
-                    placeholder="Enter provider name"
+                    placeholder="Enter name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-base font-semibold">Specialty (Optional)</Label>
+                  <Label className="text-sm font-semibold">Specialty</Label>
                   <Select value={specialty} onValueChange={(value) => {
                     setSpecialty(value);
                     if (value !== 'Other') {
@@ -419,72 +401,32 @@ This information is saved with your scenario and can help you organize multiple 
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {specialty === 'Other' && (
-                    <Input
-                      value={customSpecialty}
-                      onChange={(e) => setCustomSpecialty(e.target.value)}
-                      placeholder="Enter custom specialty"
-                      className="mt-2"
-                    />
-                  )}
                 </div>
               </div>
+              {specialty === 'Other' && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Custom Specialty</Label>
+                  <Input
+                    value={customSpecialty}
+                    onChange={(e) => setCustomSpecialty(e.target.value)}
+                    placeholder="Enter custom specialty"
+                  />
+                </div>
+              )}
             </div>
           </div>
-          <ProgressiveFormNavigation nextLabel="Continue to FTE & wRVUs" />
+          <ProgressiveFormNavigation nextLabel="FTE & wRVUs" />
         </ProgressiveFormStep>
 
         {/* Step 2: FTE & wRVUs */}
         <ProgressiveFormStep step={2}>
           <div className="space-y-6">
-            {/* Header - No container */}
-            <div className="flex items-center gap-2">
-              <StepBadge number={2} variant="default" />
-              {/* Title removed - header shows page context */}
-              <ScreenInfoModal
-                    title="FTE & Projected wRVUs"
-                    description={`## Overview
-Enter your Full-Time Equivalent (FTE) status and projected wRVU production. All calculations are automatically normalized to 1.0 FTE for fair comparison.
-
-## Fields
-
-### FTE (Full-Time Equivalent)
-• Your employment status from 0.1 to 1.0
-• 1.0 = full-time employment
-• Changing FTE automatically scales your wRVU values proportionally
-
-### Projected wRVUs
-Enter your annual wRVUs using one of three methods:
-  • Annual: Enter total annual wRVUs directly
-  • Monthly Avg: Enter average wRVUs per month (multiplies by 12)
-  • By Month: Enter individual monthly breakdown for precise tracking
-
-## Key Features
-
-### Normalized Calculations
-• All values are normalized to 1.0 FTE for comparison
-• Your wRVUs automatically adjust based on your FTE
-
-### Automatic Scaling
-• When you change FTE, existing wRVU values scale proportionally
-• No manual recalculation needed
-
-### Flexible Input
-• Choose the input method that works best for your data
-• Switch between methods at any time`}
-              />
+            <div className="space-y-2" data-tour="wrvu-fte">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">FTE & wRVUs</h3>
+              <FTEInput value={fte} onChange={setFte} />
             </div>
-            
-            {/* Content - No container */}
-            <div className="space-y-6">
-              <div className="space-y-2" data-tour="wrvu-fte">
-                <FTEInput value={fte} onChange={setFte} />
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Changing FTE will scale wRVU values proportionally. FTE also affects normalized calculations.
-                </p>
-              </div>
 
-              <div data-tour="wrvu-input">
+            <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800" data-tour="wrvu-input">
               <WRVUInput
                 annualWrvus={annualWrvus}
                 monthlyWrvus={monthlyWrvus}
@@ -493,81 +435,39 @@ Enter your annual wRVUs using one of three methods:
                 onMonthlyChange={setMonthlyWrvus}
                 onMonthlyBreakdownChange={setMonthlyBreakdown}
               />
-              </div>
-
-              {annualWrvus === 0 && (
-                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    Please enter projected wRVUs to continue.
-                  </p>
-                </div>
-              )}
             </div>
+
+            {annualWrvus === 0 && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  Please enter projected wRVUs to continue.
+                </p>
+              </div>
+            )}
           </div>
-          <ProgressiveFormNavigation nextLabel="Continue to CF" />
+          <ProgressiveFormNavigation nextLabel="Conversion Factor" />
         </ProgressiveFormStep>
 
         {/* Step 3: Conversion Factor */}
         <ProgressiveFormStep step={3}>
-          <div className="space-y-6">
-            {/* Header - No container */}
-            <div className="flex items-center gap-2">
-              <StepBadge number={3} variant="default" />
-              {/* Title removed - header shows page context */}
-              <ScreenInfoModal
-                    title="Conversion Factor"
-                    description={`## Overview
-Enter your conversion factor to calculate productivity-based compensation. The conversion factor determines how much you earn per wRVU generated.
-
-## What is Conversion Factor?
-
-### Definition
-• Conversion Factor ($/wRVU): The dollar amount paid per wRVU for productivity incentives
-• Represents how much you earn per wRVU generated
-• A key component of productivity-based compensation models
-
-### Typical Values
-• Common CF values range from $40-$60 per wRVU
-• Values vary significantly by:
-  - Medical specialty
-  - Geographic market
-  - Practice type (academic vs. private)
-  - Market competitiveness
-
-## Calculations
-
-### Productivity Pay
-• Productivity Pay = Annual wRVUs × Conversion Factor
-• Normalized Productivity Pay = Productivity Pay normalized to 1.0 FTE
-• Productivity $ per wRVU = Productivity Pay ÷ Annual wRVUs
-
-## Impact
-The conversion factor is a key component in determining your total compensation structure. Higher CF values result in more compensation per wRVU generated.`}
+          <div className="space-y-4" data-tour="wrvu-conversion">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Conversion Factor</h3>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Conversion Factor ($/wRVU)</Label>
+              <CurrencyInput
+                value={conversionFactor}
+                onChange={setConversionFactor}
+                placeholder="45.52"
               />
             </div>
-            
-            {/* Content - No container */}
-            <div className="space-y-6" data-tour="wrvu-conversion">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Conversion Factor ($/wRVU)</Label>
-                <CurrencyInput
-                  value={conversionFactor}
-                  onChange={setConversionFactor}
-                  placeholder="45.52"
-                />
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  This is the dollar amount paid per wRVU for productivity incentives.
+
+            {conversionFactor === 0 && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  Please enter a conversion factor to continue.
                 </p>
               </div>
-
-              {conversionFactor === 0 && (
-                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    Please enter a conversion factor to continue.
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
           <ProgressiveFormNavigation nextLabel="Results" />
         </ProgressiveFormStep>
