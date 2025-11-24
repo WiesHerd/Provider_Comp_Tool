@@ -86,11 +86,15 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
   };
 
   return (
-    <div className={`space-y-2 ${className || ''}`}>
+    <div className={className || ''}>
       {typeFilteredScenarios.length > 0 && (
-        <div className="space-y-2">
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-gray-900 dark:text-white">Load Saved Scenario</Label>
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-semibold text-gray-900 dark:text-white mb-0">
+                Load Saved Scenario
+              </Label>
+            </div>
             <Select 
               key={`scenario-select-${typeFilteredScenarios.length}-${scenarios.length}`}
               value={selectedId} 
@@ -101,7 +105,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               open={selectOpen} 
               onOpenChange={setSelectOpen}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-white dark:bg-gray-900">
                 <SelectValue placeholder="Select a scenario to load..." />
               </SelectTrigger>
               <SelectContent>
@@ -151,7 +155,14 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Select a scenario to automatically load its data
+            </p>
           </div>
+        </div>
+      )}
+    </div>
+  );
 
           {/* Delete Confirmation Dialog */}
           <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
