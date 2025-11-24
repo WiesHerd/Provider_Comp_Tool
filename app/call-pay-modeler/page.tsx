@@ -234,8 +234,8 @@ export default function CallPayModelerPage() {
                 </button>
               ))}
               
-              {/* Add Tier and Remove Last buttons at the end */}
-              <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+              {/* Add Tier and Remove Last buttons - Icon-only on mobile, icon+text on desktop */}
+              <div className="flex items-center gap-1.5 sm:gap-2 ml-auto flex-shrink-0">
                 {tiers.length < 10 && (
                   <button
                     onClick={() => {
@@ -244,8 +244,8 @@ export default function CallPayModelerPage() {
                       handleTiersChange([...tiers, newTier]);
                     }}
                     className={cn(
-                      "inline-flex items-center justify-center gap-1.5",
-                      "px-3.5 py-2.5 rounded-lg",
+                      "inline-flex items-center justify-center",
+                      "px-2.5 sm:px-3.5 py-2.5 rounded-lg",
                       "text-sm font-medium",
                       "bg-white dark:bg-gray-800",
                       "border border-gray-200 dark:border-gray-700",
@@ -255,11 +255,12 @@ export default function CallPayModelerPage() {
                       "transition-all duration-150",
                       "shadow-sm hover:shadow",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
-                      "min-h-[44px] touch-manipulation"
+                      "min-h-[44px] min-w-[44px] sm:min-w-auto touch-manipulation"
                     )}
+                    aria-label="Add tier"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Tier</span>
+                    <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline ml-1.5">Add Tier</span>
                   </button>
                 )}
                 {tiers.length > 1 && (
@@ -270,8 +271,8 @@ export default function CallPayModelerPage() {
                       handleTiersChange(updatedTiers);
                     }}
                     className={cn(
-                      "inline-flex items-center justify-center gap-1.5",
-                      "px-3.5 py-2.5 rounded-lg",
+                      "inline-flex items-center justify-center",
+                      "px-2.5 sm:px-3.5 py-2.5 rounded-lg",
                       "text-sm font-medium",
                       "bg-white dark:bg-gray-800",
                       "border border-red-200 dark:border-red-800/50",
@@ -281,11 +282,12 @@ export default function CallPayModelerPage() {
                       "transition-all duration-150",
                       "shadow-sm hover:shadow",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1",
-                      "min-h-[44px] touch-manipulation"
+                      "min-h-[44px] min-w-[44px] sm:min-w-auto touch-manipulation"
                     )}
+                    aria-label="Remove last tier"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Remove Last</span>
+                    <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline ml-1.5">Remove Last</span>
                   </button>
                 )}
               </div>

@@ -113,48 +113,49 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
         />
       </div>
 
-      {/* Coverage Type */}
-      <div className="space-y-2">
-        <Label className="text-sm font-semibold">Coverage Type</Label>
-        <Select
-          value={tier.coverageType}
-          onValueChange={(value) =>
-            updateField('coverageType', value as CoverageType)
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select type" />
-          </SelectTrigger>
-          <SelectContent>
-            {COVERAGE_TYPES.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Coverage Type and Payment Method - Side by side */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Coverage Type</Label>
+          <Select
+            value={tier.coverageType}
+            onValueChange={(value) =>
+              updateField('coverageType', value as CoverageType)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {COVERAGE_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      {/* Payment Method */}
-      <div className="space-y-2">
-        <Label className="text-sm font-semibold">Payment Method</Label>
-        <Select
-          value={tier.paymentMethod}
-          onValueChange={(value) =>
-            updateField('paymentMethod', value as PaymentMethod)
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select method" />
-          </SelectTrigger>
-          <SelectContent>
-            {PAYMENT_METHODS.map((method) => (
-              <SelectItem key={method} value={method}>
-                {method}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Payment Method</Label>
+          <Select
+            value={tier.paymentMethod}
+            onValueChange={(value) =>
+              updateField('paymentMethod', value as PaymentMethod)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select method" />
+            </SelectTrigger>
+            <SelectContent>
+              {PAYMENT_METHODS.map((method) => (
+                <SelectItem key={method} value={method}>
+                  {method}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Rates */}
@@ -328,8 +329,8 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                 </div>
               </>
             ) : (
-              // Manual entry inputs
-              <>
+              // Manual entry inputs - side by side
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs text-gray-600 dark:text-gray-400">
                     Weekend Rate
@@ -350,7 +351,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                     placeholder="0.00"
                   />
                 </div>
-              </>
+              </div>
             )}
             {showTraumaUplift && (
               <div className="space-y-2">
@@ -518,58 +519,60 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label className="text-xs text-gray-600 dark:text-gray-400">
-            Holidays Covered per Year
-          </Label>
-          {customModes.holidaysPerYear ? (
-            <div className="space-y-2">
-              <NumberInput
-                value={tier.burden.holidaysPerYear}
-                onChange={(value) => updateBurden({ holidaysPerYear: value })}
-                min={0}
-                placeholder="0"
-              />
-              <button
-                type="button"
-                onClick={() => setCustomModes(prev => ({ ...prev, holidaysPerYear: false }))}
-                className="text-xs text-primary hover:underline"
+        {/* Holidays and Callbacks - side by side */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-xs text-gray-600 dark:text-gray-400">
+              Holidays Covered per Year
+            </Label>
+            {customModes.holidaysPerYear ? (
+              <div className="space-y-2">
+                <NumberInput
+                  value={tier.burden.holidaysPerYear}
+                  onChange={(value) => updateBurden({ holidaysPerYear: value })}
+                  min={0}
+                  placeholder="0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomModes(prev => ({ ...prev, holidaysPerYear: false }))}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Use preset values
+                </button>
+              </div>
+            ) : (
+              <Select
+                value={holidaysPresets.includes(tier.burden.holidaysPerYear) 
+                  ? tier.burden.holidaysPerYear.toString() 
+                  : 'custom'}
+                onValueChange={(value) => {
+                  if (value === 'custom') {
+                    setCustomModes(prev => ({ ...prev, holidaysPerYear: true }));
+                  } else {
+                    updateBurden({ holidaysPerYear: parseInt(value, 10) });
+                  }
+                }}
               >
-                Use preset values
-              </button>
-            </div>
-          ) : (
-            <Select
-              value={holidaysPresets.includes(tier.burden.holidaysPerYear) 
-                ? tier.burden.holidaysPerYear.toString() 
-                : 'custom'}
-              onValueChange={(value) => {
-                if (value === 'custom') {
-                  setCustomModes(prev => ({ ...prev, holidaysPerYear: true }));
-                } else {
-                  updateBurden({ holidaysPerYear: parseInt(value, 10) });
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select holidays" />
-              </SelectTrigger>
-              <SelectContent>
-                {holidaysPresets.map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num}
-                  </SelectItem>
-                ))}
-                <SelectItem value="custom">Custom...</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        </div>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select holidays" />
+                </SelectTrigger>
+                <SelectContent>
+                  {holidaysPresets.map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">Custom...</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label className="text-xs text-gray-600 dark:text-gray-400">
-            Avg Callbacks per 24h
-          </Label>
+          <div className="space-y-2">
+            <Label className="text-xs text-gray-600 dark:text-gray-400">
+              Avg Callbacks per 24h
+            </Label>
           {customModes.avgCallbacksPer24h ? (
             <div className="space-y-2">
               <NumberInput
@@ -615,6 +618,7 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
               </SelectContent>
             </Select>
           )}
+          </div>
         </div>
 
         {showCasesInput && (
