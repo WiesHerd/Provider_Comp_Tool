@@ -61,44 +61,69 @@ export function WorkSchedulePanel({
 
       <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
         <Label className="text-sm font-semibold mb-3 block">Shift Types</Label>
+        
+        {/* Headers - hidden on mobile, shown on larger screens */}
+        <div className="hidden sm:grid sm:grid-cols-[1fr_100px_120px_44px] gap-2 mb-2">
+          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Shift Name</Label>
+          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Hours</Label>
+          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Per Week</Label>
+          <div></div> {/* Spacer for delete button */}
+        </div>
+        
         <div className="space-y-2 sm:space-y-3">
           {inputs.shifts.map((shift, index) => (
-            <div key={shift.id} className="flex items-center gap-2 flex-wrap">
-              <Input
-                value={shift.name}
-                onChange={(e) => onShiftChange(index, 'name', e.target.value)}
-                placeholder="Shift name"
-                className="flex-1 min-w-[120px] text-sm sm:text-base"
-                icon={<Clock className="w-5 h-5" />}
-              />
-              <Input
-                type="number"
-                value={shift.hours}
-                onChange={(e) => onShiftChange(index, 'hours', Number(e.target.value) || 0)}
-                placeholder="Hours"
-                className="w-16 sm:w-20 text-sm sm:text-base"
-                min={0}
-                icon={<Clock className="w-4 h-4" />}
-              />
-              <Input
-                type="number"
-                value={shift.perWeek}
-                onChange={(e) => onShiftChange(index, 'perWeek', Number(e.target.value) || 0)}
-                placeholder="Per week"
-                className="w-20 sm:w-24 text-sm sm:text-base"
-                min={0}
-                icon={<CalendarCheck className="w-4 h-4" />}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => onDeleteShift(index)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] touch-target"
-                aria-label="Delete shift"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+            <div key={shift.id} className="flex flex-col sm:grid sm:grid-cols-[1fr_100px_120px_44px] gap-2 sm:items-center">
+              {/* Shift Name */}
+              <div className="flex flex-col sm:block">
+                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 sm:hidden">Shift Name</Label>
+                <Input
+                  value={shift.name}
+                  onChange={(e) => onShiftChange(index, 'name', e.target.value)}
+                  placeholder="Shift name"
+                  className="w-full text-sm sm:text-base"
+                  icon={<Clock className="w-5 h-5" />}
+                />
+              </div>
+              
+              {/* Hours */}
+              <div className="flex flex-col sm:block">
+                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 sm:hidden">Hours</Label>
+                <Input
+                  type="number"
+                  value={shift.hours}
+                  onChange={(e) => onShiftChange(index, 'hours', Number(e.target.value) || 0)}
+                  placeholder="Hours"
+                  className="w-full sm:w-full text-sm sm:text-base"
+                  min={0}
+                />
+              </div>
+              
+              {/* Per Week */}
+              <div className="flex flex-col sm:block">
+                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 sm:hidden">Per Week</Label>
+                <Input
+                  type="number"
+                  value={shift.perWeek}
+                  onChange={(e) => onShiftChange(index, 'perWeek', Number(e.target.value) || 0)}
+                  placeholder="Per week"
+                  className="w-full sm:w-full text-sm sm:text-base"
+                  min={0}
+                />
+              </div>
+              
+              {/* Delete Button */}
+              <div className="flex justify-end sm:justify-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDeleteShift(index)}
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] touch-target"
+                  aria-label="Delete shift"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           ))}
         </div>
