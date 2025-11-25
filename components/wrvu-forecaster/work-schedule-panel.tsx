@@ -107,7 +107,7 @@ export function WorkSchedulePanel({
                       // When user manually changes perWeek, clear daysOfWeek to use legacy mode
                       onShiftChange(index, 'perWeek', value);
                       if (shift.daysOfWeek) {
-                        onShiftChange(index, 'daysOfWeek', []);
+                        onShiftChange(index, 'daysOfWeek', [] as number[]);
                       }
                     }}
                     icon={<CalendarDays className="w-5 h-5" />}
