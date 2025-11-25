@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plane, CalendarCheck, BookOpen, Plus, Trash2, Clock, CalendarDays } from 'lucide-react';
-import { ShiftType, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
+import { ShiftType, WRVUForecasterInputs, daysOfWeekToPerWeek } from '@/types/wrvu-forecaster';
+import { DaySelector } from './day-selector';
+import { WeeklyScheduleView } from './weekly-schedule-view';
 
 interface WorkSchedulePanelProps {
   inputs: WRVUForecasterInputs;
@@ -97,15 +99,44 @@ export function WorkSchedulePanel({
                   step={1}
                   integerOnly
                 />
-                <NumberInputWithButtons
-                  label="Shifts per Week"
-                  value={shift.perWeek}
-                  onChange={(value) => onShiftChange(index, 'perWeek', value)}
-                  icon={<CalendarDays className="w-5 h-5" />}
-                  min={0}
-                  max={168}
-                  step={1}
-                  integerOnly
+                <div>
+                  <NumberInputWithButtons
+                    label="Shifts per Week"
+                    value={shift.daysOfWeek ? daysOfWeekToPerWeek(shift.daysOfWeek) : shift.perWeek}
+                    onChange={(value) => {
+                      // When user manually changes perWeek, clear daysOfWeek to use legacy mode
+                      onShiftChange(index, 'perWeek', value);
+                      if (shift.daysOfWeek) {
+                        onShiftChange(index, 'daysOfWeek', []);
+                      }
+                    }}
+                    icon={<CalendarDays className="w-5 h-5" />}
+                    min={0}
+                    max={168}
+                    step={1}
+                    integerOnly
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">
+                    {shift.daysOfWeek && shift.daysOfWeek.length > 0
+                      ? 'Auto-calculated from selected days'
+                      : 'Or select specific days below'}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Day Selector - Calendar Style */}
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <DaySelector
+                  daysOfWeek={shift.daysOfWeek}
+                  onDaysChange={(days) => {
+                    // Update daysOfWeek
+                    onShiftChange(index, 'daysOfWeek', days);
+                    // Auto-update perWeek based on selected days
+                    const newPerWeek = daysOfWeekToPerWeek(days);
+                    if (newPerWeek > 0) {
+                      onShiftChange(index, 'perWeek', newPerWeek);
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -122,6 +153,13 @@ export function WorkSchedulePanel({
           <span className="sm:hidden">Add Shift</span>
         </Button>
       </div>
+
+      {/* Weekly Schedule View */}
+      {inputs.shifts.length > 0 && (
+        <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-800">
+          <WeeklyScheduleView shifts={inputs.shifts} />
+        </div>
+      )}
     </div>
   );
 }

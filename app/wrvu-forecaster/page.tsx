@@ -11,12 +11,15 @@ import {
   ProgressiveForm,
   ProgressiveFormStep,
   ProgressiveFormNavigation,
+  useProgressiveForm,
 } from '@/components/ui/progressive-form';
 import {
   WRVUForecasterInputs,
   ProductivityMetrics,
   ShiftType,
   WRVUForecasterScenario,
+  perWeekToDaysOfWeek,
+  daysOfWeekToPerWeek,
 } from '@/types/wrvu-forecaster';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { NumberInputWithButtons } from '@/components/ui/number-input-with-buttons';
@@ -59,8 +62,21 @@ const getInitialState = (): WRVUForecasterInputs => {
           id: shift.id || `shift-${index}`,
         }));
       }
+      // Migrate shifts without daysOfWeek to include daysOfWeek
+      if (parsed.shifts && parsed.shifts.length > 0) {
+        parsed.shifts = parsed.shifts.map((shift: ShiftType) => {
+          if (!shift.daysOfWeek && shift.perWeek !== undefined) {
+            return {
+              ...shift,
+              daysOfWeek: perWeekToDaysOfWeek(shift.perWeek),
+            };
+          }
+          return shift;
+        });
+      }
       // Ensure calendar fields exist
       if (!parsed.dailyPatientCounts) parsed.dailyPatientCounts = {};
+      if (!parsed.dailyHours) parsed.dailyHours = {};
       if (!parsed.vacationDates) parsed.vacationDates = [];
       if (!parsed.cmeDates) parsed.cmeDates = [];
       if (!parsed.statutoryHolidayDates) parsed.statutoryHolidayDates = [];
@@ -107,6 +123,47 @@ const SPECIALTIES = [
   'Other',
 ];
 
+// Results step content component that has access to ProgressiveForm context
+function ResultsStepContent({
+  inputs,
+  metrics,
+  onLoadScenario,
+  onEmailReport,
+  onPrint,
+  onResetInputs,
+}: {
+  inputs: WRVUForecasterInputs;
+  metrics: ProductivityMetrics;
+  onLoadScenario: (scenario: WRVUForecasterScenario) => void;
+  onEmailReport: () => void;
+  onPrint: () => void;
+  onResetInputs: () => void;
+}) {
+  const { goToStep } = useProgressiveForm();
+
+  const handleStartOver = () => {
+    onResetInputs();
+    goToStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="space-y-6 pb-24 sm:pb-6">
+      <ScenarioManager
+        inputs={inputs}
+        metrics={metrics}
+        onLoadScenario={onLoadScenario}
+        onEmailReport={onEmailReport}
+        onPrint={onPrint}
+        onStartOver={handleStartOver}
+      />
+      <div data-tour="forecaster-productivity">
+        <ProductivitySummary metrics={metrics} inputs={inputs} />
+      </div>
+    </div>
+  );
+}
+
 const getDefaultState = (): WRVUForecasterInputs => ({
   providerName: '',
   specialty: '',
@@ -115,8 +172,8 @@ const getDefaultState = (): WRVUForecasterInputs => ({
   statutoryHolidays: 10,
   cmeDays: 5,
   shifts: [
-    { id: 'shift-0', name: 'Regular Clinic', hours: 8, perWeek: 4 },
-    { id: 'shift-1', name: 'Extended Hours', hours: 10, perWeek: 1 },
+    { id: 'shift-0', name: 'Regular Clinic', hours: 8, perWeek: 4, daysOfWeek: [1, 2, 3, 4] }, // Mon-Thu
+    { id: 'shift-1', name: 'Extended Hours', hours: 10, perWeek: 1, daysOfWeek: [5] }, // Friday
   ],
   patientsPerHour: 2,
   patientsPerDay: 16,
@@ -127,6 +184,7 @@ const getDefaultState = (): WRVUForecasterInputs => ({
   isPerHour: true,
   // Calendar fields
   dailyPatientCounts: {},
+  dailyHours: {},
   vacationDates: [],
   cmeDates: [],
   statutoryHolidayDates: [],
@@ -184,15 +242,58 @@ export default function WRVUForecasterPage() {
         (syncedNumbers.cmeDays + syncedNumbers.statutoryHolidays) / 7;
       weeksWorkedPerYear = 52 - totalWeeksOff;
 
-      // Calculate annual clinic days and hours
-      const totalDaysPerWeek = inputs.shifts.reduce(
-        (total, shift) => total + shift.perWeek,
-        0
+      // Calculate days per week and hours per week from calendar data
+      // Get all days with data (patients or hours)
+      const allDaysWithData = new Set([
+        ...Object.keys(inputs.dailyPatientCounts || {}),
+        ...Object.keys(inputs.dailyHours || {}),
+      ]);
+      
+      // Filter out vacation/CME/holiday dates
+      const workingDaysWithData = Array.from(allDaysWithData).filter(
+        (dateStr) =>
+          !inputs.vacationDates?.includes(dateStr) &&
+          !inputs.cmeDates?.includes(dateStr) &&
+          !inputs.statutoryHolidayDates?.includes(dateStr)
       );
-      const totalHoursPerWeek = inputs.shifts.reduce(
-        (total, shift) => total + shift.hours * shift.perWeek,
-        0
-      );
+
+      // Calculate average hours per day from calendar
+      const hoursValues = workingDaysWithData
+        .map((dateStr) => inputs.dailyHours?.[dateStr] || 0)
+        .filter((h) => h > 0);
+      const avgHoursPerDay =
+        hoursValues.length > 0
+          ? hoursValues.reduce((sum, h) => sum + h, 0) / hoursValues.length
+          : 0;
+
+      // Calculate days per week from calendar pattern
+      // Count unique days of week that have data
+      const daysOfWeekWithData = new Set<number>();
+      workingDaysWithData.forEach((dateStr) => {
+        const date = new Date(dateStr);
+        const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc.
+        daysOfWeekWithData.add(dayOfWeek);
+      });
+      const totalDaysPerWeek = daysOfWeekWithData.size || 0;
+
+      // Calculate total hours per week
+      // If we have hours data, use average hours × days per week
+      // Otherwise fallback to shifts if available
+      let totalHoursPerWeek = 0;
+      if (avgHoursPerDay > 0 && totalDaysPerWeek > 0) {
+        totalHoursPerWeek = avgHoursPerDay * totalDaysPerWeek;
+      } else if (inputs.shifts && inputs.shifts.length > 0) {
+        // Fallback to shifts if no calendar hours data
+        totalHoursPerWeek = inputs.shifts.reduce(
+          (total, shift) => {
+            const daysPerWeek = shift.daysOfWeek
+              ? daysOfWeekToPerWeek(shift.daysOfWeek)
+              : shift.perWeek;
+            return total + shift.hours * daysPerWeek;
+          },
+          0
+        );
+      }
 
       annualClinicDays =
         totalDaysPerWeek * weeksWorkedPerYear -
@@ -228,11 +329,14 @@ export default function WRVUForecasterPage() {
 
       // Calculate annual clinic days and hours
       const totalDaysPerWeek = inputs.shifts.reduce(
-        (total, shift) => total + shift.perWeek,
+        (total, shift) => total + (shift.daysOfWeek ? daysOfWeekToPerWeek(shift.daysOfWeek) : shift.perWeek),
         0
       );
       const totalHoursPerWeek = inputs.shifts.reduce(
-        (total, shift) => total + shift.hours * shift.perWeek,
+        (total, shift) => {
+          const daysPerWeek = shift.daysOfWeek ? daysOfWeekToPerWeek(shift.daysOfWeek) : shift.perWeek;
+          return total + shift.hours * daysPerWeek;
+        },
         0
       );
 
@@ -286,6 +390,7 @@ export default function WRVUForecasterPage() {
       // Ensure calendar fields are initialized when enabling calendar mode
       if (field === 'useCalendarMode' && value === true) {
         if (!updated.dailyPatientCounts) updated.dailyPatientCounts = {};
+        if (!updated.dailyHours) updated.dailyHours = {};
         if (!updated.vacationDates) updated.vacationDates = [];
         if (!updated.cmeDates) updated.cmeDates = [];
         if (!updated.statutoryHolidayDates) updated.statutoryHolidayDates = [];
@@ -296,8 +401,8 @@ export default function WRVUForecasterPage() {
 
   const handleShiftChange = (
     index: number | null,
-    field: keyof ShiftType | 'add',
-    value: string | number
+    field: keyof ShiftType | 'add' | 'daysOfWeek',
+    value: string | number | number[]
   ) => {
     if (field === 'add') {
       setInputs((prev) => ({
@@ -309,6 +414,7 @@ export default function WRVUForecasterPage() {
             name: 'New Shift',
             hours: 8,
             perWeek: 1,
+            daysOfWeek: [1], // Default to Monday
           },
         ],
       }));
@@ -345,6 +451,17 @@ export default function WRVUForecasterPage() {
       dailyPatientCounts: {
         ...prev.dailyPatientCounts,
         [dateStr]: count,
+      },
+    }));
+  };
+
+  const handleHoursChange = (date: Date, hours: number) => {
+    const dateStr = formatDateString(date);
+    setInputs((prev) => ({
+      ...prev,
+      dailyHours: {
+        ...prev.dailyHours,
+        [dateStr]: hours,
       },
     }));
   };
@@ -392,6 +509,20 @@ export default function WRVUForecasterPage() {
 
       return newInputs;
     });
+  };
+
+  const handleClearCalendar = () => {
+    setInputs((prev) => ({
+      ...prev,
+      dailyPatientCounts: {},
+      vacationDates: [],
+      cmeDates: [],
+      statutoryHolidayDates: [],
+      // Reset number inputs to defaults
+      vacationWeeks: 4,
+      cmeDays: 5,
+      statutoryHolidays: 10,
+    }));
   };
 
   const handleLoadScenario = (scenario: WRVUForecasterScenario) => {
@@ -614,12 +745,15 @@ Generated by CompLens™ Provider Compensation Intelligence
                 </div>
               </div>
               
-              <WorkSchedulePanel
-                inputs={inputs}
-                onInputChange={handleInputChange}
-                onShiftChange={handleShiftChange}
-                onDeleteShift={handleDeleteShift}
-              />
+              {/* Work Schedule Panel - Hidden when calendar mode is enabled */}
+              {!inputs.useCalendarMode && (
+                <WorkSchedulePanel
+                  inputs={inputs}
+                  onInputChange={handleInputChange}
+                  onShiftChange={handleShiftChange}
+                  onDeleteShift={handleDeleteShift}
+                />
+              )}
               
               <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-800 space-y-4" data-tour="forecaster-encounters">
                 {/* Calendar Mode Toggle */}
@@ -646,11 +780,14 @@ Generated by CompLens™ Provider Compensation Intelligence
                   <div className="space-y-4">
                     <PatientCalendarView
                       dailyPatientCounts={inputs.dailyPatientCounts}
+                      dailyHours={inputs.dailyHours}
                       vacationDates={inputs.vacationDates}
                       cmeDates={inputs.cmeDates}
                       holidayDates={inputs.statutoryHolidayDates}
                       onPatientCountChange={handlePatientCountChange}
+                      onHoursChange={handleHoursChange}
                       onDateTypeChange={handleDateTypeChange}
+                      onClearCalendar={handleClearCalendar}
                       avgWRVUPerEncounter={inputs.avgWRVUPerEncounter}
                       adjustedWRVUPerEncounter={inputs.adjustedWRVUPerEncounter}
                     />
@@ -769,22 +906,14 @@ Generated by CompLens™ Provider Compensation Intelligence
 
           {/* Step 3: Results */}
           <ProgressiveFormStep step={3}>
-            <div className="space-y-6 pb-24 sm:pb-6">
-              <ScenarioManager
-                inputs={inputs}
-                metrics={metrics}
-                onLoadScenario={handleLoadScenario}
-                onEmailReport={handleEmailReport}
-                onPrint={handlePrint}
-                onStartOver={() => {
-                  setInputs(getDefaultState());
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
-              <div data-tour="forecaster-productivity">
-                <ProductivitySummary metrics={metrics} inputs={inputs} />
-              </div>
-            </div>
+            <ResultsStepContent
+              inputs={inputs}
+              metrics={metrics}
+              onLoadScenario={handleLoadScenario}
+              onEmailReport={handleEmailReport}
+              onPrint={handlePrint}
+              onResetInputs={() => setInputs(getDefaultState())}
+            />
           </ProgressiveFormStep>
         </ProgressiveForm>
       </div>

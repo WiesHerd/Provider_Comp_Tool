@@ -3,6 +3,28 @@ export interface ShiftType {
   name: string;
   hours: number;
   perWeek: number;
+  daysOfWeek?: number[]; // 0=Sunday, 1=Monday, ..., 6=Saturday
+}
+
+// Helper function to convert daysOfWeek to perWeek
+export function daysOfWeekToPerWeek(daysOfWeek?: number[]): number {
+  if (!daysOfWeek || daysOfWeek.length === 0) return 0;
+  return daysOfWeek.length;
+}
+
+// Helper function to convert perWeek to daysOfWeek (for migration)
+export function perWeekToDaysOfWeek(perWeek: number): number[] {
+  if (perWeek === 0) return [];
+  if (perWeek === 5) return [1, 2, 3, 4, 5]; // Mon-Fri
+  if (perWeek === 1) return [1]; // Monday
+  if (perWeek === 7) return [0, 1, 2, 3, 4, 5, 6]; // All days
+  // For other values, distribute evenly across weekdays (Mon-Fri)
+  const weekdays = [1, 2, 3, 4, 5];
+  const result: number[] = [];
+  for (let i = 0; i < perWeek && i < weekdays.length; i++) {
+    result.push(weekdays[i]);
+  }
+  return result;
 }
 
 export interface WRVUForecasterInputs {
@@ -22,6 +44,7 @@ export interface WRVUForecasterInputs {
   isPerHour: boolean;
   // Calendar-based fields
   dailyPatientCounts?: Record<string, number>; // Map of date strings (YYYY-MM-DD) to patient counts
+  dailyHours?: Record<string, number>; // Map of date strings (YYYY-MM-DD) to hours per day
   vacationDates?: string[]; // Array of date strings for vacation days
   cmeDates?: string[]; // Array of date strings for CME days
   statutoryHolidayDates?: string[]; // Array of date strings for statutory holidays

@@ -7,7 +7,8 @@ import { DateTypeSelector } from './date-type-selector';
 import { CalendarSummary } from './calendar-summary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Calendar, Grid, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Grid, Info, Trash2 } from 'lucide-react';
+import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/cn';
 import {
   getWeekDays,
@@ -18,11 +19,14 @@ import {
 
 interface PatientCalendarViewProps {
   dailyPatientCounts?: Record<DateString, number>;
+  dailyHours?: Record<DateString, number>;
   vacationDates?: DateString[];
   cmeDates?: DateString[];
   holidayDates?: DateString[];
   onPatientCountChange?: (date: Date, count: number) => void;
+  onHoursChange?: (date: Date, hours: number) => void;
   onDateTypeChange?: (date: Date, type: 'vacation' | 'cme' | 'holiday' | null) => void;
+  onClearCalendar?: () => void;
   avgWRVUPerEncounter?: number;
   adjustedWRVUPerEncounter?: number;
   className?: string;
@@ -32,11 +36,14 @@ type ViewMode = 'week' | 'month';
 
 export function PatientCalendarView({
   dailyPatientCounts = {},
+  dailyHours = {},
   vacationDates = [],
   cmeDates = [],
   holidayDates = [],
   onPatientCountChange,
+  onHoursChange,
   onDateTypeChange,
+  onClearCalendar,
   avgWRVUPerEncounter = 0,
   adjustedWRVUPerEncounter = 0,
   className,
@@ -44,6 +51,28 @@ export function PatientCalendarView({
   const [viewMode, setViewMode] = React.useState<ViewMode>('month');
   const [currentDate, setCurrentDate] = React.useState(startOfToday());
   const [selectedDates, setSelectedDates] = React.useState<Date[]>([]);
+  const [showClearDialog, setShowClearDialog] = React.useState(false);
+
+  // Check if calendar has any data
+  const hasCalendarData = React.useMemo(() => {
+    const hasPatientCounts = Object.keys(dailyPatientCounts || {}).length > 0 &&
+      Object.values(dailyPatientCounts || {}).some(count => count > 0);
+    const hasHours = Object.keys(dailyHours || {}).length > 0 &&
+      Object.values(dailyHours || {}).some(hours => hours > 0);
+    const hasVacationDates = (vacationDates || []).length > 0;
+    const hasCmeDates = (cmeDates || []).length > 0;
+    const hasHolidayDates = (holidayDates || []).length > 0;
+    return hasPatientCounts || hasHours || hasVacationDates || hasCmeDates || hasHolidayDates;
+  }, [dailyPatientCounts, dailyHours, vacationDates, cmeDates, holidayDates]);
+
+  const handleClearClick = () => {
+    setShowClearDialog(true);
+  };
+
+  const handleClearConfirm = () => {
+    onClearCalendar?.();
+    setShowClearDialog(false);
+  };
 
   const today = startOfToday();
 
@@ -193,6 +222,21 @@ export function PatientCalendarView({
                 <ChevronRight className="w-5 h-5" />
               </Button>
               
+              {/* Clear Calendar Button - Only show when there's data */}
+              {hasCalendarData && onClearCalendar && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearClick}
+                  className="h-9 px-3 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-700"
+                  aria-label="Clear calendar"
+                >
+                  <Trash2 className="w-4 h-4 mr-1.5" />
+                  <span className="hidden sm:inline">Clear</span>
+                </Button>
+              )}
+              
               {/* View mode toggle - Mobile */}
               <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 ml-2">
                 <Button
@@ -269,6 +313,7 @@ export function PatientCalendarView({
                     const isCurrentMonth = format(date, 'M') === format(currentDate, 'M');
                     const isToday = format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
                     const patientCount = dailyPatientCounts[dateStr] || 0;
+                    const hours = dailyHours[dateStr] || 0;
                     const isSelected = selectedDates.some(
                       (d) => formatDateString(d) === dateStr
                     );
@@ -285,12 +330,14 @@ export function PatientCalendarView({
                         <CalendarDayCell
                           date={date}
                           patientCount={patientCount}
+                          hours={hours}
                           vacationDates={vacationDates}
                           cmeDates={cmeDates}
                           holidayDates={holidayDates}
                           isToday={isToday}
                           isCurrentMonth={isCurrentMonth}
                           onPatientCountChange={onPatientCountChange}
+                          onHoursChange={onHoursChange}
                           onDateTypeChange={onDateTypeChange}
                         />
                       </div>
@@ -344,6 +391,36 @@ export function PatientCalendarView({
           adjustedWRVUPerEncounter={adjustedWRVUPerEncounter}
         />
       )}
+
+      {/* Clear Calendar Confirmation Dialog */}
+      <Dialog.Root open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-md w-[90vw] z-50 shadow-xl">
+            <Dialog.Title className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+              Clear Calendar
+            </Dialog.Title>
+            <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Are you sure you want to clear all calendar data? This will remove all patient counts, vacation dates, CME dates, and holiday dates. This action cannot be undone.
+            </Dialog.Description>
+            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <Dialog.Close asChild>
+                <Button variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button
+                onClick={handleClearConfirm}
+                variant="outline"
+                className="w-full sm:w-auto min-h-[44px] touch-target text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear
+              </Button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

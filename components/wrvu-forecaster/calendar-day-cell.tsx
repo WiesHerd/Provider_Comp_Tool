@@ -6,17 +6,19 @@ import { format, isWeekend } from 'date-fns';
 import { formatDateString, getDateType, type DateString } from '@/lib/utils/calendar-helpers';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
-import { Users, X } from 'lucide-react';
+import { Users, X, Clock } from 'lucide-react';
 
 interface CalendarDayCellProps {
   date: Date;
   patientCount?: number;
+  hours?: number;
   vacationDates?: DateString[];
   cmeDates?: DateString[];
   holidayDates?: DateString[];
   isToday?: boolean;
   isCurrentMonth?: boolean;
   onPatientCountChange?: (date: Date, count: number) => void;
+  onHoursChange?: (date: Date, hours: number) => void;
   onDateTypeChange?: (date: Date, type: 'vacation' | 'cme' | 'holiday' | null) => void;
   disabled?: boolean;
 }
@@ -24,19 +26,24 @@ interface CalendarDayCellProps {
 export function CalendarDayCell({
   date,
   patientCount = 0,
+  hours = 0,
   vacationDates,
   cmeDates,
   holidayDates,
   isToday = false,
   isCurrentMonth = true,
   onPatientCountChange,
+  onHoursChange,
   onDateTypeChange,
   disabled = false,
 }: CalendarDayCellProps) {
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [isEditingPatients, setIsEditingPatients] = React.useState(false);
+  const [isEditingHours, setIsEditingHours] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
-  const [editValue, setEditValue] = React.useState(patientCount.toString());
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [patientsValue, setPatientsValue] = React.useState(patientCount.toString());
+  const [hoursValue, setHoursValue] = React.useState(hours.toString());
+  const patientsInputRef = React.useRef<HTMLInputElement>(null);
+  const hoursInputRef = React.useRef<HTMLInputElement>(null);
 
   const dateString = formatDateString(date);
   const dateType = getDateType(dateString, vacationDates, cmeDates, holidayDates);
@@ -44,31 +51,47 @@ export function CalendarDayCell({
   const isNonWorking = dateType !== null;
 
   React.useEffect(() => {
-    setEditValue(patientCount.toString());
+    setPatientsValue(patientCount.toString());
   }, [patientCount]);
 
   React.useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
+    setHoursValue(hours.toString());
+  }, [hours]);
 
-  const handleClick = (e: React.MouseEvent) => {
+  React.useEffect(() => {
+    if (isEditingPatients && patientsInputRef.current) {
+      patientsInputRef.current.focus();
+      patientsInputRef.current.select();
+    }
+  }, [isEditingPatients]);
+
+  React.useEffect(() => {
+    if (isEditingHours && hoursInputRef.current) {
+      hoursInputRef.current.focus();
+      hoursInputRef.current.select();
+    }
+  }, [isEditingHours]);
+
+  const handlePatientsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled || isNonWorking) return;
-    setIsEditing(true);
+    setIsEditingPatients(true);
   };
 
-  const handleBlur = () => {
-    setIsEditing(false);
-    // If empty or just whitespace, set to 0
-    const trimmedValue = editValue.trim();
+  const handleHoursClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (disabled || isNonWorking) return;
+    setIsEditingHours(true);
+  };
+
+  const handlePatientsBlur = () => {
+    setIsEditingPatients(false);
+    const trimmedValue = patientsValue.trim();
     if (trimmedValue === '') {
       if (onPatientCountChange) {
         onPatientCountChange(date, 0);
       }
-      setEditValue('0');
+      setPatientsValue('0');
       return;
     }
     
@@ -76,41 +99,72 @@ export function CalendarDayCell({
     if (!isNaN(numValue) && numValue >= 0 && onPatientCountChange) {
       onPatientCountChange(date, numValue);
     } else {
-      setEditValue(patientCount.toString());
+      setPatientsValue(patientCount.toString());
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleHoursBlur = () => {
+    setIsEditingHours(false);
+    const trimmedValue = hoursValue.trim();
+    if (trimmedValue === '') {
+      if (onHoursChange) {
+        onHoursChange(date, 0);
+      }
+      setHoursValue('0');
+      return;
+    }
+    
+    const numValue = parseFloat(trimmedValue);
+    if (!isNaN(numValue) && numValue >= 0 && onHoursChange) {
+      onHoursChange(date, numValue);
+    } else {
+      setHoursValue(hours.toString());
+    }
+  };
+
+  const handlePatientsKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleBlur();
+      handlePatientsBlur();
     } else if (e.key === 'Escape') {
-      setEditValue(patientCount.toString());
-      setIsEditing(false);
-    } else if (e.key === 'Delete' || e.key === 'Backspace') {
-      // Allow clearing with Delete/Backspace
-      if (editValue === '' || editValue === '0') {
-        e.preventDefault();
-        setEditValue('');
-      }
+      setPatientsValue(patientCount.toString());
+      setIsEditingPatients(false);
+    }
+  };
+
+  const handleHoursKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleHoursBlur();
+    } else if (e.key === 'Escape') {
+      setHoursValue(hours.toString());
+      setIsEditingHours(false);
     }
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setEditValue('');
     if (onPatientCountChange) {
       onPatientCountChange(date, 0);
     }
-    setIsEditing(false);
+    if (onHoursChange) {
+      onHoursChange(date, 0);
+    }
+    setIsEditingPatients(false);
+    setIsEditingHours(false);
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled || isNonWorking) return;
-    // Double-click to quickly clear
-    if (patientCount > 0 && onPatientCountChange) {
-      onPatientCountChange(date, 0);
+    // Double-click to quickly clear both
+    if ((patientCount > 0 || hours > 0)) {
+      if (onPatientCountChange) {
+        onPatientCountChange(date, 0);
+      }
+      if (onHoursChange) {
+        onHoursChange(date, 0);
+      }
     }
   };
 
@@ -179,8 +233,9 @@ export function CalendarDayCell({
     if (dateType === 'cme') parts.push('CME');
     if (dateType === 'holiday') parts.push('Holiday');
     if (patientCount > 0) parts.push(`${patientCount} patient${patientCount !== 1 ? 's' : ''}`);
+    if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
     return parts.join(' • ');
-  }, [date, dateType, patientCount]);
+  }, [date, dateType, patientCount, hours]);
 
   return (
     <Tooltip content={tooltipContent} side="top">
@@ -192,11 +247,11 @@ export function CalendarDayCell({
         onDoubleClick={handleDoubleClick}
         role="button"
         tabIndex={disabled ? -1 : 0}
-        aria-label={`${format(date, 'EEEE, MMMM d')}, ${patientCount} patients`}
+        aria-label={`${format(date, 'EEEE, MMMM d')}, ${patientCount} patients, ${hours} hours`}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (!isNonWorking) handleClick(e as any);
+            if (!isNonWorking) handlePatientsClick(e as any);
           }
         }}
       >
@@ -226,8 +281,8 @@ export function CalendarDayCell({
           </span>
         </div>
 
-        {/* Patient count section - main content area */}
-        <div className="flex-1 flex flex-col items-center justify-center px-2 pb-2">
+        {/* Dual input section - patients and hours */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-1.5 sm:gap-2 px-2 pb-2">
           {isNonWorking ? (
             <div className="flex flex-col items-center justify-center gap-1">
               <span className="text-2xl sm:text-3xl opacity-60">
@@ -239,68 +294,106 @@ export function CalendarDayCell({
                 {dateType}
               </span>
             </div>
-          ) : isEditing ? (
-            <div className="w-full relative" onClick={(e) => e.stopPropagation()}>
-              <Input
-                ref={inputRef}
-                type="number"
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
-                min={0}
-                step={1}
-                placeholder="0"
-                className="h-10 sm:h-12 text-lg sm:text-xl font-bold text-center p-2 pr-10 border-2 border-primary focus:ring-2 focus:ring-primary"
-                onClick={(e) => e.stopPropagation()}
-              />
-              {/* Clear button */}
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                aria-label="Clear patient count"
-                title="Clear (or press Delete)"
-              >
-                <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              </button>
-            </div>
           ) : (
-            <button
-              onClick={handleClick}
-              className={cn(
-                'w-full flex flex-col items-center justify-center gap-1',
-                'rounded-lg p-2 sm:p-3 transition-all duration-200',
-                'hover:bg-primary/5 active:bg-primary/10',
-                patientCount > 0 && 'bg-primary/5'
-              )}
-            >
-              {patientCount > 0 ? (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
-                      {patientCount}
+            <>
+              {/* Patients input */}
+              {isEditingPatients ? (
+                <div className="w-full relative" onClick={(e) => e.stopPropagation()}>
+                  <Input
+                    ref={patientsInputRef}
+                    type="number"
+                    value={patientsValue}
+                    onChange={(e) => setPatientsValue(e.target.value)}
+                    onBlur={handlePatientsBlur}
+                    onKeyDown={handlePatientsKeyDown}
+                    min={0}
+                    step={1}
+                    placeholder="0"
+                    className="h-10 sm:h-11 text-base sm:text-lg font-bold text-center p-2 pr-8 border-2 border-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    aria-label="Clear"
+                    title="Clear"
+                  >
+                    <X className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handlePatientsClick}
+                  className={cn(
+                    'w-full flex flex-col items-center justify-center gap-0.5',
+                    'rounded-lg p-1.5 sm:p-2 transition-all duration-200 min-h-[44px]',
+                    'border-0 outline-none',
+                    'hover:bg-primary/5 active:bg-primary/10 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1',
+                    patientCount > 0 && 'bg-primary/5'
+                  )}
+                >
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                    <span className="text-base sm:text-lg md:text-xl font-bold text-primary">
+                      {patientCount || '0'}
                     </span>
                   </div>
-                  <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                    patient{patientCount !== 1 ? 's' : ''}
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-400">
+                    patients
                   </span>
-                  <span className="text-[9px] text-gray-400 dark:text-gray-500 mt-0.5">
-                    Double-click to clear
-                  </span>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600 group-hover:border-primary/50 transition-colors">
-                    <span className="text-gray-400 dark:text-gray-500 text-lg sm:text-xl">+</span>
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    Click to add
-                  </span>
-                </>
+                </button>
               )}
-            </button>
+
+              {/* Hours input */}
+              {isEditingHours ? (
+                <div className="w-full relative" onClick={(e) => e.stopPropagation()}>
+                  <Input
+                    ref={hoursInputRef}
+                    type="number"
+                    value={hoursValue}
+                    onChange={(e) => setHoursValue(e.target.value)}
+                    onBlur={handleHoursBlur}
+                    onKeyDown={handleHoursKeyDown}
+                    min={0}
+                    step={0.5}
+                    placeholder="0"
+                    className="h-10 sm:h-11 text-base sm:text-lg font-bold text-center p-2 pr-8 border-2 border-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    aria-label="Clear"
+                    title="Clear"
+                  >
+                    <X className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleHoursClick}
+                  className={cn(
+                    'w-full flex flex-col items-center justify-center gap-0.5',
+                    'rounded-lg p-1.5 sm:p-2 transition-all duration-200 min-h-[44px]',
+                    'border-0 outline-none',
+                    'hover:bg-primary/5 active:bg-primary/10 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1',
+                    hours > 0 && 'bg-primary/5'
+                  )}
+                >
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                    <span className="text-base sm:text-lg md:text-xl font-bold text-primary">
+                      {hours > 0 ? hours.toFixed(1) : '0'}
+                    </span>
+                  </div>
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-400">
+                    hours
+                  </span>
+                </button>
+              )}
+            </>
           )}
         </div>
 
