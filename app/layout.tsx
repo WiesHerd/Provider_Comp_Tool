@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "CompLens™ | Provider Compensation Intelligence",
   description: "wRVU modeling, FMV analysis, and call-pay scenarios",
   manifest: "/manifest.json",
-  themeColor: "#6366f1",
+  themeColor: "#000000",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -46,9 +46,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-      </head>
       <body className={inter.className}>
         <script
           dangerouslySetInnerHTML={{
