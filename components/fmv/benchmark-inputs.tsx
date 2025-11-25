@@ -18,7 +18,11 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
   const isCF = type === 'cf';
 
   const updateBenchmark = (key: keyof MarketBenchmarks, value: number) => {
-    onBenchmarksChange({ ...benchmarks, [key]: value });
+    // Always update the value, even if 0 (to allow clearing)
+    // The parent component will check if values > 0 for enabling buttons
+    if (!isNaN(value) && value >= 0) {
+      onBenchmarksChange({ ...benchmarks, [key]: value });
+    }
   };
 
   const getLabel = () => {
@@ -55,6 +59,7 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}25` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('25')}
                   showDecimals={isCF}
+                  prefix=""
                   icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
@@ -74,6 +79,7 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}50` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('50')}
                   showDecimals={isCF}
+                  prefix=""
                   icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
@@ -93,6 +99,7 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}75` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('75')}
                   showDecimals={isCF}
+                  prefix=""
                   icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (
@@ -112,6 +119,7 @@ export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: Benchm
                   onChange={(value) => updateBenchmark(`${type}90` as keyof MarketBenchmarks, value)}
                   placeholder={getPlaceholder('90')}
                   showDecimals={isCF}
+                  prefix=""
                   icon={<DollarSign className="w-5 h-5" />}
                 />
               ) : (

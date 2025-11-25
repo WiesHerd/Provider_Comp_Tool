@@ -72,6 +72,7 @@ export function SpecialtyInput({
   const [specialty, setSpecialty] = useState<string>(specialtyProp);
   const [customSpecialty, setCustomSpecialty] = useState<string>('');
   const [savedSpecialties, setSavedSpecialties] = useState<string[]>([]);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
 
   // Load saved specialties on mount
   useEffect(() => {
@@ -99,6 +100,11 @@ export function SpecialtyInput({
   }, [specialtyProp]);
 
   const handleSpecialtyChange = (value: string) => {
+    // Don't auto-load if we're currently loading via quick load button
+    if (isLoadingSaved) {
+      return;
+    }
+    
     setSpecialty(value);
     setCustomSpecialty('');
     
@@ -133,14 +139,24 @@ export function SpecialtyInput({
   };
 
   const handleLoadSaved = (savedSpecialty: string) => {
-    setSpecialty(savedSpecialty);
-    setCustomSpecialty('');
-    onSpecialtyChange(savedSpecialty);
+    setIsLoadingSaved(true);
     
+    // Load market data FIRST before changing specialty
+    // This ensures the data is set before any auto-load logic runs
     const loaded = loadMarketData(savedSpecialty, metricType);
     if (loaded) {
       onMarketDataLoad(loaded);
     }
+    
+    // Then update specialty state
+    setSpecialty(savedSpecialty);
+    setCustomSpecialty('');
+    onSpecialtyChange(savedSpecialty);
+    
+    // Reset loading flag after a brief delay to allow state updates to complete
+    setTimeout(() => {
+      setIsLoadingSaved(false);
+    }, 100);
   };
 
   const currentSpecialty = specialty === 'Other' ? customSpecialty : specialty;
@@ -149,7 +165,7 @@ export function SpecialtyInput({
     <div className="space-y-3">
       {/* Quick Load Saved Specialties - Show first, always visible if saved specialties exist */}
       {savedSpecialties.length > 0 && (
-        <div>
+        <div className="-mt-2">
           <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
             Quick load saved market data:
           </Label>
@@ -166,7 +182,7 @@ export function SpecialtyInput({
                     "min-h-[32px] touch-manipulation",
                     currentSpecialty === savedSpec
                       ? "bg-primary text-white shadow-sm"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
                   )}
                 >
                   {savedSpec}
@@ -204,7 +220,7 @@ export function SpecialtyInput({
         </div>
       )}
 
-      <Label className="text-base font-semibold">Specialty</Label>
+      <Label className="text-base font-semibold mt-6">Specialty</Label>
       
       <div className="flex gap-2">
         <Select value={specialty} onValueChange={handleSpecialtyChange}>

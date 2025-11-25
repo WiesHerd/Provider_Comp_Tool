@@ -68,7 +68,7 @@ export function MarketDataSaveButton({
         ) : (
           <>
             <Save className="w-4 h-4 mr-2" />
-            {isAlreadySaved ? 'Update Saved Market Data' : 'Save Market Data'}
+            Save
           </>
         )}
       </Button>

@@ -84,7 +84,7 @@ export function ProviderInputSaveButton({
           className="gap-2"
         >
           <Save className="w-4 h-4" />
-          Save Provider Input
+          Save
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>

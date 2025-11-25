@@ -81,7 +81,7 @@ export function ScenarioSaveButton({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button className="w-full sm:w-auto">Save Model</Button>
+        <Button className="w-full sm:w-auto">Save</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />

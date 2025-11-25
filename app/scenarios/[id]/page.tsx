@@ -134,7 +134,7 @@ export default function ScenarioDetailPage() {
           <Button variant="outline" onClick={handleSaveAsNew} className="w-full sm:w-auto">
             Save as New
           </Button>
-          <Button onClick={handleSave} className="w-full sm:w-auto">Save Changes</Button>
+          <Button onClick={handleSave} className="w-full sm:w-auto">Save</Button>
         </div>
         <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
           <Dialog.Trigger asChild>

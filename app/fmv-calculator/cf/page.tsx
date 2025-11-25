@@ -36,18 +36,29 @@ function CFCalculatorPageContent() {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const hasMarketData = marketBenchmarks.cf25 || marketBenchmarks.cf50 || marketBenchmarks.cf75 || marketBenchmarks.cf90;
+  // Check if any benchmark value exists and is greater than 0
+  // Convert to numbers to handle any string values from saved data
+  const hasMarketData = 
+    (marketBenchmarks.cf25 != null && Number(marketBenchmarks.cf25) > 0) || 
+    (marketBenchmarks.cf50 != null && Number(marketBenchmarks.cf50) > 0) || 
+    (marketBenchmarks.cf75 != null && Number(marketBenchmarks.cf75) > 0) || 
+    (marketBenchmarks.cf90 != null && Number(marketBenchmarks.cf90) > 0);
+
 
   const handleCalculate = () => {
     if (cfValue > 0 && hasMarketData) {
       setShowResults(true);
-      // Scroll to results
-      setTimeout(() => {
-        const resultsSection = document.getElementById('results-section');
-        if (resultsSection) {
-          resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
+    } else {
+      console.warn('❌ Conditions NOT met:');
+      console.warn('  - CF Value > 0:', cfValue > 0, '(value:', cfValue, ')');
+      console.warn('  - Has Market Data:', hasMarketData);
+      if (!hasMarketData) {
+        console.warn('  - Market Benchmarks breakdown:');
+        console.warn('    - cf25:', marketBenchmarks.cf25, '(> 0:', marketBenchmarks.cf25 != null && Number(marketBenchmarks.cf25) > 0, ')');
+        console.warn('    - cf50:', marketBenchmarks.cf50, '(> 0:', marketBenchmarks.cf50 != null && Number(marketBenchmarks.cf50) > 0, ')');
+        console.warn('    - cf75:', marketBenchmarks.cf75, '(> 0:', marketBenchmarks.cf75 != null && Number(marketBenchmarks.cf75) > 0, ')');
+        console.warn('    - cf90:', marketBenchmarks.cf90, '(> 0:', marketBenchmarks.cf90 != null && Number(marketBenchmarks.cf90) > 0, ')');
+      }
     }
   };
 
@@ -85,11 +96,35 @@ function CFCalculatorPageContent() {
   }, [searchParams, getScenario, scenarioLoaded]);
 
   // Reset showResults when market data or CF value changes (so user can recalculate)
+  // Note: Don't include showResults in deps to avoid resetting it immediately after setting it
   useEffect(() => {
     if (showResults) {
       setShowResults(false);
     }
-  }, [marketBenchmarks, cfValue, showResults]);
+  }, [marketBenchmarks, cfValue]); // Removed showResults from deps to prevent immediate reset
+
+  // Scroll to results when they are shown
+  useEffect(() => {
+    if (showResults && cfValue > 0) {
+      // Use requestAnimationFrame to wait for DOM update, then setTimeout for React render
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const resultsSection = document.getElementById('results-section');
+          if (resultsSection) {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            // Try again after a longer delay in case React hasn't rendered yet
+            setTimeout(() => {
+              const retrySection = document.getElementById('results-section');
+              if (retrySection) {
+                retrySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 500);
+          }
+        }, 150);
+      });
+    }
+  }, [showResults, cfValue]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
@@ -98,24 +133,34 @@ function CFCalculatorPageContent() {
       {!showResults && (
       <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">
         <div className="space-y-6">
-          <div className="flex items-center justify-end">
-            <ScenarioLoader
-              scenarioType="fmv-cf"
-              onLoad={(scenario) => {
-                // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
-                if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
-                  setCfValue(scenario.cfValue);
-                } else if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
-                  setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
-                }
-                if (scenario.marketBenchmarks) {
-                  setMarketBenchmarks(scenario.marketBenchmarks);
-                }
-                if (scenario.specialty) {
-                  setSpecialty(scenario.specialty);
-                }
-              }}
-            />
+          <div className="flex items-center justify-between pt-8">
+            {cfValue > 0 && (
+              <ProviderInputSaveButton
+                scenarioType="fmv-cf"
+                fte={1.0}
+                cfValue={cfValue}
+                specialty={specialty}
+              />
+            )}
+            <div className={cfValue > 0 ? '' : 'ml-auto'}>
+              <ScenarioLoader
+                scenarioType="fmv-cf"
+                onLoad={(scenario) => {
+                  // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
+                  if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
+                    setCfValue(scenario.cfValue);
+                  } else if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
+                    setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
+                  }
+                  if (scenario.marketBenchmarks) {
+                    setMarketBenchmarks(scenario.marketBenchmarks);
+                  }
+                  if (scenario.specialty) {
+                    setSpecialty(scenario.specialty);
+                  }
+                }}
+              />
+            </div>
           </div>
           
           {/* CF Input Section */}
@@ -132,22 +177,9 @@ function CFCalculatorPageContent() {
               This is the dollar amount paid per wRVU for productivity incentives.
             </p>
           </div>
-          
-          {cfValue > 0 && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex justify-end">
-                <ProviderInputSaveButton
-                  scenarioType="fmv-cf"
-                  fte={1.0}
-                  cfValue={cfValue}
-                  specialty={specialty}
-                />
-              </div>
-            </div>
-          )}
 
           {/* Market Data Section */}
-          <div className="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-6">
+          <div className="pt-6 space-y-6">
             <SpecialtyInput
               metricType="cf"
               specialty={specialty}
@@ -172,7 +204,12 @@ function CFCalculatorPageContent() {
 
       {/* Calculate Button - Always visible when not showing results */}
       {!showResults && cfValue > 0 && (
-        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
+          {!hasMarketData && (
+            <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
+              Please enter at least one benchmark value (25th, 50th, 75th, or 90th percentile) to calculate.
+            </p>
+          )}
           <Button
             onClick={handleCalculate}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -199,7 +236,7 @@ function CFCalculatorPageContent() {
             }}
             formatValue={formatValue}
             formatBenchmark={formatBenchmark}
-            valueLabel="Your CF"
+            valueLabel="Your Conversion Factor"
           />
 
           {/* Save and Start Over Buttons */}

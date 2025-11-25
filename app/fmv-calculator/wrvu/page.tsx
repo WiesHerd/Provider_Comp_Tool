@@ -121,7 +121,19 @@ function WRVUCalculatorPageContent() {
         {/* Content - No container */}
         <div className="space-y-6">
           <div className="flex items-center justify-between pt-12">
-            <FTEInput value={fte} onChange={setFte} />
+            <div className="flex items-center gap-4">
+              {annualWrvus > 0 && fte > 0 && (
+                <ProviderInputSaveButton
+                  scenarioType="fmv-wrvu"
+                  fte={fte}
+                  annualWrvus={annualWrvus}
+                  monthlyWrvus={monthlyWrvus}
+                  monthlyBreakdown={monthlyBreakdown}
+                  specialty={specialty}
+                />
+              )}
+              <FTEInput value={fte} onChange={setFte} />
+            </div>
             <ScenarioLoader
               scenarioType="fmv-wrvu"
               onLoad={(scenario) => {
@@ -173,16 +185,6 @@ function WRVUCalculatorPageContent() {
                     {formatValue(normalizedWrvus)}
                   </span>
                 </div>
-              </div>
-              <div className="flex justify-end">
-                <ProviderInputSaveButton
-                  scenarioType="fmv-wrvu"
-                  fte={fte}
-                  annualWrvus={annualWrvus}
-                  monthlyWrvus={monthlyWrvus}
-                  monthlyBreakdown={monthlyBreakdown}
-                  specialty={specialty}
-                />
               </div>
             </div>
           )}

@@ -153,7 +153,17 @@ function TCCCalculatorPageContent() {
         {/* Content - No container */}
         <div className="space-y-6">
           <div className="flex items-center justify-between pt-8">
-            <FTEInput value={fte} onChange={setFte} />
+            <div className="flex items-center gap-4">
+              {tccComponents.some(c => c.amount > 0) && (
+                <ProviderInputSaveButton
+                  scenarioType="fmv-tcc"
+                  fte={fte}
+                  tccComponents={tccComponents}
+                  specialty={specialty}
+                />
+              )}
+              <FTEInput value={fte} onChange={setFte} />
+            </div>
             <ScenarioLoader
               scenarioType="fmv-tcc"
               onLoad={(scenario) => {
@@ -210,14 +220,6 @@ function TCCCalculatorPageContent() {
                     {formatValue(normalizedTcc)}
                   </span>
                 </div>
-              </div>
-              <div className="flex justify-end pt-2">
-                <ProviderInputSaveButton
-                  scenarioType="fmv-tcc"
-                  fte={fte}
-                  tccComponents={tccComponents}
-                  specialty={specialty}
-                />
               </div>
             </div>
           )}
