@@ -98,7 +98,7 @@ export function Tooltip({ children, content, side = 'top', className, disableOnT
           role="tooltip"
           style={{ zIndex: 9999 }}
         >
-          {content}
+          <div className="whitespace-pre-line">{content}</div>
           {/* Arrow */}
           <div
             className={cn(

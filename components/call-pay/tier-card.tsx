@@ -14,12 +14,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, Tag, DollarSign } from 'lucide-react';
+import { Calendar, Tag, Info, Sparkles } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { CallPayContext } from '@/types/call-pay';
 
 interface TierCardProps {
   tier: CallTier;
   onTierChange: (tier: CallTier) => void;
   specialty?: Specialty; // Optional specialty to conditionally show fields
+  context?: CallPayContext; // Context for suggestions and auto-fill
 }
 
 const COVERAGE_TYPES: CoverageType[] = [
@@ -38,7 +42,65 @@ const PAYMENT_METHODS: PaymentMethod[] = [
   'Per wRVU',
 ];
 
-export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
+/**
+ * Calculate burden suggestions based on rotation ratio and providers
+ */
+function getBurdenSuggestions(
+  providersOnCall: number,
+  rotationRatio: number,
+  paymentMethod: PaymentMethod
+): {
+  weekdayCallsPerMonth: { min: number; max: number; suggested: number };
+  weekendCallsPerMonth: { min: number; max: number; suggested: number };
+  holidaysPerYear: { min: number; max: number; suggested: number };
+} {
+  // Typical provider takes 2-4 calls/month
+  const typicalCallsPerProvider = 3;
+  
+  // Estimate total calls based on rotation
+  // If 1-in-4 rotation with 8 providers, each provider covers 1/4 of total
+  // So total calls = (providersOnCall / rotationRatio) × typicalCallsPerProvider
+  const activeProviders = rotationRatio;
+  const callsPerProvider = typicalCallsPerProvider;
+  const totalCallsEstimate = (providersOnCall / rotationRatio) * callsPerProvider;
+  
+  // Weekday: ~20-22 business days max, suggest 60-80% of max
+  const maxWeekday = 22;
+  const weekdaySuggested = Math.round(totalCallsEstimate * 0.7); // 70% of estimate
+  const weekdayMin = Math.max(5, Math.round(weekdaySuggested * 0.6));
+  const weekdayMax = Math.min(maxWeekday, Math.round(weekdaySuggested * 1.2));
+  
+  // Weekend: ~8-9 weekend days max, suggest 40-60% of weekday
+  const maxWeekend = 9;
+  const weekendSuggested = Math.round(weekdaySuggested * 0.5); // 50% of weekday
+  const weekendMin = Math.max(2, Math.round(weekendSuggested * 0.6));
+  const weekendMax = Math.min(maxWeekend, Math.round(weekendSuggested * 1.2));
+  
+  // Holidays: Common values 6-12, suggest 8-10
+  const holidaysSuggested = 9;
+  const holidaysMin = 6;
+  const holidaysMax = 12;
+  
+  return {
+    weekdayCallsPerMonth: {
+      min: weekdayMin,
+      max: weekdayMax,
+      suggested: Math.max(5, Math.min(maxWeekday, weekdaySuggested))
+    },
+    weekendCallsPerMonth: {
+      min: weekendMin,
+      max: weekendMax,
+      suggested: Math.max(2, Math.min(maxWeekend, weekendSuggested))
+    },
+    holidaysPerYear: {
+      min: holidaysMin,
+      max: holidaysMax,
+      suggested: holidaysSuggested
+    }
+  };
+}
+
+export function TierCard({ tier, onTierChange, specialty, context }: TierCardProps) {
   // Track which burden fields are in custom mode
   const [customModes, setCustomModes] = useState({
     weekdayCallsPerMonth: false,
@@ -81,6 +143,78 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
 
   const updateBurden = (updates: Partial<CallTier['burden']>) => {
     updateField('burden', { ...tier.burden, ...updates });
+  };
+
+  // Auto-fill burden from rotation ratio
+  const autoFillBurden = () => {
+    if (!context || context.providersOnCall === 0 || context.rotationRatio === 0) {
+      return;
+    }
+    const suggestions = getBurdenSuggestions(
+      context.providersOnCall,
+      context.rotationRatio,
+      tier.paymentMethod
+    );
+    updateBurden({
+      weekdayCallsPerMonth: suggestions.weekdayCallsPerMonth.suggested,
+      weekendCallsPerMonth: suggestions.weekendCallsPerMonth.suggested,
+      holidaysPerYear: suggestions.holidaysPerYear.suggested,
+      // Keep callbacks/cases as-is
+    });
+  };
+
+  // Get suggestions if context is available
+  const burdenSuggestions = context && context.providersOnCall > 0 && context.rotationRatio > 0
+    ? getBurdenSuggestions(context.providersOnCall, context.rotationRatio, tier.paymentMethod)
+    : null;
+
+  // Helper functions for tooltip content
+  const getWeekdayTooltip = () => {
+    const formula = 'weekdayMonthly = weekdayCallsPerMonth × weekdayRate';
+    const example = tier.rates.weekday > 0
+      ? `Example: ${tier.burden.weekdayCallsPerMonth} calls × $${tier.rates.weekday.toLocaleString()} = $${(tier.burden.weekdayCallsPerMonth * tier.rates.weekday).toLocaleString()}/month`
+      : '';
+    const appliesTo = 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU';
+    return `Total weekday calls needed per month for the service (not per provider)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+  };
+
+  const getWeekendTooltip = () => {
+    const formula = 'weekendMonthly = weekendCallsPerMonth × weekendRate';
+    const example = tier.rates.weekend > 0
+      ? `Example: ${tier.burden.weekendCallsPerMonth} calls × $${tier.rates.weekend.toLocaleString()} = $${(tier.burden.weekendCallsPerMonth * tier.rates.weekend).toLocaleString()}/month`
+      : '';
+    const appliesTo = 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU';
+    return `Total weekend calls needed per month for the service\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+  };
+
+  const getHolidayTooltip = () => {
+    const formula = 'holidayMonthly = (holidaysPerYear ÷ 12) × holidayRate';
+    const avgMonthly = tier.burden.holidaysPerYear > 0 ? (tier.burden.holidaysPerYear / 12).toFixed(2) : '0';
+    const example = tier.rates.holiday > 0 && tier.burden.holidaysPerYear > 0
+      ? `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * tier.rates.holiday).toLocaleString()}/month`
+      : '';
+    const appliesTo = 'Daily/Shift Rate, Hourly Rate';
+    return `Total holidays covered per year (averaged monthly: ÷12)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+  };
+
+  const getCallbacksTooltip = () => {
+    const formula = 'casesPerMonth = callbacksPer24h × (weekdayCalls + weekendCalls)';
+    const totalCalls = tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth;
+    const example = tier.burden.avgCallbacksPer24h > 0 && totalCalls > 0
+      ? `Example: ${tier.burden.avgCallbacksPer24h} callbacks × ${totalCalls} calls = ${(tier.burden.avgCallbacksPer24h * totalCalls).toFixed(1)} procedures/month`
+      : '';
+    const appliesTo = 'Per Procedure, Per wRVU';
+    return `Average callbacks per 24-hour call period\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+  };
+
+  const getCasesTooltip = () => {
+    const formula = 'casesPerMonth = avgCasesPer24h × (weekdayCalls + weekendCalls)';
+    const totalCalls = tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth;
+    const example = (tier.burden.avgCasesPer24h || 0) > 0 && totalCalls > 0
+      ? `Example: ${tier.burden.avgCasesPer24h} cases × ${totalCalls} calls = ${((tier.burden.avgCasesPer24h || 0) * totalCalls).toFixed(1)} cases/month`
+      : '';
+    const appliesTo = 'Per Procedure, Per wRVU (preferred for procedural specialties)';
+    return `Average cases per 24-hour call period (for procedural specialties)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
   };
 
   const showTraumaUplift =
@@ -213,7 +347,6 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   updateRates(updates);
                 }}
                 placeholder="0.00"
-                icon={<DollarSign className="w-5 h-5" />}
               />
             </div>
 
@@ -424,8 +557,37 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
           </span>
         </div>
 
+        {/* Auto-Fill Button */}
+        {context && context.providersOnCall > 0 && context.rotationRatio > 0 && (
+          <div className="flex items-center gap-2 pb-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={autoFillBurden}
+              className="text-xs"
+            >
+              <Sparkles className="w-3 h-3 mr-1.5" />
+              Estimate from Rotation Ratio
+            </Button>
+            {burdenSuggestions && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Based on 1-in-{context.rotationRatio} rotation with {context.providersOnCall} providers
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2 flex flex-col">
+            <div className="flex items-center gap-1.5">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Weekday Calls per Month
+              </Label>
+              <Tooltip content={getWeekdayTooltip()} side="top" className="max-w-[300px]">
+                <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              </Tooltip>
+            </div>
             {customModes.weekdayCallsPerMonth ? (
               <div className="space-y-2">
                 <NumberInput
@@ -436,43 +598,71 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   min={0}
                   placeholder="Weekday calls/month"
                 />
-                <button
-                  type="button"
-                  onClick={() => setCustomModes(prev => ({ ...prev, weekdayCallsPerMonth: false }))}
-                  className="text-xs text-primary hover:underline"
-                >
-                  Use preset values
-                </button>
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomModes(prev => ({ ...prev, weekdayCallsPerMonth: false }))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Use preset values
+                  </button>
+                  {burdenSuggestions && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Suggested: {burdenSuggestions.weekdayCallsPerMonth.suggested} (range: {burdenSuggestions.weekdayCallsPerMonth.min}-{burdenSuggestions.weekdayCallsPerMonth.max})
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Max ~22 business days/month
+                  </p>
+                </div>
               </div>
             ) : (
-              <Select
-                value={weekdayPresets.includes(tier.burden.weekdayCallsPerMonth) 
-                  ? tier.burden.weekdayCallsPerMonth.toString() 
-                  : 'custom'}
-                onValueChange={(value) => {
-                  if (value === 'custom') {
-                    setCustomModes(prev => ({ ...prev, weekdayCallsPerMonth: true }));
-                  } else {
-                    updateBurden({ weekdayCallsPerMonth: parseInt(value, 10) });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Weekday calls/month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {weekdayPresets.map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom...</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <Select
+                  value={weekdayPresets.includes(tier.burden.weekdayCallsPerMonth) 
+                    ? tier.burden.weekdayCallsPerMonth.toString() 
+                    : 'custom'}
+                  onValueChange={(value) => {
+                    if (value === 'custom') {
+                      setCustomModes(prev => ({ ...prev, weekdayCallsPerMonth: true }));
+                    } else {
+                      updateBurden({ weekdayCallsPerMonth: parseInt(value, 10) });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Weekday calls/month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {weekdayPresets.map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">Custom...</SelectItem>
+                  </SelectContent>
+                </Select>
+                {burdenSuggestions && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Suggested: {burdenSuggestions.weekdayCallsPerMonth.suggested} (range: {burdenSuggestions.weekdayCallsPerMonth.min}-{burdenSuggestions.weekdayCallsPerMonth.max})
+                  </p>
+                )}
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Total service needs (not per provider) • Max ~22 business days/month
+                </p>
+              </div>
             )}
           </div>
 
           <div className="space-y-2 flex flex-col">
+            <div className="flex items-center gap-1.5">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Weekend Calls per Month
+              </Label>
+              <Tooltip content={getWeekendTooltip()} side="top" className="max-w-[300px]">
+                <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              </Tooltip>
+            </div>
             {customModes.weekendCallsPerMonth ? (
               <div className="space-y-2">
                 <NumberInput
@@ -483,39 +673,59 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   min={0}
                   placeholder="Weekend calls/month"
                 />
-                <button
-                  type="button"
-                  onClick={() => setCustomModes(prev => ({ ...prev, weekendCallsPerMonth: false }))}
-                  className="text-xs text-primary hover:underline"
-                >
-                  Use preset values
-                </button>
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomModes(prev => ({ ...prev, weekendCallsPerMonth: false }))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Use preset values
+                  </button>
+                  {burdenSuggestions && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Suggested: {burdenSuggestions.weekendCallsPerMonth.suggested} (range: {burdenSuggestions.weekendCallsPerMonth.min}-{burdenSuggestions.weekendCallsPerMonth.max})
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Max ~8-9 weekend days/month
+                  </p>
+                </div>
               </div>
             ) : (
-              <Select
-                value={weekendPresets.includes(tier.burden.weekendCallsPerMonth) 
-                  ? tier.burden.weekendCallsPerMonth.toString() 
-                  : 'custom'}
-                onValueChange={(value) => {
-                  if (value === 'custom') {
-                    setCustomModes(prev => ({ ...prev, weekendCallsPerMonth: true }));
-                  } else {
-                    updateBurden({ weekendCallsPerMonth: parseInt(value, 10) });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Weekend calls/month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {weekendPresets.map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom...</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <Select
+                  value={weekendPresets.includes(tier.burden.weekendCallsPerMonth) 
+                    ? tier.burden.weekendCallsPerMonth.toString() 
+                    : 'custom'}
+                  onValueChange={(value) => {
+                    if (value === 'custom') {
+                      setCustomModes(prev => ({ ...prev, weekendCallsPerMonth: true }));
+                    } else {
+                      updateBurden({ weekendCallsPerMonth: parseInt(value, 10) });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Weekend calls/month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {weekendPresets.map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">Custom...</SelectItem>
+                  </SelectContent>
+                </Select>
+                {burdenSuggestions && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Suggested: {burdenSuggestions.weekendCallsPerMonth.suggested} (range: {burdenSuggestions.weekendCallsPerMonth.min}-{burdenSuggestions.weekendCallsPerMonth.max})
+                  </p>
+                )}
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Total service needs (not per provider) • Max ~8-9 weekend days/month
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -523,9 +733,14 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
         {/* Holidays and Callbacks - side by side */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label className="text-xs text-gray-600 dark:text-gray-400">
-              Holidays Covered per Year
-            </Label>
+            <div className="flex items-center gap-1.5">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Holidays Covered per Year
+              </Label>
+              <Tooltip content={getHolidayTooltip()} side="top" className="max-w-[300px]">
+                <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              </Tooltip>
+            </div>
             {customModes.holidaysPerYear ? (
               <div className="space-y-2">
                 <NumberInput
@@ -534,46 +749,75 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   min={0}
                   placeholder="0"
                 />
-                <button
-                  type="button"
-                  onClick={() => setCustomModes(prev => ({ ...prev, holidaysPerYear: false }))}
-                  className="text-xs text-primary hover:underline"
-                >
-                  Use preset values
-                </button>
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomModes(prev => ({ ...prev, holidaysPerYear: false }))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Use preset values
+                  </button>
+                  {burdenSuggestions && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Suggested: {burdenSuggestions.holidaysPerYear.suggested} (range: {burdenSuggestions.holidaysPerYear.min}-{burdenSuggestions.holidaysPerYear.max})
+                    </p>
+                  )}
+                </div>
               </div>
             ) : (
-              <Select
-                value={holidaysPresets.includes(tier.burden.holidaysPerYear) 
-                  ? tier.burden.holidaysPerYear.toString() 
-                  : 'custom'}
-                onValueChange={(value) => {
-                  if (value === 'custom') {
-                    setCustomModes(prev => ({ ...prev, holidaysPerYear: true }));
-                  } else {
-                    updateBurden({ holidaysPerYear: parseInt(value, 10) });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select holidays" />
-                </SelectTrigger>
-                <SelectContent>
-                  {holidaysPresets.map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom...</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <Select
+                  value={holidaysPresets.includes(tier.burden.holidaysPerYear) 
+                    ? tier.burden.holidaysPerYear.toString() 
+                    : 'custom'}
+                  onValueChange={(value) => {
+                    if (value === 'custom') {
+                      setCustomModes(prev => ({ ...prev, holidaysPerYear: true }));
+                    } else {
+                      updateBurden({ holidaysPerYear: parseInt(value, 10) });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select holidays" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {holidaysPresets.map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">Custom...</SelectItem>
+                  </SelectContent>
+                </Select>
+                {burdenSuggestions && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Suggested: {burdenSuggestions.holidaysPerYear.suggested} (range: {burdenSuggestions.holidaysPerYear.min}-{burdenSuggestions.holidaysPerYear.max})
+                  </p>
+                )}
+                {(tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate') && tier.burden.holidaysPerYear > 0 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Averaged monthly: {tier.burden.holidaysPerYear} ÷ 12 = {(tier.burden.holidaysPerYear / 12).toFixed(2)} holidays/month
+                  </p>
+                )}
+                {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                    Not used for this payment method
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs text-gray-600 dark:text-gray-400">
-              Avg Callbacks per 24h
-            </Label>
+            <div className="flex items-center gap-1.5">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Avg Callbacks per 24h
+              </Label>
+              <Tooltip content={getCallbacksTooltip()} side="top" className="max-w-[300px]">
+                <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              </Tooltip>
+            </div>
           {customModes.avgCallbacksPer24h ? (
             <div className="space-y-2">
               <NumberInput
@@ -585,83 +829,42 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                 step={0.1}
                 placeholder="0.0"
               />
-              <button
-                type="button"
-                onClick={() => setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: false }))}
-                className="text-xs text-primary hover:underline"
-              >
-                Use preset values
-              </button>
-            </div>
-          ) : (
-            <Select
-              value={callbacksPresets.includes(tier.burden.avgCallbacksPer24h) 
-                ? tier.burden.avgCallbacksPer24h.toString() 
-                : 'custom'}
-              onValueChange={(value) => {
-                if (value === 'custom') {
-                  setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: true }));
-                } else {
-                  updateBurden({ avgCallbacksPer24h: parseFloat(value) });
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select callbacks" />
-              </SelectTrigger>
-              <SelectContent>
-                {callbacksPresets.map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num}
-                  </SelectItem>
-                ))}
-                <SelectItem value="custom">Custom...</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-          </div>
-        </div>
-
-        {showCasesInput && (
-          <div className="space-y-2">
-            <Label className="text-xs text-gray-600 dark:text-gray-400">
-              Avg Cases per 24h
-              {!isProcedural && (
-                <span className="text-gray-400 ml-1">(optional for non-procedural specialties)</span>
-              )}
-            </Label>
-            {customModes.avgCasesPer24h ? (
-              <div className="space-y-2">
-                <NumberInput
-                  value={tier.burden.avgCasesPer24h || 0}
-                  onChange={(value) => updateBurden({ avgCasesPer24h: value })}
-                  min={0}
-                  step={0.1}
-                  placeholder="0.0"
-                />
+              <div className="space-y-1">
                 <button
                   type="button"
-                  onClick={() => setCustomModes(prev => ({ ...prev, avgCasesPer24h: false }))}
+                  onClick={() => setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: false }))}
                   className="text-xs text-primary hover:underline"
                 >
                   Use preset values
                 </button>
+                {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Used to calculate total procedures/cases per month
+                  </p>
+                )}
+                {(tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate' || tier.paymentMethod === 'Annual stipend' || tier.paymentMethod === 'Monthly retainer') && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                    Not used for this payment method
+                  </p>
+                )}
               </div>
-            ) : (
+            </div>
+          ) : (
+            <div className="space-y-1">
               <Select
-                value={callbacksPresets.includes(tier.burden.avgCasesPer24h || 0) 
-                  ? (tier.burden.avgCasesPer24h || 0).toString() 
+                value={callbacksPresets.includes(tier.burden.avgCallbacksPer24h) 
+                  ? tier.burden.avgCallbacksPer24h.toString() 
                   : 'custom'}
                 onValueChange={(value) => {
                   if (value === 'custom') {
-                    setCustomModes(prev => ({ ...prev, avgCasesPer24h: true }));
+                    setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: true }));
                   } else {
-                    updateBurden({ avgCasesPer24h: parseFloat(value) });
+                    updateBurden({ avgCallbacksPer24h: parseFloat(value) });
                   }
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select cases" />
+                  <SelectValue placeholder="Select callbacks" />
                 </SelectTrigger>
                 <SelectContent>
                   {callbacksPresets.map((num) => (
@@ -672,6 +875,86 @@ export function TierCard({ tier, onTierChange, specialty }: TierCardProps) {
                   <SelectItem value="custom">Custom...</SelectItem>
                 </SelectContent>
               </Select>
+              {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Used to calculate total procedures/cases per month
+                </p>
+              )}
+              {(tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate' || tier.paymentMethod === 'Annual stipend' || tier.paymentMethod === 'Monthly retainer') && (
+                <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                  Not used for this payment method
+                </p>
+              )}
+            </div>
+          )}
+          </div>
+        </div>
+
+        {showCasesInput && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Avg Cases per 24h
+                {!isProcedural && (
+                  <span className="text-gray-400 ml-1">(optional for non-procedural specialties)</span>
+                )}
+              </Label>
+              <Tooltip content={getCasesTooltip()} side="top" className="max-w-[300px]">
+                <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              </Tooltip>
+            </div>
+            {customModes.avgCasesPer24h ? (
+              <div className="space-y-2">
+                <NumberInput
+                  value={tier.burden.avgCasesPer24h || 0}
+                  onChange={(value) => updateBurden({ avgCasesPer24h: value })}
+                  min={0}
+                  step={0.1}
+                  placeholder="0.0"
+                />
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomModes(prev => ({ ...prev, avgCasesPer24h: false }))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Use preset values
+                  </button>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Preferred over callbacks for procedural specialties
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <Select
+                  value={callbacksPresets.includes(tier.burden.avgCasesPer24h || 0) 
+                    ? (tier.burden.avgCasesPer24h || 0).toString() 
+                    : 'custom'}
+                  onValueChange={(value) => {
+                    if (value === 'custom') {
+                      setCustomModes(prev => ({ ...prev, avgCasesPer24h: true }));
+                    } else {
+                      updateBurden({ avgCasesPer24h: parseFloat(value) });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cases" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {callbacksPresets.map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">Custom...</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Preferred over callbacks for procedural specialties • Used to calculate total cases per month
+                </p>
+              </div>
             )}
           </div>
         )}

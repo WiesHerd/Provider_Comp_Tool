@@ -322,6 +322,7 @@ export default function CallPayModelerPage() {
                   tier={tier} 
                   onTierChange={handleTierChange}
                   specialty={context.specialty as Specialty | undefined}
+                  context={context}
                 />
               ))}
           </div>
