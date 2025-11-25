@@ -166,10 +166,12 @@ function WRVUCalculatorPageContent() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12 space-y-6 sm:space-y-8">
-      {/* Back button to metric selector - visible on all steps */}
-      <div className="pt-8 flex items-center gap-4">
-        <BackButton href="/fmv-calculator" aria-label="Back to FMV Calculator" />
-      </div>
+      {/* Back button to metric selector - only show when not on first step */}
+      {currentStep !== 1 && (
+        <div className="pt-8 flex items-center gap-4">
+          <BackButton href="/fmv-calculator" aria-label="Back to FMV Calculator" />
+        </div>
+      )}
 
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
