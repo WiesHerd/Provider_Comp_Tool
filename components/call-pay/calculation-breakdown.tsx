@@ -308,7 +308,7 @@ export function CalculationBreakdown({
     <CollapsibleSection
       title="How This Calculates"
       description="Step-by-step breakdown of how your inputs translate to annual budget"
-      defaultOpen={false}
+      defaultOpen={true}
       hint="Tap to see how rates, burden, and rotation ratio combine to calculate annual pay"
       className={className}
     >

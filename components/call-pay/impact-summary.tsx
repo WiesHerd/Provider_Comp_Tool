@@ -148,7 +148,7 @@ export function ImpactSummary({
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {tierImpact.tierName}
                       </h4>
-                      <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                      <div className="flex items-center gap-2 text-base font-medium text-primary">
                         <span>{isExpanded ? 'Hide' : 'Show'}</span>
                         {isExpanded ? (
                           <ChevronUp className="w-4 h-4" />
