@@ -4,7 +4,7 @@ import { NumberInputWithButtons } from '@/components/ui/number-input-with-button
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plane, CalendarCheck, BookOpen, Plus, Trash2 } from 'lucide-react';
+import { Plane, CalendarCheck, BookOpen, Plus, Minus, Trash2 } from 'lucide-react';
 import { ShiftType, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 
 interface WorkSchedulePanelProps {
@@ -82,24 +82,74 @@ export function WorkSchedulePanel({
               />
               
               {/* Hours */}
-              <Input
-                type="number"
-                value={shift.hours}
-                onChange={(e) => onShiftChange(index, 'hours', Number(e.target.value) || 0)}
-                placeholder="Hours"
-                className="w-full text-sm sm:text-base"
-                min={0}
-              />
+              <div className="relative flex items-center">
+                <Input
+                  type="number"
+                  value={shift.hours}
+                  onChange={(e) => onShiftChange(index, 'hours', Number(e.target.value) || 0)}
+                  placeholder="Hours"
+                  className="w-full text-sm sm:text-base pr-14 sm:pr-12"
+                  min={0}
+                />
+                <div className="absolute right-1 flex flex-col gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onShiftChange(index, 'hours', Math.max(0, shift.hours + 1))}
+                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
+                    aria-label="Increase hours"
+                  >
+                    <Plus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onShiftChange(index, 'hours', Math.max(0, shift.hours - 1))}
+                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
+                    disabled={shift.hours <= 0}
+                    aria-label="Decrease hours"
+                  >
+                    <Minus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+                  </Button>
+                </div>
+              </div>
               
               {/* Per Week */}
-              <Input
-                type="number"
-                value={shift.perWeek}
-                onChange={(e) => onShiftChange(index, 'perWeek', Number(e.target.value) || 0)}
-                placeholder="Per week"
-                className="w-full text-sm sm:text-base"
-                min={0}
-              />
+              <div className="relative flex items-center">
+                <Input
+                  type="number"
+                  value={shift.perWeek}
+                  onChange={(e) => onShiftChange(index, 'perWeek', Number(e.target.value) || 0)}
+                  placeholder="Per week"
+                  className="w-full text-sm sm:text-base pr-14 sm:pr-12"
+                  min={0}
+                />
+                <div className="absolute right-1 flex flex-col gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onShiftChange(index, 'perWeek', Math.max(0, shift.perWeek + 1))}
+                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
+                    aria-label="Increase per week"
+                  >
+                    <Plus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onShiftChange(index, 'perWeek', Math.max(0, shift.perWeek - 1))}
+                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
+                    disabled={shift.perWeek <= 0}
+                    aria-label="Decrease per week"
+                  >
+                    <Minus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+                  </Button>
+                </div>
+              </div>
               
               {/* Delete Button */}
               <div className="flex justify-center">
