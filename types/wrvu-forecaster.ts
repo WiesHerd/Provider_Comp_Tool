@@ -7,6 +7,8 @@ export interface ShiftType {
 
 export interface WRVUForecasterInputs {
   providerName?: string;
+  specialty?: string;
+  customSpecialty?: string;
   vacationWeeks: number;
   statutoryHolidays: number;
   cmeDays: number;
@@ -35,6 +37,7 @@ export interface WRVUForecasterScenario {
   id: string;
   name: string;
   providerName?: string;
+  specialty?: string;
   inputs: WRVUForecasterInputs;
   metrics: ProductivityMetrics;
   date: string;

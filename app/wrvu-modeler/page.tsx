@@ -175,9 +175,9 @@ function ResultsStepContent({
             <Button
               variant="outline"
               onClick={handleStartOver}
-              className="w-full sm:w-auto gap-2"
+              className="w-full sm:w-auto min-h-[44px] touch-target"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4 mr-2" />
               Start Over
             </Button>
           </div>

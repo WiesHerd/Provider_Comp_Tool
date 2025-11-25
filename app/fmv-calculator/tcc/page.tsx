@@ -11,7 +11,7 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { Button } from '@/components/ui/button';
-import { Calculator } from 'lucide-react';
+import { Calculator, RotateCcw } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, TCCComponent, FTE, ProviderScenario } from '@/types';
 import { calculateTCCPercentile } from '@/lib/utils/percentile';
@@ -320,8 +320,9 @@ function TCCCalculatorPageContent() {
               <Button
                 variant="outline"
                 onClick={handleStartNew}
-                className="w-full sm:w-auto gap-2"
+                className="w-full sm:w-auto min-h-[44px] touch-target"
               >
+                <RotateCcw className="w-4 h-4 mr-2" />
                 Start Over
               </Button>
             </div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
+import { Save } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { ProviderScenario, FTE, TCCComponent } from '@/types';
 
@@ -81,7 +82,10 @@ export function ScenarioSaveButton({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button className="w-full sm:w-auto">Save</Button>
+        <Button className="w-full sm:w-auto min-h-[44px] touch-target">
+          <Save className="w-4 h-4 mr-2" />
+          Save
+        </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />

@@ -59,6 +59,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
       id: `scenario-${Date.now()}`,
       name: scenarioName.trim(),
       providerName: inputs.providerName,
+      specialty: inputs.specialty === 'Other' ? inputs.customSpecialty : inputs.specialty,
       inputs: { ...inputs },
       metrics: { ...metrics },
       date: new Date().toLocaleDateString(),

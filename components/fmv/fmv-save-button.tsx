@@ -91,7 +91,10 @@ export function FMVSaveButton({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button className="w-full sm:w-auto">Save</Button>
+        <Button className="w-full sm:w-auto min-h-[44px] touch-target">
+          <Save className="w-4 h-4 mr-2" />
+          Save
+        </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
