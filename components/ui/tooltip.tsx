@@ -85,7 +85,7 @@ export function Tooltip({ children, content, side = 'top', className }: TooltipP
             'pointer-events-none whitespace-normal max-w-[250px] md:max-w-[350px]',
             'bg-white text-gray-900 border-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700',
             'animate-in fade-in-0 zoom-in-95 duration-200',
-            side === 'top' && 'bottom-full left-1/2 -translate-x-1/2 mb-2',
+            side === 'top' && 'bottom-full left-1/2 -translate-x-1/2 mb-3',
             side === 'bottom' && 'top-full left-1/2 -translate-x-1/2 mt-2',
             side === 'left' && 'right-full top-1/2 -translate-y-1/2 mr-2',
             side === 'right' && 'left-full top-1/2 -translate-y-1/2 ml-2',

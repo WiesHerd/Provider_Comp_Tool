@@ -1,0 +1,351 @@
+'use client';
+
+import * as React from 'react';
+import { format, addMonths, subMonths, startOfToday } from 'date-fns';
+import { WRVUCalendarDayCell } from './wrvu-calendar-day-cell';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight, Calendar, Grid, Info } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
+import {
+  getWeekDays,
+  getWeeksInMonth,
+  formatDateString,
+  type DateString,
+} from '@/lib/utils/calendar-helpers';
+import { DailyTrackingData } from '@/types/provider-wrvu-tracking';
+
+interface WRVUCalendarViewProps {
+  dailyData?: Record<DateString, DailyTrackingData>;
+  onDataChange?: (date: Date, data: DailyTrackingData) => void;
+  onMonthChange?: (date: Date) => void;
+  initialDate?: Date;
+  className?: string;
+}
+
+type ViewMode = 'week' | 'month';
+
+export function WRVUCalendarView({
+  dailyData = {},
+  onDataChange,
+  onMonthChange,
+  initialDate,
+  className,
+}: WRVUCalendarViewProps) {
+  const [viewMode, setViewMode] = React.useState<ViewMode>('month');
+  const [mounted, setMounted] = React.useState(false);
+  const [currentDate, setCurrentDate] = React.useState<Date>(() => {
+    if (initialDate) return initialDate;
+    if (typeof window !== 'undefined') {
+      return startOfToday();
+    }
+    // Server-side: use a fixed date to avoid hydration mismatch
+    return new Date();
+  });
+  const [selectedDates, setSelectedDates] = React.useState<Date[]>([]);
+
+  React.useEffect(() => {
+    setMounted(true);
+    if (initialDate) {
+      setCurrentDate(initialDate);
+    }
+  }, [initialDate]);
+
+  const today = mounted ? startOfToday() : new Date();
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    let newDate: Date;
+    if (viewMode === 'week') {
+      newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() - 7);
+    } else {
+      newDate = subMonths(currentDate, 1);
+    }
+    setCurrentDate(newDate);
+    if (onMonthChange && viewMode === 'month') {
+      onMonthChange(newDate);
+    }
+  };
+
+  const handleNext = () => {
+    let newDate: Date;
+    if (viewMode === 'week') {
+      newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() + 7);
+    } else {
+      newDate = addMonths(currentDate, 1);
+    }
+    setCurrentDate(newDate);
+    if (onMonthChange && viewMode === 'month') {
+      onMonthChange(newDate);
+    }
+  };
+
+  const handleToday = () => {
+    const today = startOfToday();
+    setCurrentDate(today);
+    if (onMonthChange) {
+      onMonthChange(today);
+    }
+  };
+
+  // Date selection handlers
+  const handleDateClick = (date: Date) => {
+    setSelectedDates((prev) => {
+      const dateStr = formatDateString(date);
+      const isSelected = prev.some((d) => formatDateString(d) === dateStr);
+      if (isSelected) {
+        return prev.filter((d) => formatDateString(d) !== dateStr);
+      }
+      return [...prev, date];
+    });
+  };
+
+  // Get days to display based on view mode
+  const getDaysToDisplay = (): Date[][] => {
+    if (viewMode === 'week') {
+      const weekDays = getWeekDays(currentDate);
+      return [weekDays];
+    } else {
+      return getWeeksInMonth(currentDate);
+    }
+  };
+
+  const weeks = getDaysToDisplay();
+  const monthYear = format(currentDate, 'MMMM yyyy');
+  const weekRange =
+    viewMode === 'week'
+      ? `${format(weeks[0][0], 'MMM d')} - ${format(weeks[0][6], 'MMM d, yyyy')}`
+      : monthYear;
+
+  const handleDataChange = (date: Date, data: DailyTrackingData) => {
+    if (onDataChange) {
+      // If there are selected dates and the changed date is one of them, apply to all selected
+      if (selectedDates.length > 0) {
+        const dateStr = formatDateString(date);
+        const isInSelection = selectedDates.some((d) => formatDateString(d) === dateStr);
+        
+        if (isInSelection) {
+          // Apply the same data to all selected dates
+          selectedDates.forEach((selectedDate) => {
+            onDataChange(selectedDate, data);
+          });
+          // Clear selection after applying
+          setSelectedDates([]);
+        } else {
+          // Normal single date update
+          onDataChange(date, data);
+        }
+      } else {
+        // Normal single date update
+        onDataChange(date, data);
+      }
+    }
+  };
+
+  return (
+    <div className={cn('w-full space-y-4', className)}>
+      {/* Header Card */}
+      <Card className="border-2">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
+                  Work RVU Tracking Calendar
+                </CardTitle>
+              
+              {/* View mode toggle - Desktop */}
+              <div className="hidden sm:flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                <Button
+                  type="button"
+                  variant={viewMode === 'week' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('week')}
+                  className="min-w-[80px] h-8"
+                >
+                  <Calendar className="w-4 h-4 mr-1.5" />
+                  Week
+                </Button>
+                <Button
+                  type="button"
+                  variant={viewMode === 'month' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('month')}
+                  className="min-w-[80px] h-8"
+                >
+                  <Grid className="w-4 h-4 mr-1.5" />
+                  Month
+                </Button>
+              </div>
+            </div>
+
+            {/* Navigation controls */}
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handlePrevious}
+                aria-label="Previous"
+                className="h-9 w-9 p-0"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleToday}
+                className="h-9 px-4 font-medium"
+              >
+                Today
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleNext}
+                aria-label="Next"
+                className="h-9 w-9 p-0"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+              
+              {/* View mode toggle - Mobile */}
+              <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 ml-2">
+                <Button
+                  type="button"
+                  variant={viewMode === 'week' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('week')}
+                  className="min-w-[60px] h-8 px-2"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={viewMode === 'month' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('month')}
+                  className="min-w-[60px] h-8 px-2"
+                >
+                  <Grid className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+            {/* Multi-select hint - Google/Apple style */}
+            <div className="flex items-start gap-2 px-3 py-2 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
+              <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                <span className="font-medium">Tip:</span> Select multiple dates, then enter data once to apply the same values to all selected dates.
+              </p>
+            </div>
+          </div>
+
+          {/* Month/Year display */}
+          <div className="flex items-center justify-between pt-2">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+              {weekRange}
+            </h3>
+            
+            {/* Help text */}
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <Info className="w-3.5 h-3.5" />
+              <span>
+                {selectedDates.length > 0 
+                  ? `${selectedDates.length} date${selectedDates.length !== 1 ? 's' : ''} selected • Enter data to apply to all`
+                  : 'Click dates to select multiple'}
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Calendar grid - Desktop optimized */}
+      <Card className="border-2">
+        <CardContent className="p-4 sm:p-6 pb-6">
+          <div className="w-full overflow-x-auto overflow-y-visible -mx-4 sm:mx-0 px-4 sm:px-6 sm:px-0">
+            {/* Day headers */}
+            <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px]">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-1"
+                >
+                  <span className="hidden sm:inline">{day}</span>
+                  <span className="sm:hidden">{day.slice(0, 3)}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar days */}
+            <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-2">
+              {weeks.map((week, weekIndex) => (
+                <div key={weekIndex} className="grid grid-cols-7 gap-2 sm:gap-3">
+                  {week.map((date) => {
+                    const dateStr = formatDateString(date);
+                    const isCurrentMonth = format(date, 'M') === format(currentDate, 'M');
+                    const isToday = format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+                    const trackingData = dailyData[dateStr] || { patients: 0, workRVUs: 0 };
+                    const isSelected = selectedDates.some(
+                      (d) => formatDateString(d) === dateStr
+                    );
+
+                    return (
+                      <div
+                        key={dateStr}
+                        onClick={() => handleDateClick(date)}
+                        className={cn(
+                          'transition-all duration-200',
+                          isSelected && 'ring-2 ring-primary ring-offset-0 rounded-xl'
+                        )}
+                      >
+                        <WRVUCalendarDayCell
+                          date={date}
+                          trackingData={trackingData}
+                          isToday={isToday}
+                          isCurrentMonth={isCurrentMonth}
+                          onDataChange={handleDataChange}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Legend */}
+      <Card className="border-2">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-lg bg-gray-50 dark:bg-gray-800/30 border-2 border-gray-200 dark:border-gray-700" />
+              <span className="font-medium text-gray-700 dark:text-gray-300">Weekend</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <Info className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {selectedDates.length > 0 
+                  ? `Click dates to select • Enter data to apply to ${selectedDates.length} selected date${selectedDates.length !== 1 ? 's' : ''}`
+                  : 'Click dates to select multiple • Enter data to apply to all selected • Double-click to clear'}
+              </span>
+              <span className="sm:hidden">
+                {selectedDates.length > 0 
+                  ? `${selectedDates.length} selected`
+                  : 'Tap to add • Long-press to clear'}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
