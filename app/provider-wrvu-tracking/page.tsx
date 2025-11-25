@@ -234,27 +234,15 @@ export default function ProviderWRVUTrackingPage() {
     <div className="w-full px-3 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
       {/* Save Notification */}
       {showSaveNotification && (
-        <div className="fixed top-20 right-4 sm:right-6 z-50 animate-in slide-in-from-right fade-in duration-300">
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top fade-in duration-300">
           <div className="bg-primary text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
             <Check className="w-5 h-5" />
-            <span className="text-sm font-medium">Saved automatically</span>
+            <span className="text-sm font-medium">Saved</span>
           </div>
         </div>
       )}
 
-      {/* Goal Tracking - Moved to Top */}
-      <div className="mb-6">
-        <WRVUGoalTracking
-          currentDate={currentDate}
-          goals={currentGoals}
-          actualPatients={monthStats.totalPatients}
-          actualWRVUs={monthStats.totalWRVUs}
-          dailyData={state.dailyData}
-          onGoalsChange={handleGoalsChange}
-        />
-      </div>
-
-      {/* Provider Name Input */}
+      {/* Provider Name Input - At the very top */}
       <Card className="mb-6 border-2">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
@@ -339,6 +327,18 @@ export default function ProviderWRVUTrackingPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Goal Tracking */}
+      <div className="mb-6">
+        <WRVUGoalTracking
+          currentDate={currentDate}
+          goals={currentGoals}
+          actualPatients={monthStats.totalPatients}
+          actualWRVUs={monthStats.totalWRVUs}
+          dailyData={state.dailyData}
+          onGoalsChange={handleGoalsChange}
+        />
+      </div>
 
       {/* Calendar View */}
       <div className="mb-6">

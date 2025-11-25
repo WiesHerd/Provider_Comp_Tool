@@ -131,7 +131,7 @@ export function WRVUCalendarView({
   };
 
   const weeks = getDaysToDisplay();
-  const monthYear = format(currentDate, 'MMMM yyyy');
+  const monthYear = format(currentDate, 'MMM yyyy'); // Changed to abbreviated month
   const weekRange =
     viewMode === 'week'
       ? `${format(weeks[0][0], 'MMM d')} - ${format(weeks[0][6], 'MMM d, yyyy')}`
@@ -225,7 +225,9 @@ export function WRVUCalendarView({
               >
                 <SelectTrigger className="h-9 w-[140px] text-sm">
                   <CalendarDays className="w-4 h-4 mr-2" />
-                  <SelectValue />
+                  <SelectValue>
+                    {format(currentDate, 'MMM yyyy')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]">
                   {Array.from({ length: 24 }, (_, i) => {
@@ -234,7 +236,7 @@ export function WRVUCalendarView({
                     const year = date.getFullYear();
                     const month = date.getMonth() + 1;
                     const monthYear = `${year}-${String(month).padStart(2, '0')}`;
-                    const monthName = format(date, 'MMMM yyyy');
+                    const monthName = format(date, 'MMM yyyy'); // Changed to abbreviated
                     return (
                       <SelectItem key={monthYear} value={monthYear}>
                         {monthName}

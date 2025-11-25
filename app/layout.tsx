@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   description: "wRVU modeling, FMV analysis, and call-pay scenarios",
   manifest: "/manifest.json",
   themeColor: "#6366f1",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png" },
