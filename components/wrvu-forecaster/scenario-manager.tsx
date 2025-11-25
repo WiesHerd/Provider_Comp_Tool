@@ -58,6 +58,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
     const newScenario: WRVUForecasterScenario = {
       id: `scenario-${Date.now()}`,
       name: scenarioName.trim(),
+      providerName: inputs.providerName,
       inputs: { ...inputs },
       metrics: { ...metrics },
       date: new Date().toLocaleDateString(),
@@ -134,7 +135,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
                 className="min-h-[44px] touch-target flex-1 sm:flex-initial"
               >
                 <Save className="w-4 h-4 mr-2" />
-                Save Scenario
+                Save
               </Button>
               
               {onEmailReport && (
@@ -144,7 +145,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
                   className="min-h-[44px] touch-target flex-1 sm:flex-initial"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  Email Report
+                  Email
                 </Button>
               )}
               
