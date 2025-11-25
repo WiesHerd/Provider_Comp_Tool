@@ -1,33 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Phone, BarChart3 } from 'lucide-react';
-import { useScenariosStore } from '@/lib/store/scenarios-store';
-import { Button } from '@/components/ui/button';
-import { RecentScenarioCard } from '@/components/scenarios/recent-scenario-card';
-import { ProviderScenario } from '@/types';
 
 export default function Home() {
-  const { scenarios, loadScenarios } = useScenariosStore();
-
-  useEffect(() => {
-    loadScenarios();
-  }, [loadScenarios]);
-
-  // Get recent scenarios (filter out dismissed, last 3, sorted by updatedAt)
-  const recentScenarios = scenarios
-    .filter((s) => {
-      const scenario = s as ProviderScenario;
-      return scenario.dismissedFromRecent !== true;
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.updatedAt || a.createdAt).getTime();
-      const dateB = new Date(b.updatedAt || b.createdAt).getTime();
-      return dateB - dateA;
-    })
-    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
@@ -99,47 +76,6 @@ export default function Home() {
               </Card>
             </Link>
           </div>
-        </div>
-
-        {/* Recent Models Section - Always visible on mobile */}
-        <div className="mb-8 sm:mb-10">
-          <div className="flex items-center justify-between mb-4 sm:mb-5">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-              Recent Models
-            </h2>
-            {recentScenarios.length > 0 && (
-              <Link href="/scenarios">
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                  View All
-                </Button>
-              </Link>
-            )}
-          </div>
-          {recentScenarios.length > 0 ? (
-            <div className="space-y-4">
-              {recentScenarios.map((scenario) => (
-                <RecentScenarioCard
-                  key={scenario.id}
-                  scenario={scenario}
-                  onDismiss={() => {
-                    // Reload scenarios after dismiss to update the list
-                    loadScenarios();
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 sm:py-12">
-              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4">
-                No recent models yet. Create and save a model to see it here.
-              </p>
-              <Link href="/fmv-calculator">
-                <Button size="sm" variant="outline">
-                  Create Your First Model
-                </Button>
-              </Link>
-            </div>
-          )}
         </div>
 
         {/* Disclaimer - Apple-style minimal */}
