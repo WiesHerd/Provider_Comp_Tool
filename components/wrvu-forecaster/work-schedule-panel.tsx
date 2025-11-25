@@ -161,7 +161,7 @@ export function WorkSchedulePanel({
                   className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] touch-target"
                   aria-label="Delete shift"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-6 h-6 sm:w-4 sm:h-4" />
                 </Button>
               </div>
             </div>
