@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isWeekend, startOfWeek, endOfWeek, eachWeekOfInterval } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, eachWeekOfInterval } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDarkMode } from '@/lib/hooks/use-dark-mode';
 import { useMobile } from '@/hooks/use-mobile';
 import { TrendingUp, Calendar } from 'lucide-react';
@@ -82,20 +82,29 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
 
   const monthName = format(currentDate, 'MMMM yyyy');
 
-  // Mobile-optimized font sizes
+  // Modern, clean styling - Google/Apple inspired
   const xAxisFontSize = isMobile ? 14 : 12;
   const yAxisFontSize = isMobile ? 14 : 12;
-  const legendFontSize = isMobile ? 14 : 12;
 
-  // Mobile-optimized chart dimensions
-  const chartHeightClass = isMobile ? 'h-80 sm:h-96 min-h-[320px]' : 'h-64 md:h-80';
+  // Increased chart height for better proportions
+  const chartHeightClass = isMobile ? 'h-80 sm:h-96 min-h-[320px]' : 'h-72 md:h-96';
 
-  // Mobile-optimized line chart settings
-  const lineStrokeWidth = isMobile ? 3 : 2;
-  const dotRadius = isMobile ? 5 : 3;
+  // Line chart settings - cleaner, no dots
+  const lineStrokeWidth = isMobile ? 3 : 2.5;
 
-  // Mobile-optimized bar chart settings
-  const barCategoryGap = isMobile ? '20%' : '10%';
+  // Bar chart settings - more spacing
+  const barCategoryGap = isMobile ? '30%' : '35%';
+
+  // Smart X-axis interval calculation for daily chart
+  const calculateXAxisInterval = () => {
+    const dayCount = dailyChartData.length;
+    if (dayCount <= 7) return 0; // Show all labels for short months
+    if (dayCount <= 14) return 1; // Show every other day
+    if (dayCount <= 21) return 2; // Show every 3rd day
+    return 3; // Show every 4th day for full months
+  };
+
+  const xAxisInterval = calculateXAxisInterval();
 
   return (
     <div className="space-y-6">
@@ -109,19 +118,28 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className={`w-full ${chartHeightClass}`}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={dailyChartData} margin={isMobile ? { top: 10, right: 10, left: 0, bottom: 20 } : { top: 5, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={isDark ? 0.5 : 1} />
+              <LineChart 
+                data={dailyChartData} 
+                margin={isMobile ? { top: 20, right: 10, left: 10, bottom: 30 } : { top: 20, right: 40, left: 10, bottom: 30 }}
+              >
+                <CartesianGrid 
+                  strokeDasharray="0" 
+                  stroke={gridColor} 
+                  opacity={0.12}
+                  horizontal={true}
+                  vertical={false}
+                />
                 <XAxis
                   dataKey={isMobile ? 'dayNumber' : 'date'}
                   stroke={axisColor}
                   tick={{ fill: textColor, fontSize: xAxisFontSize }}
-                  angle={isMobile ? 0 : -45}
-                  textAnchor={isMobile ? 'middle' : 'end'}
-                  height={isMobile ? 40 : 60}
-                  interval={isMobile ? 'preserveStartEnd' : 0}
+                  angle={0}
+                  textAnchor="middle"
+                  height={50}
+                  interval={isMobile ? 'preserveStartEnd' : xAxisInterval}
                   tickCount={isMobile ? 7 : undefined}
                 />
                 <YAxis
@@ -130,7 +148,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                   tick={{ fill: textColor, fontSize: yAxisFontSize }}
                   label={{ value: 'Patients', angle: -90, position: 'insideLeft', fill: textColor, style: { fontSize: yAxisFontSize } }}
                   width={isMobile ? 50 : 60}
-                  tickCount={isMobile ? 5 : undefined}
+                  tickCount={4}
                 />
                 <YAxis
                   yAxisId="right"
@@ -139,7 +157,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                   tick={{ fill: textColor, fontSize: yAxisFontSize }}
                   label={{ value: 'wRVUs', angle: 90, position: 'insideRight', fill: textColor, style: { fontSize: yAxisFontSize } }}
                   width={isMobile ? 50 : 60}
-                  tickCount={isMobile ? 5 : undefined}
+                  tickCount={4}
                 />
                 <Tooltip
                   contentStyle={{
@@ -147,8 +165,9 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                     border: `1px solid ${tooltipBorder}`,
                     borderRadius: '8px',
                     color: tooltipText,
-                    padding: isMobile ? '12px' : '8px',
+                    padding: isMobile ? '12px' : '10px',
                     fontSize: isMobile ? '14px' : '12px',
+                    boxShadow: isDark ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
                   }}
                   wrapperStyle={{ zIndex: 1000 }}
                   position={isMobile ? { y: -10 } : undefined}
@@ -156,14 +175,8 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                     if (name === 'wRVUs') {
                       return [value.toFixed(2), 'wRVUs'];
                     }
-                    return [value, 'Patients'];
+                    return [value.toLocaleString(), 'Patients'];
                   }}
-                />
-                <Legend 
-                  wrapperStyle={{ color: textColor, fontSize: legendFontSize }}
-                  verticalAlign={isMobile ? 'top' : 'bottom'}
-                  layout={isMobile ? 'vertical' : 'horizontal'}
-                  iconSize={isMobile ? 16 : 14}
                 />
                 <Line
                   yAxisId="left"
@@ -171,8 +184,8 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                   dataKey="patients"
                   stroke="#00C805"
                   strokeWidth={lineStrokeWidth}
-                  dot={{ r: dotRadius, fill: '#00C805' }}
-                  activeDot={{ r: isMobile ? 7 : 5 }}
+                  dot={false}
+                  activeDot={{ r: isMobile ? 7 : 6, fill: '#00C805', strokeWidth: 2, stroke: isDark ? '#1f2937' : '#ffffff' }}
                   name="Patients"
                 />
                 <Line
@@ -181,8 +194,8 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                   dataKey="wRVUs"
                   stroke="#3b82f6"
                   strokeWidth={lineStrokeWidth}
-                  dot={{ r: dotRadius, fill: '#3b82f6' }}
-                  activeDot={{ r: isMobile ? 7 : 5 }}
+                  dot={false}
+                  activeDot={{ r: isMobile ? 7 : 6, fill: '#3b82f6', strokeWidth: 2, stroke: isDark ? '#1f2937' : '#ffffff' }}
                   name="wRVUs"
                 />
               </LineChart>
@@ -201,15 +214,21 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className={`w-full ${chartHeightClass}`}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={weeklyChartData}
-                margin={isMobile ? { top: 10, right: 10, left: 0, bottom: 20 } : { top: 5, right: 30, left: 0, bottom: 5 }}
+                margin={isMobile ? { top: 20, right: 10, left: 10, bottom: 20 } : { top: 20, right: 40, left: 10, bottom: 20 }}
                 barCategoryGap={barCategoryGap}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={isDark ? 0.5 : 1} />
+                <CartesianGrid 
+                  strokeDasharray="0" 
+                  stroke={gridColor} 
+                  opacity={0.12}
+                  horizontal={true}
+                  vertical={false}
+                />
                 <XAxis
                   dataKey={isMobile ? 'weekShort' : 'week'}
                   stroke={axisColor}
@@ -221,7 +240,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                   tick={{ fill: textColor, fontSize: yAxisFontSize }}
                   label={{ value: 'Patients', angle: -90, position: 'insideLeft', fill: textColor, style: { fontSize: yAxisFontSize } }}
                   width={isMobile ? 50 : 60}
-                  tickCount={isMobile ? 5 : undefined}
+                  tickCount={4}
                 />
                 <YAxis
                   yAxisId="right"
@@ -230,7 +249,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                   tick={{ fill: textColor, fontSize: yAxisFontSize }}
                   label={{ value: 'wRVUs', angle: 90, position: 'insideRight', fill: textColor, style: { fontSize: yAxisFontSize } }}
                   width={isMobile ? 50 : 60}
-                  tickCount={isMobile ? 5 : undefined}
+                  tickCount={4}
                 />
                 <Tooltip
                   contentStyle={{
@@ -238,8 +257,9 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                     border: `1px solid ${tooltipBorder}`,
                     borderRadius: '8px',
                     color: tooltipText,
-                    padding: isMobile ? '12px' : '8px',
+                    padding: isMobile ? '12px' : '10px',
                     fontSize: isMobile ? '14px' : '12px',
+                    boxShadow: isDark ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
                   }}
                   wrapperStyle={{ zIndex: 1000 }}
                   position={isMobile ? { y: -10 } : undefined}
@@ -247,28 +267,22 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                     if (name === 'wRVUs') {
                       return [value.toFixed(2), 'wRVUs'];
                     }
-                    return [value, 'Patients'];
+                    return [value.toLocaleString(), 'Patients'];
                   }}
-                />
-                <Legend 
-                  wrapperStyle={{ color: textColor, fontSize: legendFontSize }}
-                  verticalAlign={isMobile ? 'top' : 'bottom'}
-                  layout={isMobile ? 'vertical' : 'horizontal'}
-                  iconSize={isMobile ? 16 : 14}
                 />
                 <Bar 
                   yAxisId="left" 
                   dataKey="patients" 
                   fill="#00C805" 
                   name="Patients"
-                  radius={isMobile ? [4, 4, 0, 0] : [2, 2, 0, 0]}
+                  radius={isMobile ? [6, 6, 0, 0] : [4, 4, 0, 0]}
                 />
                 <Bar 
                   yAxisId="right" 
                   dataKey="wRVUs" 
                   fill="#3b82f6" 
                   name="wRVUs"
-                  radius={isMobile ? [4, 4, 0, 0] : [2, 2, 0, 0]}
+                  radius={isMobile ? [6, 6, 0, 0] : [4, 4, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>
