@@ -121,17 +121,19 @@ function WRVUCalculatorPageContent() {
         {/* Content - No container */}
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white pt-8">wRVUs</h2>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex items-end justify-between gap-2 sm:gap-4">
+            <div className="flex items-end gap-2 sm:gap-4">
               {annualWrvus > 0 && fte > 0 && (
-                <ProviderInputSaveButton
-                  scenarioType="fmv-wrvu"
-                  fte={fte}
-                  annualWrvus={annualWrvus}
-                  monthlyWrvus={monthlyWrvus}
-                  monthlyBreakdown={monthlyBreakdown}
-                  specialty={specialty}
-                />
+                <div className="flex items-end">
+                  <ProviderInputSaveButton
+                    scenarioType="fmv-wrvu"
+                    fte={fte}
+                    annualWrvus={annualWrvus}
+                    monthlyWrvus={monthlyWrvus}
+                    monthlyBreakdown={monthlyBreakdown}
+                    specialty={specialty}
+                  />
+                </div>
               )}
               <FTEInput value={fte} onChange={setFte} />
             </div>

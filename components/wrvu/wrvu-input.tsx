@@ -149,7 +149,7 @@ export function WRVUInput({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <Label className="text-base font-semibold text-gray-900 dark:text-white">Productivity</Label>
         <div className="flex gap-2">
           <Button
