@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
+import { Save } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { ProviderScenario, MarketBenchmarks, TCCComponent, FTE } from '@/types';
 

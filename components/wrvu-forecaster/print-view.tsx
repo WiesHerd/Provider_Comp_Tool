@@ -128,7 +128,7 @@ export function PrintView({ metrics, inputs }: PrintViewProps) {
         </div>
         <div className="ml-4 flex-shrink-0">
           <Image
-            src="/Logo.png"
+            src="/New Image.png"
             alt="CompLens"
             width={60}
             height={60}

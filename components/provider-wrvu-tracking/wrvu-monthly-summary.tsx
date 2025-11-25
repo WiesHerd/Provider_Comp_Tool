@@ -193,7 +193,7 @@ export function WRVUMonthlySummary({
         {monthStats.daysWithData > 0 && (
           <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-3 border border-primary/20">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              <span className="font-semibold">Quick Insight:</span> You've tracked{' '}
+              <span className="font-semibold">Quick Insight:</span> You&apos;ve tracked{' '}
               <span className="font-bold text-primary">
                 {formatNumber(monthStats.totalPatients)}
               </span>{' '}

@@ -208,7 +208,7 @@ export function CalendarSummary({
           <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-3 border border-primary/20">
             <p className="text-sm text-gray-700 dark:text-gray-300">
               <span className="font-semibold">Quick Insight:</span> Based on your calendar entries, 
-              you're projected to generate{' '}
+              you&apos;re projected to generate{' '}
               <span className="font-bold text-primary">
                 {formatNumber(monthStats.estimatedWRVUsAvg)}
               </span>{' '}

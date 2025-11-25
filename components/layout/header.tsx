@@ -241,7 +241,7 @@ export function Header() {
   const logoContent = (
     <div className="relative animate-logo-enter">
       <Image
-        src="/Logo.png"
+        src="/New Image.png"
         alt="CompLens"
         width={40}
         height={40}
@@ -254,7 +254,7 @@ export function Header() {
         unoptimized
       />
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-green-400 dark:from-blue-500 dark:via-purple-500 dark:to-green-500 rounded-xl opacity-15 dark:opacity-12 blur-sm animate-pulse-slow"
+        className="absolute inset-0 bg-gradient-to-br from-blue-400 to-green-400 dark:from-blue-500 dark:to-green-500 rounded-xl opacity-15 dark:opacity-12 blur-sm animate-pulse-slow"
         style={{
           filter: 'blur(8px)',
         }}

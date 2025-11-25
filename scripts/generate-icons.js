@@ -4,7 +4,7 @@ const path = require('path');
 
 // Get the project root directory (where package.json is)
 const projectRoot = path.resolve(__dirname, '..');
-const logoPath = path.join(projectRoot, 'public', 'Logo.png');
+const logoPath = path.join(projectRoot, 'public', 'New Image.png');
 const iconsDir = path.join(projectRoot, 'public', 'icons');
 
 // Ensure icons directory exists
@@ -33,7 +33,7 @@ async function generateIcons() {
       process.exit(1);
     }
 
-    console.log('Generating PWA icons from Logo.png with rounded corners...');
+    console.log('Generating PWA icons from New Image.png with rounded corners...');
 
     // Generate each icon size
     for (const size of iconSizes) {
