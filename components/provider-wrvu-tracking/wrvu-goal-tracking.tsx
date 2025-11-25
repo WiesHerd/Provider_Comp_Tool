@@ -337,7 +337,7 @@ export function WRVUGoalTracking({
                         )}
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        That's <span className={cn(
+                        That&apos;s <span className={cn(
                           "font-semibold",
                           patientsOnTrack ? "text-green-600 dark:text-green-400" :
                           patientsSlightlyBehind ? "text-amber-600 dark:text-amber-400" :
@@ -348,7 +348,7 @@ export function WRVUGoalTracking({
                       </p>
                       {daysElapsed > 0 && (
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          You're seeing {formatNumber(avgPatientsPerDay, 1)}/day
+                          You&apos;re seeing {formatNumber(avgPatientsPerDay, 1)}/day
                         </p>
                       )}
                     </div>
@@ -378,7 +378,7 @@ export function WRVUGoalTracking({
                         )}
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        That's <span className={cn(
+                        That&apos;s <span className={cn(
                           "font-semibold",
                           wrvusOnTrack ? "text-green-600 dark:text-green-400" :
                           wrvusSlightlyBehind ? "text-amber-600 dark:text-amber-400" :
@@ -389,7 +389,7 @@ export function WRVUGoalTracking({
                       </p>
                       {daysElapsed > 0 && (
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          You're seeing {formatNumber(avgWRVUsPerDay, 2)}/day
+                          You&apos;re seeing {formatNumber(avgWRVUsPerDay, 2)}/day
                         </p>
                       )}
                     </div>
