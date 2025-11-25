@@ -4,7 +4,7 @@ import { NumberInputWithButtons } from '@/components/ui/number-input-with-button
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plane, CalendarCheck, BookOpen, Plus, Trash2, Clock } from 'lucide-react';
+import { Plane, CalendarCheck, BookOpen, Plus, Trash2 } from 'lucide-react';
 import { ShiftType, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 
 interface WorkSchedulePanelProps {
@@ -70,49 +70,48 @@ export function WorkSchedulePanel({
           <div></div> {/* Spacer for delete button */}
         </div>
         
-        <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-3 sm:space-y-3">
           {inputs.shifts.map((shift, index) => (
-            <div key={shift.id} className="flex flex-col sm:grid sm:grid-cols-[1fr_100px_120px_44px] gap-2 sm:items-center">
+            <div key={shift.id} className="flex flex-col sm:grid sm:grid-cols-[1fr_100px_120px_44px] gap-3 sm:gap-2 sm:items-center p-3 sm:p-0 rounded-lg border border-gray-200 dark:border-gray-700 sm:border-0 bg-gray-50 dark:bg-gray-800/50 sm:bg-transparent">
               {/* Shift Name */}
               <div className="flex flex-col sm:block">
-                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 sm:hidden">Shift Name</Label>
+                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 sm:hidden">Shift Name</Label>
                 <Input
                   value={shift.name}
                   onChange={(e) => onShiftChange(index, 'name', e.target.value)}
                   placeholder="Shift name"
                   className="w-full text-sm sm:text-base"
-                  icon={<Clock className="w-5 h-5" />}
                 />
               </div>
               
               {/* Hours */}
               <div className="flex flex-col sm:block">
-                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 sm:hidden">Hours</Label>
+                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 sm:hidden">Hours per Shift</Label>
                 <Input
                   type="number"
                   value={shift.hours}
                   onChange={(e) => onShiftChange(index, 'hours', Number(e.target.value) || 0)}
                   placeholder="Hours"
-                  className="w-full sm:w-full text-sm sm:text-base"
+                  className="w-full text-sm sm:text-base"
                   min={0}
                 />
               </div>
               
               {/* Per Week */}
               <div className="flex flex-col sm:block">
-                <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 sm:hidden">Per Week</Label>
+                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 sm:hidden">Shifts per Week</Label>
                 <Input
                   type="number"
                   value={shift.perWeek}
                   onChange={(e) => onShiftChange(index, 'perWeek', Number(e.target.value) || 0)}
                   placeholder="Per week"
-                  className="w-full sm:w-full text-sm sm:text-base"
+                  className="w-full text-sm sm:text-base"
                   min={0}
                 />
               </div>
               
               {/* Delete Button */}
-              <div className="flex justify-end sm:justify-center">
+              <div className="flex justify-end sm:justify-center pt-1 sm:pt-0">
                 <Button
                   type="button"
                   variant="ghost"
