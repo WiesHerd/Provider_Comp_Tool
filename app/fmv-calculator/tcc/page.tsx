@@ -152,7 +152,8 @@ function TCCCalculatorPageContent() {
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between pt-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white pt-8">Total Cash Compensation</h2>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {tccComponents.some(c => c.amount > 0) && (
                 <ProviderInputSaveButton
@@ -283,7 +284,10 @@ function TCCCalculatorPageContent() {
 
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedTcc > 0 && (
-        <div id="results-section" className="space-y-6 pt-12">
+        <div id="results-section" className="space-y-6 pt-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Total Cash Compensation</h2>
+          </div>
           <PercentileBreakdown
             value={normalizedTcc}
             percentile={percentile}

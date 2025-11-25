@@ -116,7 +116,7 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white">TCC Components</h3>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white">Compensation Components</h3>
         <Button onClick={addComponent} size="sm" variant="default" className="gap-1.5">
           <Plus className="w-4 h-4" />
           Add Component

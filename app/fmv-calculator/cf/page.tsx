@@ -133,7 +133,8 @@ function CFCalculatorPageContent() {
       {!showResults && (
       <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">
         <div className="space-y-6">
-          <div className="flex items-center justify-between pt-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white pt-8">Conversion Factor</h2>
+          <div className="flex items-center justify-between">
             {cfValue > 0 && (
               <ProviderInputSaveButton
                 scenarioType="fmv-cf"
@@ -224,7 +225,10 @@ function CFCalculatorPageContent() {
 
       {/* Results (Only shown after calculation) */}
       {showResults && cfValue > 0 && (
-        <div id="results-section" className="space-y-6 pt-12">
+        <div id="results-section" className="space-y-6 pt-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Factor</h2>
+          </div>
           <PercentileBreakdown
             value={cfValue}
             percentile={percentile}
