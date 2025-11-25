@@ -12,7 +12,7 @@ import { WeeklyScheduleView } from './weekly-schedule-view';
 interface WorkSchedulePanelProps {
   inputs: WRVUForecasterInputs;
   onInputChange: (field: keyof WRVUForecasterInputs, value: number) => void;
-  onShiftChange: (index: number | null, field: keyof ShiftType | 'add', value: string | number) => void;
+  onShiftChange: (index: number | null, field: keyof ShiftType | 'add' | 'daysOfWeek', value: string | number | number[]) => void;
   onDeleteShift: (index: number) => void;
 }
 
