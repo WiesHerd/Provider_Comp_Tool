@@ -21,8 +21,10 @@ const iosIconSizes = [180, 167]; // 180x180 for iPhone, 167x167 for iPad Pro
 // All icon sizes combined
 const allIconSizes = [...iconSizes, ...iosIconSizes].sort((a, b) => a - b);
 
-// Safe zone for maskable icons: 80% of canvas (icon content in center 80%, outer 20% is safe padding)
-const SAFE_ZONE_RATIO = 0.8;
+// Safe zone for maskable icons: 98% of canvas (minimal padding for maximum icon size)
+// This ensures the icon fills almost the entire space while still being maskable
+// Apps like Coinbase/Snapchat use 95-98% fill for maskable icons
+const SAFE_ZONE_RATIO = 0.98;
 
 async function generateIcons() {
   try {
@@ -35,40 +37,47 @@ async function generateIcons() {
     console.log('Generating enterprise-grade PWA icons with maskable support...');
     console.log('Creating icons that fill the safe zone for optimal mobile display...\n');
 
+    // First, trim any transparent padding from the source image
+    const trimmedLogo = await sharp(logoPath)
+      .trim({ threshold: 10 }) // Remove transparent edges
+      .toBuffer();
+
     // Generate regular icons (fill 100% of canvas) - for iOS and fallback
     for (const size of allIconSizes) {
       const outputPath = path.join(iconsDir, `icon-${size}x${size}.png`);
       
-      // Resize the circular icon to fill 100% of the canvas
-      // This ensures full-size appearance on iOS and as fallback
-      await sharp(logoPath)
+      // Resize the circular icon to fill 100% of the canvas - edge to edge, no padding
+      // Trimmed source ensures no transparent padding is included
+      await sharp(trimmedLogo)
         .resize(size, size, {
           fit: 'cover', // Cover the entire canvas
-          background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background
+          position: 'center' // Center the crop
         })
         .png()
         .toFile(outputPath);
       
-      console.log(`✓ Generated icon-${size}x${size}.png (full-size, fills entire canvas)`);
+      console.log(`✓ Generated icon-${size}x${size}.png (full-size, fills entire canvas, no padding)`);
     }
 
-    // Generate maskable icons (fill 80% safe zone) - for Android adaptive icons
-    console.log('\nGenerating maskable icons for Android adaptive icons...');
+    // Generate maskable icons (fill 98% safe zone) - for Android adaptive icons
+    // Using 98% ensures maximum icon size while still being maskable
+    console.log('\nGenerating maskable icons for Android adaptive icons (98% fill, minimal padding)...');
     for (const size of allIconSizes) {
       const maskablePath = path.join(iconsDir, `icon-${size}x${size}-maskable.png`);
       const safeZoneSize = Math.floor(size * SAFE_ZONE_RATIO);
       
-      // Resize icon to fill the safe zone (80% of canvas)
-      const iconBuffer = await sharp(logoPath)
+      // Resize icon to fill 98% of canvas (minimal padding for maximum size)
+      // Using trimmed logo to ensure no source padding
+      const iconBuffer = await sharp(trimmedLogo)
         .resize(safeZoneSize, safeZoneSize, {
           fit: 'cover',
-          background: { r: 0, g: 0, b: 0, alpha: 0 }
+          position: 'center'
         })
         .png()
         .toBuffer();
       
       // Center the icon on a transparent canvas of full size
-      // This creates the safe zone padding that Android expects
+      // Minimal padding (1% on each side) for maximum icon visibility
       await sharp({
         create: {
           width: size,
@@ -85,17 +94,18 @@ async function generateIcons() {
         .png()
         .toFile(maskablePath);
       
-      console.log(`✓ Generated icon-${size}x${size}-maskable.png (safe zone: ${safeZoneSize}x${safeZoneSize}px)`);
+      console.log(`✓ Generated icon-${size}x${size}-maskable.png (98% fill: ${safeZoneSize}x${safeZoneSize}px, minimal padding)`);
     }
 
     // Generate favicon - full size, no padding
     const finalFaviconSize = 32; // Final size for browser
     
     // Resize the circular icon to fill the entire favicon space
-    const faviconIcon = await sharp(logoPath)
+    // Using trimmed logo to ensure no source padding
+    const faviconIcon = await sharp(trimmedLogo)
       .resize(finalFaviconSize, finalFaviconSize, {
         fit: 'cover', // Cover the entire canvas
-        background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background
+        position: 'center'
       })
       .png()
       .toBuffer();

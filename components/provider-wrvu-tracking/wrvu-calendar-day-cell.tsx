@@ -322,7 +322,7 @@ export function WRVUCalendarDayCell({
         {/* Data indicator dot */}
         {hasData && (
           <div
-            className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary"
+            className="absolute top-4 right-2 w-2 h-2 rounded-full bg-primary"
             aria-label="Has data"
           />
         )}
