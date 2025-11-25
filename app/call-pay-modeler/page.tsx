@@ -72,6 +72,45 @@ export default function CallPayModelerPage() {
   const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
   const [activeStep, setActiveStep] = useState<number>(1);
   const [currentScenarioId, setCurrentScenarioId] = useState<string | null>(null);
+  const [scenarioLoaded, setScenarioLoaded] = useState(false);
+  
+  const STORAGE_KEY = 'callPayModelerDraftState';
+
+  // Auto-save draft state to localStorage whenever inputs change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !scenarioLoaded) {
+      const draftState = {
+        context,
+        tiers,
+        expandedTier,
+        annualAllowableBudget,
+        activeStep,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
+    }
+  }, [context, tiers, expandedTier, annualAllowableBudget, activeStep, scenarioLoaded]);
+
+  // Load draft state on mount (if no scenario is being loaded via URL)
+  useEffect(() => {
+    if (typeof window === 'undefined' || scenarioLoaded) return;
+    
+    try {
+      const savedDraft = localStorage.getItem(STORAGE_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Only load draft if it has meaningful data
+        if (draft.context && (draft.context.specialty || draft.context.providersOnCall > 0)) {
+          setContext(draft.context || DEFAULT_CONTEXT);
+          setTiers(draft.tiers || DEFAULT_TIERS);
+          setExpandedTier(draft.expandedTier || 'C1');
+          setAnnualAllowableBudget(draft.annualAllowableBudget || null);
+          setActiveStep(draft.activeStep || 1);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft state:', error);
+    }
+  }, [scenarioLoaded]);
   
   // Load scenarios on mount
   useEffect(() => {
@@ -173,6 +212,11 @@ export default function CallPayModelerPage() {
     setAnnualAllowableBudget(null);
     setCurrentScenarioId(null); // Clear current scenario
     setActiveStep(1);
+    setScenarioLoaded(false); // Reset scenario loaded flag
+    // Clear draft state
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -218,6 +262,7 @@ export default function CallPayModelerPage() {
                     }
                     setCurrentScenarioId(scenario.id); // Track loaded scenario
                     setActiveStep(3); // Jump to review budget
+                    setScenarioLoaded(true); // Mark scenario as loaded to prevent auto-save overwrite
                   }
                 }}
               />

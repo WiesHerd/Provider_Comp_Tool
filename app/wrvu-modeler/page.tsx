@@ -225,6 +225,57 @@ function WRVUModelerPageContent() {
   const [basePay, setBasePay] = useState(0);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
+  const STORAGE_KEY = 'wrvuModelerDraftState';
+
+  // Auto-save draft state to localStorage whenever inputs change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const draftState = {
+        fte,
+        annualWrvus,
+        monthlyWrvus,
+        monthlyBreakdown,
+        conversionFactor,
+        providerName,
+        specialty,
+        customSpecialty,
+        basePay,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
+    }
+  }, [fte, annualWrvus, monthlyWrvus, monthlyBreakdown, conversionFactor, providerName, specialty, customSpecialty, basePay]);
+
+  // Load draft state on mount (if no scenario is being loaded via URL)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Don't load draft if there's a scenario in URL params
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId) return; // URL scenario will be loaded by the other effect
+    
+    // Load draft state if available
+    try {
+      const savedDraft = localStorage.getItem(STORAGE_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Only load draft if it has meaningful data
+        if (draft.annualWrvus > 0 || draft.basePay > 0 || draft.providerName) {
+          setFte(draft.fte || 1.0);
+          setAnnualWrvus(draft.annualWrvus || 0);
+          setMonthlyWrvus(draft.monthlyWrvus || 0);
+          setMonthlyBreakdown(draft.monthlyBreakdown || Array(12).fill(0));
+          setConversionFactor(draft.conversionFactor || 45.52);
+          setProviderName(draft.providerName || '');
+          setSpecialty(draft.specialty || '');
+          setCustomSpecialty(draft.customSpecialty || '');
+          setBasePay(draft.basePay || 0);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft state:', error);
+    }
+  }, [searchParams]);
+
   // Scale wRVU values when FTE changes
   useEffect(() => {
     const previousFte = previousFteRef.current;
@@ -352,6 +403,10 @@ function WRVUModelerPageContent() {
     setSpecialty('');
     setCustomSpecialty('');
     setBasePay(0);
+    // Clear draft state
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
   return (

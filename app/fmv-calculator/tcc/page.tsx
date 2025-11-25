@@ -39,6 +39,47 @@ function TCCCalculatorPageContent() {
   const [activeStep, setActiveStep] = useState<number>(1);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
+  const STORAGE_KEY = 'fmvTccDraftState';
+
+  // Auto-save draft state to localStorage whenever inputs change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !scenarioLoaded) {
+      const draftState = {
+        specialty,
+        fte,
+        tccComponents,
+        marketBenchmarks,
+        activeStep,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
+    }
+  }, [specialty, fte, tccComponents, marketBenchmarks, activeStep, scenarioLoaded]);
+
+  // Load draft state on mount (if no scenario is being loaded via URL)
+  useEffect(() => {
+    if (typeof window === 'undefined' || scenarioLoaded) return;
+    
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId) return; // URL scenario will be loaded by the other effect
+    
+    try {
+      const savedDraft = localStorage.getItem(STORAGE_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Only load draft if it has meaningful data
+        if (draft.tccComponents && draft.tccComponents.some((c: TCCComponent) => c.amount > 0)) {
+          setSpecialty(draft.specialty || '');
+          setFte(draft.fte || 1.0);
+          setTccComponents(draft.tccComponents || []);
+          setMarketBenchmarks(draft.marketBenchmarks || {});
+          setActiveStep(draft.activeStep || 1);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft state:', error);
+    }
+  }, [searchParams, scenarioLoaded]);
+
   // Calculate total TCC from components
   const totalTcc = tccComponents.reduce((sum, c) => sum + c.amount, 0);
   const normalizedTcc = normalizeTcc(totalTcc, fte);
@@ -72,6 +113,11 @@ function TCCCalculatorPageContent() {
     setMarketBenchmarks({});
     setShowResults(false);
     setActiveStep(1); // Go back to Step 1
+    setScenarioLoaded(false); // Reset scenario loaded flag
+    // Clear draft state
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -100,6 +146,21 @@ function TCCCalculatorPageContent() {
       }
     }
   }, [searchParams, getScenario, scenarioLoaded]);
+
+  // Mark scenario as loaded when loaded via ScenarioLoader
+  const handleScenarioLoad = (scenario: ProviderScenario) => {
+    setFte(scenario.fte);
+    if (scenario.tccComponents && scenario.tccComponents.length > 0) {
+      setTccComponents(scenario.tccComponents);
+    }
+    if (scenario.marketBenchmarks) {
+      setMarketBenchmarks(scenario.marketBenchmarks);
+    }
+    if (scenario.specialty) {
+      setSpecialty(scenario.specialty);
+    }
+    setScenarioLoaded(true);
+  };
 
   // Handle callPay query parameter from call-pay-modeler
   useEffect(() => {
@@ -175,18 +236,7 @@ function TCCCalculatorPageContent() {
             </div>
             <ScenarioLoader
               scenarioType="fmv-tcc"
-              onLoad={(scenario) => {
-                setFte(scenario.fte);
-                if (scenario.tccComponents && scenario.tccComponents.length > 0) {
-                  setTccComponents(scenario.tccComponents);
-                }
-                if (scenario.marketBenchmarks) {
-                  setMarketBenchmarks(scenario.marketBenchmarks);
-                }
-                if (scenario.specialty) {
-                  setSpecialty(scenario.specialty);
-                }
-              }}
+              onLoad={handleScenarioLoad}
             />
           </div>
           

@@ -33,6 +33,51 @@ function WRVUCalculatorPageContent() {
   const [activeStep, setActiveStep] = useState<number>(1);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
+  const STORAGE_KEY = 'fmvWrvuDraftState';
+
+  // Auto-save draft state to localStorage whenever inputs change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !scenarioLoaded) {
+      const draftState = {
+        specialty,
+        annualWrvus,
+        monthlyWrvus,
+        monthlyBreakdown,
+        fte,
+        marketBenchmarks,
+        activeStep,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
+    }
+  }, [specialty, annualWrvus, monthlyWrvus, monthlyBreakdown, fte, marketBenchmarks, activeStep, scenarioLoaded]);
+
+  // Load draft state on mount (if no scenario is being loaded via URL)
+  useEffect(() => {
+    if (typeof window === 'undefined' || scenarioLoaded) return;
+    
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId) return; // URL scenario will be loaded by the other effect
+    
+    try {
+      const savedDraft = localStorage.getItem(STORAGE_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Only load draft if it has meaningful data
+        if (draft.annualWrvus > 0) {
+          setSpecialty(draft.specialty || '');
+          setAnnualWrvus(draft.annualWrvus || 0);
+          setMonthlyWrvus(draft.monthlyWrvus || 0);
+          setMonthlyBreakdown(draft.monthlyBreakdown || Array(12).fill(0));
+          setFte(draft.fte || 1.0);
+          setMarketBenchmarks(draft.marketBenchmarks || {});
+          setActiveStep(draft.activeStep || 1);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft state:', error);
+    }
+  }, [searchParams, scenarioLoaded]);
+
   // Normalize wRVUs to 1.0 FTE for comparison with market benchmarks
   // Market benchmarks are always normalized to 1.0 FTE
   const normalizedWrvus = normalizeWrvus(annualWrvus, fte);
@@ -61,6 +106,11 @@ function WRVUCalculatorPageContent() {
     setMarketBenchmarks({});
     setShowResults(false);
     setActiveStep(1); // Go back to Step 1
+    setScenarioLoaded(false); // Reset scenario loaded flag
+    // Clear draft state
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -170,6 +220,7 @@ function WRVUCalculatorPageContent() {
                 if (scenario.specialty) {
                   setSpecialty(scenario.specialty);
                 }
+                setScenarioLoaded(true);
               }}
             />
           </div>

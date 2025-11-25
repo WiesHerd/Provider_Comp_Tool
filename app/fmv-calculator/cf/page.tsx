@@ -27,6 +27,45 @@ function CFCalculatorPageContent() {
   const [showResults, setShowResults] = useState(false);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
+  const STORAGE_KEY = 'fmvCfDraftState';
+
+  // Auto-save draft state to localStorage whenever inputs change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !scenarioLoaded) {
+      const draftState = {
+        specialty,
+        cfValue,
+        marketBenchmarks,
+        showResults,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
+    }
+  }, [specialty, cfValue, marketBenchmarks, showResults, scenarioLoaded]);
+
+  // Load draft state on mount (if no scenario is being loaded via URL)
+  useEffect(() => {
+    if (typeof window === 'undefined' || scenarioLoaded) return;
+    
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId) return; // URL scenario will be loaded by the other effect
+    
+    try {
+      const savedDraft = localStorage.getItem(STORAGE_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Only load draft if it has meaningful data
+        if (draft.cfValue > 0) {
+          setSpecialty(draft.specialty || '');
+          setCfValue(draft.cfValue || 0);
+          setMarketBenchmarks(draft.marketBenchmarks || {});
+          setShowResults(draft.showResults || false);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading draft state:', error);
+    }
+  }, [searchParams, scenarioLoaded]);
+
   const percentile = calculateCFPercentile(cfValue, marketBenchmarks);
 
   const formatValue = (value: number) => {
@@ -69,6 +108,11 @@ function CFCalculatorPageContent() {
     setCfValue(0);
     setMarketBenchmarks({});
     setShowResults(false);
+    setScenarioLoaded(false); // Reset scenario loaded flag
+    // Clear draft state
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -165,6 +209,7 @@ function CFCalculatorPageContent() {
                   if (scenario.specialty) {
                     setSpecialty(scenario.specialty);
                   }
+                  setScenarioLoaded(true);
                 }}
               />
             </div>
