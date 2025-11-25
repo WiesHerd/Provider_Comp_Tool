@@ -63,7 +63,7 @@ export function WorkSchedulePanel({
         <Label className="text-sm font-semibold mb-3 block">Shift Types</Label>
         
         {/* Headers - shown on all screens */}
-        <div className="grid grid-cols-[140px_80px_80px_44px] sm:grid-cols-[1fr_100px_120px_44px] gap-2 mb-2">
+        <div className="grid grid-cols-[180px_80px_80px_44px] sm:grid-cols-[1fr_100px_120px_44px] gap-2 mb-2">
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Shift Name</Label>
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Hours</Label>
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Per Week</Label>
@@ -72,13 +72,13 @@ export function WorkSchedulePanel({
         
         <div className="space-y-2 sm:space-y-3">
           {inputs.shifts.map((shift, index) => (
-            <div key={shift.id} className="grid grid-cols-[140px_80px_80px_44px] sm:grid-cols-[1fr_100px_120px_44px] gap-2 items-center p-2 sm:p-0 rounded-lg border border-gray-200 dark:border-gray-700 sm:border-0 bg-gray-50 dark:bg-gray-800/50 sm:bg-transparent">
+            <div key={shift.id} className="grid grid-cols-[180px_80px_80px_44px] sm:grid-cols-[1fr_100px_120px_44px] gap-2 items-center p-2 sm:p-0 rounded-lg border border-gray-200 dark:border-gray-700 sm:border-0 bg-gray-50 dark:bg-gray-800/50 sm:bg-transparent">
               {/* Shift Name */}
               <Input
                 value={shift.name}
                 onChange={(e) => onShiftChange(index, 'name', e.target.value)}
                 placeholder="Shift name"
-                className="w-full text-sm sm:text-base"
+                className="w-full text-sm sm:text-base truncate"
               />
               
               {/* Hours */}
