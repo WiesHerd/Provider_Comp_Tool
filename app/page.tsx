@@ -21,7 +21,7 @@ export default function Home() {
                   <div>
                     <CardTitle className="text-base sm:text-lg">Productivity Incentive Calculator</CardTitle>
                     <CardDescription>
-                      Estimate wRVUs and productivity incentives
+                      Calculate bonus pay based on how many patients you see. Perfect for reviewing productivity-based contracts.
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -37,7 +37,7 @@ export default function Home() {
                   <div>
                     <CardTitle className="text-base sm:text-lg">Schedule-Based Productivity Calculator</CardTitle>
                     <CardDescription>
-                      Forecast annual wRVUs and compensation based on schedule
+                      See how your schedule translates to pay. Enter shifts and patient visits to forecast annual compensation.
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -53,7 +53,7 @@ export default function Home() {
                   <div>
                     <CardTitle className="text-base sm:text-lg">FMV Calculator</CardTitle>
                     <CardDescription>
-                      Fast FMV reasonableness checks and percentile analysis
+                      Check if an offer is fair by comparing to market data. Use before signing contracts or making offers.
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -69,7 +69,7 @@ export default function Home() {
                   <div>
                     <CardTitle className="text-base sm:text-lg">Call Pay Modeler</CardTitle>
                     <CardDescription>
-                      Model call-pay structures with annualized outputs
+                      Model call pay schedules and calculate total costs. Perfect for planning call coverage compensation.
                     </CardDescription>
                   </div>
                 </CardHeader>
