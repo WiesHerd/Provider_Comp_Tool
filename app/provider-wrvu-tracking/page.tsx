@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { startOfMonth, format, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { startOfMonth, format, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
+import { cn } from '@/lib/utils/cn';
 import { WRVUCalendarView } from '@/components/provider-wrvu-tracking/wrvu-calendar-view';
 import { WRVUMonthlySummary } from '@/components/provider-wrvu-tracking/wrvu-monthly-summary';
 import { WRVUTrackingActions } from '@/components/provider-wrvu-tracking/wrvu-tracking-actions';
@@ -10,7 +11,7 @@ import { WRVUCharts } from '@/components/provider-wrvu-tracking/wrvu-charts';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Stethoscope, Check } from 'lucide-react';
+import { User, Stethoscope, Check, X } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -230,6 +231,74 @@ export default function ProviderWRVUTrackingPage() {
   const monthKey = format(currentDate, 'yyyy-MM');
   const currentGoals = state.goals?.[monthKey];
 
+  // Get all months that have data (patients or wRVUs)
+  const monthsWithData = useMemo(() => {
+    const monthSet = new Set<string>();
+    
+    Object.keys(state.dailyData).forEach((dateStr) => {
+      const data = state.dailyData[dateStr];
+      if (data && (data.patients > 0 || data.workRVUs > 0)) {
+        try {
+          const date = parseISO(dateStr);
+          const monthKey = format(startOfMonth(date), 'yyyy-MM');
+          monthSet.add(monthKey);
+        } catch (e) {
+          // Skip invalid dates
+        }
+      }
+    });
+
+    // Also include months with goals
+    Object.keys(state.goals || {}).forEach((monthKey) => {
+      monthSet.add(monthKey);
+    });
+
+    // Sort months (newest first)
+    return Array.from(monthSet)
+      .map((monthKey) => {
+        const [year, month] = monthKey.split('-').map(Number);
+        return new Date(year, month - 1, 1);
+      })
+      .sort((a, b) => b.getTime() - a.getTime())
+      .slice(0, 12); // Show up to 12 most recent months
+  }, [state.dailyData, state.goals]);
+
+  const handleMonthButtonClick = (monthDate: Date) => {
+    handleMonthChange(monthDate);
+  };
+
+  const handleDeleteMonth = (monthDate: Date, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
+    
+    const monthKey = format(monthDate, 'yyyy-MM');
+    const monthStart = startOfMonth(monthDate);
+    const monthEnd = endOfMonth(monthDate);
+    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    
+    // Confirm deletion
+    if (window.confirm(`Delete all data for ${format(monthDate, 'MMM yyyy')}? This cannot be undone.`)) {
+      setState((prev) => {
+        const newDailyData = { ...prev.dailyData };
+        const newGoals = { ...prev.goals };
+        
+        // Remove all days in this month from dailyData
+        monthDays.forEach((day) => {
+          const dateStr = formatDateString(day);
+          delete newDailyData[dateStr];
+        });
+        
+        // Remove goals for this month
+        delete newGoals[monthKey];
+        
+        return {
+          ...prev,
+          dailyData: newDailyData,
+          goals: newGoals,
+        };
+      });
+    }
+  };
+
   return (
     <div className="w-full px-3 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
       {/* Save Notification */}
@@ -327,6 +396,63 @@ export default function ProviderWRVUTrackingPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Month Navigation Buttons - Show saved months */}
+      {monthsWithData.length > 0 && (
+        <Card className="mb-6 border-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+              Saved Months
+            </CardTitle>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              Quick navigation to months with saved data
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {monthsWithData.map((monthDate) => {
+                const monthKey = format(monthDate, 'yyyy-MM');
+                const isActive = monthKey === format(currentDate, 'yyyy-MM');
+                const monthLabel = format(monthDate, 'MMM yyyy');
+                
+                return (
+                  <div
+                    key={monthKey}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-sm whitespace-nowrap',
+                      'transition-all duration-150',
+                      'min-h-[44px] touch-manipulation',
+                      isActive
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                    )}
+                  >
+                    <button
+                      onClick={() => handleMonthButtonClick(monthDate)}
+                      className="flex-1 text-left"
+                      aria-label={`Navigate to ${monthLabel}`}
+                    >
+                      {monthLabel}
+                    </button>
+                    <button
+                      onClick={(e) => handleDeleteMonth(monthDate, e)}
+                      className={cn(
+                        'p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors',
+                        'min-w-[24px] min-h-[24px] flex items-center justify-center',
+                        isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                      )}
+                      aria-label={`Delete ${monthLabel}`}
+                      title={`Delete ${monthLabel}`}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Goal Tracking */}
       <div className="mb-6">

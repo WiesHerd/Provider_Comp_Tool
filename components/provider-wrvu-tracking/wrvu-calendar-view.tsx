@@ -199,93 +199,100 @@ export function WRVUCalendarView({
             </div>
 
             {/* Navigation controls */}
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handlePrevious}
-                aria-label="Previous"
-                className="h-9 w-9 p-0"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </Button>
-              
-              {/* Month/Year Picker */}
-              <Select
-                value={format(currentDate, 'yyyy-MM')}
-                onValueChange={(value) => {
-                  const [year, month] = value.split('-').map(Number);
-                  const newDate = new Date(year, month - 1, 1);
-                  setCurrentDate(newDate);
-                  if (onMonthChange) {
-                    onMonthChange(newDate);
-                  }
-                }}
-              >
-                <SelectTrigger className="h-9 w-[140px] text-sm">
-                  <CalendarDays className="w-4 h-4 mr-2" />
-                  <SelectValue>
-                    {format(currentDate, 'MMM yyyy')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  {Array.from({ length: 24 }, (_, i) => {
-                    const date = new Date();
-                    date.setMonth(date.getMonth() - 12 + i);
-                    const year = date.getFullYear();
-                    const month = date.getMonth() + 1;
-                    const monthYear = `${year}-${String(month).padStart(2, '0')}`;
-                    const monthName = format(date, 'MMM yyyy'); // Changed to abbreviated
-                    return (
-                      <SelectItem key={monthYear} value={monthYear}>
-                        {monthName}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-              
-              <Button
-                type="button"
-                variant={isViewingToday ? "default" : "outline"}
-                size="sm"
-                onClick={handleToday}
-                className="h-9 px-4 font-medium"
-              >
-                Today
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleNext}
-                aria-label="Next"
-                className="h-9 w-9 p-0"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </Button>
-              
-              {/* View mode toggle - Mobile */}
-              <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 ml-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+              {/* First row: Navigation arrows and month picker */}
+              <div className="flex items-center gap-2 flex-1 sm:flex-initial">
                 <Button
                   type="button"
-                  variant={viewMode === 'week' ? 'default' : 'ghost'}
+                  variant="outline"
                   size="sm"
-                  onClick={() => setViewMode('week')}
-                  className="min-w-[60px] h-8 px-2"
+                  onClick={handlePrevious}
+                  aria-label="Previous"
+                  className="h-9 w-9 p-0 flex-shrink-0"
                 >
-                  <Calendar className="w-3.5 h-3.5" />
+                  <ChevronLeft className="w-5 h-5" />
                 </Button>
+                
+                {/* Month/Year Picker */}
+                <Select
+                  value={format(currentDate, 'yyyy-MM')}
+                  onValueChange={(value) => {
+                    const [year, month] = value.split('-').map(Number);
+                    const newDate = new Date(year, month - 1, 1);
+                    setCurrentDate(newDate);
+                    if (onMonthChange) {
+                      onMonthChange(newDate);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-9 flex-1 sm:w-[140px] text-sm">
+                    <CalendarDays className="w-4 h-4 mr-2" />
+                    <SelectValue>
+                      {format(currentDate, 'MMM yyyy')}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {Array.from({ length: 24 }, (_, i) => {
+                      const date = new Date();
+                      date.setMonth(date.getMonth() - 12 + i);
+                      const year = date.getFullYear();
+                      const month = date.getMonth() + 1;
+                      const monthYear = `${year}-${String(month).padStart(2, '0')}`;
+                      const monthName = format(date, 'MMM yyyy'); // Changed to abbreviated
+                      return (
+                        <SelectItem key={monthYear} value={monthYear}>
+                          {monthName}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                
                 <Button
                   type="button"
-                  variant={viewMode === 'month' ? 'default' : 'ghost'}
+                  variant="outline"
                   size="sm"
-                  onClick={() => setViewMode('month')}
-                  className="min-w-[60px] h-8 px-2"
+                  onClick={handleNext}
+                  aria-label="Next"
+                  className="h-9 w-9 p-0 flex-shrink-0"
                 >
-                  <Grid className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-5 h-5" />
                 </Button>
+              </div>
+              
+              {/* Second row on mobile: Today button and view mode toggle */}
+              <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                <Button
+                  type="button"
+                  variant={isViewingToday ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleToday}
+                  className="h-9 px-4 font-medium flex-1 sm:flex-initial"
+                >
+                  Today
+                </Button>
+                
+                {/* View mode toggle - Mobile */}
+                <div className="sm:hidden flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 flex-shrink-0">
+                  <Button
+                    type="button"
+                    variant={viewMode === 'week' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('week')}
+                    className="min-w-[60px] h-8 px-2"
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={viewMode === 'month' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('month')}
+                    className="min-w-[60px] h-8 px-2"
+                  >
+                    <Grid className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

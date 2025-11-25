@@ -33,36 +33,55 @@ async function generateIcons() {
       process.exit(1);
     }
 
-    console.log('Generating PWA icons from New Image.png with rounded corners...');
+    console.log('Generating bold, mobile-first PWA icons (Coinbase/Snapchat style)...');
 
     // Generate each icon size
     for (const size of iconSizes) {
       const outputPath = path.join(iconsDir, `icon-${size}x${size}.png`);
-      // Calculate border radius: rounded-xl is ~12px, scale proportionally
-      // For 512px icon, 12px radius = ~2.3% of size
-      const radius = Math.round(size * 0.023);
       
-      // Resize the logo
+      // For maskable icons, use safe zone (80% of icon size)
+      // The outer 20% (10% on each side) will be cropped by the system mask
+      // Logo should be prominent but safe from cropping
+      const safeZoneSize = Math.round(size * 0.80); // 80% safe zone
+      const padding = Math.round(size * 0.10); // 10% padding on each side
+      
+      // Resize the logo to fit within the safe zone - make it bold and prominent
+      const logoSize = safeZoneSize;
       const resized = await sharp(logoPath)
-        .resize(size, size, {
+        .resize(logoSize, logoSize, {
           fit: 'contain',
           background: { r: 255, g: 255, b: 255, alpha: 0 } // Transparent background
         })
         .toBuffer();
       
-      // Create rounded mask
-      const mask = await sharp(createRoundedMask(size, radius))
-        .resize(size, size)
-        .greyscale()
+      // Create a solid, vibrant background like Coinbase/Snapchat style
+      // Use the primary green color (#00C805) - bold and recognizable
+      const solidBg = await sharp({
+        create: {
+          width: size,
+          height: size,
+          channels: 4,
+          background: { r: 0, g: 200, b: 5, alpha: 1 } // Primary green #00C805
+        }
+      })
+        .png()
         .toBuffer();
       
-      // Apply rounded corners using composite
-      await sharp(resized)
-        .composite([{ input: mask, blend: 'dest-in' }])
+      // Composite the logo on top of the solid background
+      // Center it perfectly with proper padding
+      await sharp(solidBg)
+        .composite([
+          {
+            input: resized,
+            left: padding,
+            top: padding,
+            blend: 'over'
+          }
+        ])
         .png()
         .toFile(outputPath);
       
-      console.log(`✓ Generated icon-${size}x${size}.png with ${radius}px rounded corners`);
+      console.log(`✓ Generated bold icon-${size}x${size}.png with ${padding}px safe zone (solid green background, mobile-optimized)`);
     }
 
     // Generate favicon with rounded corners (larger size for better quality)
