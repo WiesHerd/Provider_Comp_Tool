@@ -33,20 +33,22 @@ async function generateIcons() {
       process.exit(1);
     }
 
-    console.log('Generating bold, mobile-first PWA icons (Coinbase/Snapchat style)...');
+    console.log('Generating beautiful circular badge PWA icons (mobile-first design)...');
 
     // Generate each icon size
     for (const size of iconSizes) {
       const outputPath = path.join(iconsDir, `icon-${size}x${size}.png`);
       
-      // For maskable icons, use safe zone (80% of icon size)
-      // The outer 20% (10% on each side) will be cropped by the system mask
-      // Logo should be prominent but safe from cropping
-      const safeZoneSize = Math.round(size * 0.80); // 80% safe zone
-      const padding = Math.round(size * 0.10); // 10% padding on each side
+      // For circular badge design:
+      // - Circle takes up 85% of icon (safe zone)
+      // - Logo inside circle takes up 60% of circle size
+      // - This ensures nothing gets cut off
+      const circleSize = Math.round(size * 0.85); // 85% safe zone for the circle
+      const circlePadding = Math.round((size - circleSize) / 2); // Center the circle
+      const logoSize = Math.round(circleSize * 0.60); // Logo is 60% of circle
+      const logoPadding = Math.round((circleSize - logoSize) / 2); // Center logo in circle
       
-      // Resize the logo to fit within the safe zone - make it bold and prominent
-      const logoSize = safeZoneSize;
+      // Resize the logo to fit inside the circle
       const resized = await sharp(logoPath)
         .resize(logoSize, logoSize, {
           fit: 'contain',
@@ -54,34 +56,48 @@ async function generateIcons() {
         })
         .toBuffer();
       
-      // Create a solid, vibrant background like Coinbase/Snapchat style
-      // Use the primary green color (#00C805) - bold and recognizable
-      const solidBg = await sharp({
+      // Create a white background
+      const whiteBg = await sharp({
         create: {
           width: size,
           height: size,
           channels: 4,
-          background: { r: 0, g: 200, b: 5, alpha: 1 } // Primary green #00C805
+          background: { r: 255, g: 255, b: 255, alpha: 1 } // White background
         }
       })
         .png()
         .toBuffer();
       
-      // Composite the logo on top of the solid background
-      // Center it perfectly with proper padding
-      await sharp(solidBg)
+      // Create a circular badge with primary green color
+      const circleSvg = `
+        <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="${size/2}" cy="${size/2}" r="${circleSize/2}" fill="#00C805"/>
+        </svg>
+      `;
+      
+      const circleBadge = await sharp(Buffer.from(circleSvg))
+        .resize(size, size)
+        .png()
+        .toBuffer();
+      
+      // Composite: white background -> green circle -> logo
+      await sharp(whiteBg)
         .composite([
           {
+            input: circleBadge,
+            blend: 'over'
+          },
+          {
             input: resized,
-            left: padding,
-            top: padding,
+            left: circlePadding + logoPadding,
+            top: circlePadding + logoPadding,
             blend: 'over'
           }
         ])
         .png()
         .toFile(outputPath);
       
-      console.log(`✓ Generated bold icon-${size}x${size}.png with ${padding}px safe zone (solid green background, mobile-optimized)`);
+      console.log(`✓ Generated circular badge icon-${size}x${size}.png (green circle, white background, mobile-optimized)`);
     }
 
     // Generate favicon with rounded corners (larger size for better quality)
