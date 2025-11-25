@@ -253,14 +253,13 @@ export function Header() {
         quality={100}
         unoptimized
       />
+      {/* Static subtle background glow - no animation */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-400 to-green-400 dark:from-blue-500 dark:to-green-500 rounded-xl opacity-15 dark:opacity-12 blur-sm animate-pulse-slow"
+        className="absolute inset-0 bg-gradient-to-br from-blue-400 to-green-400 dark:from-blue-500 dark:to-green-500 rounded-xl opacity-10 dark:opacity-8 blur-sm"
         style={{
           filter: 'blur(8px)',
         }}
       />
-      {/* Subtle glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent rounded-xl opacity-0 dark:opacity-0 transition-opacity duration-300" />
     </div>
   );
 
