@@ -139,12 +139,13 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
                     type="button"
                     onClick={(e) => handleDeleteClick(scenario, e)}
                     className={cn(
-                      "opacity-0 group-hover/item:opacity-100",
-                      "transition-opacity ml-2 p-1.5 rounded",
+                      "ml-2 p-1.5 rounded",
                       "hover:bg-red-50 dark:hover:bg-red-900/20",
+                      "active:bg-red-100 dark:active:bg-red-900/30",
                       "text-red-600 dark:text-red-500",
                       "shrink-0",
-                      "touch-manipulation"
+                      "touch-manipulation",
+                      "min-w-[32px] min-h-[32px] flex items-center justify-center"
                     )}
                     title="Delete model"
                     aria-label={`Delete model ${scenario.name}`}

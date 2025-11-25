@@ -38,6 +38,24 @@ export function CallPaySaveButton({ context, tiers, impact, annualAllowableBudge
     }
   }, [currentScenarioId, getScenario]);
 
+  // Pre-fill name for new saves
+  useEffect(() => {
+    if (open && !currentScenarioId && !name.trim()) {
+      const year = context.modelYear || new Date().getFullYear();
+      let suggestedName = '';
+      
+      if (context.specialty) {
+        suggestedName = `${context.specialty} Call Coverage ${year}`;
+      } else if (context.serviceLine) {
+        suggestedName = `${context.serviceLine} Call Coverage ${year}`;
+      } else {
+        suggestedName = `Call Coverage ${year}`;
+      }
+      
+      setName(suggestedName);
+    }
+  }, [open, currentScenarioId, context.specialty, context.serviceLine, context.modelYear, name]);
+
   const handleEmailReport = () => {
     if (onEmailReport) {
       onEmailReport();

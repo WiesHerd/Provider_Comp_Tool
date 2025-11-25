@@ -303,6 +303,7 @@ function CFCalculatorPageContent() {
                   value={cfValue}
                   benchmarks={marketBenchmarks}
                   percentile={percentile}
+                  specialty={specialty}
                 />
               </div>
               <Button

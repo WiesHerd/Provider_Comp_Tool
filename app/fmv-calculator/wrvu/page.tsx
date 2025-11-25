@@ -347,6 +347,7 @@ function WRVUCalculatorPageContent() {
                   value={normalizedWrvus}
                   benchmarks={marketBenchmarks}
                   percentile={percentile}
+                  specialty={specialty}
                   fte={fte}
                 />
               </div>

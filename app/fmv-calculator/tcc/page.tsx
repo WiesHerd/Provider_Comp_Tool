@@ -381,6 +381,7 @@ function TCCCalculatorPageContent() {
                   value={normalizedTcc}
                   benchmarks={marketBenchmarks}
                   percentile={percentile}
+                  specialty={specialty}
                   tccComponents={tccComponents}
                   fte={fte}
                   totalTcc={totalTcc}

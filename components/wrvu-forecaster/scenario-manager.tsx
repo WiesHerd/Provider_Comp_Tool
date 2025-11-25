@@ -35,10 +35,73 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
   const [scenarioName, setScenarioName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [existingScenarioId, setExistingScenarioId] = useState<string | null>(null);
 
   useEffect(() => {
     loadScenarios();
   }, []);
+
+  // Pre-fill name and check for existing scenario when dialog opens
+  useEffect(() => {
+    if (showSaveDialog && !scenarioName.trim()) {
+      // Generate suggested name
+      const providerName = inputs.providerName?.trim() || '';
+      const specialty = inputs.specialty === 'Other' ? inputs.customSpecialty?.trim() : inputs.specialty?.trim() || '';
+      
+      let suggestedName = '';
+      
+      if (providerName && specialty) {
+        suggestedName = `${providerName} - ${specialty}`;
+      } else if (providerName) {
+        suggestedName = `${providerName} - Forecast`;
+      } else if (specialty) {
+        suggestedName = `${specialty} - Forecast`;
+      } else {
+        suggestedName = 'WRVU Forecast';
+      }
+      
+      setScenarioName(suggestedName);
+
+      // Check for existing scenario matching providerName and specialty
+      const existing = savedScenarios.find(scenario => {
+        const scenarioProviderName = scenario.providerName?.trim() || '';
+        const scenarioSpecialty = scenario.specialty?.trim() || '';
+        
+        const providerMatch = !providerName || scenarioProviderName === providerName;
+        const specialtyMatch = !specialty || scenarioSpecialty === specialty;
+        
+        // If both are provided, both must match; if only one, that one must match
+        if (providerName && specialty) {
+          return providerMatch && specialtyMatch;
+        } else if (providerName) {
+          return providerMatch;
+        } else if (specialty) {
+          return specialtyMatch;
+        }
+        
+        return false;
+      });
+
+      if (existing) {
+        setIsUpdating(true);
+        setExistingScenarioId(existing.id);
+        setScenarioName(existing.name);
+      } else {
+        setIsUpdating(false);
+        setExistingScenarioId(null);
+      }
+    }
+  }, [showSaveDialog, inputs.providerName, inputs.specialty, inputs.customSpecialty, savedScenarios, scenarioName]);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!showSaveDialog) {
+      setScenarioName('');
+      setIsUpdating(false);
+      setExistingScenarioId(null);
+    }
+  }, [showSaveDialog]);
 
   const loadScenarios = () => {
     if (typeof window === 'undefined') return;
@@ -55,20 +118,35 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
   const handleSaveScenario = () => {
     if (!scenarioName.trim()) return;
 
-    const newScenario: WRVUForecasterScenario = {
-      id: `scenario-${Date.now()}`,
+    const scenarioData: WRVUForecasterScenario = {
+      id: existingScenarioId || `scenario-${Date.now()}`,
       name: scenarioName.trim(),
       providerName: inputs.providerName,
       specialty: inputs.specialty === 'Other' ? inputs.customSpecialty : inputs.specialty,
       inputs: { ...inputs },
       metrics: { ...metrics },
-      date: new Date().toLocaleDateString(),
+      date: existingScenarioId 
+        ? savedScenarios.find(s => s.id === existingScenarioId)?.date || new Date().toLocaleDateString()
+        : new Date().toLocaleDateString(),
     };
 
-    const updatedScenarios = [...savedScenarios, newScenario];
+    let updatedScenarios: WRVUForecasterScenario[];
+    
+    if (existingScenarioId && isUpdating) {
+      // Update existing scenario
+      updatedScenarios = savedScenarios.map(s => 
+        s.id === existingScenarioId ? scenarioData : s
+      );
+    } else {
+      // Add new scenario
+      updatedScenarios = [...savedScenarios, scenarioData];
+    }
+    
     setSavedScenarios(updatedScenarios);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScenarios));
     setScenarioName('');
+    setIsUpdating(false);
+    setExistingScenarioId(null);
     setShowSaveDialog(false);
   };
 
@@ -179,9 +257,13 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
           <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-6 max-w-md w-[90vw] max-h-[90vh] overflow-y-auto z-50 shadow-xl safe-area-inset">
-            <Dialog.Title className="text-lg sm:text-xl font-bold mb-2">Save Current Scenario</Dialog.Title>
+            <Dialog.Title className="text-lg sm:text-xl font-bold mb-2">
+              {isUpdating ? 'Update Scenario' : 'Save Current Scenario'}
+            </Dialog.Title>
             <Dialog.Description className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Enter a name for this scenario to save the current settings and calculations.
+              {isUpdating 
+                ? `Update the name or save as a new scenario. Current scenario: "${scenarioName}"`
+                : 'Enter a name for this scenario to save the current settings and calculations.'}
             </Dialog.Description>
             <Input
               value={scenarioName}
@@ -198,6 +280,32 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
               <Dialog.Close asChild>
                 <Button variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target">Cancel</Button>
               </Dialog.Close>
+              {isUpdating && (
+                <Button 
+                  onClick={() => {
+                    setIsUpdating(false);
+                    setExistingScenarioId(null);
+                    // Regenerate suggested name
+                    const providerName = inputs.providerName?.trim() || '';
+                    const specialty = inputs.specialty === 'Other' ? inputs.customSpecialty?.trim() : inputs.specialty?.trim() || '';
+                    let suggestedName = '';
+                    if (providerName && specialty) {
+                      suggestedName = `${providerName} - ${specialty}`;
+                    } else if (providerName) {
+                      suggestedName = `${providerName} - Forecast`;
+                    } else if (specialty) {
+                      suggestedName = `${specialty} - Forecast`;
+                    } else {
+                      suggestedName = 'WRVU Forecast';
+                    }
+                    setScenarioName(suggestedName);
+                  }} 
+                  variant="outline"
+                  className="w-full sm:w-auto min-h-[44px] touch-target"
+                >
+                  Save as New
+                </Button>
+              )}
               <Button
                 onClick={() => {
                   handleSaveScenario();
@@ -205,7 +313,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
                 disabled={!scenarioName.trim()}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                Save
+                {isUpdating ? 'Update' : 'Save'}
               </Button>
             </div>
           </Dialog.Content>
