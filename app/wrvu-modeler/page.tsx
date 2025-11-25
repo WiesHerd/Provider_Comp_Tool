@@ -77,6 +77,7 @@ interface ResultsStepContentProps {
   normalizedWrvus: number;
   normalizedProductivityPay: number;
   fte: FTE;
+  basePay: number;
   providerName: string;
   specialty: string;
   customSpecialty: string;
@@ -92,6 +93,7 @@ function ResultsStepContent({
   normalizedWrvus,
   normalizedProductivityPay,
   fte,
+  basePay,
   providerName,
   specialty,
   customSpecialty,
@@ -105,6 +107,9 @@ function ResultsStepContent({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Calculate 1.0 FTE projections
+  const normalizedBasePay = fte > 0 ? basePay / fte : 0;
+
   return (
     <div className="space-y-6" data-tour="wrvu-results">
       <div className="flex items-center justify-between pb-4 border-b-2 border-gray-200 dark:border-gray-800">
@@ -114,6 +119,11 @@ function ResultsStepContent({
         {/* KPI Chips */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <KPIChip
+            label="Base Pay"
+            value={basePay}
+            unit="$"
+          />
+          <KPIChip
             label="Productivity Incentive"
             value={productivityPay}
             unit="$"
@@ -121,12 +131,6 @@ function ResultsStepContent({
           <KPIChip
             label="Annual wRVUs"
             value={annualWrvus}
-          />
-          <KPIChip
-            label="Conversion Factor"
-            value={conversionFactor}
-            unit="$"
-            unitBelow="/wRVU"
           />
         </div>
 
@@ -143,21 +147,39 @@ function ResultsStepContent({
           </div>
         )}
 
-        {/* Additional Metrics */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Normalized wRVUs (1.0 FTE)</span>
-            <span className="font-semibold text-lg text-primary">
-              {normalizedWrvus.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-            </span>
+        {/* 1.0 FTE Projections - Only show if FTE < 1.0 */}
+        {fte < 1.0 && (
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Projected at 1.0 FTE (Full-Time)
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Work RVUs at 1.0 FTE</span>
+                <span className="font-semibold text-lg text-primary">
+                  {normalizedWrvus.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Base Pay at 1.0 FTE</span>
+                <span className="font-semibold text-lg text-primary">
+                  ${normalizedBasePay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Productivity Incentive at 1.0 FTE</span>
+                <span className={cn(
+                  "font-semibold text-lg",
+                  normalizedProductivityPay < 0 
+                    ? "text-red-600 dark:text-red-400" 
+                    : "text-primary"
+                )}>
+                  {normalizedProductivityPay < 0 ? '-' : ''}${Math.abs(normalizedProductivityPay).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Normalized Productivity Pay (1.0 FTE)</span>
-            <span className="font-semibold text-lg text-primary">
-              ${normalizedProductivityPay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
+        )}
 
         {/* Save and Start Over Buttons */}
         <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
@@ -168,6 +190,7 @@ function ResultsStepContent({
                 annualWrvus={annualWrvus}
                 conversionFactor={conversionFactor}
                 productivityPay={productivityPay}
+                basePay={basePay}
                 providerName={providerName.trim() || undefined}
                 specialty={specialty === 'Other' ? (customSpecialty.trim() || undefined) : (specialty || undefined)}
               />
@@ -199,6 +222,7 @@ function WRVUModelerPageContent() {
   const [providerName, setProviderName] = useState('');
   const [specialty, setSpecialty] = useState<string>('');
   const [customSpecialty, setCustomSpecialty] = useState('');
+  const [basePay, setBasePay] = useState(0);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
   // Scale wRVU values when FTE changes
@@ -240,9 +264,11 @@ function WRVUModelerPageContent() {
   }, [fte]);
 
   // Calculations
-  const productivityPay = annualWrvus * conversionFactor;
+  // Productivity incentive can be negative (showing shortfall from base pay)
+  const productivityPay = (annualWrvus * conversionFactor) - basePay;
   const normalizedWrvus = normalizeWrvus(annualWrvus, fte);
-  const normalizedProductivityPay = normalizeTcc(productivityPay, fte);
+  const normalizedBasePay = fte > 0 ? basePay / fte : 0;
+  const normalizedProductivityPay = (normalizedWrvus * conversionFactor) - normalizedBasePay;
   const productivityPerWrvu = annualWrvus > 0 ? productivityPay / annualWrvus : 0;
 
   // Validation functions
@@ -286,8 +312,15 @@ function WRVUModelerPageContent() {
         setCustomSpecialty(scenario.specialty);
       }
     }
-    // Load conversion factor from TCC components if available
+    // Load base pay and conversion factor from TCC components if available
     if (scenario.tccComponents && scenario.tccComponents.length > 0) {
+      const baseSalaryComponent = scenario.tccComponents.find(
+        c => c.type === 'Base Salary'
+      );
+      if (baseSalaryComponent) {
+        setBasePay(baseSalaryComponent.amount);
+      }
+      
       const productivityComponent = scenario.tccComponents.find(
         c => c.type === 'Productivity Incentive'
       );
@@ -318,13 +351,14 @@ function WRVUModelerPageContent() {
     setProviderName('');
     setSpecialty('');
     setCustomSpecialty('');
+    setBasePay(0);
   };
 
   return (
     <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8">
       <ProgressiveForm
         totalSteps={4}
-        stepNames={['Provider Info', 'FTE & wRVUs', 'Conversion Factor', 'Results']}
+        stepNames={['Provider Info', 'Work RVUs', 'Conversion Factor', 'Results']}
         validateStep={(step) => {
           if (step === 1) return validateStep1();
           if (step === 2) return validateStep2();
@@ -344,16 +378,24 @@ function WRVUModelerPageContent() {
                   onLoad={handleLoadScenario}
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Provider Name</Label>
-                  <Input
-                    value={providerName}
-                    onChange={(e) => setProviderName(e.target.value)}
-                    placeholder="Enter name"
-                    icon={<User className="w-5 h-5" />}
-                  />
+              <div className="space-y-4">
+                {/* Provider Name and FTE - side by side on larger screens, stack on mobile */}
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                  <div className="flex-1 w-full sm:w-auto space-y-2 min-w-0">
+                    <Label className="text-sm font-semibold">Provider Name</Label>
+                    <Input
+                      value={providerName}
+                      onChange={(e) => setProviderName(e.target.value)}
+                      placeholder="Enter name"
+                      icon={<User className="w-5 h-5" />}
+                    />
+                  </div>
+                  <div className="w-full sm:w-auto sm:flex-shrink-0" data-tour="wrvu-fte">
+                    <FTEInput value={fte} onChange={setFte} />
+                  </div>
                 </div>
+                
+                {/* Specialty */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Specialty</Label>
                   <Select value={specialty} onValueChange={(value) => {
@@ -404,29 +446,40 @@ function WRVUModelerPageContent() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              {specialty === 'Other' && (
+                
+                {specialty === 'Other' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">Custom Specialty</Label>
+                    <Input
+                      value={customSpecialty}
+                      onChange={(e) => setCustomSpecialty(e.target.value)}
+                      placeholder="Enter custom specialty"
+                      icon={<Stethoscope className="w-5 h-5" />}
+                    />
+                  </div>
+                )}
+                
+                {/* Base Pay Compensation */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Custom Specialty</Label>
-                  <Input
-                    value={customSpecialty}
-                    onChange={(e) => setCustomSpecialty(e.target.value)}
-                    placeholder="Enter custom specialty"
-                    icon={<Stethoscope className="w-5 h-5" />}
+                  <Label className="text-sm font-semibold">Base Pay Compensation</Label>
+                  <CurrencyInput
+                    value={basePay}
+                    onChange={setBasePay}
+                    placeholder="0.00"
+                    className="min-h-[44px] touch-target"
                   />
                 </div>
-              )}
+              </div>
             </div>
           </div>
-          <ProgressiveFormNavigation nextLabel="FTE & wRVUs" />
+          <ProgressiveFormNavigation nextLabel="Work RVUs" />
         </ProgressiveFormStep>
 
-        {/* Step 2: FTE & wRVUs */}
+        {/* Step 2: Work RVUs */}
         <ProgressiveFormStep step={2}>
           <div className="space-y-6">
-            <div className="flex items-center justify-between" data-tour="wrvu-fte">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">FTE & wRVUs</h3>
-              <FTEInput value={fte} onChange={setFte} />
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Work RVUs</h3>
             </div>
 
             <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800" data-tour="wrvu-input">
@@ -475,6 +528,7 @@ function WRVUModelerPageContent() {
             normalizedWrvus={normalizedWrvus}
             normalizedProductivityPay={normalizedProductivityPay}
             fte={fte}
+            basePay={basePay}
             providerName={providerName}
             specialty={specialty}
             customSpecialty={customSpecialty}

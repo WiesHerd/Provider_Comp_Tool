@@ -106,6 +106,7 @@ export default function ProviderWRVUTrackingPage() {
   const [state, setState] = useState<ProviderWRVUTrackingState>(getDefaultState());
   const [currentDate, setCurrentDate] = useState<Date>(startOfMonth(new Date()));
   const [saveFeedback, setSaveFeedback] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const isInitialMountRef = useRef(true);
 
   // Load from localStorage only after mount
@@ -222,8 +223,8 @@ export default function ProviderWRVUTrackingPage() {
   const monthKey = format(currentDate, 'yyyy-MM');
   const currentGoals = state.goals?.[monthKey];
 
-  // Get all months that have data (patients or wRVUs)
-  const monthsWithData = useMemo(() => {
+  // Get all months that have data (patients or wRVUs) - no year limit
+  const allMonthsWithData = useMemo(() => {
     const monthSet = new Set<string>();
     
     Object.keys(state.dailyData).forEach((dateStr) => {
@@ -250,9 +251,50 @@ export default function ProviderWRVUTrackingPage() {
         const [year, month] = monthKey.split('-').map(Number);
         return new Date(year, month - 1, 1);
       })
-      .sort((a, b) => b.getTime() - a.getTime())
-      .slice(0, 12); // Show up to 12 most recent months
+      .sort((a, b) => b.getTime() - a.getTime());
   }, [state.dailyData, state.goals]);
+
+  // Get available years from data
+  const availableYears = useMemo(() => {
+    const yearSet = new Set<number>();
+    allMonthsWithData.forEach((monthDate) => {
+      yearSet.add(monthDate.getFullYear());
+    });
+    return Array.from(yearSet).sort((a, b) => b - a); // Newest first
+  }, [allMonthsWithData]);
+
+  // Filter months by selected year (max 12 months per year)
+  const monthsWithData = useMemo(() => {
+    return allMonthsWithData
+      .filter((monthDate) => monthDate.getFullYear() === selectedYear)
+      .slice(0, 12); // Max 12 months per year
+  }, [allMonthsWithData, selectedYear]);
+
+  // Update selectedYear when currentDate changes to match the year being viewed
+  useEffect(() => {
+    const currentYear = currentDate.getFullYear();
+    if (availableYears.includes(currentYear) && selectedYear !== currentYear) {
+      setSelectedYear(currentYear);
+    }
+  }, [currentDate, availableYears, selectedYear]);
+
+  // Handle year selection - navigate to most recent month of that year with data, or January
+  const handleYearChange = (year: number) => {
+    setSelectedYear(year);
+    
+    // Find months of that year with data
+    const yearMonths = allMonthsWithData.filter(
+      (monthDate) => monthDate.getFullYear() === year
+    );
+    
+    // Navigate to most recent month of that year (first in sorted array since newest first)
+    // or default to January if no data exists
+    const targetMonth = yearMonths.length > 0 
+      ? yearMonths[0] // Get most recent month (first in array since sorted newest first)
+      : new Date(year, 0, 1); // January of that year
+    
+    handleMonthChange(targetMonth);
+  };
 
   const handleMonthButtonClick = (monthDate: Date) => {
     handleMonthChange(monthDate);
@@ -379,19 +421,99 @@ export default function ProviderWRVUTrackingPage() {
         </CardContent>
       </Card>
 
-      {/* Month Navigation Buttons - Show saved months */}
-      {monthsWithData.length > 0 && (
+      {/* Year Navigation - Quick access to different years */}
+      {availableYears.length > 1 && (
         <Card className="mb-6 border-2">
           <CardHeader className="pb-3">
             <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-              Saved Months
+              Navigate by Year
             </CardTitle>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Quick navigation to months with saved data
+              Jump to entries from a specific year
             </p>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-3">
+              <Label htmlFor="year-navigator" className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                Select Year:
+              </Label>
+              <Select
+                value={selectedYear.toString()}
+                onValueChange={(value) => handleYearChange(parseInt(value, 10))}
+              >
+                <SelectTrigger id="year-navigator" className="w-[140px] h-10 text-base font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableYears.map((year) => {
+                    const yearMonthCount = allMonthsWithData.filter(
+                      (monthDate) => monthDate.getFullYear() === year
+                    ).length;
+                    return (
+                      <SelectItem key={year} value={year.toString()}>
+                        <div className="flex items-center justify-between w-full">
+                          <span className="font-semibold">{year}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-3">
+                            ({yearMonthCount} {yearMonthCount === 1 ? 'month' : 'months'})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              <div className="flex-1 text-xs text-gray-600 dark:text-gray-400">
+                {monthsWithData.length > 0 && (
+                  <span>
+                    Showing {monthsWithData.length} saved {monthsWithData.length === 1 ? 'month' : 'months'} for {selectedYear}
+                  </span>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Month Navigation Buttons - Show saved months */}
+      {allMonthsWithData.length > 0 && (
+        <Card className="mb-6 border-2">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                  Saved Months{availableYears.length > 0 ? ` - ${selectedYear}` : ''}
+                </CardTitle>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  Quick navigation to months with saved data
+                </p>
+              </div>
+              {availableYears.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="year-selector" className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                    Year:
+                  </Label>
+                  <Select
+                    value={selectedYear.toString()}
+                    onValueChange={(value) => handleYearChange(parseInt(value, 10))}
+                  >
+                    <SelectTrigger id="year-selector" className="w-[120px] h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {monthsWithData.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
               {monthsWithData.map((monthDate) => {
                 const monthKey = format(monthDate, 'yyyy-MM');
                 const isActive = monthKey === format(currentDate, 'yyyy-MM');
@@ -431,7 +553,12 @@ export default function ProviderWRVUTrackingPage() {
                   </div>
                 );
               })}
-            </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                No saved months for {selectedYear}
+              </p>
+            )}
           </CardContent>
         </Card>
       )}

@@ -128,13 +128,13 @@ export default function ScenarioDetailPage() {
     <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-8">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
         <div className="flex flex-col sm:flex-row gap-2 flex-1 sm:flex-none">
-          <Button variant="outline" onClick={() => router.push('/scenarios')} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={() => router.push('/scenarios')} className="w-full sm:w-auto min-h-[44px] touch-target">
             Cancel
           </Button>
-          <Button variant="outline" onClick={handleSaveAsNew} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={handleSaveAsNew} className="w-full sm:w-auto min-h-[44px] touch-target">
             Save as New
           </Button>
-          <Button onClick={handleSave} className="w-full sm:w-auto">Save</Button>
+          <Button onClick={handleSave} className="w-full sm:w-auto min-h-[44px] touch-target">Save</Button>
         </div>
         <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
           <Dialog.Trigger asChild>

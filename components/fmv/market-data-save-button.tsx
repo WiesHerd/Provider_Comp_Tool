@@ -57,8 +57,7 @@ export function MarketDataSaveButton({
       <Button
         onClick={handleSave}
         disabled={!hasData || isSaving}
-        className="min-h-[44px]"
-        variant={isAlreadySaved ? 'outline' : 'default'}
+        className="w-full sm:w-auto min-h-[44px] touch-target"
       >
         {saved ? (
           <>

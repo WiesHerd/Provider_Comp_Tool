@@ -182,29 +182,32 @@ export function Header() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
-  const isHome = mounted && pathname === '/';
-  const pageTitle = mounted && pathname ? getPageTitle(pathname) : null;
+  // Ensure consistent pathname for SSR - use pathname directly, not conditional on mounted
+  const safePathname = pathname || '/';
+  const isHome = safePathname === '/';
+  const pageTitle = safePathname ? getPageTitle(safePathname) : null;
 
   // Function to open the tour/guide modal for current screen
   const openScreenGuide = () => {
     if (typeof window === 'undefined') return;
     
     // Determine which guide to show based on current path
+    // Use safePathname for consistent behavior
     let storageKey = SCREEN_GUIDES.home.storageKey; // default to home
     
-    if (pathname === '/') {
+    if (safePathname === '/') {
       storageKey = SCREEN_GUIDES.home.storageKey;
-    } else if (pathname === '/wrvu-modeler') {
+    } else if (safePathname === '/wrvu-modeler') {
       storageKey = SCREEN_GUIDES.wrvuModeler.storageKey;
-    } else if (pathname === '/fmv-calculator' || pathname.startsWith('/fmv-calculator/')) {
+    } else if (safePathname === '/fmv-calculator' || safePathname.startsWith('/fmv-calculator/')) {
       storageKey = SCREEN_GUIDES.fmvCalculator.storageKey;
-    } else if (pathname === '/call-pay-modeler') {
+    } else if (safePathname === '/call-pay-modeler') {
       storageKey = SCREEN_GUIDES.callPayModeler.storageKey;
-    } else if (pathname === '/wrvu-forecaster') {
+    } else if (safePathname === '/wrvu-forecaster') {
       storageKey = SCREEN_GUIDES.wrvuForecaster.storageKey;
-    } else if (pathname === '/provider-wrvu-tracking') {
+    } else if (safePathname === '/provider-wrvu-tracking') {
       storageKey = SCREEN_GUIDES.providerWRVUTracking.storageKey;
-    } else if (pathname === '/scenarios') {
+    } else if (safePathname === '/scenarios') {
       storageKey = SCREEN_GUIDES.scenarios.storageKey;
     }
     
@@ -279,7 +282,7 @@ export function Header() {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     if (!mounted) return;
-    if (pathname === '/') {
+    if (safePathname === '/') {
       // On home page, scroll to top
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -316,11 +319,12 @@ export function Header() {
 
   return (
     <>
-      {/* Skip to main content link */}
+      {/* Skip to main content link - always render for consistent hydration */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:font-semibold focus:ring-2 focus:ring-primary focus:ring-offset-2"
         aria-label="Skip to main content"
+        suppressHydrationWarning
       >
         Skip to main content
       </a>
@@ -352,7 +356,8 @@ export function Header() {
             isLandscape ? "gap-2 sm:gap-3" : "gap-4 sm:gap-5"
           )}>
             {/* Back button - Apple style (only show when not on home) */}
-            {mounted && pathname && pathname !== '/' && (
+            {/* Use safePathname for consistent SSR rendering */}
+            {safePathname !== '/' && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -366,12 +371,13 @@ export function Header() {
                   "animate-icon-enter"
                 )}
                 aria-label="Go back"
+                suppressHydrationWarning
               >
                 <ChevronLeft className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" />
               </Button>
             )}
             
-            {/* Logo - clickable to go home (Apple style) */}
+            {/* Logo - clickable to go home (Apple style) - always render for consistent hydration */}
             <Link
               href="/"
               className={cn(
@@ -383,6 +389,7 @@ export function Header() {
               )}
               aria-label="Go to home"
               title="Go to home"
+              suppressHydrationWarning
             >
               {logoContent}
             </Link>
@@ -396,7 +403,7 @@ export function Header() {
                 "tracking-[-0.01em]",
                 "animate-fade-in",
                 "transition-opacity duration-300"
-              )}>
+              )} suppressHydrationWarning>
                 {pageTitle}
               </h1>
             )}
@@ -427,6 +434,7 @@ export function Header() {
                   aria-label={isHome ? "Take tour" : "Show help"}
                   title={isHome ? "Take tour" : "Show help"}
                   style={{ animationDelay: '0.1s' }}
+                  suppressHydrationWarning
                 >
                   <Sparkles className={cn(
                     "transition-all duration-300 group-hover:scale-110 group-hover:animate-sparkle-pulse",
@@ -453,6 +461,7 @@ export function Header() {
                   }}
                   aria-label="Show instructions"
                   style={{ animationDelay: '0.15s' }}
+                  suppressHydrationWarning
                 >
                   <Info className={cn(
                     "transition-all duration-300 group-hover:scale-110",
@@ -487,8 +496,8 @@ export function Header() {
                   )}
                 >
                   {(() => {
-                    const screenGuide = mounted && pathname ? getScreenGuide(pathname) : SCREEN_GUIDES.home;
-                    const isHome = mounted && pathname === '/';
+                    const screenGuide = safePathname ? getScreenGuide(safePathname) : SCREEN_GUIDES.home;
+                    const isHome = safePathname === '/';
                     
                     // On home, show full app info; on other screens, show screen-specific info
                     return (
@@ -617,6 +626,7 @@ export function Header() {
               )}
               aria-label="Toggle theme"
               style={{ animationDelay: '0.2s' }}
+              suppressHydrationWarning
             >
               <div className={cn(
                 "relative",

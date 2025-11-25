@@ -118,9 +118,9 @@ export function FMVSaveButton({
           />
           <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
             <Dialog.Close asChild>
-              <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
+              <Button variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target">Cancel</Button>
             </Dialog.Close>
-            <Button onClick={handleSave} disabled={!name.trim()} className="w-full sm:w-auto">
+            <Button onClick={handleSave} disabled={!name.trim()} className="w-full sm:w-auto min-h-[44px] touch-target">
               Save
             </Button>
           </div>

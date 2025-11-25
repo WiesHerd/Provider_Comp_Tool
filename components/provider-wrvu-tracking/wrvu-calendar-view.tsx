@@ -231,16 +231,22 @@ export function WRVUCalendarView({
                       {format(currentDate, 'MMM yyyy')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {Array.from({ length: 24 }, (_, i) => {
+                  <SelectContent className="max-h-[400px]">
+                    {Array.from({ length: 60 }, (_, i) => {
                       const date = new Date();
-                      date.setMonth(date.getMonth() - 12 + i);
+                      date.setMonth(date.getMonth() - 24 + i); // Show 2 years back and 3 years forward (60 months total)
                       const year = date.getFullYear();
                       const month = date.getMonth() + 1;
                       const monthYear = `${year}-${String(month).padStart(2, '0')}`;
                       const monthName = format(date, 'MMM yyyy'); // Changed to abbreviated
+                      const isCurrentYear = year === new Date().getFullYear();
+                      const isNewYear = month === 1 && i > 0;
+                      
                       return (
                         <SelectItem key={monthYear} value={monthYear}>
+                          {isNewYear && (
+                            <span className="text-xs text-gray-400 mr-2">│</span>
+                          )}
                           {monthName}
                         </SelectItem>
                       );

@@ -131,7 +131,6 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
           <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
             <div className="flex flex-row items-center justify-center gap-3 flex-wrap flex-1">
               <Button 
-                variant="outline" 
                 onClick={() => setShowSaveDialog(true)}
                 className="min-h-[44px] touch-target flex-1 sm:flex-initial"
               >
@@ -157,7 +156,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
                   className="hidden sm:inline-flex min-h-[44px] touch-target"
                 >
                   <Printer className="w-4 h-4 mr-2" />
-                  Print Summary
+                  Print
                 </Button>
               )}
             </div>
