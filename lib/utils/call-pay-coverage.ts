@@ -150,19 +150,48 @@ export function calculateEffectiveDollarsPerCall(
 
   const annualPay = calculateTierAnnualPay(tier, context);
   
-  // Use avgCasesPer24h if available, otherwise use callbacks
-  const avgCasesPerCall = tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h;
+  // For Daily/Shift Rate and Hourly Rate: use total calls/shifts per year
+  // For Per Procedure and Per wRVU: use total callbacks/cases per year
+  // For Annual Stipend and Monthly Retainer: not applicable (return 0 or use calls if available)
   
-  // Calculate total cases/callbacks per year including holidays
-  const totalCallbacksPerYear =
-    avgCasesPerCall *
-    ((tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth) *
+  if (tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate') {
+    // Calculate total calls/shifts per year
+    const totalCallsPerYear =
+      (tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth) *
       12 +
-      tier.burden.holidaysPerYear);
+      tier.burden.holidaysPerYear;
+    
+    if (totalCallsPerYear === 0) return 0;
+    
+    return annualPay / totalCallsPerYear;
+  } else if (tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') {
+    // Use avgCasesPer24h if available, otherwise use callbacks
+    const avgCasesPerCall = tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h;
+    
+    if (!avgCasesPerCall || avgCasesPerCall === 0) return 0;
+    
+    // Calculate total cases/callbacks per year including holidays
+    const totalCallbacksPerYear =
+      avgCasesPerCall *
+      ((tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth) *
+        12 +
+        tier.burden.holidaysPerYear);
 
-  if (totalCallbacksPerYear === 0) return 0;
+    if (totalCallbacksPerYear === 0) return 0;
 
-  return annualPay / totalCallbacksPerYear;
+    return annualPay / totalCallbacksPerYear;
+  } else {
+    // For Annual Stipend and Monthly Retainer, $/call doesn't apply
+    // But we can calculate based on total calls if available
+    const totalCallsPerYear =
+      (tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth) *
+      12 +
+      tier.burden.holidaysPerYear;
+    
+    if (totalCallsPerYear === 0) return 0;
+    
+    return annualPay / totalCallsPerYear;
+  }
 }
 
 /**
