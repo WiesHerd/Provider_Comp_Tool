@@ -204,39 +204,65 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
   };
 
   const getHolidayTooltip = () => {
-    const formula = tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
-      ? 'holidayMonthly = (holidaysPerYear ÷ 12) × avgCasesPer24h × holidayRate'
+    const isPerProcedure = tier.paymentMethod === 'Per procedure';
+    const isPerWrvu = tier.paymentMethod === 'Per wRVU';
+    const isProcedureOrWrvu = isPerProcedure || isPerWrvu;
+    const fieldLabel = isPerWrvu ? 'wRVUs' : 'cases';
+    const formula = isProcedureOrWrvu
+      ? isPerWrvu
+        ? 'holidayMonthly = (holidaysPerYear ÷ 12) × avgWrvusPer24h × holidayRate'
+        : 'holidayMonthly = (holidaysPerYear ÷ 12) × avgCasesPer24h × holidayRate'
       : 'holidayMonthly = (holidaysPerYear ÷ 12) × holidayRate';
     const avgMonthly = tier.burden.holidaysPerYear > 0 ? (tier.burden.holidaysPerYear / 12).toFixed(2) : '0';
     const example = tier.rates.holiday > 0 && tier.burden.holidaysPerYear > 0
-      ? tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
-        ? `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × ${(tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h || 0).toFixed(1)} cases × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * (tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h || 0) * tier.rates.holiday).toLocaleString()}/month`
+      ? isProcedureOrWrvu
+        ? `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × ${(tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h || 0).toFixed(1)} ${fieldLabel} × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * (tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h || 0) * tier.rates.holiday).toLocaleString()}/month`
         : `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * tier.rates.holiday).toLocaleString()}/month`
       : '';
-    const appliesTo = tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
+    const appliesTo = isProcedureOrWrvu
       ? 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU (optional)'
       : 'Daily/Shift Rate, Hourly Rate';
     return `Total holidays covered per year (averaged monthly: ÷12)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
   };
 
   const getCallbacksTooltip = () => {
-    const formula = 'casesPerMonth = callbacksPer24h × (weekdayCalls + weekendCalls)';
+    const isWrvu = tier.paymentMethod === 'Per wRVU';
+    const fieldLabel = isWrvu ? 'wRVUs' : 'callbacks';
+    const formula = isWrvu 
+      ? 'wRVUsPerMonth = wRVUsPer24h × (weekdayCalls + weekendCalls + holidays)'
+      : 'casesPerMonth = callbacksPer24h × (weekdayCalls + weekendCalls)';
     const totalCalls = tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth;
+    const totalCallsWithHolidays = totalCalls + (tier.burden.holidaysPerYear / 12);
     const example = tier.burden.avgCallbacksPer24h > 0 && totalCalls > 0
-      ? `Example: ${tier.burden.avgCallbacksPer24h} callbacks × ${totalCalls} calls = ${(tier.burden.avgCallbacksPer24h * totalCalls).toFixed(1)} procedures/month`
+      ? isWrvu
+        ? `Example: ${tier.burden.avgCallbacksPer24h} wRVUs/24h × ${totalCallsWithHolidays.toFixed(1)} calls/month = ${(tier.burden.avgCallbacksPer24h * totalCallsWithHolidays).toFixed(1)} wRVUs/month`
+        : `Example: ${tier.burden.avgCallbacksPer24h} callbacks × ${totalCalls} calls = ${(tier.burden.avgCallbacksPer24h * totalCalls).toFixed(1)} procedures/month`
       : '';
+    const description = isWrvu 
+      ? `Average work RVUs per 24-hour call period\n\nFor Per wRVU payment method, enter the average wRVUs generated per 24-hour call period. This is used to calculate total wRVUs per month.`
+      : `Average callbacks per 24-hour call period`;
     const appliesTo = 'Per Procedure, Per wRVU';
-    return `Average callbacks per 24-hour call period\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return `${description}\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
   };
 
   const getCasesTooltip = () => {
-    const formula = 'casesPerMonth = avgCasesPer24h × (weekdayCalls + weekendCalls)';
+    const isWrvu = tier.paymentMethod === 'Per wRVU';
+    const fieldLabel = isWrvu ? 'wRVUs' : 'cases';
+    const formula = isWrvu
+      ? 'wRVUsPerMonth = avgWrvusPer24h × (weekdayCalls + weekendCalls + holidays)'
+      : 'casesPerMonth = avgCasesPer24h × (weekdayCalls + weekendCalls)';
     const totalCalls = tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth;
+    const totalCallsWithHolidays = totalCalls + (tier.burden.holidaysPerYear / 12);
     const example = (tier.burden.avgCasesPer24h || 0) > 0 && totalCalls > 0
-      ? `Example: ${tier.burden.avgCasesPer24h} cases × ${totalCalls} calls = ${((tier.burden.avgCasesPer24h || 0) * totalCalls).toFixed(1)} cases/month`
+      ? isWrvu
+        ? `Example: ${tier.burden.avgCasesPer24h} wRVUs/24h × ${totalCallsWithHolidays.toFixed(1)} calls/month = ${((tier.burden.avgCasesPer24h || 0) * totalCallsWithHolidays).toFixed(1)} wRVUs/month`
+        : `Example: ${tier.burden.avgCasesPer24h} cases × ${totalCalls} calls = ${((tier.burden.avgCasesPer24h || 0) * totalCalls).toFixed(1)} cases/month`
       : '';
+    const description = isWrvu
+      ? `Average work RVUs per 24-hour call period (for procedural specialties)\n\nFor Per wRVU payment method, enter the average wRVUs generated per 24-hour call period. This is preferred over callbacks for procedural specialties and is used to calculate total wRVUs per month.`
+      : `Average cases per 24-hour call period (for procedural specialties)`;
     const appliesTo = 'Per Procedure, Per wRVU (preferred for procedural specialties)';
-    return `Average cases per 24-hour call period (for procedural specialties)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return `${description}\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
   };
 
   const showTraumaUplift =
@@ -905,7 +931,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Label className="text-xs text-gray-600 dark:text-gray-400">
-                Avg Callbacks per 24h
+                {tier.paymentMethod === 'Per wRVU' ? 'Avg wRVUs per 24h' : 'Avg Callbacks per 24h'}
               </Label>
               <Tooltip content={getCallbacksTooltip()} side="top" className="max-w-[300px]">
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
@@ -931,7 +957,9 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                     Use preset values
                   </button>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Used to calculate total procedures/cases per month
+                    {tier.paymentMethod === 'Per wRVU' 
+                      ? 'Used to calculate total wRVUs per month' 
+                      : 'Used to calculate total procedures/cases per month'}
                   </p>
                 </div>
               </div>
@@ -950,7 +978,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select callbacks" />
+                    <SelectValue placeholder={tier.paymentMethod === 'Per wRVU' ? 'Select wRVUs' : 'Select callbacks'} />
                   </SelectTrigger>
                   <SelectContent>
                     {callbacksPresets.map((num) => (
@@ -962,7 +990,9 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Used to calculate total procedures/cases per month
+                  {tier.paymentMethod === 'Per wRVU' 
+                    ? 'Used to calculate total wRVUs per month' 
+                    : 'Used to calculate total procedures/cases per month'}
                 </p>
               </div>
             )}
@@ -973,8 +1003,8 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Label className="text-xs text-gray-600 dark:text-gray-400">
-                Avg Cases per 24h
-                {!isProcedural && (
+                {tier.paymentMethod === 'Per wRVU' ? 'Avg wRVUs per 24h' : 'Avg Cases per 24h'}
+                {!isProcedural && tier.paymentMethod !== 'Per wRVU' && (
                   <span className="text-gray-400 ml-1">(optional for non-procedural specialties)</span>
                 )}
               </Label>
@@ -1000,7 +1030,9 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                     Use preset values
                   </button>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Preferred over callbacks for procedural specialties
+                    {tier.paymentMethod === 'Per wRVU' 
+                      ? 'Used to calculate total wRVUs per month (preferred over callbacks for procedural specialties)'
+                      : 'Preferred over callbacks for procedural specialties'}
                   </p>
                 </div>
               </div>
@@ -1019,7 +1051,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select cases" />
+                    <SelectValue placeholder={tier.paymentMethod === 'Per wRVU' ? 'Select wRVUs' : 'Select cases'} />
                   </SelectTrigger>
                   <SelectContent>
                     {callbacksPresets.map((num) => (
@@ -1031,7 +1063,9 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Preferred over callbacks for procedural specialties • Used to calculate total cases per month
+                  {tier.paymentMethod === 'Per wRVU' 
+                    ? 'Preferred over callbacks for procedural specialties • Used to calculate total wRVUs per month'
+                    : 'Preferred over callbacks for procedural specialties • Used to calculate total cases per month'}
                 </p>
               </div>
             )}

@@ -199,19 +199,55 @@ export function CalculationBreakdown({
       }
 
       case 'Per wRVU': {
-        const wrvusPerMonth =
-          (burden.avgCasesPer24h || burden.avgCallbacksPer24h) *
-          (burden.weekdayCallsPerMonth + burden.weekendCallsPerMonth);
+        const avgWrvusPerCall = burden.avgCasesPer24h || burden.avgCallbacksPer24h;
+        const weekdayWrvusPerMonth = avgWrvusPerCall * burden.weekdayCallsPerMonth;
+        const weekendWrvusPerMonth = avgWrvusPerCall * burden.weekendCallsPerMonth;
+        const holidayWrvusPerMonth = avgWrvusPerCall * (burden.holidaysPerYear / 12);
+        const totalWrvusPerMonth = weekdayWrvusPerMonth + weekendWrvusPerMonth + holidayWrvusPerMonth;
+        
         steps.push({
-          label: 'wRVUs per Month',
-          formula: `${burden.avgCasesPer24h || burden.avgCallbacksPer24h} wRVUs/24h × ${burden.weekdayCallsPerMonth + burden.weekendCallsPerMonth} calls`,
-          value: wrvusPerMonth,
-          explanation: 'Average wRVUs per 24-hour period × total monthly calls',
+          label: 'Weekday wRVUs per Month',
+          formula: `${avgWrvusPerCall} wRVUs/24h × ${burden.weekdayCallsPerMonth} weekday calls`,
+          value: weekdayWrvusPerMonth,
+          explanation: 'Average wRVUs per 24-hour period × weekday calls per month',
         });
-        monthlyPay = wrvusPerMonth * rates.weekday;
+        
+        if (burden.weekendCallsPerMonth > 0) {
+          steps.push({
+            label: 'Weekend wRVUs per Month',
+            formula: `${avgWrvusPerCall} wRVUs/24h × ${burden.weekendCallsPerMonth} weekend calls`,
+            value: weekendWrvusPerMonth,
+            explanation: 'Average wRVUs per 24-hour period × weekend calls per month',
+          });
+        }
+        
+        if (burden.holidaysPerYear > 0) {
+          steps.push({
+            label: 'Holiday wRVUs per Month',
+            formula: `${avgWrvusPerCall} wRVUs/24h × ${(burden.holidaysPerYear / 12).toFixed(2)} holidays/month`,
+            value: holidayWrvusPerMonth,
+            explanation: 'Average wRVUs per 24-hour period × average holidays per month',
+          });
+        }
+        
+        steps.push({
+          label: 'Total wRVUs per Month',
+          formula: `${weekdayWrvusPerMonth.toFixed(1)} + ${weekendWrvusPerMonth.toFixed(1)} + ${holidayWrvusPerMonth.toFixed(1)}`,
+          value: totalWrvusPerMonth,
+          explanation: 'Sum of weekday, weekend, and holiday wRVUs',
+        });
+        
+        // Calculate pay with optional weekend/holiday rates
+        const weekendRate = rates.weekend > 0 ? rates.weekend : rates.weekday;
+        const holidayRate = rates.holiday > 0 ? rates.holiday : rates.weekday;
+        const weekdayWrvuPay = weekdayWrvusPerMonth * rates.weekday;
+        const weekendWrvuPay = weekendWrvusPerMonth * weekendRate;
+        const holidayWrvuPay = holidayWrvusPerMonth * holidayRate;
+        monthlyPay = weekdayWrvuPay + weekendWrvuPay + holidayWrvuPay;
+        
         steps.push({
           label: 'Monthly Pay',
-          formula: `${wrvusPerMonth.toFixed(1)} wRVUs × $${rates.weekday.toLocaleString()}/wRVU`,
+          formula: `(${weekdayWrvusPerMonth.toFixed(1)} × $${rates.weekday.toLocaleString()}) + (${weekendWrvusPerMonth.toFixed(1)} × $${weekendRate.toLocaleString()}) + (${holidayWrvusPerMonth.toFixed(1)} × $${holidayRate.toLocaleString()})`,
           value: monthlyPay,
           highlight: true,
         });
