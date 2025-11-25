@@ -4,7 +4,7 @@ import { NumberInputWithButtons } from '@/components/ui/number-input-with-button
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plane, CalendarCheck, BookOpen, Plus, Minus, Trash2 } from 'lucide-react';
+import { Plane, CalendarCheck, BookOpen, Plus, Trash2, Clock, CalendarDays } from 'lucide-react';
 import { ShiftType, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 
 interface WorkSchedulePanelProps {
@@ -62,107 +62,51 @@ export function WorkSchedulePanel({
       <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
         <Label className="text-sm font-semibold mb-3 block">Shift Types</Label>
         
-        {/* Headers - shown on all screens */}
-        <div className="grid grid-cols-[180px_80px_80px_44px] sm:grid-cols-[1fr_100px_120px_44px] gap-2 mb-2">
-          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Shift Name</Label>
-          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Hours</Label>
-          <Label className="text-xs font-medium text-gray-600 dark:text-gray-400">Per Week</Label>
-          <div></div> {/* Spacer for delete button */}
-        </div>
-        
-        <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-3 sm:space-y-4">
           {inputs.shifts.map((shift, index) => (
-            <div key={shift.id} className="grid grid-cols-[180px_80px_80px_44px] sm:grid-cols-[1fr_100px_120px_44px] gap-2 items-center p-2 sm:p-0 rounded-lg border border-gray-200 dark:border-gray-700 sm:border-0 bg-gray-50 dark:bg-gray-800/50 sm:bg-transparent">
-              {/* Shift Name */}
-              <Input
-                value={shift.name}
-                onChange={(e) => onShiftChange(index, 'name', e.target.value)}
-                placeholder="Shift name"
-                className="w-full text-sm sm:text-base truncate"
-              />
-              
-              {/* Hours */}
-              <div className="relative flex items-center">
+            <div key={shift.id} className="p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 space-y-3">
+              {/* Shift Name Row */}
+              <div className="flex items-center gap-2">
                 <Input
-                  type="number"
-                  value={shift.hours}
-                  onChange={(e) => onShiftChange(index, 'hours', Number(e.target.value) || 0)}
-                  placeholder="Hours"
-                  className="w-full text-sm sm:text-base pr-14 sm:pr-12"
-                  min={0}
+                  value={shift.name}
+                  onChange={(e) => onShiftChange(index, 'name', e.target.value)}
+                  placeholder="Shift name"
+                  className="flex-1 text-sm sm:text-base"
                 />
-                <div className="absolute right-1 flex flex-col gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onShiftChange(index, 'hours', Math.max(0, shift.hours + 1))}
-                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
-                    aria-label="Increase hours"
-                  >
-                    <Plus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onShiftChange(index, 'hours', Math.max(0, shift.hours - 1))}
-                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
-                    disabled={shift.hours <= 0}
-                    aria-label="Decrease hours"
-                  >
-                    <Minus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Per Week */}
-              <div className="relative flex items-center">
-                <Input
-                  type="number"
-                  value={shift.perWeek}
-                  onChange={(e) => onShiftChange(index, 'perWeek', Number(e.target.value) || 0)}
-                  placeholder="Per week"
-                  className="w-full text-sm sm:text-base pr-14 sm:pr-12"
-                  min={0}
-                />
-                <div className="absolute right-1 flex flex-col gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onShiftChange(index, 'perWeek', Math.max(0, shift.perWeek + 1))}
-                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
-                    aria-label="Increase per week"
-                  >
-                    <Plus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onShiftChange(index, 'perWeek', Math.max(0, shift.perWeek - 1))}
-                    className="h-6 w-6 sm:h-5 sm:w-5 p-0 hover:bg-primary hover:text-white rounded active:scale-95 transition-transform touch-manipulation min-w-[24px] min-h-[24px] sm:min-w-[20px] sm:min-h-[20px] flex items-center justify-center"
-                    disabled={shift.perWeek <= 0}
-                    aria-label="Decrease per week"
-                  >
-                    <Minus className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Delete Button */}
-              <div className="flex justify-center">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => onDeleteShift(index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] touch-target"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-w-[44px] min-h-[44px] touch-target flex-shrink-0"
                   aria-label="Delete shift"
                 >
                   <Trash2 className="w-6 h-6 sm:w-4 sm:h-4" />
                 </Button>
+              </div>
+              
+              {/* Hours and Per Week Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <NumberInputWithButtons
+                  label="Hours per Shift"
+                  value={shift.hours}
+                  onChange={(value) => onShiftChange(index, 'hours', value)}
+                  icon={<Clock className="w-5 h-5" />}
+                  min={0}
+                  max={24}
+                  step={1}
+                  integerOnly
+                />
+                <NumberInputWithButtons
+                  label="Shifts per Week"
+                  value={shift.perWeek}
+                  onChange={(value) => onShiftChange(index, 'perWeek', value)}
+                  icon={<CalendarDays className="w-5 h-5" />}
+                  min={0}
+                  max={168}
+                  step={1}
+                  integerOnly
+                />
               </div>
             </div>
           ))}
