@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CallTier, CoverageType, PaymentMethod, Specialty, isProceduralSpecialty } from '@/types/call-pay';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -110,6 +110,22 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
     avgCasesPer24h: false,
   });
 
+  // Track if weekend/holiday rate differentiation is enabled for Per procedure/Per wRVU
+  const [useDifferentiatedRates, setUseDifferentiatedRates] = useState(
+    tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
+      ? (tier.rates.weekend > 0 || tier.rates.holiday > 0)
+      : false
+  );
+
+  // Sync differentiated rates state when payment method changes
+  useEffect(() => {
+    if (tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') {
+      setUseDifferentiatedRates(tier.rates.weekend > 0 || tier.rates.holiday > 0);
+    } else {
+      setUseDifferentiatedRates(false);
+    }
+  }, [tier.paymentMethod, tier.rates.weekend, tier.rates.holiday]);
+
   // Handle custom specialties - check if it's in the predefined list
   const predefinedSpecialties: Specialty[] = [
     'Family Medicine', 'Internal Medicine', 'Hospitalist', 'Pediatrics',
@@ -188,12 +204,18 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
   };
 
   const getHolidayTooltip = () => {
-    const formula = 'holidayMonthly = (holidaysPerYear ÷ 12) × holidayRate';
+    const formula = tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
+      ? 'holidayMonthly = (holidaysPerYear ÷ 12) × avgCasesPer24h × holidayRate'
+      : 'holidayMonthly = (holidaysPerYear ÷ 12) × holidayRate';
     const avgMonthly = tier.burden.holidaysPerYear > 0 ? (tier.burden.holidaysPerYear / 12).toFixed(2) : '0';
     const example = tier.rates.holiday > 0 && tier.burden.holidaysPerYear > 0
-      ? `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * tier.rates.holiday).toLocaleString()}/month`
+      ? tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
+        ? `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × ${(tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h || 0).toFixed(1)} cases × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * (tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h || 0) * tier.rates.holiday).toLocaleString()}/month`
+        : `Example: ${tier.burden.holidaysPerYear} holidays ÷ 12 = ${avgMonthly} holidays/month × $${tier.rates.holiday.toLocaleString()} = $${((tier.burden.holidaysPerYear / 12) * tier.rates.holiday).toLocaleString()}/month`
       : '';
-    const appliesTo = 'Daily/Shift Rate, Hourly Rate';
+    const appliesTo = tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU'
+      ? 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU (optional)'
+      : 'Daily/Shift Rate, Hourly Rate';
     return `Total holidays covered per year (averaged monthly: ÷12)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
   };
 
@@ -535,50 +557,115 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
 
         {(tier.paymentMethod === 'Per procedure' ||
           tier.paymentMethod === 'Per wRVU') && (
-          <div className="space-y-2">
-            <Label className="text-xs text-gray-600 dark:text-gray-400">
-              Rate per {tier.paymentMethod === 'Per procedure' ? 'Procedure' : 'wRVU'}
-            </Label>
-            <CurrencyInput
-              value={tier.rates.weekday}
-              onChange={(value) => updateRates({ weekday: value })}
-              placeholder="0.00"
-            />
-          </div>
+          <>
+            <div className="space-y-2">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Rate per {tier.paymentMethod === 'Per procedure' ? 'Procedure' : 'wRVU'} (Base Rate)
+              </Label>
+              <CurrencyInput
+                value={tier.rates.weekday}
+                onChange={(value) => updateRates({ weekday: value })}
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Optional Weekend/Holiday Rate Differentiation */}
+            <div className="flex items-center justify-between gap-2 py-2 border-t border-gray-200 dark:border-gray-700">
+              <Label className="text-xs text-gray-600 dark:text-gray-400 flex-1 min-w-0">
+                Different rates for weekend/holiday (optional)
+              </Label>
+              <Switch
+                // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
+                checked={useDifferentiatedRates}
+                onCheckedChange={(checked: boolean) => {
+                  setUseDifferentiatedRates(checked);
+                  if (!checked) {
+                    // Reset weekend and holiday rates to 0 when disabled
+                    updateRates({ weekend: 0, holiday: 0 });
+                  } else {
+                    // Initialize weekend and holiday rates if not set
+                    if (tier.rates.weekend === 0 && tier.rates.holiday === 0) {
+                      updateRates({
+                        weekend: tier.rates.weekday,
+                        holiday: tier.rates.weekday,
+                      });
+                    }
+                  }
+                }}
+              />
+            </div>
+
+            {useDifferentiatedRates && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-600 dark:text-gray-400">
+                    Weekend Rate (optional)
+                  </Label>
+                  <CurrencyInput
+                    value={tier.rates.weekend}
+                    onChange={(value) => updateRates({ weekend: value })}
+                    placeholder="0.00"
+                    icon={<Calendar className="w-5 h-5" />}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Leave same as base to use single rate
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-600 dark:text-gray-400">
+                    Holiday Rate (optional)
+                  </Label>
+                  <CurrencyInput
+                    value={tier.rates.holiday}
+                    onChange={(value) => updateRates({ holiday: value })}
+                    placeholder="0.00"
+                    icon={<Calendar className="w-5 h-5" />}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Leave same as base to use single rate
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Burden Assumptions */}
-      <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-3">
-        <div className="flex items-start justify-between">
-          <Label className="text-sm font-semibold">Burden Assumptions</Label>
-          <span className="text-xs text-gray-500 dark:text-gray-400 italic">
-            Total service needs per month
-          </span>
-        </div>
-
-        {/* Auto-Fill Button */}
-        {context && context.providersOnCall > 0 && context.rotationRatio > 0 && (
-          <div className="flex items-center gap-2 pb-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={autoFillBurden}
-              className="text-xs"
-            >
-              <Sparkles className="w-3 h-3 mr-1.5" />
-              Estimate from Rotation Ratio
-            </Button>
-            {burdenSuggestions && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                Based on 1-in-{context.rotationRatio} rotation with {context.providersOnCall} providers
-              </span>
-            )}
+      {/* Burden Assumptions - Only show for payment methods that use burden */}
+      {(tier.paymentMethod === 'Daily / shift rate' ||
+        tier.paymentMethod === 'Hourly rate' ||
+        tier.paymentMethod === 'Per procedure' ||
+        tier.paymentMethod === 'Per wRVU') && (
+        <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-3">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-0">
+            <Label className="text-sm font-semibold">Burden Assumptions</Label>
+            <span className="text-xs text-gray-500 dark:text-gray-400 italic">
+              Total service needs per month
+            </span>
           </div>
-        )}
 
-        <div className="grid grid-cols-2 gap-3">
+          {/* Auto-Fill Button */}
+          {context && context.providersOnCall > 0 && context.rotationRatio > 0 && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 pb-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={autoFillBurden}
+                className="text-xs w-full sm:w-auto"
+              >
+                <Sparkles className="w-3 h-3 mr-1.5" />
+                Estimate from Rotation Ratio
+              </Button>
+              {burdenSuggestions && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 flex-1">
+                  Based on 1-in-{context.rotationRatio} rotation with {context.providersOnCall} providers
+                </span>
+              )}
+            </div>
+          )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-2 flex flex-col">
             <div className="flex items-center gap-1.5">
               <Label className="text-xs text-gray-600 dark:text-gray-400">
@@ -647,7 +734,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                     Suggested: {burdenSuggestions.weekdayCallsPerMonth.suggested} (range: {burdenSuggestions.weekdayCallsPerMonth.min}-{burdenSuggestions.weekdayCallsPerMonth.max})
                   </p>
                 )}
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 break-words">
                   Total service needs (not per provider) • Max ~22 business days/month
                 </p>
               </div>
@@ -722,7 +809,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                     Suggested: {burdenSuggestions.weekendCallsPerMonth.suggested} (range: {burdenSuggestions.weekendCallsPerMonth.min}-{burdenSuggestions.weekendCallsPerMonth.max})
                   </p>
                 )}
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 break-words">
                   Total service needs (not per provider) • Max ~8-9 weekend days/month
                 </p>
               </div>
@@ -730,8 +817,11 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
           </div>
         </div>
 
-        {/* Holidays and Callbacks - side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Holidays - Show for Daily/Shift Rate, Hourly Rate, and optionally for Per procedure/Per wRVU */}
+        {(tier.paymentMethod === 'Daily / shift rate' || 
+          tier.paymentMethod === 'Hourly rate' ||
+          tier.paymentMethod === 'Per procedure' ||
+          tier.paymentMethod === 'Per wRVU') && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Label className="text-xs text-gray-600 dark:text-gray-400">
@@ -760,6 +850,11 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                   {burdenSuggestions && (
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Suggested: {burdenSuggestions.holidaysPerYear.suggested} (range: {burdenSuggestions.holidaysPerYear.min}-{burdenSuggestions.holidaysPerYear.max})
+                    </p>
+                  )}
+                  {tier.burden.holidaysPerYear > 0 && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Averaged monthly: {tier.burden.holidaysPerYear} ÷ 12 = {(tier.burden.holidaysPerYear / 12).toFixed(2)} holidays/month
                     </p>
                   )}
                 </div>
@@ -795,20 +890,18 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                     Suggested: {burdenSuggestions.holidaysPerYear.suggested} (range: {burdenSuggestions.holidaysPerYear.min}-{burdenSuggestions.holidaysPerYear.max})
                   </p>
                 )}
-                {(tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate') && tier.burden.holidaysPerYear > 0 && (
+                {tier.burden.holidaysPerYear > 0 && (
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Averaged monthly: {tier.burden.holidaysPerYear} ÷ 12 = {(tier.burden.holidaysPerYear / 12).toFixed(2)} holidays/month
-                  </p>
-                )}
-                {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">
-                    Not used for this payment method
                   </p>
                 )}
               </div>
             )}
           </div>
+        )}
 
+        {/* Callbacks - Only show for Per Procedure and Per wRVU */}
+        {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
               <Label className="text-xs text-gray-600 dark:text-gray-400">
@@ -818,77 +911,63 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
             </div>
-          {customModes.avgCallbacksPer24h ? (
-            <div className="space-y-2">
-              <NumberInput
-                value={tier.burden.avgCallbacksPer24h}
-                onChange={(value) =>
-                  updateBurden({ avgCallbacksPer24h: value })
-                }
-                min={0}
-                step={0.1}
-                placeholder="0.0"
-              />
-              <div className="space-y-1">
-                <button
-                  type="button"
-                  onClick={() => setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: false }))}
-                  className="text-xs text-primary hover:underline"
-                >
-                  Use preset values
-                </button>
-                {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
+            {customModes.avgCallbacksPer24h ? (
+              <div className="space-y-2">
+                <NumberInput
+                  value={tier.burden.avgCallbacksPer24h}
+                  onChange={(value) =>
+                    updateBurden({ avgCallbacksPer24h: value })
+                  }
+                  min={0}
+                  step={0.1}
+                  placeholder="0.0"
+                />
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: false }))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Use preset values
+                  </button>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Used to calculate total procedures/cases per month
                   </p>
-                )}
-                {(tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate' || tier.paymentMethod === 'Annual stipend' || tier.paymentMethod === 'Monthly retainer') && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">
-                    Not used for this payment method
-                  </p>
-                )}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              <Select
-                value={callbacksPresets.includes(tier.burden.avgCallbacksPer24h) 
-                  ? tier.burden.avgCallbacksPer24h.toString() 
-                  : 'custom'}
-                onValueChange={(value) => {
-                  if (value === 'custom') {
-                    setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: true }));
-                  } else {
-                    updateBurden({ avgCallbacksPer24h: parseFloat(value) });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select callbacks" />
-                </SelectTrigger>
-                <SelectContent>
-                  {callbacksPresets.map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Custom...</SelectItem>
-                </SelectContent>
-              </Select>
-              {(tier.paymentMethod === 'Per procedure' || tier.paymentMethod === 'Per wRVU') && (
+            ) : (
+              <div className="space-y-1">
+                <Select
+                  value={callbacksPresets.includes(tier.burden.avgCallbacksPer24h) 
+                    ? tier.burden.avgCallbacksPer24h.toString() 
+                    : 'custom'}
+                  onValueChange={(value) => {
+                    if (value === 'custom') {
+                      setCustomModes(prev => ({ ...prev, avgCallbacksPer24h: true }));
+                    } else {
+                      updateBurden({ avgCallbacksPer24h: parseFloat(value) });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select callbacks" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {callbacksPresets.map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom">Custom...</SelectItem>
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Used to calculate total procedures/cases per month
                 </p>
-              )}
-              {(tier.paymentMethod === 'Daily / shift rate' || tier.paymentMethod === 'Hourly rate' || tier.paymentMethod === 'Annual stipend' || tier.paymentMethod === 'Monthly retainer') && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 italic">
-                  Not used for this payment method
-                </p>
-              )}
-            </div>
-          )}
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         {showCasesInput && (
           <div className="space-y-2">
@@ -958,7 +1037,8 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
             )}
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

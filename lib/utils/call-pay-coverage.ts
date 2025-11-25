@@ -56,18 +56,46 @@ export function calculateTierAnnualPay(
 
     case 'Per procedure':
       // Use avgCasesPer24h if available, otherwise use callbacks
-      const casesPerMonth =
-        (burden.avgCasesPer24h || burden.avgCallbacksPer24h) *
-        (burden.weekdayCallsPerMonth + burden.weekendCallsPerMonth);
-      monthlyPay = casesPerMonth * rates.weekday; // Use weekday rate as base procedure rate
+      const avgCasesPerCall = burden.avgCasesPer24h || burden.avgCallbacksPer24h;
+      
+      // Calculate weekday procedures
+      const weekdayCasesPerMonth = avgCasesPerCall * burden.weekdayCallsPerMonth;
+      const weekdayProcedurePay = weekdayCasesPerMonth * rates.weekday;
+      
+      // Calculate weekend procedures (use weekend rate if provided, otherwise weekday rate)
+      const weekendRate = rates.weekend > 0 ? rates.weekend : rates.weekday;
+      const weekendCasesPerMonth = avgCasesPerCall * burden.weekendCallsPerMonth;
+      const weekendProcedurePay = weekendCasesPerMonth * weekendRate;
+      
+      // Calculate holiday procedures (use holiday rate if provided, otherwise weekday rate)
+      // Holidays are annual, so average monthly: holidaysPerYear / 12
+      const holidayRate = rates.holiday > 0 ? rates.holiday : rates.weekday;
+      const holidayCasesPerMonth = avgCasesPerCall * (burden.holidaysPerYear / 12);
+      const holidayProcedurePay = holidayCasesPerMonth * holidayRate;
+      
+      monthlyPay = weekdayProcedurePay + weekendProcedurePay + holidayProcedurePay;
       break;
 
     case 'Per wRVU':
       // Use avgCasesPer24h if available, otherwise use callbacks
-      const wrvusPerMonth =
-        (burden.avgCasesPer24h || burden.avgCallbacksPer24h) *
-        (burden.weekdayCallsPerMonth + burden.weekendCallsPerMonth);
-      monthlyPay = wrvusPerMonth * rates.weekday; // Use weekday rate as wRVU rate
+      const avgWrvusPerCall = burden.avgCasesPer24h || burden.avgCallbacksPer24h;
+      
+      // Calculate weekday wRVUs
+      const weekdayWrvusPerMonth = avgWrvusPerCall * burden.weekdayCallsPerMonth;
+      const weekdayWrvuPay = weekdayWrvusPerMonth * rates.weekday;
+      
+      // Calculate weekend wRVUs (use weekend rate if provided, otherwise weekday rate)
+      const weekendWrvuRate = rates.weekend > 0 ? rates.weekend : rates.weekday;
+      const weekendWrvusPerMonth = avgWrvusPerCall * burden.weekendCallsPerMonth;
+      const weekendWrvuPay = weekendWrvusPerMonth * weekendWrvuRate;
+      
+      // Calculate holiday wRVUs (use holiday rate if provided, otherwise weekday rate)
+      // Holidays are annual, so average monthly: holidaysPerYear / 12
+      const holidayWrvuRate = rates.holiday > 0 ? rates.holiday : rates.weekday;
+      const holidayWrvusPerMonth = avgWrvusPerCall * (burden.holidaysPerYear / 12);
+      const holidayWrvuPay = holidayWrvusPerMonth * holidayWrvuRate;
+      
+      monthlyPay = weekdayWrvuPay + weekendWrvuPay + holidayWrvuPay;
       break;
   }
 
@@ -121,8 +149,13 @@ export function calculateEffectiveDollarsPerCall(
   if (!tier.enabled) return 0;
 
   const annualPay = calculateTierAnnualPay(tier, context);
+  
+  // Use avgCasesPer24h if available, otherwise use callbacks
+  const avgCasesPerCall = tier.burden.avgCasesPer24h || tier.burden.avgCallbacksPer24h;
+  
+  // Calculate total cases/callbacks per year including holidays
   const totalCallbacksPerYear =
-    tier.burden.avgCallbacksPer24h *
+    avgCasesPerCall *
     ((tier.burden.weekdayCallsPerMonth + tier.burden.weekendCallsPerMonth) *
       12 +
       tier.burden.holidaysPerYear);
