@@ -1,8 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { format, addMonths, subMonths, startOfToday } from 'date-fns';
-import { WRVUCalendarDayCell } from './wrvu-calendar-day-cell';
+import { format, addMonths, subMonths, addWeeks, subWeeks, startOfToday } from 'date-fns';
+import { CalendarDayCell } from './calendar-day-cell';
+import { DateTypeSelector } from './date-type-selector';
+import { CalendarSummary } from './calendar-summary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Calendar, Grid, Info } from 'lucide-react';
@@ -13,93 +15,58 @@ import {
   formatDateString,
   type DateString,
 } from '@/lib/utils/calendar-helpers';
-import { DailyTrackingData } from '@/types/provider-wrvu-tracking';
 
-interface WRVUCalendarViewProps {
-  dailyData?: Record<DateString, DailyTrackingData>;
-  onDataChange?: (date: Date, data: DailyTrackingData) => void;
-  onMonthChange?: (date: Date) => void;
-  initialDate?: Date;
+interface PatientCalendarViewProps {
+  dailyPatientCounts?: Record<DateString, number>;
+  vacationDates?: DateString[];
+  cmeDates?: DateString[];
+  holidayDates?: DateString[];
+  onPatientCountChange?: (date: Date, count: number) => void;
+  onDateTypeChange?: (date: Date, type: 'vacation' | 'cme' | 'holiday' | null) => void;
+  avgWRVUPerEncounter?: number;
+  adjustedWRVUPerEncounter?: number;
   className?: string;
 }
 
 type ViewMode = 'week' | 'month';
 
-export function WRVUCalendarView({
-  dailyData = {},
-  onDataChange,
-  onMonthChange,
-  initialDate,
+export function PatientCalendarView({
+  dailyPatientCounts = {},
+  vacationDates = [],
+  cmeDates = [],
+  holidayDates = [],
+  onPatientCountChange,
+  onDateTypeChange,
+  avgWRVUPerEncounter = 0,
+  adjustedWRVUPerEncounter = 0,
   className,
-}: WRVUCalendarViewProps) {
+}: PatientCalendarViewProps) {
   const [viewMode, setViewMode] = React.useState<ViewMode>('month');
-  const [mounted, setMounted] = React.useState(false);
-  const [currentDate, setCurrentDate] = React.useState<Date>(() => {
-    if (initialDate) return initialDate;
-    if (typeof window !== 'undefined') {
-      return startOfToday();
-    }
-    // Server-side: use a fixed date to avoid hydration mismatch
-    return new Date();
-  });
+  const [currentDate, setCurrentDate] = React.useState(startOfToday());
   const [selectedDates, setSelectedDates] = React.useState<Date[]>([]);
 
-  React.useEffect(() => {
-    setMounted(true);
-    if (initialDate) {
-      setCurrentDate(initialDate);
-    }
-  }, [initialDate]);
-
-  const today = mounted ? startOfToday() : new Date();
+  const today = startOfToday();
 
   // Navigation handlers
   const handlePrevious = () => {
-    let newDate: Date;
     if (viewMode === 'week') {
-      newDate = new Date(currentDate);
-      newDate.setDate(newDate.getDate() - 7);
+      setCurrentDate(subWeeks(currentDate, 1));
     } else {
-      newDate = subMonths(currentDate, 1);
-    }
-    setCurrentDate(newDate);
-    if (onMonthChange && viewMode === 'month') {
-      onMonthChange(newDate);
+      setCurrentDate(subMonths(currentDate, 1));
     }
   };
 
   const handleNext = () => {
-    let newDate: Date;
     if (viewMode === 'week') {
-      newDate = new Date(currentDate);
-      newDate.setDate(newDate.getDate() + 7);
+      setCurrentDate(addWeeks(currentDate, 1));
     } else {
-      newDate = addMonths(currentDate, 1);
-    }
-    setCurrentDate(newDate);
-    if (onMonthChange && viewMode === 'month') {
-      onMonthChange(newDate);
+      setCurrentDate(addMonths(currentDate, 1));
     }
   };
 
   const handleToday = () => {
-    const today = startOfToday();
-    setCurrentDate(today);
-    if (onMonthChange) {
-      onMonthChange(today);
-    }
+    setCurrentDate(startOfToday());
   };
-
-  // Check if we're viewing the current week/month
-  const isViewingToday = React.useMemo(() => {
-    if (viewMode === 'week') {
-      const weekStart = getWeekDays(currentDate)[0];
-      const weekEnd = getWeekDays(currentDate)[6];
-      return today >= weekStart && today <= weekEnd;
-    } else {
-      return format(currentDate, 'yyyy-MM') === format(today, 'yyyy-MM');
-    }
-  }, [currentDate, today, viewMode]);
 
   // Date selection handlers
   const handleDateClick = (date: Date) => {
@@ -111,6 +78,34 @@ export function WRVUCalendarView({
       }
       return [...prev, date];
     });
+  };
+
+  const handleMarkAsVacation = (dates: Date[]) => {
+    dates.forEach((date) => {
+      onDateTypeChange?.(date, 'vacation');
+    });
+    setSelectedDates([]);
+  };
+
+  const handleMarkAsCME = (dates: Date[]) => {
+    dates.forEach((date) => {
+      onDateTypeChange?.(date, 'cme');
+    });
+    setSelectedDates([]);
+  };
+
+  const handleMarkAsHoliday = (dates: Date[]) => {
+    dates.forEach((date) => {
+      onDateTypeChange?.(date, 'holiday');
+    });
+    setSelectedDates([]);
+  };
+
+  const handleClearType = (dates: Date[]) => {
+    dates.forEach((date) => {
+      onDateTypeChange?.(date, null);
+    });
+    setSelectedDates([]);
   };
 
   // Get days to display based on view mode
@@ -130,31 +125,6 @@ export function WRVUCalendarView({
       ? `${format(weeks[0][0], 'MMM d')} - ${format(weeks[0][6], 'MMM d, yyyy')}`
       : monthYear;
 
-  const handleDataChange = (date: Date, data: DailyTrackingData) => {
-    if (onDataChange) {
-      // If there are selected dates and the changed date is one of them, apply to all selected
-      if (selectedDates.length > 0) {
-        const dateStr = formatDateString(date);
-        const isInSelection = selectedDates.some((d) => formatDateString(d) === dateStr);
-        
-        if (isInSelection) {
-          // Apply the same data to all selected dates
-          selectedDates.forEach((selectedDate) => {
-            onDataChange(selectedDate, data);
-          });
-          // Clear selection after applying
-          setSelectedDates([]);
-        } else {
-          // Normal single date update
-          onDataChange(date, data);
-        }
-      } else {
-        // Normal single date update
-        onDataChange(date, data);
-      }
-    }
-  };
-
   return (
     <div className={cn('w-full space-y-4', className)}>
       {/* Header Card */}
@@ -163,7 +133,7 @@ export function WRVUCalendarView({
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
-                Work RVU Tracking Calendar
+                Patient Calendar
               </CardTitle>
               
               {/* View mode toggle - Desktop */}
@@ -205,7 +175,7 @@ export function WRVUCalendarView({
               </Button>
               <Button
                 type="button"
-                variant={isViewingToday ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={handleToday}
                 className="h-9 px-4 font-medium"
@@ -256,25 +226,27 @@ export function WRVUCalendarView({
             {/* Help text */}
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
               <Info className="w-3.5 h-3.5" />
-              <span>
-                {selectedDates.length > 0 
-                  ? `${selectedDates.length} date${selectedDates.length !== 1 ? 's' : ''} selected • Enter data to apply to all`
-                  : 'Click dates to select multiple'}
-              </span>
+              <span>Right-click to mark dates</span>
             </div>
           </div>
         </CardHeader>
       </Card>
 
+      {/* Date type selector */}
+      {selectedDates.length > 0 && (
+        <DateTypeSelector
+          selectedDates={selectedDates}
+          onMarkAsVacation={handleMarkAsVacation}
+          onMarkAsCME={handleMarkAsCME}
+          onMarkAsHoliday={handleMarkAsHoliday}
+          onClearType={handleClearType}
+        />
+      )}
+
       {/* Calendar grid - Desktop optimized */}
       <Card className="border-2">
-        <CardContent className="p-4 sm:p-6 pb-6">
-          {/* Multi-select hint - Simple text, no container */}
-          <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
-            Select multiple dates, then enter data once to apply the same values to all selected dates.
-          </p>
-          
-          <div className="w-full overflow-x-auto overflow-y-visible -mx-4 sm:mx-0 px-4 sm:px-6 sm:px-0">
+        <CardContent className="p-4 sm:p-6">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             {/* Day headers */}
             <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px]">
               {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
@@ -289,14 +261,14 @@ export function WRVUCalendarView({
             </div>
 
             {/* Calendar days */}
-            <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-2">
+            <div className="space-y-2 sm:space-y-3 min-w-[700px]">
               {weeks.map((week, weekIndex) => (
                 <div key={weekIndex} className="grid grid-cols-7 gap-2 sm:gap-3">
                   {week.map((date) => {
                     const dateStr = formatDateString(date);
                     const isCurrentMonth = format(date, 'M') === format(currentDate, 'M');
                     const isToday = format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
-                    const trackingData = dailyData[dateStr] || { patients: 0, workRVUs: 0 };
+                    const patientCount = dailyPatientCounts[dateStr] || 0;
                     const isSelected = selectedDates.some(
                       (d) => formatDateString(d) === dateStr
                     );
@@ -307,15 +279,19 @@ export function WRVUCalendarView({
                         onClick={() => handleDateClick(date)}
                         className={cn(
                           'transition-all duration-200',
-                          isSelected && 'ring-2 ring-primary ring-offset-0 rounded-xl'
+                          isSelected && 'ring-2 ring-primary ring-offset-2 rounded-xl'
                         )}
                       >
-                        <WRVUCalendarDayCell
+                        <CalendarDayCell
                           date={date}
-                          trackingData={trackingData}
+                          patientCount={patientCount}
+                          vacationDates={vacationDates}
+                          cmeDates={cmeDates}
+                          holidayDates={holidayDates}
                           isToday={isToday}
                           isCurrentMonth={isCurrentMonth}
-                          onDataChange={handleDataChange}
+                          onPatientCountChange={onPatientCountChange}
+                          onDateTypeChange={onDateTypeChange}
                         />
                       </div>
                     );
@@ -332,26 +308,42 @@ export function WRVUCalendarView({
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
             <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 border-2 border-blue-300 dark:border-blue-700" />
+              <span className="font-medium text-gray-700 dark:text-gray-300">Vacation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/20 border-2 border-purple-300 dark:border-purple-700" />
+              <span className="font-medium text-gray-700 dark:text-gray-300">CME</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 border-2 border-red-300 dark:border-red-700" />
+              <span className="font-medium text-gray-700 dark:text-gray-300">Holiday</span>
+            </div>
+            <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-lg bg-gray-50 dark:bg-gray-800/30 border-2 border-gray-200 dark:border-gray-700" />
               <span className="font-medium text-gray-700 dark:text-gray-300">Weekend</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <Info className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {selectedDates.length > 0 
-                  ? `Click dates to select • Enter data to apply to ${selectedDates.length} selected date${selectedDates.length !== 1 ? 's' : ''}`
-                  : 'Click dates to select multiple • Enter data to apply to all selected • Double-click to clear'}
-              </span>
-              <span className="sm:hidden">
-                {selectedDates.length > 0 
-                  ? `${selectedDates.length} selected`
-                  : 'Tap to add • Long-press to clear'}
-              </span>
+              <span className="hidden sm:inline">Click to add patients • Right-click to mark dates</span>
+              <span className="sm:hidden">Tap to add • Long-press to mark</span>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Monthly Summary */}
+      {(avgWRVUPerEncounter > 0 || adjustedWRVUPerEncounter > 0) && (
+        <CalendarSummary
+          currentDate={currentDate}
+          dailyPatientCounts={dailyPatientCounts}
+          vacationDates={vacationDates}
+          cmeDates={cmeDates}
+          holidayDates={holidayDates}
+          avgWRVUPerEncounter={avgWRVUPerEncounter}
+          adjustedWRVUPerEncounter={adjustedWRVUPerEncounter}
+        />
+      )}
     </div>
   );
 }
-

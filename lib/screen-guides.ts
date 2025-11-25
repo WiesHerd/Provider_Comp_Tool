@@ -32,6 +32,12 @@ export const SCREEN_GUIDES = {
     description: 'All tools allow you to save your work as scenarios.\n\n**Features:**\n\n• **Save Scenarios**: Click "Save Scenario" in any tool to save your current inputs\n• **Load Scenarios**: Use the "Load Saved Scenario" dropdown to reload previous work\n• **Manage Scenarios**: View all saved scenarios on this page\n• **Compare Options**: Save multiple scenarios to compare different models\n\nScenarios are saved in your browser and persist across sessions.',
     storageKey: 'complens-scenarios-guide-seen',
   },
+  providerWRVUTracking: {
+    title: 'Provider Work RVU Tracking',
+    description: 'Track your daily patients and work RVUs by month to reconcile with compensation reports.\n\n**How to use this screen:**\n\n1. **Enter Daily Data**: Click on any calendar day cell to enter the number of patients and work RVUs for that day\n2. **Multi-Select Feature**: Click multiple dates to select them (they will show a green border), then enter data once to apply the same values to all selected dates - perfect for entering the same values across multiple days\n3. **Navigate Months**: Use the arrow buttons (◀ ▶) to move between months, or click "Today" to jump to the current month\n4. **View Modes**: Toggle between Week and Month view using the buttons in the header\n5. **Monthly Summary**: Scroll down to see monthly totals, averages, and insights automatically calculated from your entries\n6. **Provider Name**: Optionally enter a provider name at the top to identify this tracking data\n\n**Tips:**\n\n• Double-click a day cell to quickly clear its data\n• Today\'s date is highlighted with a green border\n• Your data is automatically saved and will persist when you return\n• Use multi-select to quickly enter the same values for multiple days (e.g., if you saw 13 patients on Monday and Tuesday, select both days and enter once)',
+    storageKey: 'complens-provider-wrvu-tracking-guide-seen',
+  },
 };
+
 
 

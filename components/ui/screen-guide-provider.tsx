@@ -19,6 +19,8 @@ export function ScreenGuideProvider({ children }: { children: React.ReactNode })
       return SCREEN_GUIDES.callPayModeler;
     } else if (pathname === '/wrvu-forecaster') {
       return SCREEN_GUIDES.wrvuForecaster;
+    } else if (pathname === '/provider-wrvu-tracking') {
+      return SCREEN_GUIDES.providerWRVUTracking;
     } else if (pathname === '/scenarios') {
       return SCREEN_GUIDES.scenarios;
     }
@@ -42,5 +44,6 @@ export function ScreenGuideProvider({ children }: { children: React.ReactNode })
     </>
   );
 }
+
 
 

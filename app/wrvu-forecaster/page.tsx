@@ -33,6 +33,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DollarSign, User, Users, TrendingUp, Stethoscope } from 'lucide-react';
+import { PatientCalendarView } from '@/components/wrvu-forecaster/patient-calendar-view';
+import {
+  formatDateString,
+  syncCalendarToNumbers,
+  calculateTotalPatientsFromCalendar,
+} from '@/lib/utils/calendar-helpers';
+import { Switch } from '@/components/ui/switch';
 
 const STORAGE_KEY = 'wrvuForecasterState';
 
@@ -52,6 +59,12 @@ const getInitialState = (): WRVUForecasterInputs => {
           id: shift.id || `shift-${index}`,
         }));
       }
+      // Ensure calendar fields exist
+      if (!parsed.dailyPatientCounts) parsed.dailyPatientCounts = {};
+      if (!parsed.vacationDates) parsed.vacationDates = [];
+      if (!parsed.cmeDates) parsed.cmeDates = [];
+      if (!parsed.statutoryHolidayDates) parsed.statutoryHolidayDates = [];
+      if (parsed.useCalendarMode === undefined) parsed.useCalendarMode = false;
       return parsed;
     }
   } catch (error) {
@@ -112,6 +125,12 @@ const getDefaultState = (): WRVUForecasterInputs => ({
   baseSalary: 150000,
   wrvuConversionFactor: 45.52,
   isPerHour: true,
+  // Calendar fields
+  dailyPatientCounts: {},
+  vacationDates: [],
+  cmeDates: [],
+  statutoryHolidayDates: [],
+  useCalendarMode: false,
 });
 
 export default function WRVUForecasterPage() {
@@ -137,35 +156,101 @@ export default function WRVUForecasterPage() {
 
   // Calculate metrics whenever inputs change
   useEffect(() => {
-    // Calculate weeks worked per year
-    const totalWeeksOff =
-      inputs.vacationWeeks + (inputs.cmeDays + inputs.statutoryHolidays) / 7;
-    const weeksWorkedPerYear = 52 - totalWeeksOff;
+    let weeksWorkedPerYear: number;
+    let annualClinicDays: number;
+    let annualClinicalHours: number;
+    let encountersPerWeek: number;
+    let annualPatientEncounters: number;
 
-    // Calculate annual clinic days and hours
-    const totalDaysPerWeek = inputs.shifts.reduce(
-      (total, shift) => total + shift.perWeek,
-      0
-    );
-    const totalHoursPerWeek = inputs.shifts.reduce(
-      (total, shift) => total + shift.hours * shift.perWeek,
-      0
-    );
+    if (inputs.useCalendarMode && inputs.dailyPatientCounts) {
+      // Calendar-based calculations
+      const calendarData = calculateTotalPatientsFromCalendar(
+        inputs.dailyPatientCounts,
+        inputs.vacationDates,
+        inputs.cmeDates,
+        inputs.statutoryHolidayDates
+      );
 
-    const annualClinicDays =
-      totalDaysPerWeek * weeksWorkedPerYear -
-      inputs.statutoryHolidays -
-      inputs.cmeDays;
-    const annualClinicalHours = totalHoursPerWeek * weeksWorkedPerYear;
+      // Sync calendar dates to number inputs for display
+      const syncedNumbers = syncCalendarToNumbers(
+        inputs.vacationDates,
+        inputs.cmeDates,
+        inputs.statutoryHolidayDates
+      );
 
-    // Calculate encounters
-    const encountersPerWeek = inputs.isPerHour
-      ? totalHoursPerWeek * inputs.patientsPerHour
-      : totalDaysPerWeek * inputs.patientsPerDay;
+      // Calculate weeks worked per year from calendar
+      const totalWeeksOff =
+        syncedNumbers.vacationWeeks +
+        (syncedNumbers.cmeDays + syncedNumbers.statutoryHolidays) / 7;
+      weeksWorkedPerYear = 52 - totalWeeksOff;
 
-    const annualPatientEncounters = inputs.isPerHour
-      ? annualClinicalHours * inputs.patientsPerHour
-      : annualClinicDays * inputs.patientsPerDay;
+      // Calculate annual clinic days and hours
+      const totalDaysPerWeek = inputs.shifts.reduce(
+        (total, shift) => total + shift.perWeek,
+        0
+      );
+      const totalHoursPerWeek = inputs.shifts.reduce(
+        (total, shift) => total + shift.hours * shift.perWeek,
+        0
+      );
+
+      annualClinicDays =
+        totalDaysPerWeek * weeksWorkedPerYear -
+        syncedNumbers.statutoryHolidays -
+        syncedNumbers.cmeDays;
+      annualClinicalHours = totalHoursPerWeek * weeksWorkedPerYear;
+
+      // Annualize calendar data
+      // If we have substantial data (full year or close), use average and annualize
+      // Otherwise, use the average pattern from available data
+      const avgPatientsPerDay = calendarData.averagePerDay;
+      const coverage = calendarData.coverage;
+
+      if (coverage.isFullYear && coverage.totalDaysWithData > 0) {
+        // We have a full year of data - use it directly
+        annualPatientEncounters = calendarData.totalPatients;
+      } else if (coverage.totalDaysWithData > 0) {
+        // We have partial data - annualize using average pattern
+        // Calculate average patients per working day from calendar
+        // Then multiply by annual working days
+        annualPatientEncounters = avgPatientsPerDay * annualClinicDays;
+      } else {
+        // No calendar data yet - fallback to zero
+        annualPatientEncounters = 0;
+      }
+
+      encountersPerWeek = (annualPatientEncounters / 52) * weeksWorkedPerYear;
+    } else {
+      // Traditional number-based calculations
+      const totalWeeksOff =
+        inputs.vacationWeeks + (inputs.cmeDays + inputs.statutoryHolidays) / 7;
+      weeksWorkedPerYear = 52 - totalWeeksOff;
+
+      // Calculate annual clinic days and hours
+      const totalDaysPerWeek = inputs.shifts.reduce(
+        (total, shift) => total + shift.perWeek,
+        0
+      );
+      const totalHoursPerWeek = inputs.shifts.reduce(
+        (total, shift) => total + shift.hours * shift.perWeek,
+        0
+      );
+
+      annualClinicDays =
+        totalDaysPerWeek * weeksWorkedPerYear -
+        inputs.statutoryHolidays -
+        inputs.cmeDays;
+      annualClinicalHours = totalHoursPerWeek * weeksWorkedPerYear;
+
+      // Calculate encounters
+      encountersPerWeek = inputs.isPerHour
+        ? totalHoursPerWeek * inputs.patientsPerHour
+        : totalDaysPerWeek * inputs.patientsPerDay;
+
+      annualPatientEncounters = inputs.isPerHour
+        ? annualClinicalHours * inputs.patientsPerHour
+        : annualClinicDays * inputs.patientsPerDay;
+    }
 
     // Calculate wRVUs and compensation
     const estimatedAnnualWRVUs =
@@ -193,10 +278,20 @@ export default function WRVUForecasterPage() {
     field: keyof WRVUForecasterInputs,
     value: number | boolean
   ) => {
-    setInputs((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setInputs((prev) => {
+      const updated = {
+        ...prev,
+        [field]: value,
+      };
+      // Ensure calendar fields are initialized when enabling calendar mode
+      if (field === 'useCalendarMode' && value === true) {
+        if (!updated.dailyPatientCounts) updated.dailyPatientCounts = {};
+        if (!updated.vacationDates) updated.vacationDates = [];
+        if (!updated.cmeDates) updated.cmeDates = [];
+        if (!updated.statutoryHolidayDates) updated.statutoryHolidayDates = [];
+      }
+      return updated;
+    });
   };
 
   const handleShiftChange = (
@@ -240,6 +335,63 @@ export default function WRVUForecasterPage() {
       ...prev,
       shifts: prev.shifts.filter((_, i) => i !== index),
     }));
+  };
+
+  // Calendar handlers
+  const handlePatientCountChange = (date: Date, count: number) => {
+    const dateStr = formatDateString(date);
+    setInputs((prev) => ({
+      ...prev,
+      dailyPatientCounts: {
+        ...prev.dailyPatientCounts,
+        [dateStr]: count,
+      },
+    }));
+  };
+
+  const handleDateTypeChange = (
+    date: Date,
+    type: 'vacation' | 'cme' | 'holiday' | null
+  ) => {
+    const dateStr = formatDateString(date);
+    setInputs((prev) => {
+      const newInputs = { ...prev };
+
+      // Remove from all arrays first
+      newInputs.vacationDates = (newInputs.vacationDates || []).filter(
+        (d) => d !== dateStr
+      );
+      newInputs.cmeDates = (newInputs.cmeDates || []).filter(
+        (d) => d !== dateStr
+      );
+      newInputs.statutoryHolidayDates = (
+        newInputs.statutoryHolidayDates || []
+      ).filter((d) => d !== dateStr);
+
+      // Add to appropriate array
+      if (type === 'vacation') {
+        newInputs.vacationDates = [...(newInputs.vacationDates || []), dateStr];
+      } else if (type === 'cme') {
+        newInputs.cmeDates = [...(newInputs.cmeDates || []), dateStr];
+      } else if (type === 'holiday') {
+        newInputs.statutoryHolidayDates = [
+          ...(newInputs.statutoryHolidayDates || []),
+          dateStr,
+        ];
+      }
+
+      // Sync calendar dates to number inputs
+      const synced = syncCalendarToNumbers(
+        newInputs.vacationDates,
+        newInputs.cmeDates,
+        newInputs.statutoryHolidayDates
+      );
+      newInputs.vacationWeeks = synced.vacationWeeks;
+      newInputs.cmeDays = synced.cmeDays;
+      newInputs.statutoryHolidays = synced.statutoryHolidays;
+
+      return newInputs;
+    });
   };
 
   const handleLoadScenario = (scenario: WRVUForecasterScenario) => {
@@ -348,6 +500,14 @@ Generated by CompLens™ Provider Compensation Intelligence
   };
 
   const validateStep2 = () => {
+    if (inputs.useCalendarMode) {
+      // In calendar mode, check if we have at least some patient data
+      const hasPatientData =
+        inputs.dailyPatientCounts &&
+        Object.keys(inputs.dailyPatientCounts).length > 0 &&
+        Object.values(inputs.dailyPatientCounts).some((count) => count > 0);
+      return hasPatientData && inputs.avgWRVUPerEncounter > 0;
+    }
     if (inputs.isPerHour) {
       return inputs.patientsPerHour > 0 && inputs.avgWRVUPerEncounter > 0;
     }
@@ -462,46 +622,84 @@ Generated by CompLens™ Provider Compensation Intelligence
               />
               
               <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-800 space-y-4" data-tour="forecaster-encounters">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-semibold">Patient Volume</Label>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="toggle-mode" className="text-sm text-gray-600 dark:text-gray-400">
-                      {inputs.isPerHour ? 'Per Hour' : 'Per Day'}
+                {/* Calendar Mode Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="calendar-mode" className="text-sm font-semibold">
+                      Use Calendar View
                     </Label>
-                    <input
-                      type="checkbox"
-                      id="toggle-mode"
-                      checked={inputs.isPerHour}
-                      onChange={(e) => handleInputChange('isPerHour', e.target.checked)}
-                      className="sr-only"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleInputChange('isPerHour', !inputs.isPerHour)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        inputs.isPerHour ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          inputs.isPerHour ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Input patient counts for each day and mark vacation/CME/holiday dates
+                    </p>
                   </div>
+                  <Switch
+                    id="calendar-mode"
+                    checked={!!inputs.useCalendarMode}
+                    onCheckedChange={(checked) => {
+                      handleInputChange('useCalendarMode', checked);
+                    }}
+                  />
                 </div>
 
-                <NumberInputWithButtons
-                  label={inputs.isPerHour ? 'Patients Seen Per Hour' : 'Patients Seen Per Day'}
-                  value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
-                  onChange={(value) =>
-                    handleInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value)
-                  }
-                  icon={<Users className="w-5 h-5" />}
-                  min={0}
-                  step={1}
-                  integerOnly
-                />
+                {!!inputs.useCalendarMode ? (
+                  /* Calendar View */
+                  <div className="space-y-4">
+                    <PatientCalendarView
+                      dailyPatientCounts={inputs.dailyPatientCounts}
+                      vacationDates={inputs.vacationDates}
+                      cmeDates={inputs.cmeDates}
+                      holidayDates={inputs.statutoryHolidayDates}
+                      onPatientCountChange={handlePatientCountChange}
+                      onDateTypeChange={handleDateTypeChange}
+                      avgWRVUPerEncounter={inputs.avgWRVUPerEncounter}
+                      adjustedWRVUPerEncounter={inputs.adjustedWRVUPerEncounter}
+                    />
+                  </div>
+                ) : (
+                  /* Traditional Number Inputs */
+                  <>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-semibold">Patient Volume</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="toggle-mode" className="text-sm text-gray-600 dark:text-gray-400">
+                          {inputs.isPerHour ? 'Per Hour' : 'Per Day'}
+                        </Label>
+                        <input
+                          type="checkbox"
+                          id="toggle-mode"
+                          checked={inputs.isPerHour}
+                          onChange={(e) => handleInputChange('isPerHour', e.target.checked)}
+                          className="sr-only"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleInputChange('isPerHour', !inputs.isPerHour)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            inputs.isPerHour ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              inputs.isPerHour ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    <NumberInputWithButtons
+                      label={inputs.isPerHour ? 'Patients Seen Per Hour' : 'Patients Seen Per Day'}
+                      value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
+                      onChange={(value) =>
+                        handleInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value)
+                      }
+                      icon={<Users className="w-5 h-5" />}
+                      min={0}
+                      step={1}
+                      integerOnly
+                    />
+                  </>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <NumberInputWithButtons

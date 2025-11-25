@@ -199,6 +199,8 @@ export function Header() {
       storageKey = SCREEN_GUIDES.callPayModeler.storageKey;
     } else if (pathname === '/wrvu-forecaster') {
       storageKey = SCREEN_GUIDES.wrvuForecaster.storageKey;
+    } else if (pathname === '/provider-wrvu-tracking') {
+      storageKey = SCREEN_GUIDES.providerWRVUTracking.storageKey;
     } else if (pathname === '/scenarios') {
       storageKey = SCREEN_GUIDES.scenarios.storageKey;
     }
@@ -358,8 +360,8 @@ export function Header() {
                 "relative z-20"
               )}
               onClick={openScreenGuide}
-              aria-label="Take tour"
-              title="Take tour"
+              aria-label={isHome ? "Take tour" : "Show help"}
+              title={isHome ? "Take tour" : "Show help"}
               style={{ animationDelay: '0.1s' }}
             >
               <Sparkles className="w-5 h-5 transition-all duration-300 group-hover:scale-110 group-hover:animate-sparkle-pulse" />

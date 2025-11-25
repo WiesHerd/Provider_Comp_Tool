@@ -91,7 +91,7 @@ export function WRVUMonthlySummary({
       <CardContent className="space-y-4">
         {/* Primary Stats - 2 columns on mobile, 4 on desktop */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
@@ -103,7 +103,7 @@ export function WRVUMonthlySummary({
             </p>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
@@ -115,7 +115,7 @@ export function WRVUMonthlySummary({
             </p>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-1">
               <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
@@ -127,7 +127,7 @@ export function WRVUMonthlySummary({
             </p>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 Working Days
@@ -141,47 +141,47 @@ export function WRVUMonthlySummary({
 
         {/* Averages - 2 columns on mobile, 3 on desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border-2 border-blue-200 dark:border-blue-800">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+              <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Avg Patients/Day
               </h4>
             </div>
-            <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">
               {formatNumber(monthStats.avgPatientsPerDay, 1)}
             </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               Based on {monthStats.daysWithData} day{monthStats.daysWithData !== 1 ? 's' : ''} with data
             </p>
           </div>
 
-          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border-2 border-purple-200 dark:border-purple-800">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-100">
+              <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Avg wRVUs/Day
               </h4>
             </div>
-            <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">
               {formatNumber(monthStats.avgWRVUsPerDay, 2)}
             </p>
-            <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               Based on {monthStats.daysWithData} day{monthStats.daysWithData !== 1 ? 's' : ''} with data
             </p>
           </div>
 
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border-2 border-green-200 dark:border-green-800">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-2">
-              <Calculator className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <h4 className="text-sm font-semibold text-green-900 dark:text-green-100">
+              <Calculator className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Avg wRVUs/Patient
               </h4>
             </div>
-            <p className="text-3xl font-bold text-green-900 dark:text-green-100">
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">
               {formatNumber(monthStats.avgWRVUsPerPatient, 2)}
             </p>
-            <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               {monthStats.totalPatients > 0 
                 ? `Based on ${formatNumber(monthStats.totalPatients)} patients`
                 : 'No patients recorded'}

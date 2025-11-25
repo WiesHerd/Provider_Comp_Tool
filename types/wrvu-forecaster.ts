@@ -20,6 +20,12 @@ export interface WRVUForecasterInputs {
   baseSalary: number;
   wrvuConversionFactor: number;
   isPerHour: boolean;
+  // Calendar-based fields
+  dailyPatientCounts?: Record<string, number>; // Map of date strings (YYYY-MM-DD) to patient counts
+  vacationDates?: string[]; // Array of date strings for vacation days
+  cmeDates?: string[]; // Array of date strings for CME days
+  statutoryHolidayDates?: string[]; // Array of date strings for statutory holidays
+  useCalendarMode?: boolean; // Flag to use calendar data vs. number inputs
 }
 
 export interface ProductivityMetrics {

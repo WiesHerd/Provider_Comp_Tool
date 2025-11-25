@@ -8,9 +8,12 @@ import {
   Clock,
   TrendingUp,
   Info,
+  AlertCircle,
 } from 'lucide-react';
 import { ProductivityMetrics, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 import { cn } from '@/lib/utils/cn';
+import { analyzeCalendarDataCoverage, formatDateString } from '@/lib/utils/calendar-helpers';
+import { format } from 'date-fns';
 
 interface ProductivitySummaryProps {
   metrics: ProductivityMetrics;
@@ -65,6 +68,16 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
   // Calculate incentive payments
   const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
   const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
+
+  // Analyze calendar data if in calendar mode
+  const calendarCoverage = inputs.useCalendarMode && inputs.dailyPatientCounts
+    ? analyzeCalendarDataCoverage(
+        inputs.dailyPatientCounts,
+        inputs.vacationDates,
+        inputs.cmeDates,
+        inputs.statutoryHolidayDates
+      )
+    : null;
 
   const formatNumber = (value: number) =>
     new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
@@ -137,20 +150,77 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       icon: <Users className="w-6 h-6" />,
       label: 'Annual Patient Encounters',
       value: formatNumber(metrics.annualPatientEncounters),
-      tooltipText: 'Total patient encounters per year based on your schedule and daily/hourly patient load',
+      tooltipText: inputs.useCalendarMode
+        ? `Total patient encounters per year ${calendarCoverage?.isFullYear ? 'from your calendar entries' : 'annualized from your calendar data (average daily pattern × annual working days)'}`
+        : 'Total patient encounters per year based on your schedule and daily/hourly patient load',
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
       label: 'Estimated Annual wRVUs',
       value: formatNumber(metrics.estimatedAnnualWRVUs),
       difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs),
-      tooltipText: 'Total annual wRVUs based on patient encounters and average wRVU per encounter',
+      tooltipText: inputs.useCalendarMode
+        ? `Annual wRVUs: ${formatNumber(metrics.annualPatientEncounters)} encounters × ${inputs.avgWRVUPerEncounter.toFixed(2)} wRVU/encounter = ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs. ${calendarCoverage?.isFullYear ? 'Based on full year calendar data.' : 'Annualized from calendar average.'}`
+        : 'Total annual wRVUs based on patient encounters and average wRVU per encounter',
     },
   ];
 
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Forecast Results</h3>
+      
+      {/* Calendar Data Source Notice */}
+      {inputs.useCalendarMode && calendarCoverage && (
+        <div className={cn(
+          'rounded-lg border-2 p-4',
+          calendarCoverage.isFullYear
+            ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+            : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+        )}>
+          <div className="flex items-start gap-3">
+            <AlertCircle className={cn(
+              'w-5 h-5 flex-shrink-0 mt-0.5',
+              calendarCoverage.isFullYear
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-amber-600 dark:text-amber-400'
+            )} />
+            <div className="flex-1">
+              <h4 className={cn(
+                'text-sm font-semibold mb-1',
+                calendarCoverage.isFullYear
+                  ? 'text-blue-900 dark:text-blue-100'
+                  : 'text-amber-900 dark:text-amber-100'
+              )}>
+                {calendarCoverage.isFullYear 
+                  ? 'Using Full Year Calendar Data'
+                  : 'Annualizing from Partial Calendar Data'}
+              </h4>
+              <p className={cn(
+                'text-xs leading-relaxed',
+                calendarCoverage.isFullYear
+                  ? 'text-blue-700 dark:text-blue-300'
+                  : 'text-amber-700 dark:text-amber-300'
+              )}>
+                {calendarCoverage.isFullYear ? (
+                  <>
+                    Your calendar contains data for {calendarCoverage.monthsCovered} month{calendarCoverage.monthsCovered !== 1 ? 's' : ''} 
+                    ({calendarCoverage.totalDaysWithData} working days). Annual projections are based on your actual calendar entries.
+                  </>
+                ) : (
+                  <>
+                    Your calendar contains data for {calendarCoverage.monthsCovered} month{calendarCoverage.monthsCovered !== 1 ? 's' : ''} 
+                    ({calendarCoverage.totalDaysWithData} working days, {Math.round(calendarCoverage.coveragePercentage)}% of year). 
+                    Annual projections are calculated by averaging your daily patient counts and applying that pattern to all {Math.round(metrics.annualClinicDays)} annual working days.
+                    {calendarCoverage.dateRange.start && calendarCoverage.dateRange.end && (
+                      <> Data range: {format(calendarCoverage.dateRange.start, 'MMM d')} - {format(calendarCoverage.dateRange.end, 'MMM d, yyyy')}.</>
+                    )}
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Compensation Section */}
       <div className="space-y-3">
