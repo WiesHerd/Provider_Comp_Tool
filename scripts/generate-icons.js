@@ -100,44 +100,76 @@ async function generateIcons() {
       console.log(`✓ Generated circular badge icon-${size}x${size}.png (green circle, white background, mobile-optimized)`);
     }
 
-    // Generate favicon with rounded corners (larger size for better quality)
-    // Use a larger size (64x64) and scale down for better quality, with more visible rounded corners
-    const faviconSize = 64;
-    const faviconRadius = 10; // More pronounced rounded corners
+    // Generate favicon using the same circular badge design
+    const faviconSize = 64; // Generate at higher resolution for quality
+    const circleSize = Math.round(faviconSize * 0.85);
+    const circlePadding = Math.round((faviconSize - circleSize) / 2);
+    const logoSize = Math.round(circleSize * 0.60);
+    const logoPadding = Math.round((circleSize - logoSize) / 2);
     
-    const faviconResized = await sharp(logoPath)
-      .resize(faviconSize, faviconSize, {
+    // Resize the logo
+    const faviconLogo = await sharp(logoPath)
+      .resize(logoSize, logoSize, {
         fit: 'contain',
         background: { r: 255, g: 255, b: 255, alpha: 0 }
       })
       .toBuffer();
     
-    // Create rounded mask with more visible corners
-    const faviconMask = await sharp(createRoundedMask(faviconSize, faviconRadius))
-      .resize(faviconSize, faviconSize)
-      .greyscale()
+    // Create white background
+    const faviconWhiteBg = await sharp({
+      create: {
+        width: faviconSize,
+        height: faviconSize,
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
+      }
+    })
+      .png()
       .toBuffer();
     
-    // Apply rounded corners
-    const faviconWithRoundedCorners = await sharp(faviconResized)
-      .composite([{ input: faviconMask, blend: 'dest-in' }])
+    // Create green circle
+    const faviconCircleSvg = `
+      <svg width="${faviconSize}" height="${faviconSize}" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="${faviconSize/2}" cy="${faviconSize/2}" r="${circleSize/2}" fill="#00C805"/>
+      </svg>
+    `;
+    
+    const faviconCircle = await sharp(Buffer.from(faviconCircleSvg))
+      .resize(faviconSize, faviconSize)
+      .png()
+      .toBuffer();
+    
+    // Composite favicon
+    const faviconFinal = await sharp(faviconWhiteBg)
+      .composite([
+        {
+          input: faviconCircle,
+          blend: 'over'
+        },
+        {
+          input: faviconLogo,
+          left: circlePadding + logoPadding,
+          top: circlePadding + logoPadding,
+          blend: 'over'
+        }
+      ])
       .png()
       .toBuffer();
     
     // Save as favicon.png (resize to 32x32 for browser compatibility)
     const faviconPngPath = path.join(projectRoot, 'public', 'favicon.png');
-    await sharp(faviconWithRoundedCorners)
+    await sharp(faviconFinal)
       .resize(32, 32)
       .toFile(faviconPngPath);
     
-    // Save as favicon.ico (resize to 32x32, ICO format)
+    // Save as favicon.ico (resize to 32x32)
     const faviconIcoPath = path.join(projectRoot, 'public', 'favicon.ico');
-    await sharp(faviconWithRoundedCorners)
+    await sharp(faviconFinal)
       .resize(32, 32)
       .toFile(faviconIcoPath);
     
-    console.log('✓ Generated favicon.png and favicon.ico with rounded corners');
-    console.log('\n✅ All icons generated successfully with rounded corners!');
+    console.log('✓ Generated favicon.png and favicon.ico with circular badge design');
+    console.log('\n✅ All icons generated successfully!');
   } catch (error) {
     console.error('Error generating icons:', error);
     process.exit(1);
