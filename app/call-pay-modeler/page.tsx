@@ -11,6 +11,7 @@ import { TierManager } from '@/components/call-pay/tier-manager';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { StepIndicator } from '@/components/ui/step-indicator';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/ui/back-button';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
 import { ProviderScenario } from '@/types';
@@ -70,6 +71,7 @@ export default function CallPayModelerPage() {
   const [expandedTier, setExpandedTier] = useState<string>('C1');
   const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [currentScenarioId, setCurrentScenarioId] = useState<string | null>(null);
   
   // Load scenarios on mount
   useEffect(() => {
@@ -169,6 +171,7 @@ export default function CallPayModelerPage() {
     // Reset other state
     setExpandedTier('C1');
     setAnnualAllowableBudget(null);
+    setCurrentScenarioId(null); // Clear current scenario
     setActiveStep(1);
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -213,6 +216,7 @@ export default function CallPayModelerPage() {
                     if (callPayData.tiers.length > 0) {
                       setExpandedTier(callPayData.tiers[0].id);
                     }
+                    setCurrentScenarioId(scenario.id); // Track loaded scenario
                     setActiveStep(3); // Jump to review budget
                   }
                 }}
@@ -230,6 +234,11 @@ export default function CallPayModelerPage() {
       {/* Step 2: Configure Tiers (Only show when on Step 2) */}
       {activeStep === 2 && (
         <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
+          {/* Back button in Step 2 to return to Step 1 */}
+          <div className="flex items-center gap-2 mb-4">
+            <BackButton onClick={() => setActiveStep(1)} aria-label="Back to Set Context" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">Back to Set Context</span>
+          </div>
           {/* Content - No container */}
           <div className="space-y-6">
             {/* Segmented Control for Tier Selection with Add/Remove buttons */}
@@ -367,6 +376,11 @@ export default function CallPayModelerPage() {
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
         <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
+          {/* Back button in Step 3 to return to Step 2 */}
+          <div className="flex items-center gap-2 mb-4">
+            <BackButton onClick={() => setActiveStep(2)} aria-label="Back to Configure Tiers" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">Back to Configure Tiers</span>
+          </div>
           {/* Header removed - step indicator above provides context */}
           
           {/* Content - No container */}
@@ -384,6 +398,7 @@ export default function CallPayModelerPage() {
                   tiers={tiers}
                   impact={impact}
                   annualAllowableBudget={annualAllowableBudget}
+                  currentScenarioId={currentScenarioId}
                 />
                 <Button
                   variant="outline"

@@ -11,7 +11,8 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Calculator } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
+import { Calculator, RotateCcw } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, ProviderScenario } from '@/types';
 import { calculateCFPercentile } from '@/lib/utils/percentile';
@@ -129,11 +130,16 @@ function CFCalculatorPageContent() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12 space-y-6 sm:space-y-8">
+      {/* Back button to metric selector - visible on all screens */}
+      <div className="pt-8 flex items-center gap-4">
+        <BackButton href="/fmv-calculator" aria-label="Back to FMV Calculator" />
+      </div>
+
       {/* Combined Input Screen - CF Input and Market Data together */}
       {!showResults && (
       <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white pt-8">Conversion Factor</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Factor</h2>
           <div className="flex items-center justify-between">
             {cfValue > 0 && (
               <ProviderInputSaveButton
@@ -257,8 +263,9 @@ function CFCalculatorPageContent() {
               <Button
                 variant="outline"
                 onClick={handleStartNew}
-                className="w-full sm:w-auto gap-2"
+                className="w-full sm:w-auto min-h-[44px] touch-target"
               >
+                <RotateCcw className="w-4 h-4 mr-2" />
                 Start Over
               </Button>
             </div>

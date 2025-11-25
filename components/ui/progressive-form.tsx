@@ -2,7 +2,7 @@
 
 import { useState, ReactNode, createContext, useContext } from 'react';
 import { Button } from './button';
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 interface ProgressiveFormContextType {
@@ -195,7 +195,7 @@ export function ProgressiveFormNavigation({
           onClick={handlePrevious}
           className="flex-1 sm:flex-initial sm:min-w-[120px]"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ChevronLeft className="w-4 h-4 mr-2" />
           {previousLabel}
         </Button>
       )}
