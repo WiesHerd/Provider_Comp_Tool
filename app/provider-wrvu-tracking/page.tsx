@@ -7,7 +7,6 @@ import { WRVUMonthlySummary } from '@/components/provider-wrvu-tracking/wrvu-mon
 import { WRVUTrackingActions } from '@/components/provider-wrvu-tracking/wrvu-tracking-actions';
 import { WRVUGoalTracking } from '@/components/provider-wrvu-tracking/wrvu-goal-tracking';
 import { WRVUCharts } from '@/components/provider-wrvu-tracking/wrvu-charts';
-import { MonthlyGoals } from '@/types/provider-wrvu-tracking';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -243,6 +242,18 @@ export default function ProviderWRVUTrackingPage() {
         </div>
       )}
 
+      {/* Goal Tracking - Moved to Top */}
+      <div className="mb-6">
+        <WRVUGoalTracking
+          currentDate={currentDate}
+          goals={currentGoals}
+          actualPatients={monthStats.totalPatients}
+          actualWRVUs={monthStats.totalWRVUs}
+          dailyData={state.dailyData}
+          onGoalsChange={handleGoalsChange}
+        />
+      </div>
+
       {/* Provider Name Input */}
       <Card className="mb-6 border-2">
         <CardHeader className="pb-4">
@@ -344,17 +355,6 @@ export default function ProviderWRVUTrackingPage() {
         currentDate={currentDate}
         dailyData={state.dailyData}
       />
-
-      {/* Goal Tracking */}
-      <div className="mt-6">
-        <WRVUGoalTracking
-          currentDate={currentDate}
-          goals={currentGoals}
-          actualPatients={monthStats.totalPatients}
-          actualWRVUs={monthStats.totalWRVUs}
-          onGoalsChange={handleGoalsChange}
-        />
-      </div>
 
       {/* Visual Charts */}
       <div className="mt-6">
