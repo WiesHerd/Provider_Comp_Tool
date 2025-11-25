@@ -122,5 +122,32 @@
     clip: auto;
     white-space: normal;
   }
+
+  /* Landscape orientation optimizations for mobile calendar */
+  @media (orientation: landscape) and (max-width: 896px) {
+    /* Calendar container - remove horizontal scroll in landscape */
+    .calendar-container-landscape {
+      overflow-x: visible !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    
+    /* Calendar grid - remove min-width constraint in landscape */
+    .calendar-grid-landscape {
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+    
+    /* Show full day names in landscape */
+    .calendar-day-name-landscape {
+      display: inline !important;
+    }
+    
+    .calendar-day-name-short-landscape {
+      display: none !important;
+    }
+  }
 }
 

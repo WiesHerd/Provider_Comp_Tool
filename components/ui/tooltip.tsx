@@ -8,32 +8,27 @@ interface TooltipProps {
   content: string;
   side?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
+  disableOnTouch?: boolean; // Option to disable on touch devices (Apple-style)
 }
 
-export function Tooltip({ children, content, side = 'top', className }: TooltipProps) {
+export function Tooltip({ children, content, side = 'top', className, disableOnTouch = false }: TooltipProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
   const timeoutRef = React.useRef<NodeJS.Timeout>();
   const delayTimeoutRef = React.useRef<NodeJS.Timeout>();
 
-  const handleTouchStart = () => {
-    // Clear any existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (delayTimeoutRef.current) {
-      clearTimeout(delayTimeoutRef.current);
-    }
-    setIsOpen(true);
-  };
-
-  const handleTouchEnd = () => {
-    // Keep tooltip open briefly, then close
-    timeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 2000); // Show for 2 seconds on mobile
-  };
+  // Detect touch device on mount
+  React.useEffect(() => {
+    const checkTouch = () => {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    checkTouch();
+  }, []);
 
   const handleMouseEnter = () => {
+    // Don't show tooltip on touch devices if disabled
+    if (disableOnTouch && isTouchDevice) return;
+    
     // Clear any existing timeouts
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -41,10 +36,10 @@ export function Tooltip({ children, content, side = 'top', className }: TooltipP
     if (delayTimeoutRef.current) {
       clearTimeout(delayTimeoutRef.current);
     }
-    // Add delay before showing tooltip (450ms)
+    // Add delay before showing tooltip (Apple uses ~500ms)
     delayTimeoutRef.current = setTimeout(() => {
       setIsOpen(true);
-    }, 450);
+    }, 500);
   };
 
   const handleMouseLeave = () => {
@@ -52,10 +47,15 @@ export function Tooltip({ children, content, side = 'top', className }: TooltipP
     if (delayTimeoutRef.current) {
       clearTimeout(delayTimeoutRef.current);
     }
-    // Close tooltip with slight delay for smooth transition
-    timeoutRef.current = setTimeout(() => {
+    // Hide immediately (Apple-style - no delay on leave)
+    setIsOpen(false);
+  };
+
+  const handleMouseMove = () => {
+    // Hide tooltip if mouse moves (prevents stuck tooltips)
+    if (isOpen) {
       setIsOpen(false);
-    }, 100);
+    }
   };
 
   React.useEffect(() => {
@@ -69,13 +69,17 @@ export function Tooltip({ children, content, side = 'top', className }: TooltipP
     };
   }, []);
 
+  // Don't render tooltip wrapper on touch devices if disabled
+  if (disableOnTouch && isTouchDevice) {
+    return <>{children}</>;
+  }
+
   return (
     <div 
       className="relative inline-block"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
     >
       {children}
       {isOpen && (

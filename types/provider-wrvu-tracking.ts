@@ -5,9 +5,16 @@ export interface DailyTrackingData {
   workRVUs: number;
 }
 
+export interface MonthlyGoals {
+  targetPatients?: number;
+  targetWRVUs?: number;
+}
+
 export interface ProviderWRVUTrackingState {
   dailyData: Record<DateString, DailyTrackingData>;
   currentMonth: string; // ISO date string (YYYY-MM-DD format for first day of month)
   providerName?: string;
+  specialty?: string;
+  goals?: Record<string, MonthlyGoals>; // Key: YYYY-MM format
 }
 

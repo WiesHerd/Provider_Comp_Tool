@@ -5,7 +5,14 @@ import { format, addMonths, subMonths, startOfToday } from 'date-fns';
 import { WRVUCalendarDayCell } from './wrvu-calendar-day-cell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Calendar, Grid, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Grid, Info, CalendarDays } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils/cn';
 import {
   getWeekDays,
@@ -203,6 +210,40 @@ export function WRVUCalendarView({
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
+              
+              {/* Month/Year Picker */}
+              <Select
+                value={format(currentDate, 'yyyy-MM')}
+                onValueChange={(value) => {
+                  const [year, month] = value.split('-').map(Number);
+                  const newDate = new Date(year, month - 1, 1);
+                  setCurrentDate(newDate);
+                  if (onMonthChange) {
+                    onMonthChange(newDate);
+                  }
+                }}
+              >
+                <SelectTrigger className="h-9 w-[140px] text-sm">
+                  <CalendarDays className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - 12 + i);
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1;
+                    const monthYear = `${year}-${String(month).padStart(2, '0')}`;
+                    const monthName = format(date, 'MMMM yyyy');
+                    return (
+                      <SelectItem key={monthYear} value={monthYear}>
+                        {monthName}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              
               <Button
                 type="button"
                 variant={isViewingToday ? "default" : "outline"}
@@ -274,22 +315,22 @@ export function WRVUCalendarView({
             Select multiple dates, then enter data once to apply the same values to all selected dates.
           </p>
           
-          <div className="w-full overflow-x-auto overflow-y-visible -mx-4 sm:mx-0 px-4 sm:px-6 sm:px-0">
+          <div className="w-full overflow-x-auto overflow-y-visible -mx-4 sm:mx-0 px-4 sm:px-6 sm:px-0 calendar-container-landscape">
             {/* Day headers */}
-            <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px]">
+            <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px] calendar-grid-landscape">
               {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
                 <div
                   key={day}
                   className="text-center text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-1"
                 >
-                  <span className="hidden sm:inline">{day}</span>
-                  <span className="sm:hidden">{day.slice(0, 3)}</span>
+                  <span className="hidden sm:inline calendar-day-name-landscape">{day}</span>
+                  <span className="sm:hidden calendar-day-name-short-landscape">{day.slice(0, 3)}</span>
                 </div>
               ))}
             </div>
 
             {/* Calendar days */}
-            <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-2">
+            <div className="space-y-2 sm:space-y-3 min-w-[700px] calendar-grid-landscape pb-2">
               {weeks.map((week, weekIndex) => (
                 <div key={weekIndex} className="grid grid-cols-7 gap-2 sm:gap-3">
                   {week.map((date) => {

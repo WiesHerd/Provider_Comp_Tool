@@ -180,7 +180,7 @@ export function WRVUCalendarDayCell({
   }, [date, trackingData, hasData]);
 
   return (
-    <Tooltip content={tooltipContent} side="top">
+    <Tooltip content={tooltipContent} side="top" disableOnTouch={true}>
       <div
         className={cellClasses}
         onDoubleClick={handleDoubleClick}
