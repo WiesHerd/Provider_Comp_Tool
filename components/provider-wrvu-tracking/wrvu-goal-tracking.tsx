@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Target, TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react';
+import { Target, TrendingUp, Users, Calendar, AlertCircle, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { MonthlyGoals } from '@/types/provider-wrvu-tracking';
 import { DailyTrackingData } from '@/types/provider-wrvu-tracking';
@@ -107,6 +107,24 @@ export function WRVUGoalTracking({
   const projectedWRVUsProgress = goals?.targetWRVUs && projectedWRVUs > 0 
     ? (projectedWRVUs / goals.targetWRVUs) * 100 
     : 0;
+
+  // Calculate remaining needed
+  const remainingPatients = goals?.targetPatients ? Math.max(0, goals.targetPatients - actualPatients) : 0;
+  const remainingWRVUs = goals?.targetWRVUs ? Math.max(0, goals.targetWRVUs - actualWRVUs) : 0;
+  
+  // Calculate required daily average to reach goal
+  const requiredPatientsPerDay = daysRemaining > 0 && remainingPatients > 0 
+    ? remainingPatients / daysRemaining 
+    : 0;
+  const requiredWRVUsPerDay = daysRemaining > 0 && remainingWRVUs > 0 
+    ? remainingWRVUs / daysRemaining 
+    : 0;
+
+  // Compare current pace vs required pace
+  const patientsOnTrack = requiredPatientsPerDay === 0 || avgPatientsPerDay >= requiredPatientsPerDay * 0.95;
+  const patientsSlightlyBehind = !patientsOnTrack && avgPatientsPerDay >= requiredPatientsPerDay * 0.8;
+  const wrvusOnTrack = requiredWRVUsPerDay === 0 || avgWRVUsPerDay >= requiredWRVUsPerDay * 0.95;
+  const wrvusSlightlyBehind = !wrvusOnTrack && avgWRVUsPerDay >= requiredWRVUsPerDay * 0.8;
 
   const formatNumber = (value: number, decimals: number = 0) => {
     return new Intl.NumberFormat('en-US', {
@@ -283,6 +301,114 @@ export function WRVUGoalTracking({
                     </p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Remaining Needed - Apple-style */}
+            {daysRemaining > 0 && (goals?.targetPatients || goals?.targetWRVUs) && (
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Target className="w-4 h-4 text-primary" />
+                  To Reach Your Goals
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {goals.targetPatients && remainingPatients > 0 && (
+                    <div className={cn(
+                      "bg-white dark:bg-gray-800 rounded-lg p-3 border",
+                      patientsOnTrack ? "border-green-200 dark:border-green-800" :
+                      patientsSlightlyBehind ? "border-amber-200 dark:border-amber-800" :
+                      "border-red-200 dark:border-red-800"
+                    )}>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            Patients Needed
+                          </p>
+                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                            {formatNumber(remainingPatients)}
+                          </p>
+                        </div>
+                        {patientsOnTrack ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                        ) : patientsSlightlyBehind ? (
+                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        That's <span className={cn(
+                          "font-semibold",
+                          patientsOnTrack ? "text-green-600 dark:text-green-400" :
+                          patientsSlightlyBehind ? "text-amber-600 dark:text-amber-400" :
+                          "text-red-600 dark:text-red-400"
+                        )}>
+                          {formatNumber(requiredPatientsPerDay, 1)}/day
+                        </span>
+                      </p>
+                      {daysElapsed > 0 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          You're seeing {formatNumber(avgPatientsPerDay, 1)}/day
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {goals.targetWRVUs && remainingWRVUs > 0 && (
+                    <div className={cn(
+                      "bg-white dark:bg-gray-800 rounded-lg p-3 border",
+                      wrvusOnTrack ? "border-green-200 dark:border-green-800" :
+                      wrvusSlightlyBehind ? "border-amber-200 dark:border-amber-800" :
+                      "border-red-200 dark:border-red-800"
+                    )}>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            wRVUs Needed
+                          </p>
+                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                            {formatNumber(remainingWRVUs, 2)}
+                          </p>
+                        </div>
+                        {wrvusOnTrack ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                        ) : wrvusSlightlyBehind ? (
+                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        That's <span className={cn(
+                          "font-semibold",
+                          wrvusOnTrack ? "text-green-600 dark:text-green-400" :
+                          wrvusSlightlyBehind ? "text-amber-600 dark:text-amber-400" :
+                          "text-red-600 dark:text-red-400"
+                        )}>
+                          {formatNumber(requiredWRVUsPerDay, 2)}/day
+                        </span>
+                      </p>
+                      {daysElapsed > 0 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          You're seeing {formatNumber(avgWRVUsPerDay, 2)}/day
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {(remainingPatients === 0 || remainingWRVUs === 0) && (
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <p className="text-xs font-medium text-green-900 dark:text-green-100">
+                        {remainingPatients === 0 && remainingWRVUs === 0 
+                          ? "You've reached all your goals! 🎉"
+                          : remainingPatients === 0 
+                          ? "Patient goal reached! Keep up the great work."
+                          : "wRVU goal reached! Keep up the great work."}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

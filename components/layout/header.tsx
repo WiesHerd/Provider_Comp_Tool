@@ -177,6 +177,9 @@ export function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isLandscape, setIsLandscape] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const isHome = mounted && pathname === '/';
@@ -218,6 +221,54 @@ export function Header() {
     setTheme(initialTheme);
     document.documentElement.classList.toggle('dark', initialTheme === 'dark');
   }, []);
+
+  // Detect landscape orientation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkOrientation = () => {
+      const isLandscapeMode = window.matchMedia('(orientation: landscape)').matches && window.innerWidth < 1024;
+      setIsLandscape(isLandscapeMode);
+    };
+
+    checkOrientation();
+    const mediaQuery = window.matchMedia('(orientation: landscape)');
+    mediaQuery.addEventListener('change', checkOrientation);
+    window.addEventListener('resize', checkOrientation);
+
+    return () => {
+      mediaQuery.removeEventListener('change', checkOrientation);
+      window.removeEventListener('resize', checkOrientation);
+    };
+  }, []);
+
+  // Scroll-based auto-hide header (Safari-style)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Always show header at top of page
+      if (currentScrollY === 0) {
+        setIsHeaderVisible(true);
+        setLastScrollY(currentScrollY);
+        return;
+      }
+
+      // Hide when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsHeaderVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        setIsHeaderVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -276,12 +327,14 @@ export function Header() {
       <header 
         className={cn(
           "fixed top-0 left-0 right-0 z-50 safe-area-inset-top",
-          "border-b transition-colors duration-500",
+          "border-b transition-all duration-300 ease-in-out",
           "border-gray-200/60 dark:border-gray-800/60",
           "bg-white/80 dark:bg-gray-900/80",
           "backdrop-blur-2xl backdrop-saturate-150",
           "shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)]",
-          "supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70"
+          "supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70",
+          isHeaderVisible ? "translate-y-0" : "-translate-y-full",
+          isLandscape ? "py-1 md:py-2" : "py-2 md:py-5"
         )}
         suppressHydrationWarning
         role="banner"
@@ -289,9 +342,15 @@ export function Header() {
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent dark:from-gray-900/50 pointer-events-none" />
       
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-2 md:py-5 z-10">
+      <div className={cn(
+        "relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 z-10",
+        isLandscape ? "py-1" : ""
+      )}>
         <div className="flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-4 sm:gap-5">
+          <div className={cn(
+            "flex items-center",
+            isLandscape ? "gap-2 sm:gap-3" : "gap-4 sm:gap-5"
+          )}>
             {/* Back button - Apple style (only show when not on home) */}
             {mounted && pathname && pathname !== '/' && (
               <Button
@@ -331,7 +390,7 @@ export function Header() {
             {/* Page title - Apple style (subtle, in header) */}
             {pageTitle && (
               <h1 className={cn(
-                "text-base sm:text-lg md:text-xl",
+                isLandscape ? "text-sm sm:text-base" : "text-base sm:text-lg md:text-xl",
                 "font-semibold text-gray-900 dark:text-white",
                 "ml-1 hidden sm:block",
                 "tracking-[-0.01em]",
@@ -343,50 +402,65 @@ export function Header() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 relative z-20">
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              className={cn(
-                "min-w-[44px] h-[44px] rounded-full",
-                "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
-                "transition-all duration-300 ease-out",
-                "active:scale-[0.96]",
-                "hover:shadow-sm",
-                "group",
-                "animate-icon-enter",
-                "relative z-20"
-              )}
-              onClick={openScreenGuide}
-              aria-label={isHome ? "Take tour" : "Show help"}
-              title={isHome ? "Take tour" : "Show help"}
-              style={{ animationDelay: '0.1s' }}
-            >
-              <Sparkles className="w-5 h-5 transition-all duration-300 group-hover:scale-110 group-hover:animate-sparkle-pulse" />
-            </Button>
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              className={cn(
-                "min-w-[44px] h-[44px] rounded-full",
-                "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
-                "transition-all duration-300 ease-out",
-                "active:scale-[0.96]",
-                "hover:shadow-sm",
-                "group",
-                "animate-icon-enter",
-                "relative z-20"
-              )}
-              onClick={() => {
-                setDialogOpen(true);
-              }}
-              aria-label="Show instructions"
-              style={{ animationDelay: '0.15s' }}
-            >
-              <Info className="w-5 h-5 transition-all duration-300 group-hover:scale-110" />
-            </Button>
+          <div className={cn(
+            "flex items-center relative z-20",
+            isLandscape ? "gap-1 sm:gap-2" : "gap-2 sm:gap-3"
+          )}>
+            {(!isLandscape || (typeof window !== 'undefined' && window.innerWidth >= 640)) && (
+              <>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    isLandscape ? "min-w-[36px] h-[36px]" : "min-w-[44px] h-[44px]",
+                    "rounded-full",
+                    "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
+                    "transition-all duration-300 ease-out",
+                    "active:scale-[0.96]",
+                    "hover:shadow-sm",
+                    "group",
+                    "animate-icon-enter",
+                    "relative z-20"
+                  )}
+                  onClick={openScreenGuide}
+                  aria-label={isHome ? "Take tour" : "Show help"}
+                  title={isHome ? "Take tour" : "Show help"}
+                  style={{ animationDelay: '0.1s' }}
+                >
+                  <Sparkles className={cn(
+                    "transition-all duration-300 group-hover:scale-110 group-hover:animate-sparkle-pulse",
+                    isLandscape ? "w-4 h-4" : "w-5 h-5"
+                  )} />
+                </Button>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    isLandscape ? "min-w-[36px] h-[36px]" : "min-w-[44px] h-[44px]",
+                    "rounded-full",
+                    "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
+                    "transition-all duration-300 ease-out",
+                    "active:scale-[0.96]",
+                    "hover:shadow-sm",
+                    "group",
+                    "animate-icon-enter",
+                    "relative z-20"
+                  )}
+                  onClick={() => {
+                    setDialogOpen(true);
+                  }}
+                  aria-label="Show instructions"
+                  style={{ animationDelay: '0.15s' }}
+                >
+                  <Info className={cn(
+                    "transition-all duration-300 group-hover:scale-110",
+                    isLandscape ? "w-4 h-4" : "w-5 h-5"
+                  )} />
+                </Button>
+              </>
+            )}
             <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
               <Dialog.Portal>
                 <Dialog.Overlay 
@@ -531,7 +605,8 @@ export function Header() {
               size="sm"
               onClick={toggleTheme}
               className={cn(
-                "min-w-[44px] h-[44px] rounded-full",
+                isLandscape ? "min-w-[36px] h-[36px]" : "min-w-[44px] h-[44px]",
+                "rounded-full",
                 "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
                 "transition-all duration-300 ease-out",
                 "active:scale-[0.96]",
@@ -543,10 +618,14 @@ export function Header() {
               aria-label="Toggle theme"
               style={{ animationDelay: '0.2s' }}
             >
-              <div className="relative w-5 h-5">
+              <div className={cn(
+                "relative",
+                isLandscape ? "w-4 h-4" : "w-5 h-5"
+              )}>
                 <Sun 
                   className={cn(
-                    "absolute inset-0 w-5 h-5 transition-all duration-500 ease-out",
+                    "absolute inset-0 transition-all duration-500 ease-out",
+                    isLandscape ? "w-4 h-4" : "w-5 h-5",
                     theme === 'dark' 
                       ? "opacity-100 rotate-0 scale-100" 
                       : "opacity-0 rotate-90 scale-0"
@@ -554,7 +633,8 @@ export function Header() {
                 />
                 <Moon 
                   className={cn(
-                    "absolute inset-0 w-5 h-5 transition-all duration-500 ease-out",
+                    "absolute inset-0 transition-all duration-500 ease-out",
+                    isLandscape ? "w-4 h-4" : "w-5 h-5",
                     theme === 'light' 
                       ? "opacity-100 rotate-0 scale-100" 
                       : "opacity-0 -rotate-90 scale-0"

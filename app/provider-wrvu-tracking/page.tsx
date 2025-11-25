@@ -105,8 +105,7 @@ export default function ProviderWRVUTrackingPage() {
   // Always start with default state to avoid hydration mismatch
   const [state, setState] = useState<ProviderWRVUTrackingState>(getDefaultState());
   const [currentDate, setCurrentDate] = useState<Date>(startOfMonth(new Date()));
-  const [showSaveNotification, setShowSaveNotification] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const [saveFeedback, setSaveFeedback] = useState(false);
   const isInitialMountRef = useRef(true);
 
   // Load from localStorage only after mount
@@ -123,33 +122,25 @@ export default function ProviderWRVUTrackingPage() {
     }
   }, []);
 
-  // Save to localStorage whenever state changes
+  // Save to localStorage whenever state changes (silent auto-save)
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitialMountRef.current) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      // Show save notification
-      setShowSaveNotification(true);
-      // Clear any existing timeout
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      // Hide notification after 2 seconds
-      saveTimeoutRef.current = setTimeout(() => {
-        setShowSaveNotification(false);
-      }, 2000);
     } else {
       isInitialMountRef.current = false;
     }
   }, [state]);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, []);
+  // Manual save handler with feedback
+  const handleManualSave = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      setSaveFeedback(true);
+      setTimeout(() => {
+        setSaveFeedback(false);
+      }, 2000);
+    }
+  };
 
   // Update currentDate when state.currentMonth changes
   useEffect(() => {
@@ -301,15 +292,6 @@ export default function ProviderWRVUTrackingPage() {
 
   return (
     <div className="w-full px-3 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
-      {/* Save Notification */}
-      {showSaveNotification && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top fade-in duration-300">
-          <div className="bg-primary text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
-            <Check className="w-5 h-5" />
-            <span className="text-sm font-medium">Saved</span>
-          </div>
-        </div>
-      )}
 
       {/* Provider Name Input - At the very top */}
       <Card className="mb-6 border-2">
@@ -497,6 +479,8 @@ export default function ProviderWRVUTrackingPage() {
           dailyData={state.dailyData}
           providerName={state.providerName}
           specialty={state.specialty}
+          onSave={handleManualSave}
+          saveFeedback={saveFeedback}
         />
       </div>
     </div>
