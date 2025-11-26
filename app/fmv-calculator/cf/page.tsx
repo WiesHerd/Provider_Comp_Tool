@@ -167,7 +167,7 @@ function CFCalculatorPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
-      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
 
       {/* Combined Input Screen - CF Input and Market Data together */}
       {!showResults && (
@@ -198,7 +198,7 @@ function CFCalculatorPageContent() {
           </CardHeader>
           <CardContent className="space-y-6">
             {cfValue > 0 && (
-              <div className="flex items-center">
+              <div className="flex items-end">
                 <ProviderInputSaveButton
                   scenarioType="fmv-cf"
                   fte={1.0}
@@ -250,9 +250,9 @@ function CFCalculatorPageContent() {
 
       {/* Calculate Button - Always visible when not showing results */}
       {!showResults && cfValue > 0 && (
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
+        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           {!hasMarketData && (
-            <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
+            <p className="text-sm text-amber-600 dark:text-amber-400 text-center mb-3">
               Please enter at least one benchmark value (25th, 50th, 75th, or 90th percentile) to calculate.
             </p>
           )}
