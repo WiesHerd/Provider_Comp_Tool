@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
-import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
@@ -62,7 +61,6 @@ const DEFAULT_TIERS: CallTier[] = [
 ];
 
 export default function CallPayModelerPage() {
-  const router = useRouter();
   const { scenarios, loadScenarios } = useScenariosStore();
   const [context, setContext] = useState<CallPayContext>(DEFAULT_CONTEXT);
   const [tiers, setTiers] = useState<CallTier[]>(DEFAULT_TIERS);
