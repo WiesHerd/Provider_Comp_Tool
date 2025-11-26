@@ -162,8 +162,9 @@ function TCCCalculatorPageContent() {
     setScenarioLoaded(true);
   };
 
-  // Handle callPay query parameter from call-pay-modeler
+  // Handle query parameters from other screens
   useEffect(() => {
+    // Handle callPay query parameter from call-pay-modeler
     const callPayParam = searchParams.get('callPay');
     if (callPayParam) {
       const callPayAmount = parseFloat(callPayParam);
@@ -195,7 +196,56 @@ function TCCCalculatorPageContent() {
         window.history.replaceState({}, '', url.toString());
       }
     }
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Handle totalTcc query parameter from wrvu-forecaster
+    const totalTccParam = searchParams.get('totalTcc');
+    const fteParam = searchParams.get('fte');
+    const specialtyParam = searchParams.get('specialty');
+    
+    if (totalTccParam && !scenarioLoaded) {
+      const totalTccAmount = parseFloat(totalTccParam);
+      if (!isNaN(totalTccAmount) && totalTccAmount > 0) {
+        // Set FTE if provided
+        if (fteParam) {
+          const fteValue = parseFloat(fteParam);
+          if (!isNaN(fteValue) && fteValue > 0 && fteValue <= 1.0) {
+            setFte(fteValue as FTE);
+          }
+        }
+        
+        // Set specialty if provided (this will trigger auto-load via SpecialtyInput)
+        if (specialtyParam) {
+          setSpecialty(specialtyParam);
+        }
+        
+        // Create a single TCC component with the total amount
+        // This represents the total compensation from the forecaster
+        const totalTccComponent: TCCComponent = {
+          id: `total-comp-${Date.now()}`,
+          label: 'Total Compensation',
+          type: 'Base Salary', // Using Base Salary as the type for simplicity
+          calculationMethod: 'fixed',
+          amount: totalTccAmount,
+          fixedAmount: totalTccAmount,
+        };
+        
+        // Replace existing components with this one
+        setTccComponents([totalTccComponent]);
+        
+        // Auto-advance to step 2 if we have TCC and specialty (user can add market data)
+        if (specialtyParam && totalTccAmount > 0) {
+          setActiveStep(2);
+        }
+        
+        // Clear the query parameters to avoid re-adding on re-render
+        const url = new URL(window.location.href);
+        url.searchParams.delete('totalTcc');
+        url.searchParams.delete('fte');
+        url.searchParams.delete('specialty');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams, scenarioLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset showResults when market data changes (so user can recalculate)
   useEffect(() => {

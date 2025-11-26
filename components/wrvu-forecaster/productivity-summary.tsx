@@ -16,6 +16,8 @@ import { ProductivityMetrics, WRVUForecasterInputs } from '@/types/wrvu-forecast
 import { cn } from '@/lib/utils/cn';
 import { analyzeCalendarDataCoverage, formatDateString } from '@/lib/utils/calendar-helpers';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+import { ArrowUpRight } from 'lucide-react';
 
 interface ProductivitySummaryProps {
   metrics: ProductivityMetrics;
@@ -28,14 +30,24 @@ interface StatItemProps {
   value: string;
   difference?: string;
   tooltipText: string;
+  onClick?: () => void;
+  isClickable?: boolean;
 }
 
-function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps) {
+function StatItem({ icon, label, value, difference, tooltipText, onClick, isClickable }: StatItemProps) {
   // Check if value is negative (for incentive payments)
   const isNegative = value.startsWith('-') || value.includes('-$');
   
   return (
-    <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-900">
+    <div 
+      onClick={onClick}
+      className={cn(
+        "p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-lg transition-all bg-white dark:bg-gray-900",
+        isClickable 
+          ? "hover:shadow-md hover:border-primary/50 cursor-pointer active:scale-[0.98]" 
+          : "hover:shadow-sm"
+      )}
+    >
       {/* Icon and label - Compact layout for mobile */}
       <div className="flex items-start gap-2 mb-3 sm:mb-4">
         <div className="text-primary flex-shrink-0 mt-0.5">{icon}</div>
@@ -44,6 +56,9 @@ function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps
             {label}
           </span>
         </Tooltip>
+        {isClickable && (
+          <ArrowUpRight className="w-4 h-4 text-primary/60 flex-shrink-0 mt-0.5" />
+        )}
       </div>
       
       {/* Value and difference - Apple-style: value large, pill on right */}
@@ -65,11 +80,19 @@ function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps
           </Tooltip>
         )}
       </div>
+      {isClickable && (
+        <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+          <p className="text-xs text-primary/70 dark:text-primary/60">
+            Tap to calculate percentile
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
 export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProps) {
+  const router = useRouter();
   const [isTemplateNoticeDismissed, setIsTemplateNoticeDismissed] = React.useState(false);
   const [isCalendarNoticeDismissed, setIsCalendarNoticeDismissed] = React.useState(false);
 
@@ -115,13 +138,31 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
     return `+${formatNumber(diff)}`;
   };
 
+  const handleCalculatePercentile = () => {
+    const specialty = inputs.specialty === 'Other' ? inputs.customSpecialty : inputs.specialty;
+    const fte = inputs.fte ?? 1.0;
+    const totalTcc = metrics.estimatedTotalCompensation;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.set('totalTcc', totalTcc.toString());
+    params.set('fte', fte.toString());
+    if (specialty) {
+      params.set('specialty', specialty);
+    }
+    
+    router.push(`/fmv-calculator/tcc?${params.toString()}`);
+  };
+
   // Group metrics into logical sections
   const compensationMetrics: StatItemProps[] = [
     {
       icon: <DollarSign className="w-6 h-6" />,
       label: 'Estimated Total Compensation',
       value: formatCurrency(metrics.estimatedTotalCompensation),
-      tooltipText: `Total compensation: Max of base salary (${formatCurrency(inputs.baseSalary)}) or wRVU compensation (${formatCurrency(metrics.wrvuCompensation)}). Currently showing ${formatCurrency(metrics.estimatedTotalCompensation)}.`,
+      tooltipText: `Total compensation: Max of base salary (${formatCurrency(inputs.baseSalary)}) or wRVU compensation (${formatCurrency(metrics.wrvuCompensation)}). Currently showing ${formatCurrency(metrics.estimatedTotalCompensation)}. Tap to calculate percentile ranking.`,
+      onClick: handleCalculatePercentile,
+      isClickable: true,
     },
     {
       icon: <DollarSign className="w-6 h-6" />,

@@ -1,5 +1,6 @@
 import { ProviderScenario } from '@/types';
 import { WRVUForecasterScenario, WRVUForecasterInputs, ProductivityMetrics } from '@/types/wrvu-forecaster';
+import { normalizeTcc, normalizeWrvus } from '@/lib/utils/normalization';
 
 /**
  * Convert WRVUForecasterScenario to ProviderScenario for global store
@@ -7,14 +8,18 @@ import { WRVUForecasterScenario, WRVUForecasterInputs, ProductivityMetrics } fro
 export function wrvuForecasterScenarioToProviderScenario(
   scenario: WRVUForecasterScenario
 ): ProviderScenario {
+  const fte = scenario.inputs.fte ?? 1.0;
+  const totalTcc = scenario.metrics.estimatedTotalCompensation;
+  const annualWrvus = scenario.metrics.estimatedAnnualWRVUs;
+  
   return {
     id: scenario.id,
     name: scenario.name,
     scenarioType: 'wrvu-forecaster',
     providerName: scenario.providerName,
     specialty: scenario.specialty,
-    fte: 1.0, // Default FTE for forecaster scenarios
-    annualWrvus: scenario.metrics.estimatedAnnualWRVUs,
+    fte: fte,
+    annualWrvus: annualWrvus,
     tccComponents: [
       {
         id: 'base-salary',
@@ -29,9 +34,9 @@ export function wrvuForecasterScenarioToProviderScenario(
         amount: scenario.metrics.wrvuCompensation,
       },
     ],
-    totalTcc: scenario.metrics.estimatedTotalCompensation,
-    normalizedTcc: scenario.metrics.estimatedTotalCompensation,
-    normalizedWrvus: scenario.metrics.estimatedAnnualWRVUs,
+    totalTcc: totalTcc,
+    normalizedTcc: normalizeTcc(totalTcc, fte),
+    normalizedWrvus: normalizeWrvus(annualWrvus, fte),
     wrvuForecasterData: {
       inputs: scenario.inputs,
       metrics: scenario.metrics,
