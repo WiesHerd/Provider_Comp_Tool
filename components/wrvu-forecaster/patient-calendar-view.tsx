@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight, Calendar, Grid, Info, Trash2, FileText, User
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/cn';
 import { Tooltip } from '@/components/ui/tooltip';
+import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { useMobile } from '@/hooks/use-mobile';
 import { NumberInputWithButtons } from '@/components/ui/number-input-with-buttons';
 import { Label } from '@/components/ui/label';
@@ -59,10 +60,80 @@ interface PatientCalendarViewProps {
 type ViewMode = 'template' | 'week' | 'month';
 
 const MODE_DESCRIPTIONS = {
-  template: 'Enter patients and hours for one week, then replicate across the year',
-  week: 'Manually enter patient counts and hours for one week at a time',
-  month: 'Manually enter patient counts and hours for the full month',
+  template: 'Week Pattern: Create a template week that replicates across the entire year. Perfect for providers with consistent weekly schedules. Enter patients and hours for one week, set non-clinical time, then apply to the entire year.',
+  week: 'Week View: Manually enter patient counts and hours one week at a time. Navigate between weeks using the arrow buttons. Best for providers with varying weekly schedules or when you need week-by-week precision.',
+  month: 'Month View: View and edit the full month at once. Navigate between months to see the complete picture. Ideal for detailed month-by-month planning and bulk date selection.',
 };
+
+const COMPREHENSIVE_HELP_CONTENT = `## Patient Calendar Guide
+
+The Patient Calendar helps you forecast annual wRVUs by entering patient counts and clinical hours. Choose the view mode that best fits your workflow.
+
+## Week Pattern Mode
+
+**Purpose**: Create a template week that automatically replicates across the entire year.
+
+**When to use**: Perfect for providers with consistent weekly schedules. If your provider works the same hours and sees similar patient volumes each week, this is the fastest way to build your forecast.
+
+**How to use**:
+• Enter patients and hours for one representative week
+• Set non-clinical time (vacation weeks, CME days, statutory holidays)
+• Use **Quick Fill** templates (32h, 36h, 40h) to quickly set common work week patterns
+• Toggle between **Patients Per Hour** and **Patients Per Day** to calculate patient volumes
+• Click **Apply This Week to Entire Year** to replicate your pattern across all matching days
+
+**Key Features**:
+• **Quick Fill**: Pre-configured templates for 32, 36, or 40-hour work weeks. For 32+ hours, you can choose which day to reduce hours.
+• **Patients Per Hour**: Enter your average patients per hour, then click "Calculate Patients from Hours" to auto-fill patient counts based on hours entered.
+• **Patients Per Day**: Set a fixed patient count that applies to all working days.
+• **Apply to Year**: Replicates your week pattern to all matching days (e.g., all Mondays, all Tuesdays) while automatically excluding vacation, CME, and holiday dates.
+
+## Week Mode
+
+**Purpose**: Manually enter data one week at a time with full control over each week.
+
+**When to use**: Best for providers with varying weekly schedules, seasonal variations, or when you need to model specific weeks differently.
+
+**How to use**:
+• Use the navigation arrows or "Today" button to move between weeks
+• Click any day to enter patient counts and hours
+• Right-click (or long-press on mobile) to mark dates as vacation, CME, or holidays
+• Use **Patients Per Hour** calculator to quickly fill a week based on hours entered
+• Select multiple dates to bulk-mark them as vacation, CME, or holidays
+
+**Key Features**:
+• Week-by-week navigation for precise control
+• Patients Per Hour calculator for quick data entry
+• Visual indicators show total hours per week
+• Bulk date selection for marking multiple days at once
+
+## Month Mode
+
+**Purpose**: View and edit the full month at once for comprehensive planning.
+
+**When to use**: Ideal when you need to see the big picture, plan month-by-month variations, or make bulk edits across multiple weeks.
+
+**How to use**:
+• Navigate between months using the arrow buttons
+• Click any day to enter patient counts and hours
+• Right-click (or long-press) to mark dates as vacation, CME, or holidays
+• Select multiple dates across the month for bulk operations
+• View monthly summaries when wRVU per encounter values are set
+
+**Key Features**:
+• Full month visibility for comprehensive planning
+• Monthly navigation for easy month-by-month modeling
+• Bulk date selection across the entire month
+• Monthly summary statistics when wRVU data is available
+
+## Tips for All Modes
+
+• **Click a day** to enter or edit patient counts and hours
+• **Right-click a day** (or long-press on mobile) to mark it as vacation, CME, or holiday
+• **Select multiple dates** by clicking them, then use the date type selector to mark them all at once
+• **wRVU calculations** use the Average wRVU Per Encounter value you set
+• **Adjusted wRVU** allows you to model billing improvements or coding education scenarios
+• Data automatically saves as you work`;
 
 export function PatientCalendarView({
   dailyPatientCounts = {},
@@ -294,15 +365,29 @@ export function PatientCalendarView({
         <CardHeader className="pb-4">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-              <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
-                Patient Calendar
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
+                  Patient Calendar
+                </CardTitle>
+                <div className="relative">
+                  <ScreenInfoModal
+                    title="Patient Calendar Guide"
+                    description={COMPREHENSIVE_HELP_CONTENT}
+                  />
+                </div>
+              </div>
               
               {/* View mode toggle - Horizontal layout on all screen sizes */}
               <div className="flex flex-row items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-full sm:w-auto">
                 <ModeButton mode="template" icon={FileText} label="Week Pattern" description={MODE_DESCRIPTIONS.template} />
                 <ModeButton mode="week" icon={Calendar} label="Week" description={MODE_DESCRIPTIONS.week} />
                 <ModeButton mode="month" icon={Grid} label="Month" description={MODE_DESCRIPTIONS.month} />
+                <div className="px-1 flex items-center">
+                  <ScreenInfoModal
+                    title="View Modes Guide"
+                    description={COMPREHENSIVE_HELP_CONTENT}
+                  />
+                </div>
               </div>
             </div>
 
@@ -380,9 +465,17 @@ export function PatientCalendarView({
           {/* Vacation/CME/Holiday Inputs */}
           <Card className="border-2">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                Non-clinical time
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Non-clinical time
+                </CardTitle>
+                <Tooltip 
+                  content="Set the total amount of non-clinical time for the year. Vacation Weeks are full weeks off. Statutory Holidays and CME Days are individual days. These dates will be automatically excluded when you apply your week pattern to the entire year." 
+                  side="right"
+                >
+                  <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -423,10 +516,21 @@ export function PatientCalendarView({
           {/* Patients Per Hour/Day Calculator */}
           <Card className="border-2">
             <CardHeader className="pb-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Productivity
-                </CardTitle>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Productivity
+                  </CardTitle>
+                  <Tooltip 
+                    content={isPerHour 
+                      ? "Patients Per Hour mode: Enter your average patients per hour. When you enter hours for a day, patient counts will automatically calculate (if patients = 0). Use the button to recalculate all days in the week."
+                      : "Patients Per Day mode: Set a fixed patient count that applies to all working days. Use this when you have a consistent daily patient volume regardless of hours worked."
+                    } 
+                    side="right"
+                  >
+                    <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+                  </Tooltip>
+                </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                   <Label htmlFor="toggle-productivity-mode" className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap min-w-0">
                     {isPerHour ? 'Patients Per Hour' : 'Patients Per Day'}
@@ -541,9 +645,17 @@ export function PatientCalendarView({
                 {/* Predefined Work Week Templates */}
                 {onApplyWorkWeekTemplate && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
-                      Quick Fill
-                    </Label>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Quick Fill
+                      </Label>
+                      <Tooltip 
+                        content="Quick Fill templates automatically set common work week patterns. Choose 32h, 36h, or 40h. For 32+ hours, you can select which weekday to reduce hours (typically Friday). This applies 8 hours to Monday-Thursday, then adjusts Friday accordingly." 
+                        side="right"
+                      >
+                        <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+                      </Tooltip>
+                    </div>
                     <div className="grid grid-cols-3 gap-2">
                       {[32, 36, 40].map((hours) => (
                         <div key={hours} className="relative quick-fill-popover-container">
@@ -600,9 +712,18 @@ export function PatientCalendarView({
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                      {selectedQuickFill ? `${selectedQuickFill}h selected` : '8h Mon-Thu, Friday adjusts'}
-                    </p>
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        {selectedQuickFill ? (
+                          <span className="inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
+                            <span className="font-medium">{selectedQuickFill}h selected</span>
+                          </span>
+                        ) : (
+                          '8h Mon-Thu, Friday adjusts'
+                        )}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -612,9 +733,17 @@ export function PatientCalendarView({
           {/* Week Calendar - Same as Week mode but hide dates */}
           <Card className="border-2">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                Provider Schedule
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Provider Schedule
+                </CardTitle>
+                <Tooltip 
+                  content="Enter patients and hours for each day of your representative week. Click on any day to edit. The pattern you create here will be replicated across the entire year when you click 'Apply This Week to Entire Year'." 
+                  side="right"
+                >
+                  <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+                </Tooltip>
+              </div>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
@@ -727,20 +856,34 @@ export function PatientCalendarView({
               {onApplyTemplate && (
                 <div className="pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
                   <div className="space-y-3">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onApplyTemplate();
-                        setShowTemplateSuccess(true);
-                        setTimeout(() => setShowTemplateSuccess(false), 3000);
-                      }}
-                      disabled={templateTotals.totalHours === 0 && templateTotals.totalPatients === 0}
-                      variant={templateTotals.totalHours > 0 || templateTotals.totalPatients > 0 ? 'default' : 'outline'}
-                      className="w-full sm:w-auto min-h-[44px] touch-target"
-                      size="lg"
-                    >
-                      Apply This Week to Entire Year
-                    </Button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          onApplyTemplate();
+                          setShowTemplateSuccess(true);
+                          setTimeout(() => setShowTemplateSuccess(false), 3000);
+                        }}
+                        disabled={templateTotals.totalHours === 0 && templateTotals.totalPatients === 0}
+                        variant={templateTotals.totalHours > 0 || templateTotals.totalPatients > 0 ? 'default' : 'outline'}
+                        className={cn(
+                          "w-full sm:w-auto min-h-[44px] touch-target",
+                          templateTotals.totalHours > 0 || templateTotals.totalPatients > 0 
+                            ? "shadow-lg hover:shadow-xl transition-shadow" 
+                            : ""
+                        )}
+                        size="lg"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Apply This Week to Entire Year
+                      </Button>
+                      <Tooltip 
+                        content="This button replicates your week pattern across the entire year. For example, if you enter 8 hours on Monday, it will apply 8 hours to every Monday of the year. The system automatically excludes vacation, CME, and holiday dates you've set. This is the final step to create your annual forecast from a single week template." 
+                        side="right"
+                      >
+                        <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help flex-shrink-0" />
+                      </Tooltip>
+                    </div>
                     {showTemplateSuccess && (
                       <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
                         <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
