@@ -26,14 +26,14 @@ export function PatientEncountersPanel({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
           <CardTitle className="text-base sm:text-lg font-bold text-primary">Patient Encounters</CardTitle>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            <Label htmlFor="toggle-mode" className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+            <Label htmlFor="toggle-mode" className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap min-w-0">
               {inputs.isPerHour ? 'Patients Per Hour' : 'Patients Per Day'}
             </Label>
             <Switch
               id="toggle-mode"
               checked={inputs.isPerHour}
               onCheckedChange={(checked: boolean) => onInputChange('isPerHour', checked)}
-              className="touch-target"
+              className="touch-target flex-shrink-0"
             />
           </div>
         </div>

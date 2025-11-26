@@ -428,14 +428,14 @@ export function PatientCalendarView({
                   Productivity
                 </CardTitle>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                  <Label htmlFor="toggle-productivity-mode" className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                  <Label htmlFor="toggle-productivity-mode" className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap min-w-0">
                     {isPerHour ? 'Patients Per Hour' : 'Patients Per Day'}
                   </Label>
                   <Switch
                     id="toggle-productivity-mode"
                     checked={isPerHour}
                     onCheckedChange={(checked: boolean) => onIsPerHourChange?.(checked)}
-                    className="touch-target"
+                    className="touch-target flex-shrink-0"
                   />
                 </div>
               </div>
