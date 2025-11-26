@@ -12,10 +12,9 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { BackButton } from '@/components/ui/back-button';
 import { Calculator, RotateCcw } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
-import { MarketBenchmarks, ProviderScenario } from '@/types';
+import { MarketBenchmarks } from '@/types';
 import { calculateCFPercentile } from '@/lib/utils/percentile';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 
