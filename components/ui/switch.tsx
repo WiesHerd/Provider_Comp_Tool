@@ -15,8 +15,10 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchRoot
     className={cn(
-      'peer inline-flex h-7 w-11 sm:h-6 sm:w-10 shrink-0 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent',
-      'min-w-[44px] sm:min-w-[40px] max-w-[44px] sm:max-w-[40px]', // Lock dimensions - Apple switch aspect ratio (narrower)
+      'peer inline-flex h-7 w-11 sm:h-6 sm:w-10 shrink-0 flex-shrink-0 flex-grow-0 cursor-pointer items-center rounded-full border-2 border-transparent',
+      'min-w-[44px] sm:min-w-[40px] max-w-[44px] sm:max-w-[40px]', // Lock dimensions - Apple switch aspect ratio
+      '!w-[44px] sm:!w-[40px] !h-[28px] sm:!h-[24px]', // Force explicit dimensions to prevent compression
+      'aspect-[1.57] sm:aspect-[1.67]', // Enforce aspect ratio to maintain Apple switch proportions
       'transition-colors duration-150 ease-out',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white',
       'disabled:cursor-not-allowed disabled:opacity-50',
