@@ -12,7 +12,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/cn';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
-import { useMobile } from '@/hooks/use-mobile';
 import { NumberInputWithButtons } from '@/components/ui/number-input-with-buttons';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -20,7 +19,6 @@ import {
   getWeekDays,
   getWeeksInMonth,
   formatDateString,
-  replicateWeekTemplate,
   type DateString,
 } from '@/lib/utils/calendar-helpers';
 
@@ -172,15 +170,9 @@ export function PatientCalendarView({
   const [selectedDates, setSelectedDates] = React.useState<Date[]>([]);
   const [showClearDialog, setShowClearDialog] = React.useState(false);
   const [showTemplateSuccess, setShowTemplateSuccess] = React.useState(false);
-  const [isMounted, setIsMounted] = React.useState(false);
   const [selectedQuickFill, setSelectedQuickFill] = React.useState<number | null>(null);
   const [quickFillPopoverOpen, setQuickFillPopoverOpen] = React.useState<number | null>(null);
-  const isMobile = useMobile();
 
-  // Ensure component is mounted to avoid hydration mismatches with localStorage data
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // Close popover when clicking outside
   React.useEffect(() => {

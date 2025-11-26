@@ -46,7 +46,6 @@ import { parseDescription } from '@/lib/utils/text-parser';
 
 export function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [mounted, setMounted] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
@@ -88,7 +87,6 @@ export function Header() {
   };
 
   useEffect(() => {
-    setMounted(true);
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const storedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     const initialTheme = storedTheme || systemTheme;
@@ -149,18 +147,6 @@ export function Header() {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
-
-  const handleLogoClick = (e: React.MouseEvent) => {
-    if (!mounted) return;
-    if (safePathname === '/') {
-      // On home page, scroll to top
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      // On other pages, navigate to home
-      router.push('/');
-    }
   };
 
   const logoContent = (

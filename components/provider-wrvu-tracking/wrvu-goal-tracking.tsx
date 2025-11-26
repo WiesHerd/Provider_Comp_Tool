@@ -25,7 +25,6 @@ export function WRVUGoalTracking({
   goals,
   actualPatients,
   actualWRVUs,
-  dailyData = {},
   onGoalsChange,
 }: WRVUGoalTrackingProps) {
   const [targetPatients, setTargetPatients] = React.useState(goals?.targetPatients?.toString() || '');

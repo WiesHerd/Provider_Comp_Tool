@@ -43,7 +43,6 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
   const { deleteScenario, duplicateScenario, dismissFromRecent } = useScenariosStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [dismissOpen, setDismissOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleNavigate = () => {
     const url = getScenarioNavigationUrl(scenario.id, scenario.scenarioType);
@@ -94,8 +93,6 @@ export function RecentScenarioCard({ scenario, onDismiss }: RecentScenarioCardPr
           "overflow-hidden"
         )}
         onClick={handleNavigate}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         <CardContent className="p-4 sm:p-5">
           {/* Mobile-first vertical layout, horizontal on desktop */}

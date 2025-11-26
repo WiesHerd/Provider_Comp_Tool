@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from './button';
 
 interface CollapsibleSectionProps {
   title: string;

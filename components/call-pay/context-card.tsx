@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { NumberInput } from '@/components/ui/number-input';
 import {
   Select,
   SelectContent,
@@ -16,13 +15,10 @@ import {
 } from '@/components/ui/select';
 import { AlertCircle, Building2 } from 'lucide-react';
 import { CallPayContext, Specialty } from '@/types/call-pay';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils/cn';
 
 interface ContextCardProps {
   context: CallPayContext;
   onContextChange: (context: CallPayContext) => void;
-  showTopBorder?: boolean;
   headerAction?: React.ReactNode;
 }
 
@@ -146,7 +142,7 @@ function getRotationRatioExplanation(providersOnCall: number, rotationRatio: num
   }
 }
 
-export function ContextCard({ context, onContextChange, showTopBorder = true, headerAction }: ContextCardProps) {
+export function ContextCard({ context, onContextChange, headerAction }: ContextCardProps) {
   const [serviceLineManuallyEdited, setServiceLineManuallyEdited] = useState(false);
   const [serviceLineFocused, setServiceLineFocused] = useState(false);
   

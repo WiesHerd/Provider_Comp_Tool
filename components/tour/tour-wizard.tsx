@@ -2,7 +2,7 @@
 
 import { useTour } from '@/hooks/use-tour';
 import { Button } from '@/components/ui/button';
-import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { getTourIcon } from '@/lib/tour/tour-steps';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,8 +17,6 @@ export function TourWizard() {
     nextStep,
     previousStep,
     stopTour,
-    pauseTour,
-    resumeTour,
     isNavigating,
     screenReady,
   } = useTour();

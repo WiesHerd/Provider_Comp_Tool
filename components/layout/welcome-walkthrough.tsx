@@ -55,7 +55,6 @@ interface WelcomeWalkthroughProps {
 export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: WelcomeWalkthroughProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [hasSeenWalkthrough, setHasSeenWalkthrough] = useState(false);
 
   // Handle on-demand opening
   useEffect(() => {
@@ -84,8 +83,6 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
         setIsOpen(true);
       }, 600);
       return () => clearTimeout(timer);
-    } else {
-      setHasSeenWalkthrough(true);
     }
   }, [openOnDemand]);
 

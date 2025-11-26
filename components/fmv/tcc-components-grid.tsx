@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { TCCComponent, TCCComponentType, TCCCalculationMethod, FTE } from '@/types';
+import { useState } from 'react';
+import { TCCComponent, TCCComponentType } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
-import { NumberInput } from '@/components/ui/number-input';
 import { Plus, Trash2, Tag } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
 import {
   Select,
   SelectContent,
@@ -104,14 +102,6 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
     
     onComponentsChange(recalculatedComponents);
   };
-
-  const totalTcc = components.reduce((sum, c) => {
-    // Calculate amount on the fly for percentage-based components
-    if (c.calculationMethod === 'percentage' && c.percentage !== undefined && c.type !== 'Base Salary') {
-      return sum + (basePayAmount * c.percentage) / 100;
-    }
-    return sum + (c.amount || 0);
-  }, 0);
 
   return (
     <div className="space-y-4">

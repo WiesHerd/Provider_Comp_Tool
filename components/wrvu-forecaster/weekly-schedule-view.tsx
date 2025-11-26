@@ -108,7 +108,7 @@ export function WeeklyScheduleView({ shifts, className }: WeeklyScheduleViewProp
                     </div>
                   ) : (
                     <>
-                      {dayShifts.map((shift, shiftIndex) => (
+                      {dayShifts.map((shift) => (
                         <div
                           key={shift.id}
                           className={cn(

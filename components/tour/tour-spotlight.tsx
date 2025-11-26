@@ -144,7 +144,6 @@ export function TourSpotlight({
   }
 
   // Calculate spotlight position
-  const spotlightStyle: React.CSSProperties = {};
   const overlayStyle: React.CSSProperties = {};
 
   if (targetRect && targetElement) {

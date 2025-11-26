@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, eachWeekOfInterval } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, endOfWeek, eachWeekOfInterval } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDarkMode } from '@/lib/hooks/use-dark-mode';

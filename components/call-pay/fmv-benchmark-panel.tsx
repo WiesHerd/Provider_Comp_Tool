@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { CurrencyInput } from '@/components/ui/currency-input';
@@ -117,13 +117,6 @@ export function FMVBenchmarkPanel({
     holidayRate,
     benchmarks
   );
-
-  const getPercentileColor = (percentile: number) => {
-    if (percentile >= 25 && percentile <= 75) return 'green';
-    if (percentile > 75 && percentile <= 90) return 'yellow';
-    if (percentile > 90) return 'red';
-    return 'gray';
-  };
 
   // Helper to get placeholders based on rate type
   const getWeekdayPlaceholder = (percentile: 'p25' | 'p50' | 'p75' | 'p90'): string => {

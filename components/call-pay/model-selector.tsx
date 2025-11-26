@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 
 export type CallPayModel = 'per-call' | 'per-shift' | 'tiered';

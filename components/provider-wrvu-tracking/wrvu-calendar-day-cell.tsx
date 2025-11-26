@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
 import { format, isWeekend } from 'date-fns';
-import { formatDateString, type DateString } from '@/lib/utils/calendar-helpers';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Users, TrendingUp, X } from 'lucide-react';
@@ -33,7 +32,6 @@ export function WRVUCalendarDayCell({
   const patientsInputRef = React.useRef<HTMLInputElement>(null);
   const wrvuInputRef = React.useRef<HTMLInputElement>(null);
 
-  const dateString = formatDateString(date);
   const isWeekendDay = isWeekend(date);
   const hasData = trackingData.patients > 0 || trackingData.workRVUs > 0;
 

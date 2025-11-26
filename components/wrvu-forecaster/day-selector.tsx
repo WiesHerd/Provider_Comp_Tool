@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
-import { format } from 'date-fns';
 
 interface DaySelectorProps {
   daysOfWeek?: number[];

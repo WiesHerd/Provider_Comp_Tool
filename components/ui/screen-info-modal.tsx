@@ -4,7 +4,6 @@ import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { Info, X } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
 import { parseDescription } from '@/lib/utils/text-parser';
 
 interface ScreenInfoModalProps {

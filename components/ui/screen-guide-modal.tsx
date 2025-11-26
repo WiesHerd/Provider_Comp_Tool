@@ -21,16 +21,12 @@ export function ScreenGuideModal({
   delay = 500 
 }: ScreenGuideModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasSeen, setHasSeen] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     // Check if user has seen this guide
     const seen = localStorage.getItem(storageKey);
-    if (seen === 'true') {
-      setHasSeen(true);
-    }
 
     // Auto-show if enabled and not seen
     if (autoShow && !seen) {
@@ -58,7 +54,6 @@ export function ScreenGuideModal({
     setIsOpen(false);
     if (typeof window !== 'undefined') {
       localStorage.setItem(storageKey, 'true');
-      setHasSeen(true);
     }
   };
 

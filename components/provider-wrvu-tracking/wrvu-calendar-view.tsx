@@ -242,7 +242,6 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
                       const month = date.getMonth() + 1;
                       const monthYear = `${year}-${String(month).padStart(2, '0')}`;
                       const monthName = format(date, 'MMM yyyy'); // Changed to abbreviated
-                      const isCurrentYear = year === new Date().getFullYear();
                       const isNewYear = month === 1 && i > 0;
                       
                       return (

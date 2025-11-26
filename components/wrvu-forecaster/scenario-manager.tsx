@@ -4,14 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Save, Trash2, Mail, Printer, RotateCcw } from 'lucide-react';
+import { Save, Mail, Printer, RotateCcw } from 'lucide-react';
 import {
   WRVUForecasterInputs,
   ProductivityMetrics,
   WRVUForecasterScenario,
 } from '@/types/wrvu-forecaster';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
-import { ProviderScenario } from '@/types';
 import {
   wrvuForecasterScenarioToProviderScenario,
   providerScenarioToWRVUForecasterScenario,
@@ -29,8 +28,8 @@ interface ScenarioManagerProps {
   onStartOver?: () => void;
 }
 
-export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport, onPrint, onStartOver }: ScenarioManagerProps) {
-  const { scenarios: globalScenarios, saveScenario: saveGlobalScenario, loadScenarios: loadGlobalScenarios, deleteScenario: deleteGlobalScenario } = useScenariosStore();
+export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onStartOver }: ScenarioManagerProps) {
+  const { scenarios: globalScenarios, saveScenario: saveGlobalScenario, loadScenarios: loadGlobalScenarios } = useScenariosStore();
   const [localScenarios, setLocalScenarios] = useState<WRVUForecasterScenario[]>([]);
   const [scenarioName, setScenarioName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -182,21 +181,6 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
     setIsUpdating(false);
     setExistingScenarioId(null);
     setShowSaveDialog(false);
-  };
-
-  const handleDeleteScenario = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Delete from global store if it exists there
-    const globalScenario = globalScenarios.find(s => s.id === id && isWRVUForecasterScenario(s));
-    if (globalScenario) {
-      deleteGlobalScenario(id);
-    }
-    
-    // Also delete from local storage for backward compatibility
-    const updatedLocalScenarios = localScenarios.filter((s) => s.id !== id);
-    setLocalScenarios(updatedLocalScenarios);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLocalScenarios));
   };
 
   return (

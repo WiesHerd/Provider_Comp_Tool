@@ -9,11 +9,10 @@ import { CallPayContext, CallTier } from '@/types/call-pay';
 interface StepGuideProps {
   context: CallPayContext;
   tiers: CallTier[];
-  currentStep?: number;
   onStepClick?: (index: number) => void;
 }
 
-export function StepGuide({ context, tiers, currentStep, onStepClick }: StepGuideProps) {
+export function StepGuide({ context, tiers, onStepClick }: StepGuideProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   
   // Determine which steps are completed

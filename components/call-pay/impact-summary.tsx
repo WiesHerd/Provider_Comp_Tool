@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { CallPayImpact, CallTier, CallPayContext } from '@/types/call-pay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils/cn';

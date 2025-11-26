@@ -42,9 +42,8 @@ export function ProgressiveForm({
   children,
   onStepChange,
   onComplete,
-  validateStep,
+  validateStep: _validateStep,
   allowStepJump = true,
-  stepNames,
   className,
 }: ProgressiveFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -84,8 +83,6 @@ export function ProgressiveForm({
     setCompletedSteps((prev) => [...new Set([...prev, step])]);
   };
 
-  const canProceed = validateStep ? validateStep(currentStep) : true;
-
   const contextValue: ProgressiveFormContextType = {
     currentStep,
     totalSteps,
@@ -95,22 +92,6 @@ export function ProgressiveForm({
     isStepComplete,
     markStepComplete,
     completedSteps,
-  };
-
-  // Always allow going back to previous steps, but restrict forward navigation if allowStepJump is false
-  const handleStepClick = (step: number) => {
-    // Always allow going back to completed steps
-    if (step < currentStep) {
-      goToStep(step);
-    } 
-    // Allow forward navigation only if allowStepJump is true
-    else if (allowStepJump && step > currentStep) {
-      goToStep(step);
-    }
-    // Allow clicking current step (no-op, but provides feedback)
-    else if (step === currentStep) {
-      // Already on this step, do nothing but provide visual feedback
-    }
   };
 
   return (

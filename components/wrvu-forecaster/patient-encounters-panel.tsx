@@ -18,7 +18,6 @@ interface PatientEncountersPanelProps {
 export function PatientEncountersPanel({
   inputs,
   onInputChange,
-  targetAnnualWRVUs,
 }: PatientEncountersPanelProps) {
   return (
     <Card className="h-full">

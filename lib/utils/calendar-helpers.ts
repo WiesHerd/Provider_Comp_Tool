@@ -10,14 +10,9 @@ import {
   startOfMonth,
   endOfMonth,
   eachDayOfInterval,
-  isSameDay,
   isWeekend,
-  addDays,
-  subDays,
   parseISO,
   isValid,
-  isBefore,
-  isAfter,
   differenceInDays,
   startOfYear,
   endOfYear,
@@ -211,10 +206,10 @@ function calculateVacationWeeks(vacationDates: DateString[]): number {
  * Distributes days evenly across the year or allows user selection
  */
 export function syncNumbersToCalendar(
-  vacationWeeks: number,
-  cmeDays: number,
-  statutoryHolidays: number,
-  year: number = new Date().getFullYear()
+  _vacationWeeks: number,
+  _cmeDays: number,
+  _statutoryHolidays: number,
+  _year: number = new Date().getFullYear()
 ): {
   vacationDates: DateString[];
   cmeDates: DateString[];

@@ -41,7 +41,6 @@ export const CalendarDayCell = memo(function CalendarDayCell({
 }: CalendarDayCellProps) {
   const [isEditingPatients, setIsEditingPatients] = React.useState(false);
   const [isEditingHours, setIsEditingHours] = React.useState(false);
-  const [isHovered, setIsHovered] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   const [patientsValue, setPatientsValue] = React.useState('');
   const [hoursValue, setHoursValue] = React.useState('');
@@ -240,8 +239,6 @@ export const CalendarDayCell = memo(function CalendarDayCell({
   return (
     <div
         className={cellClasses}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         onContextMenu={handleRightClick}
         onDoubleClick={handleDoubleClick}
         role="button"

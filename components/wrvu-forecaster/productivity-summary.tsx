@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { ProductivityMetrics, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 import { cn } from '@/lib/utils/cn';
-import { analyzeCalendarDataCoverage, formatDateString } from '@/lib/utils/calendar-helpers';
+import { analyzeCalendarDataCoverage } from '@/lib/utils/calendar-helpers';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
@@ -100,7 +100,6 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
   // Calculate adjusted metrics
   const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
   const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
-  const adjustedTotalCompensation = Math.max(inputs.baseSalary, adjustedWRVUCompensation);
 
   // Calculate incentive payments: (Conversion Factor × wRVUs) - Base Pay
   // Can be negative if wRVU compensation is less than base salary

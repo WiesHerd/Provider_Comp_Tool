@@ -1,5 +1,5 @@
 import { ProviderScenario } from '@/types';
-import { WRVUForecasterScenario, WRVUForecasterInputs, ProductivityMetrics } from '@/types/wrvu-forecaster';
+import { WRVUForecasterScenario } from '@/types/wrvu-forecaster';
 import { normalizeTcc, normalizeWrvus } from '@/lib/utils/normalization';
 
 /**

@@ -47,8 +47,7 @@ const PAYMENT_METHODS: PaymentMethod[] = [
  */
 function getBurdenSuggestions(
   providersOnCall: number,
-  rotationRatio: number,
-  paymentMethod: PaymentMethod
+  rotationRatio: number
 ): {
   weekdayCallsPerMonth: { min: number; max: number; suggested: number };
   weekendCallsPerMonth: { min: number; max: number; suggested: number };
@@ -60,7 +59,6 @@ function getBurdenSuggestions(
   // Estimate total calls based on rotation
   // If 1-in-4 rotation with 8 providers, each provider covers 1/4 of total
   // So total calls = (providersOnCall / rotationRatio) × typicalCallsPerProvider
-  const activeProviders = rotationRatio;
   const callsPerProvider = typicalCallsPerProvider;
   const totalCallsEstimate = (providersOnCall / rotationRatio) * callsPerProvider;
   
@@ -168,8 +166,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
     }
     const suggestions = getBurdenSuggestions(
       context.providersOnCall,
-      context.rotationRatio,
-      tier.paymentMethod
+      context.rotationRatio
     );
     updateBurden({
       weekdayCallsPerMonth: suggestions.weekdayCallsPerMonth.suggested,
@@ -181,7 +178,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
 
   // Get suggestions if context is available
   const burdenSuggestions = context && context.providersOnCall > 0 && context.rotationRatio > 0
-    ? getBurdenSuggestions(context.providersOnCall, context.rotationRatio, tier.paymentMethod)
+    ? getBurdenSuggestions(context.providersOnCall, context.rotationRatio)
     : null;
 
   // Helper functions for tooltip content
@@ -227,7 +224,6 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
 
   const getCallbacksTooltip = () => {
     const isWrvu = tier.paymentMethod === 'Per wRVU';
-    const fieldLabel = isWrvu ? 'wRVUs' : 'callbacks';
     const formula = isWrvu 
       ? 'wRVUsPerMonth = wRVUsPer24h × (weekdayCalls + weekendCalls + holidays)'
       : 'casesPerMonth = callbacksPer24h × (weekdayCalls + weekendCalls)';
@@ -247,7 +243,6 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
 
   const getCasesTooltip = () => {
     const isWrvu = tier.paymentMethod === 'Per wRVU';
-    const fieldLabel = isWrvu ? 'wRVUs' : 'cases';
     const formula = isWrvu
       ? 'wRVUsPerMonth = avgWrvusPer24h × (weekdayCalls + weekendCalls + holidays)'
       : 'casesPerMonth = avgCasesPer24h × (weekdayCalls + weekendCalls)';

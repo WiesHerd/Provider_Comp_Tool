@@ -206,9 +206,8 @@ export default function CallPayModelerPage() {
           {/* Content - No container, just direct content */}
           <div className="space-y-4">
             <ContextCard 
-              context={context} 
+              context={context}
               onContextChange={setContext}
-              showTopBorder={false}
               headerAction={
                 <ScenarioLoader
                   scenarioType="call-pay"

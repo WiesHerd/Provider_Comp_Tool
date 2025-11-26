@@ -22,7 +22,6 @@ interface ScenarioSaveButtonProps {
 export function ScenarioSaveButton({
   fte,
   annualWrvus,
-  conversionFactor,
   productivityPay,
   basePay = 0,
   providerName,

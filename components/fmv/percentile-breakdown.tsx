@@ -49,7 +49,6 @@ export function PercentileBreakdown({
 
 
   const positionInfo = getPositionDescription();
-  const PositionIcon = positionInfo.icon;
 
   // Check if percentile is outside acceptable range
   const isBelow25th = percentile < 25;
