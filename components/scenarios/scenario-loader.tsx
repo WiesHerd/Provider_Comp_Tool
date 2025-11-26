@@ -71,6 +71,11 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
     }
   };
 
+  // Don't render the button if there are no scenarios
+  if (typeFilteredScenarios.length === 0) {
+    return null;
+  }
+
   return (
     <div className={cn("inline-flex", className)}>
       <DropdownMenuRoot>
@@ -78,7 +83,6 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
           <Button
             variant="ghost"
             size="sm"
-            disabled={typeFilteredScenarios.length === 0}
             className={cn(
               "min-w-[44px] h-[44px] rounded-full",
               "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
@@ -87,11 +91,10 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               "hover:shadow-sm",
               "group",
               "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white",
-              "touch-manipulation",
-              typeFilteredScenarios.length === 0 && "opacity-50 cursor-not-allowed"
+              "touch-manipulation"
             )}
-            aria-label={typeFilteredScenarios.length === 0 ? "No saved models" : "Load saved model"}
-            title={typeFilteredScenarios.length === 0 ? "No saved models - Save a scenario first" : "Load saved model"}
+            aria-label="Load saved model"
+            title="Load saved model"
           >
             <FolderOpen className="w-5 h-5 transition-all duration-300 group-hover:scale-110" />
           </Button>
