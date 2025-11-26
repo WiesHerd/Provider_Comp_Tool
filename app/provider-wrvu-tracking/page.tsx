@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { startOfMonth, format, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils/cn';
@@ -101,17 +101,14 @@ const COMMON_SPECIALTIES = [
 ];
 
 export default function ProviderWRVUTrackingPage() {
-  const [mounted, setMounted] = useState(false);
   // Always start with default state to avoid hydration mismatch
   const [state, setState] = useState<ProviderWRVUTrackingState>(getDefaultState());
   const [currentDate, setCurrentDate] = useState<Date>(startOfMonth(new Date()));
   const [saveFeedback, setSaveFeedback] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const isInitialMountRef = useRef(true);
 
   // Load from localStorage only after mount
   useEffect(() => {
-    setMounted(true);
     const savedState = getInitialState();
     setState(savedState);
     
