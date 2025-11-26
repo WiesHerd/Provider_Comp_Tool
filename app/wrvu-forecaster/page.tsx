@@ -5,6 +5,7 @@ import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { logger } from '@/lib/utils/logger';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { BackButton } from '@/components/ui/back-button';
 import { ProductivitySummary } from '@/components/wrvu-forecaster/productivity-summary';
 import { ScenarioManager } from '@/components/wrvu-forecaster/scenario-manager';
 import { PrintView } from '@/components/wrvu-forecaster/print-view';
@@ -40,7 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DollarSign, User, Stethoscope, ChevronDown, ChevronLeft } from 'lucide-react';
+import { DollarSign, User, Stethoscope, ChevronDown } from 'lucide-react';
 import { PatientCalendarView } from '@/components/wrvu-forecaster/patient-calendar-view';
 import {
   formatDateString,
@@ -170,16 +171,10 @@ function ResultsStepContent({
 
   return (
     <div className="space-y-6 pb-32 sm:pb-6">
-      {/* Back Button - Matches ProgressiveFormNavigation styling */}
-      <div className="flex gap-3 sm:gap-4 mt-8 sm:mt-10 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800">
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          className="flex-1 sm:flex-initial sm:min-w-[120px]"
-        >
-          <ChevronLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
+      {/* Back Button - Apple-style compact design */}
+      <div className="flex items-center gap-2 mb-4 mt-4">
+        <BackButton onClick={handleBack} aria-label="Back to previous step" />
+        <span className="text-sm text-gray-600 dark:text-gray-400">Back</span>
       </div>
 
       <div data-tour="forecaster-productivity">
