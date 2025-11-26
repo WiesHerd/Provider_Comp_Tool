@@ -7,14 +7,14 @@ import { DateTypeSelector } from './date-type-selector';
 import { CalendarSummary } from './calendar-summary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Calendar, Grid, Info, Trash2, FileText, Users, Plane, CalendarCheck, BookOpen, Clock, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Grid, Info, Trash2, FileText, Users, Plane, CalendarCheck, BookOpen, Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/cn';
 import { Tooltip } from '@/components/ui/tooltip';
-import { Popover } from '@/components/ui/popover';
 import { useMobile } from '@/hooks/use-mobile';
 import { NumberInputWithButtons } from '@/components/ui/number-input-with-buttons';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   getWeekDays,
   getWeeksInMonth,
@@ -44,8 +44,15 @@ interface PatientCalendarViewProps {
   // Patients per hour props
   patientsPerHour?: number;
   onPatientsPerHourChange?: (value: number) => void;
+  patientsPerDay?: number;
+  onPatientsPerDayChange?: (value: number) => void;
+  isPerHour?: boolean;
+  onIsPerHourChange?: (value: boolean) => void;
   onCalculatePatientsFromHours?: () => void;
-  onApplyWorkWeekTemplate?: (totalHours: number) => void;
+  onCalculatePatientsFromDay?: () => void;
+  onApplyWorkWeekTemplate?: (totalHours: number, dayToReduce?: number) => void;
+  onAvgWRVUChange?: (value: number) => void;
+  onAdjustedWRVUChange?: (value: number) => void;
   className?: string;
 }
 
@@ -78,8 +85,15 @@ export function PatientCalendarView({
   // Patients per hour props
   patientsPerHour = 0,
   onPatientsPerHourChange,
+  patientsPerDay = 0,
+  onPatientsPerDayChange,
+  isPerHour = true,
+  onIsPerHourChange,
   onCalculatePatientsFromHours,
+  onCalculatePatientsFromDay,
   onApplyWorkWeekTemplate,
+  onAvgWRVUChange,
+  onAdjustedWRVUChange,
   className,
 }: PatientCalendarViewProps) {
   const [viewMode, setViewMode] = React.useState<ViewMode>('template');
@@ -88,12 +102,29 @@ export function PatientCalendarView({
   const [showClearDialog, setShowClearDialog] = React.useState(false);
   const [showTemplateSuccess, setShowTemplateSuccess] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [selectedQuickFill, setSelectedQuickFill] = React.useState<number | null>(null);
+  const [quickFillPopoverOpen, setQuickFillPopoverOpen] = React.useState<number | null>(null);
   const isMobile = useMobile();
 
   // Ensure component is mounted to avoid hydration mismatches with localStorage data
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Close popover when clicking outside
+  React.useEffect(() => {
+    if (quickFillPopoverOpen === null) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.quick-fill-popover-container')) {
+        setQuickFillPopoverOpen(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [quickFillPopoverOpen]);
 
   // Check if calendar has any data
   const hasCalendarData = React.useMemo(() => {
@@ -348,6 +379,11 @@ export function PatientCalendarView({
         <div className="space-y-4">
           {/* Vacation/CME/Holiday Inputs */}
           <Card className="border-2">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                Non-clinical time
+              </CardTitle>
+            </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <NumberInputWithButtons
@@ -384,37 +420,122 @@ export function PatientCalendarView({
             </CardContent>
           </Card>
 
-          {/* Patients Per Hour Calculator */}
+          {/* Patients Per Hour/Day Calculator */}
           <Card className="border-2">
+            <CardHeader className="pb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Productivity
+                </CardTitle>
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                  <Label htmlFor="toggle-productivity-mode" className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    {isPerHour ? 'Patients Per Hour' : 'Patients Per Day'}
+                  </Label>
+                  <Switch
+                    id="toggle-productivity-mode"
+                    checked={isPerHour}
+                    onCheckedChange={(checked: boolean) => onIsPerHourChange?.(checked)}
+                    className="touch-target"
+                  />
+                </div>
+              </div>
+            </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="flex-1 w-full sm:w-auto">
-                    <NumberInputWithButtons
-                      label="Patients Per Hour"
-                      value={patientsPerHour}
-                      onChange={(value) => onPatientsPerHourChange?.(value)}
-                      icon={<Users className="w-5 h-5" />}
-                      min={0}
-                      step={0.1}
-                      placeholder="0"
-                    />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">
-                      Enter hours and patients will auto-calculate (when patients = 0). Use the button to recalculate all days.
-                    </p>
-                  </div>
-                  {onCalculatePatientsFromHours && (
-                    <Button
-                      type="button"
-                      onClick={onCalculatePatientsFromHours}
-                      disabled={patientsPerHour <= 0}
-                      className="w-full sm:w-auto min-h-[44px] touch-target"
-                      variant="outline"
-                    >
-                      <Users className="w-4 h-4 mr-2" />
-                      Calculate Patients from Hours
-                    </Button>
+                <div>
+                  {isPerHour ? (
+                    <div className="space-y-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                        <div className="flex-1 w-full">
+                          <NumberInputWithButtons
+                            label="Patients Per Hour"
+                            value={patientsPerHour}
+                            onChange={(value) => onPatientsPerHourChange?.(value)}
+                            icon={<Users className="w-5 h-5" />}
+                            min={0}
+                            step={0.1}
+                            placeholder="0"
+                          />
+                        </div>
+                        {onCalculatePatientsFromHours && (
+                          <Button
+                            type="button"
+                            onClick={onCalculatePatientsFromHours}
+                            disabled={patientsPerHour <= 0}
+                            className="w-full sm:w-auto min-h-[44px] touch-target"
+                            variant="outline"
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            Calculate Patients from Hours
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">
+                        Enter hours and patients will auto-calculate (when patients = 0). Use the button to recalculate all days.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                        <div className="flex-1 w-full">
+                          <NumberInputWithButtons
+                            label="Patients Per Day"
+                            value={patientsPerDay}
+                            onChange={(value) => onPatientsPerDayChange?.(value)}
+                            icon={<Users className="w-5 h-5" />}
+                            min={0}
+                            step={1}
+                            integerOnly
+                            placeholder="0"
+                          />
+                        </div>
+                        {onCalculatePatientsFromDay && (
+                          <Button
+                            type="button"
+                            onClick={onCalculatePatientsFromDay}
+                            disabled={patientsPerDay <= 0}
+                            className="w-full sm:w-auto min-h-[44px] touch-target"
+                            variant="outline"
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            Apply Patients Per Day
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-1">
+                        Set this patients per day value for all working days in the calendar.
+                      </p>
+                    </div>
                   )}
+                </div>
+
+                {/* wRVU Per Encounter Section */}
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <NumberInputWithButtons
+                        label="Average wRVU Per Encounter"
+                        value={avgWRVUPerEncounter || 0}
+                        onChange={(value) => onAvgWRVUChange?.(value)}
+                        icon={<TrendingUp className="w-5 h-5" />}
+                        min={0}
+                        step={0.01}
+                      />
+                    </div>
+                    <div>
+                      <NumberInputWithButtons
+                        label="Adjusted wRVU Per Encounter"
+                        value={adjustedWRVUPerEncounter || 0}
+                        onChange={(value) => onAdjustedWRVUChange?.(value)}
+                        icon={<TrendingUp className="w-5 h-5" />}
+                        min={0}
+                        step={0.01}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-1">
+                    Used for billing improvements or coding education scenarios where the provider has improved billing practices.
+                  </p>
                 </div>
 
                 {/* Predefined Work Week Templates */}
@@ -424,36 +545,63 @@ export function PatientCalendarView({
                       Quick Fill
                     </Label>
                     <div className="grid grid-cols-3 gap-2">
-                      <Button
-                        type="button"
-                        onClick={() => onApplyWorkWeekTemplate(32)}
-                        variant="outline"
-                        className="min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2"
-                      >
-                        <span className="text-lg font-semibold">32</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onApplyWorkWeekTemplate(36)}
-                        variant="outline"
-                        className="min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2"
-                      >
-                        <span className="text-lg font-semibold">36</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onApplyWorkWeekTemplate(40)}
-                        variant="outline"
-                        className="min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2"
-                      >
-                        <span className="text-lg font-semibold">40</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
-                      </Button>
+                      {[32, 36, 40].map((hours) => (
+                        <div key={hours} className="relative quick-fill-popover-container">
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              // If totalHours >= 32, show popover to select day to reduce
+                              // If totalHours < 32, apply directly (distributes evenly)
+                              if (hours >= 32) {
+                                setQuickFillPopoverOpen(quickFillPopoverOpen === hours ? null : hours);
+                              } else {
+                                onApplyWorkWeekTemplate(hours);
+                                setSelectedQuickFill(hours);
+                              }
+                            }}
+                            variant={selectedQuickFill === hours ? 'default' : 'outline'}
+                            className={cn(
+                              'min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2 w-full',
+                              selectedQuickFill === hours && 'bg-primary text-primary-foreground'
+                            )}
+                          >
+                            <span className="text-lg font-semibold">{hours}</span>
+                            <span className="text-xs opacity-80">hours</span>
+                          </Button>
+                          {quickFillPopoverOpen === hours && hours >= 32 && (
+                            <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg shadow-lg min-w-[180px]">
+                              <div className="p-2 space-y-1">
+                                <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 px-2">
+                                  Reduce hours on:
+                                </div>
+                                {[
+                                  { day: 1, name: 'Monday' },
+                                  { day: 2, name: 'Tuesday' },
+                                  { day: 3, name: 'Wednesday' },
+                                  { day: 4, name: 'Thursday' },
+                                  { day: 5, name: 'Friday' },
+                                ].map(({ day, name }) => (
+                                  <button
+                                    key={day}
+                                    type="button"
+                                    onClick={() => {
+                                      onApplyWorkWeekTemplate(hours, day);
+                                      setSelectedQuickFill(hours);
+                                      setQuickFillPopoverOpen(null);
+                                    }}
+                                    className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                  >
+                                    {name}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                      8h Mon-Thu, Friday adjusts
+                      {selectedQuickFill ? `${selectedQuickFill}h selected` : '8h Mon-Thu, Friday adjusts'}
                     </p>
                   </div>
                 )}
@@ -463,6 +611,11 @@ export function PatientCalendarView({
 
           {/* Week Calendar - Same as Week mode but hide dates */}
           <Card className="border-2">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                Provider Schedule
+              </CardTitle>
+            </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                 {/* Day headers */}

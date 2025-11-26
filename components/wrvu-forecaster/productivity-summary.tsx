@@ -31,6 +31,9 @@ interface StatItemProps {
 }
 
 function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps) {
+  // Check if value is negative (for incentive payments)
+  const isNegative = value.startsWith('-') || value.includes('-$');
+  
   return (
     <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-900">
       {/* Icon and label - Compact layout for mobile */}
@@ -45,7 +48,12 @@ function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps
       
       {/* Value and difference - Apple-style: value large, pill on right */}
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 break-words flex-1">
+        <span className={cn(
+          "text-2xl sm:text-3xl lg:text-4xl font-bold break-words flex-1",
+          isNegative 
+            ? "text-red-600 dark:text-red-400" 
+            : "text-gray-900 dark:text-gray-100"
+        )}>
           {value}
         </span>
         {difference && (
@@ -70,9 +78,10 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
   const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
   const adjustedTotalCompensation = Math.max(inputs.baseSalary, adjustedWRVUCompensation);
 
-  // Calculate incentive payments
-  const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
-  const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
+  // Calculate incentive payments: (Conversion Factor × wRVUs) - Base Pay
+  // Can be negative if wRVU compensation is less than base salary
+  const currentIncentive = metrics.wrvuCompensation - inputs.baseSalary;
+  const adjustedIncentive = adjustedWRVUCompensation - inputs.baseSalary;
 
   // Analyze calendar data coverage
   const calendarCoverage = inputs.dailyPatientCounts
@@ -112,35 +121,35 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       icon: <DollarSign className="w-6 h-6" />,
       label: 'Estimated Total Compensation',
       value: formatCurrency(metrics.estimatedTotalCompensation),
-      tooltipText: 'Total annual compensation including base salary and wRVU-based incentive payments',
+      tooltipText: `Total compensation: Max of base salary (${formatCurrency(inputs.baseSalary)}) or wRVU compensation (${formatCurrency(metrics.wrvuCompensation)}). Currently showing ${formatCurrency(metrics.estimatedTotalCompensation)}.`,
     },
     {
       icon: <DollarSign className="w-6 h-6" />,
       label: 'Estimated Incentive Payment',
       value: formatCurrency(currentIncentive),
       difference: formatDifference(currentIncentive, adjustedIncentive),
-      tooltipText: 'Additional compensation earned above base salary based on wRVU production',
+      tooltipText: `Incentive Payment = (${formatCurrency(inputs.wrvuConversionFactor)} × ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs) - ${formatCurrency(inputs.baseSalary)} = ${formatCurrency(currentIncentive)}. ${currentIncentive >= 0 ? 'Positive incentive payment above base salary (shown in green).' : 'Negative amount indicates wRVU compensation is below base salary (shown in red).'}`,
     },
   ];
 
   const timeMetrics: StatItemProps[] = [
     {
       icon: <Calendar className="w-6 h-6" />,
-      label: 'Weeks Worked Per Year',
+      label: 'Clinical Weeks',
       value: formatNumber(metrics.weeksWorkedPerYear),
-      tooltipText: 'Total working weeks per year after subtracting vacation, CME, and holidays',
+      tooltipText: `Actual weeks patients were seen: 52 weeks - ${formatNumber(inputs.vacationWeeks)} vacation weeks - ${formatNumber((inputs.cmeDays + inputs.statutoryHolidays) / 7)} weeks (CME + holidays) = ${formatNumber(metrics.weeksWorkedPerYear)} clinical weeks`,
     },
     {
       icon: <Calendar className="w-6 h-6" />,
       label: 'Annual Clinic Days',
       value: formatNumber(metrics.annualClinicDays),
-      tooltipText: 'Total clinic days per year after subtracting vacation, CME, and holidays',
+      tooltipText: `Total clinic days per year: ${formatNumber(metrics.weeksWorkedPerYear)} clinical weeks × ${formatNumber(metrics.annualClinicDays / metrics.weeksWorkedPerYear || 0)} days/week = ${formatNumber(metrics.annualClinicDays)} days (excluding ${formatNumber(inputs.vacationWeeks)} vacation weeks, ${formatNumber(inputs.cmeDays)} CME days, and ${formatNumber(inputs.statutoryHolidays)} holidays)`,
     },
     {
       icon: <Clock className="w-6 h-6" />,
       label: 'Annual Clinical Hours',
       value: formatNumber(metrics.annualClinicalHours),
-      tooltipText: 'Total clinical hours per year based on your schedule',
+      tooltipText: `Total clinical hours per year: ${formatNumber(metrics.annualClinicalHours / metrics.weeksWorkedPerYear || 0)} hours/week × ${formatNumber(metrics.weeksWorkedPerYear)} clinical weeks = ${formatNumber(metrics.annualClinicalHours)} hours (excluding vacation, CME, and holidays)`,
     },
   ];
 
@@ -271,6 +280,61 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
         </div>
       </div>
 
+      {/* Calculation Breakdown - Show what was excluded */}
+      <div className="rounded-lg border-2 p-4 bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          Calculation Breakdown
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">Total weeks in year:</span>
+              <span className="font-semibold text-gray-900 dark:text-white">52 weeks</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">Vacation weeks excluded:</span>
+              <span className="font-semibold text-red-600 dark:text-red-400">-{formatNumber(inputs.vacationWeeks)} weeks</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">CME days excluded:</span>
+              <span className="font-semibold text-red-600 dark:text-red-400">-{formatNumber(inputs.cmeDays)} days ({(inputs.cmeDays / 7).toFixed(1)} weeks)</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">Statutory holidays excluded:</span>
+              <span className="font-semibold text-red-600 dark:text-red-400">-{formatNumber(inputs.statutoryHolidays)} days ({(inputs.statutoryHolidays / 7).toFixed(1)} weeks)</span>
+            </div>
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <span className="font-semibold text-gray-900 dark:text-white">Clinical weeks (patients seen):</span>
+              <span className="font-bold text-primary text-lg">{formatNumber(metrics.weeksWorkedPerYear)} weeks</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">Clinical days per year:</span>
+              <span className="font-semibold text-gray-900 dark:text-white">{formatNumber(metrics.annualClinicDays)} days</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 dark:text-gray-400">Clinical hours per year:</span>
+              <span className="font-semibold text-gray-900 dark:text-white">{formatNumber(metrics.annualClinicalHours)} hours</span>
+            </div>
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                Annual Patient Encounters Calculation:
+              </div>
+              <div className="text-xs text-gray-700 dark:text-gray-300">
+                {metrics.annualClinicDays > 0 ? (
+                  <>
+                    {formatNumber(metrics.annualClinicDays)} clinical days × {calendarCoverage?.isFullYear ? 'actual average' : 'average'} {((metrics.annualPatientEncounters / metrics.annualClinicDays) || 0).toFixed(1)} patients/day = {formatNumber(metrics.annualPatientEncounters)} encounters
+                  </>
+                ) : (
+                  'No clinical days calculated'
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Time Section */}
       <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Time</h4>
@@ -290,6 +354,103 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
           ))}
         </div>
       </div>
+
+      {/* Billing Improvement Impact Section */}
+      {inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter && (
+        <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Billing Improvement Impact</h4>
+          <div className="rounded-lg border-2 p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+            <div className="space-y-4">
+              {/* Current vs Adjusted wRVUs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                    Current (Average wRVU)
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">wRVUs:</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {formatNumber(metrics.estimatedAnnualWRVUs)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Calculation:</span>
+                      <span className="text-gray-700 dark:text-gray-300 text-xs">
+                        {formatNumber(metrics.annualPatientEncounters)} × {inputs.avgWRVUPerEncounter.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-gray-200 dark:border-gray-700">
+                      <span className="text-gray-600 dark:text-gray-400">Incentive Payment:</span>
+                      <span className={cn(
+                        'font-semibold',
+                        currentIncentive >= 0 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-red-600 dark:text-red-400'
+                      )}>
+                        {currentIncentive >= 0 ? '+' : ''}{formatCurrency(currentIncentive)}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 pl-2">
+                      ({formatCurrency(inputs.wrvuConversionFactor)} × {formatNumber(metrics.estimatedAnnualWRVUs)}) - {formatCurrency(inputs.baseSalary)}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                    Adjusted (Improved Billing)
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">wRVUs:</span>
+                      <span className="font-semibold text-primary">
+                        {formatNumber(adjustedAnnualWRVUs)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Calculation:</span>
+                      <span className="text-gray-700 dark:text-gray-300 text-xs">
+                        {formatNumber(metrics.annualPatientEncounters)} × {inputs.adjustedWRVUPerEncounter.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-gray-200 dark:border-gray-700">
+                      <span className="text-gray-600 dark:text-gray-400">Incentive Payment:</span>
+                      <span className={cn(
+                        'font-semibold',
+                        adjustedIncentive >= 0 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-red-600 dark:text-red-400'
+                      )}>
+                        {adjustedIncentive >= 0 ? '+' : ''}{formatCurrency(adjustedIncentive)}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 pl-2">
+                      ({formatCurrency(inputs.wrvuConversionFactor)} × {formatNumber(adjustedAnnualWRVUs)}) - {formatCurrency(inputs.baseSalary)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Improvement Summary */}
+              {adjustedIncentive > currentIncentive && (
+                <div className="pt-3 border-t border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Potential Additional Incentive:
+                    </span>
+                    <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                      +{formatCurrency(adjustedIncentive - currentIncentive)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    Additional {formatNumber(adjustedAnnualWRVUs - metrics.estimatedAnnualWRVUs)} wRVUs from improved billing practices
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -304,11 +304,12 @@ function WRVUForecasterPageContent() {
         inputs.statutoryHolidayDates
       );
 
-      // Calculate weeks worked per year from calendar
+      // Calculate clinical weeks (weeks where patients were actually seen)
+      // This is the actual number of weeks patients were seen, excluding vacation, CME, and holidays
       const totalWeeksOff =
         syncedNumbers.vacationWeeks +
         (syncedNumbers.cmeDays + syncedNumbers.statutoryHolidays) / 7;
-      weeksWorkedPerYear = 52 - totalWeeksOff;
+      weeksWorkedPerYear = Math.max(0, 52 - totalWeeksOff);
 
       // Calculate days per week and hours per week from calendar data
       // Get all days with data (patients or hours)
@@ -350,10 +351,46 @@ function WRVUForecasterPageContent() {
         totalHoursPerWeek = avgHoursPerDay * totalDaysPerWeek;
       }
 
-      annualClinicDays =
-        totalDaysPerWeek * weeksWorkedPerYear -
-        syncedNumbers.statutoryHolidays -
-        syncedNumbers.cmeDays;
+      // Calculate annual clinic days properly accounting for non-working days
+      // If we have template data (isFromTemplate), the template replication already excluded
+      // non-working days, so we need to count actual working days that match the template pattern
+      if (inputs.isFromTemplate && totalDaysPerWeek > 0) {
+        // For template mode: count actual working days in the year that match the template pattern
+        // Get the year
+        const year = new Date().getFullYear();
+        const yearStart = new Date(year, 0, 1);
+        const yearEnd = new Date(year, 11, 31);
+        
+        // Count working days that match the days of week in the template
+        let actualWorkingDays = 0;
+        const allDays = eachDayOfInterval({ start: yearStart, end: yearEnd });
+        allDays.forEach((date) => {
+          const dateStr = formatDateString(date);
+          const dayOfWeek = date.getDay();
+          
+          // Check if this day of week is in the template pattern
+          if (daysOfWeekWithData.has(dayOfWeek)) {
+            // Check if it's a working day (not weekend, not vacation/CME/holiday)
+            const isWeekendDay = date.getDay() === 0 || date.getDay() === 6;
+            const isNonWorking = 
+              inputs.vacationDates?.includes(dateStr) ||
+              inputs.cmeDates?.includes(dateStr) ||
+              inputs.statutoryHolidayDates?.includes(dateStr);
+            
+            if (!isWeekendDay && !isNonWorking) {
+              actualWorkingDays++;
+            }
+          }
+        });
+        
+        annualClinicDays = actualWorkingDays;
+      } else {
+        // For manual calendar entry: use the pattern-based calculation
+        annualClinicDays =
+          totalDaysPerWeek * weeksWorkedPerYear -
+          syncedNumbers.statutoryHolidays -
+          syncedNumbers.cmeDays;
+      }
       annualClinicalHours = totalHoursPerWeek * weeksWorkedPerYear;
 
       // Annualize calendar data
@@ -602,8 +639,53 @@ function WRVUForecasterPageContent() {
     });
   };
 
+  // Bulk calculation: Apply patients per day to all working days
+  const handleCalculatePatientsFromDay = () => {
+    if (inputs.patientsPerDay <= 0) return;
+
+    setInputs((prev) => {
+      const updatedPatientCounts = { ...prev.dailyPatientCounts };
+      const updatedHours = { ...prev.dailyHours };
+
+      // Get the current year to find all days
+      const year = new Date().getFullYear();
+      const yearStart = new Date(year, 0, 1);
+      const yearEnd = new Date(year, 11, 31);
+      const allDays = eachDayOfInterval({ start: yearStart, end: yearEnd });
+
+      // Apply patients per day to all working days
+      allDays.forEach((date) => {
+        const dateStr = formatDateString(date);
+        const dayOfWeek = date.getDay();
+        
+        // Skip weekends
+        if (dayOfWeek === 0 || dayOfWeek === 6) return;
+
+        // Skip vacation/CME/holiday dates
+        const isVacation = prev.vacationDates?.includes(dateStr);
+        const isCME = prev.cmeDates?.includes(dateStr);
+        const isHoliday = prev.statutoryHolidayDates?.includes(dateStr);
+        if (isVacation || isCME || isHoliday) return;
+
+        // Set patients per day for this working day
+        updatedPatientCounts[dateStr] = prev.patientsPerDay;
+        
+        // If hours exist, keep them; otherwise calculate from patients per hour if available
+        if (!updatedHours[dateStr] && prev.patientsPerHour > 0) {
+          updatedHours[dateStr] = prev.patientsPerDay / prev.patientsPerHour;
+        }
+      });
+
+      return {
+        ...prev,
+        dailyPatientCounts: updatedPatientCounts,
+        dailyHours: updatedHours,
+      };
+    });
+  };
+
   // Apply predefined work week template
-  const handleApplyWorkWeekTemplate = (totalHours: number) => {
+  const handleApplyWorkWeekTemplate = (totalHours: number, dayToReduce?: number) => {
     // Get current week (Monday to Friday)
     const today = new Date();
     const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Monday
@@ -613,46 +695,88 @@ function WRVUForecasterPageContent() {
     });
 
     // Calculate hours distribution
-    // Standard: 8 hours Mon-Thu, remaining hours on Friday
     const baseHoursPerDay = 8;
     const monThuHours = baseHoursPerDay * 4; // 32 hours
-    const fridayHours = Math.max(0, totalHours - monThuHours);
-
+    
     setInputs((prev) => {
       const updatedHours = { ...prev.dailyHours };
       const updatedPatients = { ...prev.dailyPatientCounts };
 
-      weekDays.forEach((date, index) => {
-        const dateStr = formatDateString(date);
-        const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc.
-        
-        // Skip if it's a vacation/CME/holiday date
-        const isVacation = prev.vacationDates?.includes(dateStr);
-        const isCME = prev.cmeDates?.includes(dateStr);
-        const isHoliday = prev.statutoryHolidayDates?.includes(dateStr);
-        if (isVacation || isCME || isHoliday) return;
-
-        // Monday-Thursday (index 0-3): 8 hours
-        // Friday (index 4): remaining hours
-        let hours = 0;
-        if (dayOfWeek >= 1 && dayOfWeek <= 4) {
-          // Monday-Thursday
-          hours = baseHoursPerDay;
-        } else if (dayOfWeek === 5) {
-          // Friday
-          hours = fridayHours;
-        }
-
-        if (hours > 0) {
-          updatedHours[dateStr] = hours;
+      // If totalHours < 32, distribute evenly across Mon-Thu
+      if (totalHours < monThuHours) {
+        const hoursPerDay = totalHours / 4;
+        weekDays.forEach((date) => {
+          const dateStr = formatDateString(date);
+          const dayOfWeek = date.getDay();
           
-          // Auto-calculate patients if patientsPerHour is set
-          if (prev.patientsPerHour > 0) {
-            const calculatedPatients = Math.round(hours * prev.patientsPerHour);
-            updatedPatients[dateStr] = calculatedPatients;
+          // Skip if it's a vacation/CME/holiday date
+          const isVacation = prev.vacationDates?.includes(dateStr);
+          const isCME = prev.cmeDates?.includes(dateStr);
+          const isHoliday = prev.statutoryHolidayDates?.includes(dateStr);
+          if (isVacation || isCME || isHoliday) return;
+
+          if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+            updatedHours[dateStr] = hoursPerDay;
+            // Calculate patients based on mode
+            if (prev.isPerHour && prev.patientsPerHour > 0) {
+              updatedPatients[dateStr] = Math.round(hoursPerDay * prev.patientsPerHour);
+            } else if (!prev.isPerHour && prev.patientsPerDay > 0) {
+              // Proportional: patients = (hours / 8) * patientsPerDay
+              updatedPatients[dateStr] = Math.round((hoursPerDay / baseHoursPerDay) * prev.patientsPerDay);
+            }
+          } else if (dayOfWeek === 5) {
+            // Friday gets 0 hours
+            if (updatedHours[dateStr] !== undefined) delete updatedHours[dateStr];
+            if (updatedPatients[dateStr] !== undefined) delete updatedPatients[dateStr];
           }
-        }
-      });
+        });
+      } else {
+        // totalHours >= 32: 8h Mon-Thu, remainder on specified day (or Friday by default)
+        const targetDay = dayToReduce || 5; // Default to Friday
+        const hoursToReduce = totalHours - monThuHours;
+        const reducedDayHours = Math.max(0, baseHoursPerDay - hoursToReduce);
+        const otherDaysHours = baseHoursPerDay;
+
+        weekDays.forEach((date) => {
+          const dateStr = formatDateString(date);
+          const dayOfWeek = date.getDay();
+          
+          // Skip if it's a vacation/CME/holiday date
+          const isVacation = prev.vacationDates?.includes(dateStr);
+          const isCME = prev.cmeDates?.includes(dateStr);
+          const isHoliday = prev.statutoryHolidayDates?.includes(dateStr);
+          if (isVacation || isCME || isHoliday) return;
+
+          let hours = 0;
+          if (dayOfWeek === targetDay) {
+            // The day to reduce
+            hours = reducedDayHours;
+          } else if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+            // Other Mon-Thu days
+            hours = otherDaysHours;
+          } else if (dayOfWeek === 5 && targetDay !== 5) {
+            // Friday when not the target day
+            hours = otherDaysHours;
+          }
+
+          if (hours > 0) {
+            updatedHours[dateStr] = hours;
+            
+            // Calculate patients based on current mode
+            if (prev.isPerHour && prev.patientsPerHour > 0) {
+              // Patients Per Hour mode: calculate from hours
+              updatedPatients[dateStr] = Math.round(hours * prev.patientsPerHour);
+            } else if (!prev.isPerHour && prev.patientsPerDay > 0) {
+              // Patients Per Day mode: proportional to hours (patients = (hours / 8) * patientsPerDay)
+              updatedPatients[dateStr] = Math.round((hours / baseHoursPerDay) * prev.patientsPerDay);
+            }
+          } else {
+            // If hours is 0, clear patients for that day
+            if (updatedHours[dateStr] !== undefined) delete updatedHours[dateStr];
+            if (updatedPatients[dateStr] !== undefined) delete updatedPatients[dateStr];
+          }
+        });
+      }
 
       return {
         ...prev,
@@ -945,28 +1069,15 @@ Generated by CompLens™ Provider Compensation Intelligence
                   onApplyTemplate={handleApplyTemplate}
                   patientsPerHour={inputs.patientsPerHour}
                   onPatientsPerHourChange={(value) => handleInputChange('patientsPerHour', value)}
+                  patientsPerDay={inputs.patientsPerDay}
+                  onPatientsPerDayChange={(value) => handleInputChange('patientsPerDay', value)}
+                  isPerHour={inputs.isPerHour}
+                  onIsPerHourChange={(value) => handleInputChange('isPerHour', value)}
                   onCalculatePatientsFromHours={handleCalculatePatientsFromHours}
+                  onCalculatePatientsFromDay={handleCalculatePatientsFromDay}
                   onApplyWorkWeekTemplate={handleApplyWorkWeekTemplate}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <NumberInputWithButtons
-                  label="Average wRVU Per Encounter"
-                  value={inputs.avgWRVUPerEncounter}
-                  onChange={(value) => handleInputChange('avgWRVUPerEncounter', value)}
-                  icon={<TrendingUp className="w-5 h-5" />}
-                  min={0}
-                  step={0.01}
-                />
-
-                <NumberInputWithButtons
-                  label="Adjusted wRVU Per Encounter"
-                  value={inputs.adjustedWRVUPerEncounter}
-                  onChange={(value) => handleInputChange('adjustedWRVUPerEncounter', value)}
-                  icon={<TrendingUp className="w-5 h-5" />}
-                  min={0}
-                  step={0.01}
+                  onAvgWRVUChange={(value) => handleInputChange('avgWRVUPerEncounter', value)}
+                  onAdjustedWRVUChange={(value) => handleInputChange('adjustedWRVUPerEncounter', value)}
                 />
               </div>
             </div>
