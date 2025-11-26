@@ -25,7 +25,7 @@ import {
   ProgressiveFormNavigation,
 } from '@/components/ui/progressive-form';
 import { FTE, ProviderScenario } from '@/types';
-import { normalizeWrvus, normalizeTcc } from '@/lib/utils/normalization';
+import { normalizeWrvus } from '@/lib/utils/normalization';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, User, Stethoscope } from 'lucide-react';
@@ -338,10 +338,6 @@ function WRVUModelerPageContent() {
     loadScenarios();
   }, [loadScenarios]);
 
-  // Check if there are wrvu-modeler scenarios to show border above Provider Info
-  const hasWRVUModelerScenarios = React.useMemo(() => {
-    return scenarios.some(s => s.scenarioType === 'wrvu-modeler' || (!s.scenarioType && s.annualWrvus));
-  }, [scenarios]);
 
   const handleLoadScenario = useCallback((scenario: ProviderScenario) => {
     setFte(scenario.fte);
