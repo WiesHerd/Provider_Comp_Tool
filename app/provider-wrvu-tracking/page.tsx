@@ -336,7 +336,7 @@ export default function ProviderWRVUTrackingPage() {
     <div className="w-full px-3 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
 
       {/* Provider Name Input - At the very top */}
-      <Card className="mb-6 border-2">
+      <Card className="mb-6 border-2 !pt-2 md:!pt-3">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
             Provider Work RVU Tracking
