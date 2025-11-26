@@ -109,10 +109,6 @@ export default function CallPayModelerPage() {
     loadScenarios();
   }, [loadScenarios]);
   
-  // Check if there are call-pay scenarios to show border above Context
-  const hasCallPayScenarios = useMemo(() => {
-    return scenarios.some(s => s.scenarioType === 'call-pay');
-  }, [scenarios]);
 
   // Initialize first tier as enabled by default on mount
   useEffect(() => {
