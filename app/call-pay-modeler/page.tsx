@@ -61,7 +61,7 @@ const DEFAULT_TIERS: CallTier[] = [
 ];
 
 export default function CallPayModelerPage() {
-  const { scenarios, loadScenarios } = useScenariosStore();
+  const { loadScenarios } = useScenariosStore();
   const [context, setContext] = useState<CallPayContext>(DEFAULT_CONTEXT);
   const [tiers, setTiers] = useState<CallTier[]>(DEFAULT_TIERS);
   const [expandedTier, setExpandedTier] = useState<string>('C1');
