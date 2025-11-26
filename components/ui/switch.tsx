@@ -15,8 +15,8 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchRoot
     className={cn(
-      'peer inline-flex h-8 w-14 sm:h-7 sm:w-12 shrink-0 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent',
-      'min-w-[56px] sm:min-w-[48px] max-w-[56px] sm:max-w-[48px]', // Lock dimensions - Apple switch aspect ratio
+      'peer inline-flex h-7 w-11 sm:h-6 sm:w-10 shrink-0 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent',
+      'min-w-[44px] sm:min-w-[40px] max-w-[44px] sm:max-w-[40px]', // Lock dimensions - Apple switch aspect ratio (narrower)
       'transition-colors duration-150 ease-out',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white',
       'disabled:cursor-not-allowed disabled:opacity-50',
@@ -29,8 +29,8 @@ const Switch = React.forwardRef<
   >
     <SwitchThumb
       className={cn(
-        'pointer-events-none block h-6 w-6 sm:h-5 sm:w-5 rounded-full bg-white shadow-lg ring-0 transition-transform',
-        'data-[state=checked]:translate-x-6 sm:data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0'
+        'pointer-events-none block h-5 w-5 sm:h-4 sm:w-4 rounded-full bg-white shadow-lg ring-0 transition-transform',
+        'data-[state=checked]:translate-x-[18px] sm:data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0.5'
       )}
     />
   </SwitchRoot>
