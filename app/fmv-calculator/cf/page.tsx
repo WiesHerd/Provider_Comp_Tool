@@ -12,7 +12,8 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Calculator, RotateCcw } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calculator, RotateCcw, ChevronLeft } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks } from '@/types';
 import { calculateCFPercentile } from '@/lib/utils/percentile';
@@ -171,12 +172,13 @@ function CFCalculatorPageContent() {
       {/* Combined Input Screen - CF Input and Market Data together */}
       {!showResults && (
       <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Factor</h2>
-            <ScenarioLoader
-              scenarioType="fmv-cf"
-              onLoad={(scenario) => {
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Conversion Factor</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-cf"
+                onLoad={(scenario) => {
                 // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
                 if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
                   setCfValue(scenario.cfValue);
@@ -192,21 +194,23 @@ function CFCalculatorPageContent() {
                 setScenarioLoaded(true);
               }}
             />
-          </div>
-          {cfValue > 0 && (
-            <div className="flex items-center">
-              <ProviderInputSaveButton
-                scenarioType="fmv-cf"
-                fte={1.0}
-                cfValue={cfValue}
-                specialty={specialty}
-              />
             </div>
-          )}
-          
-          {/* CF Input Section */}
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">Conversion Factor ($/wRVU)</Label>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {cfValue > 0 && (
+              <div className="flex items-center">
+                <ProviderInputSaveButton
+                  scenarioType="fmv-cf"
+                  fte={1.0}
+                  cfValue={cfValue}
+                  specialty={specialty}
+                />
+              </div>
+            )}
+            
+            {/* CF Input Section */}
+            <div className="space-y-2">
+            <Label className="text-sm font-semibold">Conversion Factor ($/wRVU)</Label>
             <CurrencyInput
               value={cfValue}
               onChange={setCfValue}
@@ -239,7 +243,8 @@ function CFCalculatorPageContent() {
               benchmarks={marketBenchmarks}
             />
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
       )}
 
@@ -251,15 +256,28 @@ function CFCalculatorPageContent() {
               Please enter at least one benchmark value (25th, 50th, 75th, or 90th percentile) to calculate.
             </p>
           )}
-          <Button
-            onClick={handleCalculate}
-            className="w-full min-h-[48px] text-base font-semibold"
-            size="lg"
-            disabled={!hasMarketData}
-          >
-            <Calculator className="w-5 h-5 mr-2" />
-            Calculate Percentile
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
+              size="lg"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <Button
+              onClick={handleCalculate}
+              className="w-full sm:flex-1 min-h-[48px] text-base font-semibold"
+              size="lg"
+              disabled={!hasMarketData}
+            >
+              <Calculator className="w-5 h-5 mr-2" />
+              Calculate
+            </Button>
+          </div>
         </div>
       )}
 
@@ -267,7 +285,7 @@ function CFCalculatorPageContent() {
       {showResults && cfValue > 0 && (
         <div id="results-section" className="space-y-6">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Factor</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Conversion Factor</h2>
           </div>
           <PercentileBreakdown
             value={cfValue}

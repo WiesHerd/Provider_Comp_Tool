@@ -12,7 +12,8 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { Button } from '@/components/ui/button';
-import { Calculator, RotateCcw } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calculator, RotateCcw, ChevronLeft } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, TCCComponent, FTE, ProviderScenario } from '@/types';
 import { calculateTCCPercentile } from '@/lib/utils/percentile';
@@ -258,15 +259,17 @@ function TCCCalculatorPageContent() {
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
-        {/* Content - No container */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Total Cash Compensation</h2>
-            <ScenarioLoader
-              scenarioType="fmv-tcc"
-              onLoad={handleScenarioLoad}
-            />
-          </div>
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-tcc"
+                onLoad={handleScenarioLoad}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
           <div className="flex items-end gap-2 sm:gap-4">
             {tccComponents.some(c => c.amount > 0) && (
               <div className="flex items-end">
@@ -323,16 +326,17 @@ function TCCCalculatorPageContent() {
               </div>
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
       </div>
       )}
 
       {/* Step 2: Market Data (Only show when on Step 2) */}
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
-        {/* Content - No container */}
-        <div className="space-y-6">
-          <SpecialtyInput
+        <Card className="border-2">
+          <CardContent className="space-y-6 pt-6">
+            <SpecialtyInput
             metricType="tcc"
             specialty={specialty}
             onSpecialtyChange={setSpecialty}
@@ -349,7 +353,8 @@ function TCCCalculatorPageContent() {
             metricType="tcc"
             benchmarks={marketBenchmarks}
           />
-        </div>
+          </CardContent>
+        </Card>
       </div>
       )}
 
@@ -377,7 +382,8 @@ function TCCCalculatorPageContent() {
               className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              ← Previous
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back
             </Button>
             <Button
               onClick={handleCalculate}
@@ -386,7 +392,7 @@ function TCCCalculatorPageContent() {
               disabled={!hasMarketData || normalizedTcc === 0}
             >
               <Calculator className="w-5 h-5 mr-2" />
-              {showResults ? 'Recalculate Percentile' : 'Calculate Percentile'}
+              {showResults ? 'Recalculate' : 'Calculate'}
             </Button>
           </div>
         </div>
@@ -396,7 +402,7 @@ function TCCCalculatorPageContent() {
       {currentStep === 3 && showResults && normalizedTcc > 0 && (
         <div id="results-section" className="space-y-6">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Total Cash Compensation</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</h2>
           </div>
           <PercentileBreakdown
             value={normalizedTcc}
@@ -419,7 +425,8 @@ function TCCCalculatorPageContent() {
                 onClick={() => setActiveStep(2)}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                ← Edit Market Data
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
               </Button>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">

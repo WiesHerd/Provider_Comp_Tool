@@ -12,7 +12,8 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { WRVUInput } from '@/components/wrvu/wrvu-input';
 import { Button } from '@/components/ui/button';
-import { Calculator, RotateCcw } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calculator, RotateCcw, ChevronLeft } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, FTE } from '@/types';
 import { calculateWRVUPercentile } from '@/lib/utils/percentile';
@@ -160,17 +161,17 @@ function WRVUCalculatorPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
-      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-wrvu-content">
-        {/* Content - No container */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">wRVUs</h2>
-            <ScenarioLoader
-              scenarioType="fmv-wrvu"
-              onLoad={(scenario) => {
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">wRVUs</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-wrvu"
+                onLoad={(scenario) => {
                 if (scenario.fte) {
                   setFte(scenario.fte);
                 }
@@ -198,8 +199,10 @@ function WRVUCalculatorPageContent() {
                 setScenarioLoaded(true);
               }}
             />
-          </div>
-          <div className="flex items-end gap-2 sm:gap-4">
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-end gap-2 sm:gap-4">
             {annualWrvus > 0 && fte > 0 && (
               <div className="flex items-end">
                 <ProviderInputSaveButton
@@ -238,16 +241,17 @@ function WRVUCalculatorPageContent() {
               </div>
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
       </div>
       )}
 
       {/* Step 2: Market Data (Only show when on Step 2) */}
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
-        {/* Content - No container */}
-        <div className="space-y-6">
-          <SpecialtyInput
+        <Card className="border-2">
+          <CardContent className="space-y-6 pt-6">
+            <SpecialtyInput
             metricType="wrvu"
             specialty={specialty}
             onSpecialtyChange={setSpecialty}
@@ -264,7 +268,8 @@ function WRVUCalculatorPageContent() {
             metricType="wrvu"
             benchmarks={marketBenchmarks}
           />
-        </div>
+          </CardContent>
+        </Card>
       </div>
       )}
 
@@ -292,7 +297,8 @@ function WRVUCalculatorPageContent() {
               className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              ← Previous
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back
             </Button>
             <Button
               onClick={handleCalculate}
@@ -301,7 +307,7 @@ function WRVUCalculatorPageContent() {
               disabled={!hasMarketData}
             >
               <Calculator className="w-5 h-5 mr-2" />
-              Calculate Percentile
+              Calculate
             </Button>
           </div>
         </div>
@@ -311,7 +317,7 @@ function WRVUCalculatorPageContent() {
       {currentStep === 3 && showResults && normalizedWrvus > 0 && (
         <div id="results-section" className="space-y-6">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">wRVUs</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">wRVUs</h2>
           </div>
           <PercentileBreakdown
             value={normalizedWrvus}
@@ -334,7 +340,8 @@ function WRVUCalculatorPageContent() {
                 onClick={() => setActiveStep(2)}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                ← Edit Market Data
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
               </Button>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
