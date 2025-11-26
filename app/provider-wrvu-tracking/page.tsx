@@ -53,7 +53,7 @@ const getInitialState = (): ProviderWRVUTrackingState => {
       return parsed;
     }
   } catch (error) {
-    logger.error('Error loading saved state:', error);
+    console.error('Error loading saved state:', error);
   }
 
   return getDefaultState();

@@ -153,7 +153,7 @@ export default function CallPayModelerPage() {
       (tier.burden.weekdayCallsPerMonth > 0 || tier.burden.weekendCallsPerMonth > 0)
     );
 
-  const handleWalkthroughNavigate = (stepIndex: number, elementId: string) => {
+  const handleWalkthroughNavigate = (_stepIndex: number, elementId: string) => {
     // Map element IDs to step numbers
     const elementToStep: Record<string, number> = {
       'context-card': 1,
@@ -195,10 +195,6 @@ export default function CallPayModelerPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const totalSteps = 3;
-  const stepNames = ['Set Context', 'Configure Tiers', 'Review Budget'];
-  const completedSteps = step2Complete ? [1, 2] : step1Complete ? [1] : [];
-
   return (
     <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
       {/* Welcome Walkthrough */}
@@ -223,7 +219,6 @@ export default function CallPayModelerPage() {
                       setContext(callPayData.context);
                       // Merge loaded tiers with existing tiers structure
                       // Preserve tier IDs and structure
-                      const loadedTierIds = new Set(callPayData.tiers.map(t => t.id));
                       const mergedTiers = tiers.map(t => {
                         const loadedTier = callPayData.tiers.find(lt => lt.id === t.id);
                         return loadedTier || t;

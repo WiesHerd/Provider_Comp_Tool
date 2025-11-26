@@ -60,9 +60,12 @@ export function Tooltip({ children, content, side = 'top', className, disableOnT
 
   React.useEffect(() => {
     return () => {
+      // Access refs directly in cleanup to clear whatever timeout exists at cleanup time
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (delayTimeoutRef.current) {
         clearTimeout(delayTimeoutRef.current);
       }
