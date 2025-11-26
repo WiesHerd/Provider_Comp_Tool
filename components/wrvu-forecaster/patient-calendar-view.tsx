@@ -500,7 +500,7 @@ export function PatientCalendarView({
                 </div>
 
                 {/* Calendar days - One week */}
-                <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-1">
+                <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-1 pl-1 pr-1">
                   <div className="grid grid-cols-7 gap-2 sm:gap-3">
                     {weeks[0]?.map((date) => {
                       const dateStr = formatDateString(date);
@@ -694,7 +694,7 @@ export function PatientCalendarView({
                 </div>
 
                 {/* Calendar days */}
-                <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-1">
+                <div className="space-y-2 sm:space-y-3 min-w-[700px] pb-1 pl-1 pr-1">
                   {weeks.map((week, weekIndex) => (
                     <div key={weekIndex} className="grid grid-cols-7 gap-2 sm:gap-3">
                       {week.map((date) => {
