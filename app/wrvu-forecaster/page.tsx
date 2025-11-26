@@ -241,7 +241,6 @@ function WRVUForecasterPageContent() {
     estimatedTotalCompensation: 0,
     wrvuCompensation: 0,
   });
-  const [showResults, setShowResults] = useState(false);
 
   // Define handleLoadScenario before useEffects that use it
   const handleLoadScenario = useCallback((scenario: WRVUForecasterScenario | ProviderScenario) => {
@@ -497,49 +496,6 @@ function WRVUForecasterPageContent() {
     });
   };
 
-  const handleShiftChange = (
-    index: number | null,
-    field: keyof ShiftType | 'add' | 'daysOfWeek',
-    value: string | number | number[]
-  ) => {
-    if (field === 'add') {
-      setInputs((prev) => ({
-        ...prev,
-        shifts: [
-          ...prev.shifts,
-          {
-            id: `shift-${Date.now()}`,
-            name: 'New Shift',
-            hours: 8,
-            perWeek: 1,
-            daysOfWeek: [1], // Default to Monday
-          },
-        ],
-      }));
-      return;
-    }
-
-    if (index === null) return;
-
-    setInputs((prev) => {
-      const newShifts = [...prev.shifts];
-      newShifts[index] = {
-        ...newShifts[index],
-        [field]: value,
-      };
-      return {
-        ...prev,
-        shifts: newShifts,
-      };
-    });
-  };
-
-  const handleDeleteShift = (index: number) => {
-    setInputs((prev) => ({
-      ...prev,
-      shifts: prev.shifts.filter((_, i) => i !== index),
-    }));
-  };
 
   // Calendar handlers
   const handlePatientCountChange = (date: Date, count: number) => {
@@ -871,7 +827,6 @@ function WRVUForecasterPageContent() {
     // Calculate adjusted metrics
     const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
     const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
-    const adjustedTotalCompensation = Math.max(inputs.baseSalary, adjustedWRVUCompensation);
     const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
     const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
 
