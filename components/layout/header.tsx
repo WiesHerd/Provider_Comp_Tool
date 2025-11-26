@@ -297,22 +297,19 @@ export function Header() {
       <Image
         src="/New Image.png"
         alt="CompLens"
-        width={40}
-        height={40}
-        className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 object-contain rounded-xl transition-all duration-300 relative z-10"
+        width={44}
+        height={44}
+        className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain rounded-2xl transition-all duration-200 relative z-10"
         style={{
-          filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.08))',
+          filter: 'drop-shadow(0 2px 12px rgba(0, 0, 0, 0.08)) drop-shadow(0 1px 4px rgba(0, 0, 0, 0.06))',
         }}
         priority
         quality={100}
         unoptimized
       />
-      {/* Static subtle background glow - no animation */}
+      {/* Enhanced subtle background glow - Grok style */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-400 to-green-400 dark:from-blue-500 dark:to-green-500 rounded-xl opacity-10 dark:opacity-8 blur-sm"
-        style={{
-          filter: 'blur(8px)',
-        }}
+        className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-purple-400/15 to-green-400/20 dark:from-blue-500/25 dark:via-purple-500/20 dark:to-green-500/25 rounded-2xl blur-xl"
       />
     </div>
   );
@@ -331,31 +328,32 @@ export function Header() {
       <header 
         className={cn(
           "fixed top-0 left-0 right-0 z-50 safe-area-inset-top",
-          "border-b transition-all duration-300 ease-in-out",
-          "border-gray-200/60 dark:border-gray-800/60",
-          "bg-white/80 dark:bg-gray-900/80",
-          "backdrop-blur-2xl backdrop-saturate-150",
-          "shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)]",
-          "supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-900/70",
-          isHeaderVisible ? "translate-y-0" : "-translate-y-full",
-          isLandscape ? "py-1 md:py-2" : "py-2 md:py-5"
+          "border-b transition-all duration-500 ease-out",
+          "border-gray-200/40 dark:border-gray-800/40",
+          "bg-white/75 dark:bg-gray-950/75",
+          "backdrop-blur-xl backdrop-saturate-200",
+          "shadow-[0_1px_0_0_rgba(0,0,0,0.03),0_4px_24px_rgba(0,0,0,0.02)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03),0_4px_24px_rgba(0,0,0,0.3)]",
+          "supports-[backdrop-filter]:bg-white/65 supports-[backdrop-filter]:dark:bg-gray-950/65",
+          isHeaderVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0",
+          isLandscape ? "py-2 md:py-3" : "py-4 md:py-6"
         )}
         suppressHydrationWarning
         role="banner"
       >
-      {/* Subtle gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent dark:from-gray-900/50 pointer-events-none" />
+      {/* Enhanced gradient overlay - Grok style */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/30 to-transparent dark:from-gray-950/60 dark:via-gray-950/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/5 to-pink-500/0 dark:from-blue-400/0 dark:via-purple-400/8 dark:to-pink-400/0 pointer-events-none" />
       
       <div className={cn(
-        "relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 z-10",
-        isLandscape ? "py-1" : ""
+        "relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 z-10",
+        isLandscape ? "py-1.5" : "py-2"
       )}>
         <div className="flex items-center justify-between relative z-10">
           <div className={cn(
             "flex items-center",
-            isLandscape ? "gap-2 sm:gap-3" : "gap-4 sm:gap-5"
+            isLandscape ? "gap-3 sm:gap-4" : "gap-5 sm:gap-6 md:gap-7"
           )}>
-            {/* Back button - Apple style (only show when not on home) */}
+            {/* Back button - Grok style (only show when not on home) */}
             {/* Use safePathname for consistent SSR rendering */}
             {safePathname !== '/' && (
               <Button
@@ -363,28 +361,29 @@ export function Header() {
                 size="sm"
                 onClick={() => router.back()}
                 className={cn(
-                  "min-w-[44px] h-[44px] -ml-2 rounded-full",
-                  "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
-                  "transition-all duration-300 ease-out",
-                  "active:scale-[0.96]",
-                  "hover:shadow-sm",
-                  "animate-icon-enter"
+                  "min-w-[44px] h-[44px] -ml-1 rounded-xl",
+                  "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                  "transition-all duration-200 ease-out",
+                  "active:scale-[0.95]",
+                  "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
+                  "animate-icon-enter",
+                  "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50"
                 )}
                 aria-label="Go back"
                 suppressHydrationWarning
               >
-                <ChevronLeft className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" />
+                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 group-hover:-translate-x-0.5" />
               </Button>
             )}
             
-            {/* Logo - clickable to go home (Apple style) - always render for consistent hydration */}
+            {/* Logo - clickable to go home - Grok style */}
             <Link
               href="/"
               className={cn(
-                "flex items-center gap-3 sm:gap-4",
-                "transition-all duration-300 ease-out",
-                "hover:opacity-90 active:opacity-80",
-                "active:scale-[0.98]",
+                "flex items-center gap-4 sm:gap-5",
+                "transition-all duration-200 ease-out",
+                "hover:opacity-85 active:opacity-75",
+                "active:scale-[0.97]",
                 "touch-manipulation cursor-pointer"
               )}
               aria-label="Go to home"
@@ -394,15 +393,16 @@ export function Header() {
               {logoContent}
             </Link>
             
-            {/* Page title - Apple style (subtle, in header) */}
+            {/* Page title - Grok style (refined typography) */}
             {pageTitle && (
               <h1 className={cn(
-                isLandscape ? "text-sm sm:text-base" : "text-base sm:text-lg md:text-xl",
-                "font-semibold text-gray-900 dark:text-white",
-                "ml-1 hidden sm:block",
-                "tracking-[-0.01em]",
+                isLandscape ? "text-sm sm:text-base" : "text-lg sm:text-xl md:text-2xl",
+                "font-medium text-gray-900 dark:text-gray-100",
+                "ml-0.5 hidden sm:block",
+                "tracking-[-0.02em]",
                 "animate-fade-in",
-                "transition-opacity duration-300"
+                "transition-opacity duration-300",
+                "leading-tight"
               )} suppressHydrationWarning>
                 {pageTitle}
               </h1>
@@ -411,7 +411,7 @@ export function Header() {
 
           <div className={cn(
             "flex items-center relative z-20",
-            isLandscape ? "gap-1 sm:gap-2" : "gap-2 sm:gap-3"
+            isLandscape ? "gap-2 sm:gap-3" : "gap-3 sm:gap-4"
           )}>
             {(!isLandscape || (typeof window !== 'undefined' && window.innerWidth >= 640)) && (
               <>
@@ -420,14 +420,15 @@ export function Header() {
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    isLandscape ? "min-w-[36px] h-[36px]" : "min-w-[44px] h-[44px]",
-                    "rounded-full",
-                    "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
-                    "transition-all duration-300 ease-out",
-                    "active:scale-[0.96]",
-                    "hover:shadow-sm",
+                    "min-w-[44px] h-[44px]",
+                    "rounded-xl",
+                    "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                    "transition-all duration-200 ease-out",
+                    "active:scale-[0.95]",
+                    "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
                     "group",
                     "animate-icon-enter",
+                    "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
                     "relative z-20"
                   )}
                   onClick={openScreenGuide}
@@ -437,8 +438,10 @@ export function Header() {
                   suppressHydrationWarning
                 >
                   <Sparkles className={cn(
-                    "transition-all duration-300 group-hover:scale-110 group-hover:animate-sparkle-pulse",
-                    isLandscape ? "w-4 h-4" : "w-5 h-5"
+                    "w-5 h-5 text-gray-600 dark:text-gray-400",
+                    "transition-all duration-200",
+                    "group-hover:scale-110 group-hover:text-gray-900 dark:group-hover:text-gray-200",
+                    "group-hover:animate-sparkle-pulse"
                   )} />
                 </Button>
                 <Button 
@@ -446,14 +449,15 @@ export function Header() {
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    isLandscape ? "min-w-[36px] h-[36px]" : "min-w-[44px] h-[44px]",
-                    "rounded-full",
-                    "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
-                    "transition-all duration-300 ease-out",
-                    "active:scale-[0.96]",
-                    "hover:shadow-sm",
+                    "min-w-[44px] h-[44px]",
+                    "rounded-xl",
+                    "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                    "transition-all duration-200 ease-out",
+                    "active:scale-[0.95]",
+                    "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
                     "group",
                     "animate-icon-enter",
+                    "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
                     "relative z-20"
                   )}
                   onClick={() => {
@@ -464,8 +468,9 @@ export function Header() {
                   suppressHydrationWarning
                 >
                   <Info className={cn(
-                    "transition-all duration-300 group-hover:scale-110",
-                    isLandscape ? "w-4 h-4" : "w-5 h-5"
+                    "w-5 h-5 text-gray-600 dark:text-gray-400",
+                    "transition-all duration-200",
+                    "group-hover:scale-110 group-hover:text-gray-900 dark:group-hover:text-gray-200"
                   )} />
                 </Button>
               </>
@@ -475,8 +480,8 @@ export function Header() {
                 <Dialog.Overlay 
                   className={cn(
                     "fixed inset-0 z-[100]",
-                    "bg-black/40 dark:bg-black/60",
-                    "backdrop-blur-sm",
+                    "bg-black/50 dark:bg-black/70",
+                    "backdrop-blur-md",
                     "animate-in fade-in duration-300",
                     "transition-opacity"
                   )} 
@@ -484,15 +489,15 @@ export function Header() {
                 <Dialog.Content 
                   className={cn(
                     "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-                    "bg-white/95 dark:bg-gray-900/95",
-                    "backdrop-blur-2xl backdrop-saturate-150",
-                    "rounded-3xl p-6 sm:p-8",
+                    "bg-white/95 dark:bg-gray-950/95",
+                    "backdrop-blur-xl backdrop-saturate-200",
+                    "rounded-2xl p-6 sm:p-8 md:p-10",
                     "max-w-lg w-[90vw] max-h-[85vh]",
                     "overflow-y-auto z-[101]",
-                    "shadow-2xl",
-                    "border border-gray-200/50 dark:border-gray-800/50",
+                    "shadow-2xl shadow-gray-900/10 dark:shadow-gray-900/50",
+                    "border border-gray-200/60 dark:border-gray-800/60",
                     "animate-in fade-in zoom-in-95 duration-300",
-                    "supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-gray-900/90"
+                    "supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-gray-950/90"
                   )}
                 >
                   {(() => {
@@ -503,9 +508,10 @@ export function Header() {
                     return (
                       <>
                         <Dialog.Title className={cn(
-                          "text-2xl sm:text-3xl font-bold mb-6",
-                          "text-gray-900 dark:text-white",
-                          "tracking-tight"
+                          "text-2xl sm:text-3xl md:text-4xl font-medium mb-6 md:mb-8",
+                          "text-gray-900 dark:text-gray-100",
+                          "tracking-[-0.02em]",
+                          "leading-tight"
                         )}>
                           {isHome ? 'How to Use CompLens™' : screenGuide.title}
                         </Dialog.Title>
@@ -614,28 +620,27 @@ export function Header() {
               size="sm"
               onClick={toggleTheme}
               className={cn(
-                isLandscape ? "min-w-[36px] h-[36px]" : "min-w-[44px] h-[44px]",
-                "rounded-full",
-                "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
-                "transition-all duration-300 ease-out",
-                "active:scale-[0.96]",
-                "hover:shadow-sm",
+                "min-w-[44px] h-[44px]",
+                "rounded-xl",
+                "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                "transition-all duration-200 ease-out",
+                "active:scale-[0.95]",
+                "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
                 "group",
                 "animate-icon-enter",
+                "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
                 "relative z-20"
               )}
               aria-label="Toggle theme"
               style={{ animationDelay: '0.2s' }}
               suppressHydrationWarning
             >
-              <div className={cn(
-                "relative",
-                isLandscape ? "w-4 h-4" : "w-5 h-5"
-              )}>
+              <div className="relative w-5 h-5">
                 <Sun 
                   className={cn(
-                    "absolute inset-0 transition-all duration-500 ease-out",
-                    isLandscape ? "w-4 h-4" : "w-5 h-5",
+                    "absolute inset-0 w-5 h-5 transition-all duration-300 ease-out",
+                    "text-gray-600 dark:text-gray-400",
+                    "group-hover:text-gray-900 dark:group-hover:text-gray-200",
                     theme === 'dark' 
                       ? "opacity-100 rotate-0 scale-100" 
                       : "opacity-0 rotate-90 scale-0"
@@ -643,8 +648,9 @@ export function Header() {
                 />
                 <Moon 
                   className={cn(
-                    "absolute inset-0 transition-all duration-500 ease-out",
-                    isLandscape ? "w-4 h-4" : "w-5 h-5",
+                    "absolute inset-0 w-5 h-5 transition-all duration-300 ease-out",
+                    "text-gray-600 dark:text-gray-400",
+                    "group-hover:text-gray-900 dark:group-hover:text-gray-200",
                     theme === 'light' 
                       ? "opacity-100 rotate-0 scale-100" 
                       : "opacity-0 -rotate-90 scale-0"
