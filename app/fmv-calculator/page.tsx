@@ -6,8 +6,12 @@ export default function FMVCalculatorPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-6 sm:pb-8 md:pb-12">
-        <div className="mb-8 sm:mb-10">
-          <MetricSelector />
+        <div className="mb-8 sm:mb-10 pt-4 sm:pt-0">
+          <div className="flex justify-center">
+            <div className="w-full max-w-sm sm:max-w-none">
+              <MetricSelector />
+            </div>
+          </div>
         </div>
       </div>
     </div>

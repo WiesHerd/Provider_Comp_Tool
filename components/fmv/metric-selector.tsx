@@ -30,12 +30,12 @@ export function MetricSelector() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" data-tour="fmv-selector">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 justify-items-center md:justify-items-stretch" data-tour="fmv-selector">
       {metrics.map((metric) => {
         const Icon = metric.icon;
         return (
-          <Link key={metric.id} href={metric.href}>
-            <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group relative">
+          <Link key={metric.id} href={metric.href} className="w-full max-w-sm md:max-w-none">
+            <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group relative w-full">
               <CardHeader className="space-y-4">
                 <div className="w-16 h-16 flex items-center justify-center">
                   <Icon className="w-8 h-8 text-primary" strokeWidth={2} />
