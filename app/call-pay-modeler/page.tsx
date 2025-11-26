@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
