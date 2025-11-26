@@ -226,7 +226,7 @@ export default function WRVUForecasterPage() {
     let forecasterScenario: WRVUForecasterScenario;
     
     // Check if it's a ProviderScenario from global store
-    if ('wrvuForecasterData' in scenario || scenario.scenarioType === 'wrvu-forecaster') {
+    if ('wrvuForecasterData' in scenario || ('scenarioType' in scenario && scenario.scenarioType === 'wrvu-forecaster')) {
       const converted = providerScenarioToWRVUForecasterScenario(scenario as ProviderScenario);
       if (!converted) {
         console.error('Failed to convert ProviderScenario to WRVUForecasterScenario');
