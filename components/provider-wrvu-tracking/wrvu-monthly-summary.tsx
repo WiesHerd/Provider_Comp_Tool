@@ -67,7 +67,7 @@ export function WRVUMonthlySummary({
       avgWRVUsPerDay,
       avgWRVUsPerPatient,
     };
-  }, [currentDate, dailyData, monthDays]);
+  }, [dailyData, monthDays]);
 
   const monthName = format(currentDate, 'MMMM yyyy');
 

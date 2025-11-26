@@ -11,6 +11,7 @@ import {
   Info,
   AlertCircle,
   X,
+  Stethoscope,
 } from 'lucide-react';
 import { ProductivityMetrics, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 import { cn } from '@/lib/utils/cn';
@@ -179,12 +180,6 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
 
   const timeMetrics: StatItemProps[] = [
     {
-      icon: <Calendar className="w-6 h-6" />,
-      label: 'Total Weeks',
-      value: '52',
-      tooltipText: 'Total weeks in a year (52 weeks)',
-    },
-    {
       icon: <Users className="w-6 h-6" />,
       label: 'FTE Rate',
       value: formatFTE(inputs.fte ?? 1.0),
@@ -192,6 +187,12 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
     },
     {
       icon: <Calendar className="w-6 h-6" />,
+      label: 'Total Weeks',
+      value: '52',
+      tooltipText: 'Total weeks in a year (52 weeks)',
+    },
+    {
+      icon: <Stethoscope className="w-6 h-6" />,
       label: 'Clinical Weeks',
       value: formatNumber(metrics.weeksWorkedPerYear),
       tooltipText: `Weeks when patients are actually seen: 52 weeks minus ${formatNumber(inputs.vacationWeeks)} vacation weeks minus ${formatNumber((inputs.cmeDays + inputs.statutoryHolidays) / 7)} weeks (CME + holidays) = ${formatNumber(metrics.weeksWorkedPerYear)} clinical weeks`,

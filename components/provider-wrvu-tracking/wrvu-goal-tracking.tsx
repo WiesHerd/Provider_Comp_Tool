@@ -59,8 +59,8 @@ export function WRVUGoalTracking({
   // Calculate days elapsed and remaining
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
-  const today = new Date();
   const daysElapsed = React.useMemo(() => {
+    const today = new Date();
     // Check if we're viewing the current month
     const isCurrentMonth = 
       currentDate.getFullYear() === today.getFullYear() &&
@@ -79,7 +79,7 @@ export function WRVUGoalTracking({
       // Current month - calculate days from start to today
       return differenceInDays(today, monthStart) + 1;
     }
-  }, [currentDate, monthStart, monthEnd, today]);
+  }, [currentDate, monthStart, monthEnd]);
   
   const totalDaysInMonth = differenceInDays(monthEnd, monthStart) + 1;
   const daysRemaining = Math.max(0, totalDaysInMonth - daysElapsed);

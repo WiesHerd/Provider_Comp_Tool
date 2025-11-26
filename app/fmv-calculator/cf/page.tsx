@@ -137,12 +137,9 @@ function CFCalculatorPageContent() {
   }, [searchParams, getScenario, scenarioLoaded]);
 
   // Reset showResults when market data or CF value changes (so user can recalculate)
-  // Note: Don't include showResults in deps to avoid resetting it immediately after setting it
   useEffect(() => {
-    if (showResults) {
-      setShowResults(false);
-    }
-  }, [marketBenchmarks, cfValue]); // Removed showResults from deps to prevent immediate reset
+    setShowResults(false);
+  }, [marketBenchmarks, cfValue]);
 
   // Scroll to results when they are shown
   useEffect(() => {

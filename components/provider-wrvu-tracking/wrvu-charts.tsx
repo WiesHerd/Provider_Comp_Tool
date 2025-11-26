@@ -38,7 +38,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
         wRVUs: data.workRVUs || 0,
       };
     });
-  }, [currentDate, dailyData, monthDays]);
+  }, [dailyData, monthDays]);
 
   // Prepare weekly data for chart
   const weeklyChartData = React.useMemo(() => {
@@ -65,7 +65,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
         wRVUs: weekWRVUs,
       };
     });
-  }, [currentDate, dailyData, monthStart, monthEnd]);
+  }, [dailyData, monthStart, monthEnd]);
 
   const hasData = Object.values(dailyData).some((data) => data.patients > 0 || data.workRVUs > 0);
 

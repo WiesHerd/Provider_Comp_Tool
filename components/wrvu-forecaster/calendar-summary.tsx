@@ -79,7 +79,7 @@ export function CalendarSummary({
       estimatedWRVUsAdjusted,
       potentialIncrease,
     };
-  }, [currentDate, dailyPatientCounts, vacationDates, cmeDates, holidayDates, avgWRVUPerEncounter, adjustedWRVUPerEncounter]);
+  }, [monthDays, dailyPatientCounts, vacationDates, cmeDates, holidayDates, avgWRVUPerEncounter, adjustedWRVUPerEncounter]);
 
   const monthName = format(currentDate, 'MMMM yyyy');
 

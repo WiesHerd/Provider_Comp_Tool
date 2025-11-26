@@ -41,10 +41,8 @@ export const ScenarioLoader = memo(function ScenarioLoader({ scenarioType, onLoa
   useEffect(() => {
     if (mounted) {
       loadScenarios();
-      // loadScenarios is stable from Zustand store, safe to omit from deps
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }
-  }, [scenarioType, mounted]);
+  }, [scenarioType, mounted, loadScenarios]);
 
   // Filter scenarios by type
   // Include scenarios that match the type, or legacy scenarios (no type) for 'wrvu-modeler' screen

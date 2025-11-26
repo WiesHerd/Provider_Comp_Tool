@@ -315,7 +315,6 @@ function WRVUModelerPageContent() {
   const normalizedWrvus = normalizeWrvus(annualWrvus, fte);
   const normalizedBasePay = fte > 0 ? basePay / fte : 0;
   const normalizedProductivityPay = (normalizedWrvus * conversionFactor) - normalizedBasePay;
-  const productivityPerWrvu = annualWrvus > 0 ? productivityPay / annualWrvus : 0;
 
   // Validation functions
   const validateStep1 = () => {

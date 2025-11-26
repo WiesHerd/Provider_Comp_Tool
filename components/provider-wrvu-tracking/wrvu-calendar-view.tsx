@@ -59,7 +59,9 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
     }
   }, [initialDate]);
 
-  const today = mounted ? startOfToday() : new Date();
+  const today = React.useMemo(() => {
+    return mounted ? startOfToday() : new Date();
+  }, [mounted]);
 
   // Navigation handlers
   const handlePrevious = () => {

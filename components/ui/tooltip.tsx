@@ -59,15 +59,17 @@ export function Tooltip({ children, content, side = 'top', className, disableOnT
   };
 
   React.useEffect(() => {
+    // Store refs in variables that will be captured by closure
+    const timeoutRefValue = timeoutRef;
+    const delayTimeoutRefValue = delayTimeoutRef;
+    
     return () => {
       // Access refs directly in cleanup to clear whatever timeout exists at cleanup time
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (timeoutRefValue.current) {
+        clearTimeout(timeoutRefValue.current);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      if (delayTimeoutRef.current) {
-        clearTimeout(delayTimeoutRef.current);
+      if (delayTimeoutRefValue.current) {
+        clearTimeout(delayTimeoutRefValue.current);
       }
     };
   }, []);

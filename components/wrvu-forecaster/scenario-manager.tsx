@@ -202,7 +202,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
   return (
     <>
       {/* Action Buttons - Sticky at bottom on mobile, regular on desktop */}
-      <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-b sm:border-gray-200 sm:dark:border-gray-800">
+      <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-t sm:border-gray-200 sm:dark:border-gray-800">
         <div className="fixed sm:static bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-50">
           <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
             <div className="flex flex-row items-center justify-center gap-3 flex-wrap flex-1">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -39,7 +39,7 @@ export function ProviderInputSaveButton({
   const { saveScenario, updateScenario, scenarios } = useScenariosStore();
 
   // Get scenario type label
-  const getScenarioTypeLabel = () => {
+  const getScenarioTypeLabel = useCallback(() => {
     switch (scenarioType) {
       case 'fmv-tcc':
         return 'TCC Input';
@@ -48,7 +48,7 @@ export function ProviderInputSaveButton({
       case 'fmv-cf':
         return 'CF Input';
     }
-  };
+  }, [scenarioType]);
 
   // Pre-fill name and check for existing scenario when dialog opens
   useEffect(() => {
@@ -80,7 +80,7 @@ export function ProviderInputSaveButton({
         setExistingScenarioId(null);
       }
     }
-  }, [open, scenarioType, specialty, scenarios, name]);
+  }, [open, scenarioType, specialty, scenarios, name, getScenarioTypeLabel]);
 
   // Reset state when dialog closes
   useEffect(() => {

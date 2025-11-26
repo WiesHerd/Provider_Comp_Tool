@@ -55,11 +55,13 @@ export function Accordion({
   });
 
   const isControlled = controlledValue !== undefined;
-  const value = isControlled
-    ? Array.isArray(controlledValue)
-      ? controlledValue
-      : [controlledValue]
-    : internalValue;
+  const value = React.useMemo(() => {
+    return isControlled
+      ? Array.isArray(controlledValue)
+        ? controlledValue
+        : [controlledValue]
+      : internalValue;
+  }, [isControlled, controlledValue, internalValue]);
 
   const handleValueChange = React.useCallback(
     (newValue: string[]) => {

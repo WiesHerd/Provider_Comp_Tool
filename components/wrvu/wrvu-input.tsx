@@ -145,7 +145,7 @@ export function WRVUInput({
         onAnnualChange(annualTotal);
       }
     }
-  }, [mode, monthlyBreakdown]);
+  }, [mode, monthlyBreakdown, annualWrvus, onAnnualChange]);
 
   return (
     <div className="space-y-4">

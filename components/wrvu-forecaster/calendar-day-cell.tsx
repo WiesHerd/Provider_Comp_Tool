@@ -58,7 +58,7 @@ export const CalendarDayCell = memo(function CalendarDayCell({
     setIsMounted(true);
     setPatientsValue(patientCount.toString());
     setHoursValue(hours.toString());
-  }, []);
+  }, [patientCount, hours]);
 
   React.useEffect(() => {
     setPatientsValue(patientCount.toString());
