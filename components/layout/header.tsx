@@ -12,7 +12,7 @@ import { SCREEN_GUIDES } from '@/lib/screen-guides';
 
 // Page title mapping for header
 // Note: Page titles removed from header to match gold standard - no screen titles in banner
-const getPageTitle = (pathname: string): string | null => {
+const getPageTitle = (_pathname: string): string | null => {
   // Return null for all pages - no titles in header banner
   return null;
 };
