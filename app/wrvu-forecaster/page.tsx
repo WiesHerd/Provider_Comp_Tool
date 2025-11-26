@@ -579,7 +579,7 @@ export default function WRVUForecasterPage() {
 
       // Iterate through all days with hours
       Object.keys(prev.dailyHours || {}).forEach((dateStr) => {
-        const hours = prev.dailyHours[dateStr];
+        const hours = prev.dailyHours?.[dateStr] || 0;
         
         // Skip if hours is 0 or negative
         if (hours <= 0) return;

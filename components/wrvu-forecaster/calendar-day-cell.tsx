@@ -286,7 +286,7 @@ export function CalendarDayCell({
         </div>
 
         {/* Dual input section - patients and hours */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-1.5 sm:gap-2 px-2 pb-2">
+        <div className="flex-1 flex flex-col items-center justify-center gap-1.5 sm:gap-2 px-2 pb-3 sm:pb-4">
           {isNonWorking ? (
             <div className="flex flex-col items-center justify-center gap-1">
               <span className="text-2xl sm:text-3xl opacity-60">
