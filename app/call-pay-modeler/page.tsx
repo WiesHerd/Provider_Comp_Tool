@@ -7,7 +7,6 @@ import { Plus, Trash2 } from 'lucide-react';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
-import { TierManager } from '@/components/call-pay/tier-manager';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { StepIndicator } from '@/components/ui/step-indicator';
 import { Button } from '@/components/ui/button';
