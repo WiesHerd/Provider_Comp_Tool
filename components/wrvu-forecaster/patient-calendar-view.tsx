@@ -239,27 +239,6 @@ export function PatientCalendarView({
   // Mode button component with tooltip/popover
   const ModeButton = ({ mode, icon: Icon, label, description }: { mode: ViewMode; icon: React.ElementType; label: string; description: string }) => {
     const isActive = viewMode === mode;
-    
-    if (isMobile) {
-      return (
-        <Popover
-          content={description}
-          side="bottom"
-        >
-          <Button
-            type="button"
-            variant={isActive ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode(mode)}
-            className="w-full sm:w-auto min-h-[44px] touch-target flex items-center justify-center gap-2"
-          >
-            <Icon className="w-4 h-4" />
-            <span className="hidden sm:inline">{label}</span>
-            <Info className="w-3.5 h-3.5 opacity-60" />
-          </Button>
-        </Popover>
-      );
-    }
 
     return (
       <Tooltip content={description} side="bottom" disableOnTouch={false}>
@@ -268,10 +247,10 @@ export function PatientCalendarView({
           variant={isActive ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setViewMode(mode)}
-          className="min-w-[80px] h-8"
+          className="min-w-[80px] sm:min-w-[100px] h-8 sm:h-9 px-2 sm:px-3 flex items-center justify-center gap-1.5 sm:gap-2"
         >
-          <Icon className="w-4 h-4 mr-1.5" />
-          {label}
+          <Icon className="w-4 h-4 flex-shrink-0" />
+          <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{label}</span>
         </Button>
       </Tooltip>
     );
@@ -288,8 +267,8 @@ export function PatientCalendarView({
                 Patient Calendar
               </CardTitle>
               
-              {/* View mode toggle - Mobile-first: stack vertically on mobile */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-full sm:w-auto">
+              {/* View mode toggle - Horizontal layout on all screen sizes */}
+              <div className="flex flex-row items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-full sm:w-auto">
                 <ModeButton mode="template" icon={FileText} label="Week Pattern" description={MODE_DESCRIPTIONS.template} />
                 <ModeButton mode="week" icon={Calendar} label="Week" description={MODE_DESCRIPTIONS.week} />
                 <ModeButton mode="month" icon={Grid} label="Month" description={MODE_DESCRIPTIONS.month} />
@@ -545,21 +524,21 @@ export function PatientCalendarView({
 
           {/* Week Summary - Week Pattern View */}
           <Card className="border-2 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/50">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <CardContent className="p-4 sm:p-6 md:p-8">
+              <div className="flex flex-row items-center justify-between gap-3 sm:gap-6">
                 {/* Total Hours */}
-                <div className="flex-1 text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-                    <div className="p-2.5 rounded-xl bg-primary/10 dark:bg-primary/20">
-                      <Clock className="w-5 h-5 text-primary" />
+                <div className="flex-1 text-left">
+                  <div className="flex items-center justify-start gap-2 sm:gap-3 mb-2">
+                    <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10 dark:bg-primary/20 flex-shrink-0">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5">
                         Total Hours
                       </p>
-                      <p className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                      <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
                         {templateTotals.totalHours.toFixed(1)}
-                        <span className="text-xl sm:text-2xl font-normal text-gray-500 dark:text-gray-400 ml-1">
+                        <span className="text-lg sm:text-xl md:text-2xl font-normal text-gray-500 dark:text-gray-400 ml-1">
                           h
                         </span>
                       </p>
@@ -568,21 +547,21 @@ export function PatientCalendarView({
                 </div>
 
                 {/* Divider */}
-                <div className="hidden sm:block w-px h-16 bg-gray-300 dark:bg-gray-700" />
+                <div className="w-px h-12 sm:h-16 bg-gray-300 dark:bg-gray-700 flex-shrink-0" />
 
                 {/* Total Patients */}
-                <div className="flex-1 text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-                    <div className="p-2.5 rounded-xl bg-primary/10 dark:bg-primary/20">
-                      <Users className="w-5 h-5 text-primary" />
+                <div className="flex-1 text-left">
+                  <div className="flex items-center justify-start gap-2 sm:gap-3 mb-2">
+                    <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10 dark:bg-primary/20 flex-shrink-0">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-0.5">
                         Total Patients
                       </p>
-                      <p className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                      <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
                         {templateTotals.totalPatients.toLocaleString()}
-                        <span className="text-xl sm:text-2xl font-normal text-gray-500 dark:text-gray-400 ml-1">
+                        <span className="text-lg sm:text-xl md:text-2xl font-normal text-gray-500 dark:text-gray-400 ml-1">
                           patients
                         </span>
                       </p>
