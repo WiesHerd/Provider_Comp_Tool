@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Tooltip } from '@/components/ui/tooltip';
 import {
   DollarSign,
@@ -9,6 +10,7 @@ import {
   TrendingUp,
   Info,
   AlertCircle,
+  X,
 } from 'lucide-react';
 import { ProductivityMetrics, WRVUForecasterInputs } from '@/types/wrvu-forecaster';
 import { cn } from '@/lib/utils/cn';
@@ -60,6 +62,9 @@ function StatItem({ icon, label, value, difference, tooltipText }: StatItemProps
 }
 
 export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProps) {
+  const [isTemplateNoticeDismissed, setIsTemplateNoticeDismissed] = React.useState(false);
+  const [isCalendarNoticeDismissed, setIsCalendarNoticeDismissed] = React.useState(false);
+
   // Calculate adjusted metrics
   const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
   const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
@@ -69,8 +74,8 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
   const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
   const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
 
-  // Analyze calendar data if in calendar mode
-  const calendarCoverage = inputs.useCalendarMode && inputs.dailyPatientCounts
+  // Analyze calendar data coverage
+  const calendarCoverage = inputs.dailyPatientCounts
     ? analyzeCalendarDataCoverage(
         inputs.dailyPatientCounts,
         inputs.vacationDates,
@@ -150,18 +155,14 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       icon: <Users className="w-6 h-6" />,
       label: 'Annual Patient Encounters',
       value: formatNumber(metrics.annualPatientEncounters),
-      tooltipText: inputs.useCalendarMode
-        ? `Total patient encounters per year ${calendarCoverage?.isFullYear ? 'from your calendar entries' : 'annualized from your calendar data (average daily pattern × annual working days)'}`
-        : 'Total patient encounters per year based on your schedule and daily/hourly patient load',
+      tooltipText: `Total patient encounters per year ${calendarCoverage?.isFullYear ? 'from your calendar entries' : 'annualized from your calendar data (average daily pattern × annual working days)'}`,
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
       label: 'Estimated Annual wRVUs',
       value: formatNumber(metrics.estimatedAnnualWRVUs),
       difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs),
-      tooltipText: inputs.useCalendarMode
-        ? `Annual wRVUs: ${formatNumber(metrics.annualPatientEncounters)} encounters × ${inputs.avgWRVUPerEncounter.toFixed(2)} wRVU/encounter = ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs. ${calendarCoverage?.isFullYear ? 'Based on full year calendar data.' : 'Annualized from calendar average.'}`
-        : 'Total annual wRVUs based on patient encounters and average wRVU per encounter',
+      tooltipText: `Annual wRVUs: ${formatNumber(metrics.annualPatientEncounters)} encounters × ${inputs.avgWRVUPerEncounter.toFixed(2)} wRVU/encounter = ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs. ${calendarCoverage?.isFullYear ? 'Based on full year calendar data.' : 'Annualized from calendar average.'}`,
     },
   ];
 
@@ -170,14 +171,52 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Forecast Results</h3>
       
       {/* Calendar Data Source Notice */}
-      {inputs.useCalendarMode && calendarCoverage && (
+      {inputs.isFromTemplate && !isTemplateNoticeDismissed ? (
+        <div className="rounded-lg border-2 p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 relative">
+          <button
+            onClick={() => setIsTemplateNoticeDismissed(true)}
+            className="absolute top-3 right-3 p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors touch-target"
+            aria-label="Dismiss notice"
+          >
+            <X className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          </button>
+          <div className="flex items-start gap-3 pr-6">
+            <Info className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold mb-1 text-blue-900 dark:text-blue-100">
+                Built from Week Template
+              </h4>
+              <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-300">
+                Your forecast is based on a weekly template that has been replicated across all matching days of the year (e.g., all Mondays, all Tuesdays, etc.). Vacation, CME, and holiday dates are excluded from the template pattern.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : calendarCoverage && !isCalendarNoticeDismissed ? (
         <div className={cn(
-          'rounded-lg border-2 p-4',
+          'rounded-lg border-2 p-4 relative',
           calendarCoverage.isFullYear
             ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
             : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
         )}>
-          <div className="flex items-start gap-3">
+          <button
+            onClick={() => setIsCalendarNoticeDismissed(true)}
+            className={cn(
+              'absolute top-3 right-3 p-1 rounded-full transition-colors touch-target',
+              calendarCoverage.isFullYear
+                ? 'hover:bg-blue-100 dark:hover:bg-blue-800/50'
+                : 'hover:bg-amber-100 dark:hover:bg-amber-800/50'
+            )}
+            aria-label="Dismiss notice"
+          >
+            <X className={cn(
+              'w-4 h-4',
+              calendarCoverage.isFullYear
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-amber-600 dark:text-amber-400'
+            )} />
+          </button>
+          <div className="flex items-start gap-3 pr-6">
             <AlertCircle className={cn(
               'w-5 h-5 flex-shrink-0 mt-0.5',
               calendarCoverage.isFullYear
@@ -220,7 +259,7 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
             </div>
           </div>
         </div>
-      )}
+      ) : null}
       
       {/* Compensation Section */}
       <div className="space-y-3">
