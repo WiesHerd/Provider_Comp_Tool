@@ -174,7 +174,7 @@ export function ProgressiveFormNavigation({
         <Button
           variant="outline"
           onClick={handlePrevious}
-          className="flex-1 sm:flex-initial sm:min-w-[120px]"
+          className="w-auto max-w-[280px] mx-auto sm:flex-initial sm:min-w-[120px] sm:mx-0"
         >
           <ChevronLeft className="w-4 h-4 mr-2" />
           {previousLabel}
