@@ -5,7 +5,6 @@ import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { logger } from '@/lib/utils/logger';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { PatientEncountersPanel } from '@/components/wrvu-forecaster/patient-encounters-panel';
 import { ProductivitySummary } from '@/components/wrvu-forecaster/productivity-summary';
 import { ScenarioManager } from '@/components/wrvu-forecaster/scenario-manager';
 import { PrintView } from '@/components/wrvu-forecaster/print-view';
@@ -25,7 +24,6 @@ import {
   ShiftType,
   WRVUForecasterScenario,
   perWeekToDaysOfWeek,
-  daysOfWeekToPerWeek,
 } from '@/types/wrvu-forecaster';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { NumberInputWithButtons } from '@/components/ui/number-input-with-buttons';
@@ -42,7 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DollarSign, User, Users, TrendingUp, Stethoscope, ChevronDown, ChevronLeft } from 'lucide-react';
+import { DollarSign, User, Stethoscope, ChevronDown, ChevronLeft } from 'lucide-react';
 import { PatientCalendarView } from '@/components/wrvu-forecaster/patient-calendar-view';
 import {
   formatDateString,
@@ -171,7 +169,7 @@ function ResultsStepContent({
   };
 
   return (
-    <div className="space-y-6 pb-24 sm:pb-6">
+    <div className="space-y-6 pb-32 sm:pb-6">
       {/* Back Button - Matches ProgressiveFormNavigation styling */}
       <div className="flex gap-3 sm:gap-4 mt-8 sm:mt-10 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800">
         <Button
@@ -184,6 +182,10 @@ function ResultsStepContent({
         </Button>
       </div>
 
+      <div data-tour="forecaster-productivity">
+        <ProductivitySummary metrics={metrics} inputs={inputs} />
+      </div>
+
       <ScenarioManager
         inputs={inputs}
         metrics={metrics}
@@ -192,9 +194,6 @@ function ResultsStepContent({
         onPrint={onPrint}
         onStartOver={handleStartOver}
       />
-      <div data-tour="forecaster-productivity">
-        <ProductivitySummary metrics={metrics} inputs={inputs} />
-      </div>
     </div>
   );
 }
@@ -326,9 +325,14 @@ function WRVUForecasterPageContent() {
 
       // Calculate clinical weeks (weeks where patients were actually seen)
       // This is the actual number of weeks patients were seen, excluding vacation, CME, and holidays
+      // Prefer direct number inputs (from Week Pattern mode) over synced calendar dates
+      const vacationWeeks = inputs.vacationWeeks ?? syncedNumbers.vacationWeeks;
+      const cmeDays = inputs.cmeDays ?? syncedNumbers.cmeDays;
+      const statutoryHolidays = inputs.statutoryHolidays ?? syncedNumbers.statutoryHolidays;
+      
       const totalWeeksOff =
-        syncedNumbers.vacationWeeks +
-        (syncedNumbers.cmeDays + syncedNumbers.statutoryHolidays) / 7;
+        vacationWeeks +
+        (cmeDays + statutoryHolidays) / 7;
       weeksWorkedPerYear = Math.max(0, 52 - totalWeeksOff);
 
       // Calculate days per week and hours per week from calendar data
@@ -406,10 +410,13 @@ function WRVUForecasterPageContent() {
         annualClinicDays = actualWorkingDays;
       } else {
         // For manual calendar entry: use the pattern-based calculation
+        // Use direct inputs if available, otherwise fall back to synced numbers
+        const cmeDaysForCalc = inputs.cmeDays ?? syncedNumbers.cmeDays;
+        const statutoryHolidaysForCalc = inputs.statutoryHolidays ?? syncedNumbers.statutoryHolidays;
         annualClinicDays =
           totalDaysPerWeek * weeksWorkedPerYear -
-          syncedNumbers.statutoryHolidays -
-          syncedNumbers.cmeDays;
+          statutoryHolidaysForCalc -
+          cmeDaysForCalc;
       }
       annualClinicalHours = totalHoursPerWeek * weeksWorkedPerYear;
 
@@ -434,8 +441,15 @@ function WRVUForecasterPageContent() {
 
       encountersPerWeek = (annualPatientEncounters / 52) * weeksWorkedPerYear;
     } else {
-      // No calendar data yet - return zero metrics
-      weeksWorkedPerYear = 0;
+      // No calendar data yet - use direct number inputs to calculate clinical weeks
+      const vacationWeeks = inputs.vacationWeeks ?? 0;
+      const cmeDays = inputs.cmeDays ?? 0;
+      const statutoryHolidays = inputs.statutoryHolidays ?? 0;
+      
+      const totalWeeksOff = vacationWeeks + (cmeDays + statutoryHolidays) / 7;
+      weeksWorkedPerYear = Math.max(0, 52 - totalWeeksOff);
+      
+      // Without calendar data, we can't calculate other metrics
       annualClinicDays = 0;
       annualClinicalHours = 0;
       encountersPerWeek = 0;
