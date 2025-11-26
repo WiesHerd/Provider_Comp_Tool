@@ -246,10 +246,7 @@ export function ContextCard({ context, onContextChange, showTopBorder = true, he
   };
 
   return (
-    <div className={cn(
-      showTopBorder && "border-t border-gray-200 dark:border-gray-800",
-      showTopBorder ? "pt-4" : "pt-0"
-    )}>
+    <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Context</h3>
         {headerAction && <div>{headerAction}</div>}
