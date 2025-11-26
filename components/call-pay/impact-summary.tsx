@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { CallPayImpact, CallTier, CallPayContext } from '@/types/call-pay';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Tooltip } from '@/components/ui/tooltip';
