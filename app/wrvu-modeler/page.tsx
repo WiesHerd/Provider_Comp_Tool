@@ -72,7 +72,6 @@ const SPECIALTIES = [
 interface ResultsStepContentProps {
   annualWrvus: number;
   productivityPay: number;
-  productivityPerWrvu: number;
   monthlyBreakdown: number[];
   conversionFactor: number;
   normalizedWrvus: number;
@@ -88,7 +87,6 @@ interface ResultsStepContentProps {
 function ResultsStepContent({
   annualWrvus,
   productivityPay,
-  productivityPerWrvu,
   monthlyBreakdown,
   conversionFactor,
   normalizedWrvus,
@@ -213,7 +211,7 @@ function ResultsStepContent({
 
 function WRVUModelerPageContent() {
   const searchParams = useSearchParams();
-  const { getScenario, scenarios, loadScenarios } = useScenariosStore();
+  const { getScenario, loadScenarios } = useScenariosStore();
   const [fte, setFte] = useState<FTE>(1.0);
   const previousFteRef = React.useRef<FTE>(1.0);
   const [annualWrvus, setAnnualWrvus] = useState(0);
@@ -570,7 +568,6 @@ function WRVUModelerPageContent() {
           <ResultsStepContent
             annualWrvus={annualWrvus}
             productivityPay={productivityPay}
-            productivityPerWrvu={productivityPerWrvu}
             monthlyBreakdown={monthlyBreakdown}
             conversionFactor={conversionFactor}
             normalizedWrvus={normalizedWrvus}
