@@ -201,7 +201,7 @@ export function PatientCalendarView({
     viewMode === 'week'
       ? `${format(weeks[0][0], 'MMM d')} - ${format(weeks[0][6], 'MMM d, yyyy')}`
       : viewMode === 'template'
-      ? 'Template Week'
+      ? 'Week Pattern'
       : monthYear;
 
   // Calculate total hours per week (for week view) - must be at top level
@@ -290,7 +290,7 @@ export function PatientCalendarView({
               
               {/* View mode toggle - Mobile-first: stack vertically on mobile */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-full sm:w-auto">
-                <ModeButton mode="template" icon={FileText} label="Template" description={MODE_DESCRIPTIONS.template} />
+                <ModeButton mode="template" icon={FileText} label="Week Pattern" description={MODE_DESCRIPTIONS.template} />
                 <ModeButton mode="week" icon={Calendar} label="Week" description={MODE_DESCRIPTIONS.week} />
                 <ModeButton mode="month" icon={Grid} label="Month" description={MODE_DESCRIPTIONS.month} />
               </div>
@@ -364,7 +364,7 @@ export function PatientCalendarView({
         </CardHeader>
       </Card>
 
-      {/* Template Mode Content - Week Calendar View */}
+          {/* Week Pattern Mode Content - Week Calendar View */}
       {viewMode === 'template' && (
         <div className="space-y-4">
           {/* Vacation/CME/Holiday Inputs */}
@@ -543,7 +543,7 @@ export function PatientCalendarView({
             </CardContent>
           </Card>
 
-          {/* Week Summary - Template View */}
+          {/* Week Summary - Week Pattern View */}
           <Card className="border-2 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/50">
             <CardContent className="p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -593,7 +593,7 @@ export function PatientCalendarView({
             </CardContent>
           </Card>
 
-          {/* Apply Template Button */}
+          {/* Apply Week Pattern Button */}
           {onApplyTemplate && (
             <Card className="border-2">
               <CardContent className="p-4 sm:p-6 space-y-4">
@@ -607,16 +607,16 @@ export function PatientCalendarView({
                   className="w-full sm:w-auto min-h-[44px] touch-target"
                   size="lg"
                 >
-                  Apply Template to Year
+                  Apply Week Pattern to Year
                 </Button>
                 {showTemplateSuccess && (
                   <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
                     <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                    <span>Template applied successfully! Your week pattern has been replicated across the year.</span>
+                    <span>Week pattern applied successfully! Your week pattern has been replicated across the year.</span>
                   </div>
                 )}
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  This will replicate this week's pattern across all matching days of the year (e.g., all Mondays, all Tuesdays, etc.), excluding vacation, CME, and holiday dates.
+                  This will replicate this week&#39;s pattern across all matching days of the year (e.g., all Mondays, all Tuesdays, etc.), excluding vacation, CME, and holiday dates.
                 </p>
               </CardContent>
             </Card>
