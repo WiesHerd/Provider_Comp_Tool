@@ -391,26 +391,28 @@ export function Header() {
               suppressHydrationWarning
             >
               {logoContent}
-              {/* CompLens branding - show on all screens, hide on mobile when page title exists */}
-              <span 
-                className={cn(
-                  "flex items-baseline",
-                  "text-base sm:text-lg lg:text-xl font-bold",
-                  "tracking-tight",
-                  "animate-fade-in",
-                  "transition-opacity duration-300",
-                  "ml-2 sm:ml-3",
-                  "transform -skew-x-[-2deg]",
-                  "leading-tight",
-                  // Hide on mobile when there's a page title to avoid clutter
-                  pageTitle ? "hidden sm:flex" : "flex"
-                )} 
-                suppressHydrationWarning
-              >
-                <span className="text-gray-900 dark:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Comp</span>
-                <span className="text-purple-600 dark:text-purple-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">Lens</span>
-                <sup className="text-[10px] sm:text-xs font-normal text-gray-900 dark:text-white opacity-90 ml-0.5 -skew-x-[2deg]">™</sup>
-              </span>
+              {/* CompLens branding - hide on home page (shown in main content), show on other pages */}
+              {!isHome && (
+                <span 
+                  className={cn(
+                    "flex items-baseline",
+                    "text-base sm:text-lg lg:text-xl font-bold",
+                    "tracking-tight",
+                    "animate-fade-in",
+                    "transition-opacity duration-300",
+                    "ml-2 sm:ml-3",
+                    "transform -skew-x-[-2deg]",
+                    "leading-tight",
+                    // Hide on mobile when there's a page title to avoid clutter
+                    pageTitle ? "hidden sm:flex" : "flex"
+                  )} 
+                  suppressHydrationWarning
+                >
+                  <span className="text-gray-900 dark:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Comp</span>
+                  <span className="text-purple-600 dark:text-purple-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">Lens</span>
+                  <sup className="text-[10px] sm:text-xs font-normal text-gray-900 dark:text-white opacity-90 ml-0.5 -skew-x-[2deg]">™</sup>
+                </span>
+              )}
             </Link>
             
             {/* Page title - Grok style (refined typography) */}
