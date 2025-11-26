@@ -69,21 +69,23 @@ export function WeeklyScheduleView({ shifts, className }: WeeklyScheduleViewProp
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
-          {/* Day headers */}
-          <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-3">
-            {DAY_ABBREVS.map((day, index) => (
-              <div
-                key={index}
-                className="text-center text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 py-2"
-              >
-                <span className="hidden sm:inline">{DAY_NAMES[index]}</span>
-                <span className="sm:hidden">{day}</span>
-              </div>
-            ))}
-          </div>
+          {/* Scrollable container for mobile */}
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            {/* Day headers */}
+            <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-3 min-w-[700px]">
+              {DAY_ABBREVS.map((day, index) => (
+                <div
+                  key={index}
+                  className="text-center text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 py-2"
+                >
+                  <span className="hidden sm:inline">{DAY_NAMES[index]}</span>
+                  <span className="sm:hidden">{day}</span>
+                </div>
+              ))}
+            </div>
 
-          {/* Schedule grid */}
-          <div className="grid grid-cols-7 gap-2 sm:gap-3">
+            {/* Schedule grid */}
+            <div className="grid grid-cols-7 gap-2 sm:gap-3 min-w-[700px]">
             {Array.from({ length: 7 }, (_, dayIndex) => {
               const dayShifts = dayToShifts[dayIndex];
               const totalHours = getTotalHoursForDay(dayIndex);
@@ -133,6 +135,7 @@ export function WeeklyScheduleView({ shifts, className }: WeeklyScheduleViewProp
                 </div>
               );
             })}
+            </div>
           </div>
 
           {/* Summary */}

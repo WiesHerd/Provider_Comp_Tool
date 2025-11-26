@@ -344,3 +344,62 @@ export function calculateTotalPatientsFromCalendar(
     coverage,
   };
 }
+
+/**
+ * Replicate a week template pattern across the year
+ * Takes a week's worth of daily patient counts and hours, replicates to matching days of week
+ */
+export function replicateWeekTemplate(
+  templateWeek: {
+    dailyPatientCounts: Record<DateString, number>;
+    dailyHours: Record<DateString, number>;
+  },
+  year: number = new Date().getFullYear(),
+  vacationDates?: DateString[],
+  cmeDates?: DateString[],
+  holidayDates?: DateString[]
+): {
+  dailyPatientCounts: Record<DateString, number>;
+  dailyHours: Record<DateString, number>;
+} {
+  const dailyPatientCounts: Record<DateString, number> = {};
+  const dailyHours: Record<DateString, number> = {};
+
+  // Build a map of day of week (0=Sunday, 1=Monday, etc.) to template data
+  const dayOfWeekTemplate: Record<number, { patients: number; hours: number }> = {};
+  
+  // Extract template data from the week
+  Object.keys(templateWeek.dailyPatientCounts).forEach((dateStr) => {
+    const date = parseDateString(dateStr);
+    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc.
+    dayOfWeekTemplate[dayOfWeek] = {
+      patients: templateWeek.dailyPatientCounts[dateStr] || 0,
+      hours: templateWeek.dailyHours[dateStr] || 0,
+    };
+  });
+
+  // Get all days in the year
+  const yearStart = startOfYear(new Date(year, 0, 1));
+  const yearEnd = endOfYear(new Date(year, 11, 31));
+  const allDays = eachDayOfInterval({ start: yearStart, end: yearEnd });
+
+  // Apply template to all days in year
+  allDays.forEach((date) => {
+    const dateStr = formatDateString(date);
+    const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc.
+    
+    // Skip if it's a non-working day
+    if (isNonWorkingDay(dateStr, vacationDates, cmeDates, holidayDates)) {
+      return;
+    }
+
+    // Apply template data for this day of week
+    const template = dayOfWeekTemplate[dayOfWeek];
+    if (template && (template.patients > 0 || template.hours > 0)) {
+      dailyPatientCounts[dateStr] = template.patients;
+      dailyHours[dateStr] = template.hours;
+    }
+  });
+
+  return { dailyPatientCounts, dailyHours };
+}

@@ -4,7 +4,6 @@ import * as React from 'react';
 import { cn } from '@/lib/utils/cn';
 import { format, isWeekend } from 'date-fns';
 import { formatDateString, getDateType, type DateString } from '@/lib/utils/calendar-helpers';
-import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Users, X, Clock } from 'lucide-react';
 
@@ -21,6 +20,7 @@ interface CalendarDayCellProps {
   onHoursChange?: (date: Date, hours: number) => void;
   onDateTypeChange?: (date: Date, type: 'vacation' | 'cme' | 'holiday' | null) => void;
   disabled?: boolean;
+  hideDate?: boolean; // Hide date number, show only day name (for template view)
 }
 
 export function CalendarDayCell({
@@ -36,12 +36,14 @@ export function CalendarDayCell({
   onHoursChange,
   onDateTypeChange,
   disabled = false,
+  hideDate = false,
 }: CalendarDayCellProps) {
   const [isEditingPatients, setIsEditingPatients] = React.useState(false);
   const [isEditingHours, setIsEditingHours] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
-  const [patientsValue, setPatientsValue] = React.useState(patientCount.toString());
-  const [hoursValue, setHoursValue] = React.useState(hours.toString());
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [patientsValue, setPatientsValue] = React.useState('');
+  const [hoursValue, setHoursValue] = React.useState('');
   const patientsInputRef = React.useRef<HTMLInputElement>(null);
   const hoursInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -49,6 +51,13 @@ export function CalendarDayCell({
   const dateType = getDateType(dateString, vacationDates, cmeDates, holidayDates);
   const isWeekendDay = isWeekend(date);
   const isNonWorking = dateType !== null;
+
+  // Initialize values on mount to avoid hydration mismatch
+  React.useEffect(() => {
+    setIsMounted(true);
+    setPatientsValue(patientCount.toString());
+    setHoursValue(hours.toString());
+  }, []);
 
   React.useEffect(() => {
     setPatientsValue(patientCount.toString());
@@ -227,19 +236,8 @@ export function CalendarDayCell({
   const dayNumber = format(date, 'd');
   const dayName = format(date, 'EEE');
 
-  const tooltipContent = React.useMemo(() => {
-    const parts = [format(date, 'EEEE, MMMM d, yyyy')];
-    if (dateType === 'vacation') parts.push('Vacation');
-    if (dateType === 'cme') parts.push('CME');
-    if (dateType === 'holiday') parts.push('Holiday');
-    if (patientCount > 0) parts.push(`${patientCount} patient${patientCount !== 1 ? 's' : ''}`);
-    if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
-    return parts.join(' • ');
-  }, [date, dateType, patientCount, hours]);
-
   return (
-    <Tooltip content={tooltipContent} side="top">
-      <div
+    <div
         className={cellClasses}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -256,29 +254,35 @@ export function CalendarDayCell({
         }}
       >
         {/* Day header - compact */}
-        <div className="flex items-center justify-between px-2 pt-2 pb-1">
+        <div className={cn(
+          "flex items-center px-2 pt-2 pb-1",
+          hideDate ? "justify-center" : "justify-between"
+        )}>
           <span
             className={cn(
               'text-[10px] sm:text-xs font-medium uppercase tracking-wide',
               !isCurrentMonth && 'text-gray-400 dark:text-gray-600',
               isCurrentMonth && isWeekendDay && !isNonWorking && 'text-gray-500 dark:text-gray-400',
               isCurrentMonth && !isWeekendDay && !isNonWorking && 'text-gray-600 dark:text-gray-400',
-              isNonWorking && 'opacity-60'
+              isNonWorking && 'opacity-60',
+              hideDate && 'text-sm sm:text-base font-semibold'
             )}
           >
             {dayName}
           </span>
-          <span
-            className={cn(
-              'text-sm sm:text-base font-bold',
-              isToday && 'text-primary',
-              !isToday && isCurrentMonth && !isNonWorking && 'text-gray-900 dark:text-gray-100',
-              !isCurrentMonth && 'text-gray-400 dark:text-gray-600',
-              isNonWorking && 'opacity-60'
-            )}
-          >
-            {dayNumber}
-          </span>
+          {!hideDate && (
+            <span
+              className={cn(
+                'text-sm sm:text-base font-bold',
+                isToday && 'text-primary',
+                !isToday && isCurrentMonth && !isNonWorking && 'text-gray-900 dark:text-gray-100',
+                !isCurrentMonth && 'text-gray-400 dark:text-gray-600',
+                isNonWorking && 'opacity-60'
+              )}
+            >
+              {dayNumber}
+            </span>
+          )}
         </div>
 
         {/* Dual input section - patients and hours */}
@@ -336,7 +340,7 @@ export function CalendarDayCell({
                   <div className="flex items-center gap-1">
                     <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                     <span className="text-base sm:text-lg md:text-xl font-bold text-primary">
-                      {patientCount || '0'}
+                      {isMounted ? (patientCount || 0) : 0}
                     </span>
                   </div>
                   <span className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-400">
@@ -385,7 +389,7 @@ export function CalendarDayCell({
                   <div className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                     <span className="text-base sm:text-lg md:text-xl font-bold text-primary">
-                      {hours > 0 ? hours.toFixed(1) : '0'}
+                      {isMounted ? (hours > 0 ? hours.toFixed(1) : '0') : '0'}
                     </span>
                   </div>
                   <span className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-400">
@@ -410,6 +414,5 @@ export function CalendarDayCell({
           />
         )}
       </div>
-    </Tooltip>
   );
 }

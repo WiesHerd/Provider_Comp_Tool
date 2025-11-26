@@ -87,7 +87,13 @@ export function PatientCalendarView({
   const [selectedDates, setSelectedDates] = React.useState<Date[]>([]);
   const [showClearDialog, setShowClearDialog] = React.useState(false);
   const [showTemplateSuccess, setShowTemplateSuccess] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
   const isMobile = useMobile();
+
+  // Ensure component is mounted to avoid hydration mismatches with localStorage data
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Check if calendar has any data
   const hasCalendarData = React.useMemo(() => {

@@ -1,11 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PatientEncountersPanel } from '@/components/wrvu-forecaster/patient-encounters-panel';
 import { ProductivitySummary } from '@/components/wrvu-forecaster/productivity-summary';
 import { ScenarioManager } from '@/components/wrvu-forecaster/scenario-manager';
 import { PrintView } from '@/components/wrvu-forecaster/print-view';
+import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
+import { useScenariosStore } from '@/lib/store/scenarios-store';
+import { ProviderScenario } from '@/types';
+import { providerScenarioToWRVUForecasterScenario } from '@/lib/utils/wrvu-forecaster-converters';
 import {
   ProgressiveForm,
   ProgressiveFormStep,
@@ -34,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DollarSign, User, Users, TrendingUp, Stethoscope } from 'lucide-react';
+import { DollarSign, User, Users, TrendingUp, Stethoscope, ChevronDown } from 'lucide-react';
 import { PatientCalendarView } from '@/components/wrvu-forecaster/patient-calendar-view';
 import {
   formatDateString,
@@ -46,9 +51,16 @@ import { startOfWeek, endOfWeek, eachDayOfInterval, addDays } from 'date-fns';
 
 const STORAGE_KEY = 'wrvuForecasterState';
 
+// Always return default state to ensure consistent server/client rendering
+// localStorage will be loaded after mount to avoid hydration mismatches
 const getInitialState = (): WRVUForecasterInputs => {
+  return getDefaultState();
+};
+
+// Load state from localStorage after mount
+const loadStateFromStorage = (): WRVUForecasterInputs | null => {
   if (typeof window === 'undefined') {
-    return getDefaultState();
+    return null;
   }
 
   try {
@@ -88,7 +100,7 @@ const getInitialState = (): WRVUForecasterInputs => {
     console.error('Error loading saved state:', error);
   }
 
-  return getDefaultState();
+  return null;
 };
 
 const SPECIALTIES = [
@@ -192,7 +204,11 @@ const getDefaultState = (): WRVUForecasterInputs => ({
 });
 
 export default function WRVUForecasterPage() {
+  const searchParams = useSearchParams();
+  const { getScenario } = useScenariosStore();
   const [inputs, setInputs] = useState<WRVUForecasterInputs>(getInitialState);
+  const [isMounted, setIsMounted] = useState(false);
+  const [scenarioLoaded, setScenarioLoaded] = useState(false);
   const [metrics, setMetrics] = useState<ProductivityMetrics>({
     weeksWorkedPerYear: 0,
     annualClinicDays: 0,
@@ -205,12 +221,63 @@ export default function WRVUForecasterPage() {
   });
   const [showResults, setShowResults] = useState(false);
 
+  // Define handleLoadScenario before useEffects that use it
+  const handleLoadScenario = useCallback((scenario: WRVUForecasterScenario | ProviderScenario) => {
+    let forecasterScenario: WRVUForecasterScenario;
+    
+    // Check if it's a ProviderScenario from global store
+    if ('wrvuForecasterData' in scenario || scenario.scenarioType === 'wrvu-forecaster') {
+      const converted = providerScenarioToWRVUForecasterScenario(scenario as ProviderScenario);
+      if (!converted) {
+        console.error('Failed to convert ProviderScenario to WRVUForecasterScenario');
+        return;
+      }
+      forecasterScenario = converted;
+    } else {
+      // It's already a WRVUForecasterScenario
+      forecasterScenario = scenario as WRVUForecasterScenario;
+    }
+    
+    setInputs({
+      ...forecasterScenario.inputs,
+      providerName: forecasterScenario.providerName || forecasterScenario.inputs.providerName,
+      specialty: forecasterScenario.specialty ? (SPECIALTIES.includes(forecasterScenario.specialty) ? forecasterScenario.specialty : 'Other') : forecasterScenario.inputs.specialty,
+      customSpecialty: forecasterScenario.specialty && !SPECIALTIES.includes(forecasterScenario.specialty) ? forecasterScenario.specialty : forecasterScenario.inputs.customSpecialty,
+    });
+    // Metrics will be recalculated automatically via useEffect
+    setScenarioLoaded(true);
+  }, []);
+
+  // Ensure component is mounted before rendering Select to avoid hydration issues
+  // Also load state from localStorage after mount to avoid hydration mismatches
+  useEffect(() => {
+    setIsMounted(true);
+    // Load state from localStorage after mount (only if no scenario is being loaded via URL)
+    if (!scenarioLoaded) {
+      const savedState = loadStateFromStorage();
+      if (savedState) {
+        setInputs(savedState);
+      }
+    }
+  }, [scenarioLoaded]);
+
   // Save to localStorage whenever inputs change
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !scenarioLoaded) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(inputs));
     }
-  }, [inputs]);
+  }, [inputs, scenarioLoaded]);
+
+  // Auto-load scenario from query parameter
+  useEffect(() => {
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId && !scenarioLoaded) {
+      const scenario = getScenario(scenarioId);
+      if (scenario && scenario.scenarioType === 'wrvu-forecaster') {
+        handleLoadScenario(scenario);
+      }
+    }
+  }, [searchParams, scenarioLoaded, getScenario, handleLoadScenario]);
 
   // Calculate metrics whenever inputs change
   useEffect(() => {
@@ -638,16 +705,6 @@ export default function WRVUForecasterPage() {
     }));
   };
 
-  const handleLoadScenario = (scenario: WRVUForecasterScenario) => {
-    setInputs({
-      ...scenario.inputs,
-      providerName: scenario.providerName || scenario.inputs.providerName,
-      specialty: scenario.specialty ? (SPECIALTIES.includes(scenario.specialty) ? scenario.specialty : 'Other') : scenario.inputs.specialty,
-      customSpecialty: scenario.specialty && !SPECIALTIES.includes(scenario.specialty) ? scenario.specialty : scenario.inputs.customSpecialty,
-    });
-    // Metrics will be recalculated automatically via useEffect
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -757,7 +814,7 @@ Generated by CompLens™ Provider Compensation Intelligence
   };
 
   return (
-    <div className="w-full px-3 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8">
+    <div className="w-full px-3 sm:px-6 lg:max-w-4xl lg:mx-auto pt-20 sm:pt-24 pb-4 sm:pb-6 md:pb-8">
       {/* Print View - Hidden except when printing */}
       <PrintView metrics={metrics} inputs={inputs} />
 
@@ -778,7 +835,13 @@ Generated by CompLens™ Provider Compensation Intelligence
             <div className="space-y-6" data-tour="forecaster-schedule">
               {/* Provider Name and Specialty */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Name</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Name</h3>
+                  <ScenarioLoader
+                    scenarioType="wrvu-forecaster"
+                    onLoad={handleLoadScenario}
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                   <Input
                     value={inputs.providerName || ''}
@@ -788,20 +851,21 @@ Generated by CompLens™ Provider Compensation Intelligence
                     icon={<User className="w-5 h-5" />}
                   />
                   <div className="space-y-2">
-                    <Select
-                      value={inputs.specialty || undefined}
-                      onValueChange={(value) => {
-                        setInputs((prev) => ({
-                          ...prev,
-                          specialty: value,
-                          customSpecialty: value !== 'Other' ? '' : prev.customSpecialty,
-                        }));
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select specialty" />
-                      </SelectTrigger>
-                      <SelectContent>
+                    {isMounted ? (
+                      <Select
+                        value={inputs.specialty || undefined}
+                        onValueChange={(value) => {
+                          setInputs((prev) => ({
+                            ...prev,
+                            specialty: value,
+                            customSpecialty: value !== 'Other' ? '' : prev.customSpecialty,
+                          }));
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select specialty" />
+                        </SelectTrigger>
+                        <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Primary Care / Hospital Medicine</SelectLabel>
                           {SPECIALTIES.slice(0, 4).map((s) => (
@@ -838,7 +902,13 @@ Generated by CompLens™ Provider Compensation Intelligence
                           ))}
                         </SelectGroup>
                       </SelectContent>
-                    </Select>
+                      </Select>
+                    ) : (
+                      <div className="h-12 w-full rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-3 flex items-center justify-between">
+                        <span className="text-gray-400 dark:text-gray-500">Select specialty</span>
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </div>
+                    )}
                     {inputs.specialty === 'Other' && (
                       <Input
                         value={inputs.customSpecialty || ''}

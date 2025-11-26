@@ -48,7 +48,7 @@ export interface WRVUForecasterInputs {
   vacationDates?: string[]; // Array of date strings for vacation days
   cmeDates?: string[]; // Array of date strings for CME days
   statutoryHolidayDates?: string[]; // Array of date strings for statutory holidays
-  useCalendarMode?: boolean; // Flag to use calendar data vs. number inputs
+  isFromTemplate?: boolean; // Flag to indicate data was generated from template
 }
 
 export interface ProductivityMetrics {

@@ -1,23 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import * as Dialog from '@radix-ui/react-dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Save, Trash2, TrendingUp, Mail, Printer, RotateCcw } from 'lucide-react';
+import { Save, Trash2, Mail, Printer, RotateCcw } from 'lucide-react';
 import {
   WRVUForecasterInputs,
   ProductivityMetrics,
   WRVUForecasterScenario,
 } from '@/types/wrvu-forecaster';
+import { useScenariosStore } from '@/lib/store/scenarios-store';
+import { ProviderScenario } from '@/types';
+import {
+  wrvuForecasterScenarioToProviderScenario,
+  providerScenarioToWRVUForecasterScenario,
+  isWRVUForecasterScenario,
+} from '@/lib/utils/wrvu-forecaster-converters';
 
 const STORAGE_KEY = 'wrvuForecasterScenarios';
 
@@ -31,16 +30,41 @@ interface ScenarioManagerProps {
 }
 
 export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport, onPrint, onStartOver }: ScenarioManagerProps) {
-  const [savedScenarios, setSavedScenarios] = useState<WRVUForecasterScenario[]>([]);
+  const { scenarios: globalScenarios, saveScenario: saveGlobalScenario, loadScenarios: loadGlobalScenarios, deleteScenario: deleteGlobalScenario } = useScenariosStore();
+  const [localScenarios, setLocalScenarios] = useState<WRVUForecasterScenario[]>([]);
   const [scenarioName, setScenarioName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [existingScenarioId, setExistingScenarioId] = useState<string | null>(null);
 
+  // Load global scenarios on mount
   useEffect(() => {
-    loadScenarios();
+    loadGlobalScenarios();
+  }, [loadGlobalScenarios]);
+
+  // Load local scenarios on mount
+  useEffect(() => {
+    loadLocalScenarios();
   }, []);
+
+  // Merge scenarios from both sources
+  const savedScenarios = useMemo(() => {
+    const globalForecasterScenarios = globalScenarios
+      .filter(isWRVUForecasterScenario)
+      .map(providerScenarioToWRVUForecasterScenario)
+      .filter((s): s is WRVUForecasterScenario => s !== null);
+    
+    // Combine and deduplicate by ID (global takes precedence)
+    const scenarioMap = new Map<string, WRVUForecasterScenario>();
+    
+    // Add local scenarios first
+    localScenarios.forEach(s => scenarioMap.set(s.id, s));
+    
+    // Override with global scenarios (they take precedence)
+    globalForecasterScenarios.forEach(s => scenarioMap.set(s.id, s));
+    
+    return Array.from(scenarioMap.values());
+  }, [globalScenarios, localScenarios]);
 
   // Pre-fill name and check for existing scenario when dialog opens
   useEffect(() => {
@@ -63,7 +87,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
       
       setScenarioName(suggestedName);
 
-      // Check for existing scenario matching providerName and specialty
+      // Check for existing scenario matching providerName and specialty (check both local and global)
       const existing = savedScenarios.find(scenario => {
         const scenarioProviderName = scenario.providerName?.trim() || '';
         const scenarioSpecialty = scenario.specialty?.trim() || '';
@@ -103,15 +127,15 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
     }
   }, [showSaveDialog]);
 
-  const loadScenarios = () => {
+  const loadLocalScenarios = () => {
     if (typeof window === 'undefined') return;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setSavedScenarios(JSON.parse(saved));
+        setLocalScenarios(JSON.parse(saved));
       }
     } catch (error) {
-      console.error('Error loading scenarios:', error);
+      console.error('Error loading local scenarios:', error);
     }
   };
 
@@ -119,7 +143,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
     if (!scenarioName.trim()) return;
 
     const scenarioData: WRVUForecasterScenario = {
-      id: existingScenarioId || `scenario-${Date.now()}`,
+      id: existingScenarioId || `wrvu-forecaster-${Date.now()}`,
       name: scenarioName.trim(),
       providerName: inputs.providerName,
       specialty: inputs.specialty === 'Other' ? inputs.customSpecialty : inputs.specialty,
@@ -130,79 +154,53 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
         : new Date().toLocaleDateString(),
     };
 
-    let updatedScenarios: WRVUForecasterScenario[];
+    // Convert to ProviderScenario and save to global store
+    const providerScenario = wrvuForecasterScenarioToProviderScenario(scenarioData);
     
     if (existingScenarioId && isUpdating) {
-      // Update existing scenario
-      updatedScenarios = savedScenarios.map(s => 
+      // Update existing scenario in global store
+      providerScenario.id = existingScenarioId;
+      saveGlobalScenario(providerScenario);
+      
+      // Also update in local storage for backward compatibility
+      const updatedLocalScenarios = localScenarios.map(s => 
         s.id === existingScenarioId ? scenarioData : s
       );
+      setLocalScenarios(updatedLocalScenarios);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLocalScenarios));
     } else {
-      // Add new scenario
-      updatedScenarios = [...savedScenarios, scenarioData];
+      // Add new scenario to global store
+      saveGlobalScenario(providerScenario);
+      
+      // Also save to local storage for backward compatibility
+      const updatedLocalScenarios = [...localScenarios, scenarioData];
+      setLocalScenarios(updatedLocalScenarios);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLocalScenarios));
     }
     
-    setSavedScenarios(updatedScenarios);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScenarios));
     setScenarioName('');
     setIsUpdating(false);
     setExistingScenarioId(null);
     setShowSaveDialog(false);
   };
 
-  const handleLoadScenario = (scenarioId: string) => {
-    if (!scenarioId) return;
-    const scenario = savedScenarios.find((s) => s.id === scenarioId);
-    if (scenario) {
-      onLoadScenario(scenario);
-      setSelectedScenarioId(''); // Reset select after loading
-    }
-  };
-
   const handleDeleteScenario = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const updatedScenarios = savedScenarios.filter((s) => s.id !== id);
-    setSavedScenarios(updatedScenarios);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedScenarios));
+    
+    // Delete from global store if it exists there
+    const globalScenario = globalScenarios.find(s => s.id === id && isWRVUForecasterScenario(s));
+    if (globalScenario) {
+      deleteGlobalScenario(id);
+    }
+    
+    // Also delete from local storage for backward compatibility
+    const updatedLocalScenarios = localScenarios.filter((s) => s.id !== id);
+    setLocalScenarios(updatedLocalScenarios);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedLocalScenarios));
   };
 
   return (
     <>
-      {/* Scenario Selector - Always at top */}
-      {savedScenarios.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto bg-blue-50 dark:bg-blue-900/20 rounded-lg sm:rounded-full px-3 py-2 sm:py-1.5 border border-blue-200 dark:border-blue-800 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            <Label className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium whitespace-nowrap">
-              Scenarios:
-            </Label>
-          </div>
-          <Select value={selectedScenarioId} onValueChange={handleLoadScenario}>
-            <SelectTrigger className="w-full sm:w-[180px] min-h-[44px] sm:min-h-auto border-none bg-transparent shadow-none focus:ring-0 touch-target">
-              <SelectValue placeholder="Select scenario" />
-            </SelectTrigger>
-            <SelectContent>
-              {savedScenarios.map((scenario) => (
-                <SelectItem key={scenario.id} value={scenario.id}>
-                  <div className="flex items-center justify-between w-full">
-                    <span>{scenario.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => handleDeleteScenario(scenario.id, e)}
-                      className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
       {/* Action Buttons - Sticky at bottom on mobile, regular on desktop */}
       <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-b sm:border-gray-200 sm:dark:border-gray-800">
         <div className="fixed sm:static bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-50">

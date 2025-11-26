@@ -71,11 +71,6 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
     }
   };
 
-  // Don't render anything if no scenarios exist
-  if (typeFilteredScenarios.length === 0) {
-    return null;
-  }
-
   return (
     <div className={cn("inline-flex", className)}>
       <DropdownMenuRoot>
@@ -83,6 +78,7 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
           <Button
             variant="ghost"
             size="sm"
+            disabled={typeFilteredScenarios.length === 0}
             className={cn(
               "min-w-[44px] h-[44px] rounded-full",
               "hover:bg-gray-100/80 dark:hover:bg-gray-800/80",
@@ -91,10 +87,11 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
               "hover:shadow-sm",
               "group",
               "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white",
-              "touch-manipulation"
+              "touch-manipulation",
+              typeFilteredScenarios.length === 0 && "opacity-50 cursor-not-allowed"
             )}
-            aria-label="Load saved model"
-            title="Load saved model"
+            aria-label={typeFilteredScenarios.length === 0 ? "No saved models" : "Load saved model"}
+            title={typeFilteredScenarios.length === 0 ? "No saved models - Save a scenario first" : "Load saved model"}
           >
             <FolderOpen className="w-5 h-5 transition-all duration-300 group-hover:scale-110" />
           </Button>
@@ -104,12 +101,18 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
             className={cn(
               "min-w-[280px] max-h-[400px] overflow-y-auto",
               "bg-white dark:bg-gray-900 rounded-lg shadow-lg",
-              "border border-gray-200 dark:border-gray-800 p-1 z-50"
+              "border border-gray-200 dark:border-gray-800 p-1 z-[100]"
             )}
             align="start"
             sideOffset={5}
           >
-            {typeFilteredScenarios.map((scenario, index) => (
+            {typeFilteredScenarios.length === 0 ? (
+              <div className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                No saved models yet. Save a scenario to load it here.
+              </div>
+            ) : (
+              <>
+                {typeFilteredScenarios.map((scenario, index) => (
               <div key={scenario.id}>
                 <DropdownMenuItem
                   className={cn(
@@ -158,6 +161,8 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
                 )}
               </div>
             ))}
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenuPortal>
       </DropdownMenuRoot>

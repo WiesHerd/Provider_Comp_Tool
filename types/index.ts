@@ -36,7 +36,7 @@ export interface MarketBenchmarks {
   wrvu90?: number;
 }
 
-export type ScenarioType = 'wrvu-modeler' | 'fmv-tcc' | 'fmv-wrvu' | 'fmv-cf' | 'call-pay' | 'general';
+export type ScenarioType = 'wrvu-modeler' | 'fmv-tcc' | 'fmv-wrvu' | 'fmv-cf' | 'call-pay' | 'wrvu-forecaster' | 'general';
 
 // Export call pay types
 export * from './call-pay';
@@ -50,6 +50,12 @@ export interface CallPayScenarioData {
     averageCallPayPerProvider: number;
     callPayPer1FTE: number;
   };
+}
+
+// Extended interface for wRVU Forecaster scenarios
+export interface WRVUForecasterScenarioData {
+  inputs: import('./wrvu-forecaster').WRVUForecasterInputs;
+  metrics: import('./wrvu-forecaster').ProductivityMetrics;
 }
 
 export interface ProviderScenario {
@@ -77,5 +83,6 @@ export interface ProviderScenario {
   createdAt: string;
   updatedAt: string;
   callPayData?: CallPayScenarioData; // Call-pay specific data for restoration
+  wrvuForecasterData?: WRVUForecasterScenarioData; // wRVU Forecaster specific data for restoration
 }
 
