@@ -487,7 +487,7 @@ export function PatientCalendarView({
             <CardContent className="p-4 sm:p-6">
               <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                 {/* Day headers */}
-                <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px]">
+                <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px] pl-1 pr-1">
                   {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
                     <div
                       key={day}
@@ -681,7 +681,7 @@ export function PatientCalendarView({
             <CardContent className="p-4 sm:p-6">
               <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                 {/* Day headers */}
-                <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px]">
+                <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-2 min-w-[700px] pl-1 pr-1">
                   {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
                     <div
                       key={day}
