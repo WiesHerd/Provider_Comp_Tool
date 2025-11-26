@@ -69,3 +69,4 @@ export function isWRVUForecasterScenario(scenario: ProviderScenario): boolean {
   return scenario.scenarioType === 'wrvu-forecaster' && !!scenario.wrvuForecasterData;
 }
 
+

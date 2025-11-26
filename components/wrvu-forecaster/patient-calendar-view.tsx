@@ -678,7 +678,7 @@ export function PatientCalendarView({
           {/* Week Summary - Week Pattern View */}
           <Card className="border-2 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/50">
             <CardContent className="p-4 sm:p-6 md:p-8">
-              <div className="flex flex-row items-center justify-between gap-3 sm:gap-6">
+              <div className="flex flex-row items-center justify-between gap-3 sm:gap-6 mb-4 sm:mb-6">
                 {/* Total Hours */}
                 <div className="flex-1 text-left">
                   <div className="flex items-center justify-start gap-2 sm:gap-3 mb-2">
@@ -722,37 +722,39 @@ export function PatientCalendarView({
                   </div>
                 </div>
               </div>
+
+              {/* Apply Week Pattern Button - Integrated into summary card */}
+              {onApplyTemplate && (
+                <div className="pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <div className="space-y-3">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        onApplyTemplate();
+                        setShowTemplateSuccess(true);
+                        setTimeout(() => setShowTemplateSuccess(false), 3000);
+                      }}
+                      disabled={templateTotals.totalHours === 0 && templateTotals.totalPatients === 0}
+                      variant={templateTotals.totalHours > 0 || templateTotals.totalPatients > 0 ? 'default' : 'outline'}
+                      className="w-full sm:w-auto min-h-[44px] touch-target"
+                      size="lg"
+                    >
+                      Apply This Week to Entire Year
+                    </Button>
+                    {showTemplateSuccess && (
+                      <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                        <span>Week pattern applied successfully! Your week pattern has been replicated across the year.</span>
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                      Replicates this week&#39;s schedule to all matching days of the year (e.g., all Mondays, all Tuesdays, etc.), excluding vacation, CME, and holiday dates.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
-
-          {/* Apply Week Pattern Button */}
-          {onApplyTemplate && (
-            <Card className="border-2">
-              <CardContent className="p-4 sm:p-6 space-y-4">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    onApplyTemplate();
-                    setShowTemplateSuccess(true);
-                    setTimeout(() => setShowTemplateSuccess(false), 3000);
-                  }}
-                  className="w-full sm:w-auto min-h-[44px] touch-target"
-                  size="lg"
-                >
-                  Apply Week Pattern to Year
-                </Button>
-                {showTemplateSuccess && (
-                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                    <span>Week pattern applied successfully! Your week pattern has been replicated across the year.</span>
-                  </div>
-                )}
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  This will replicate this week&#39;s pattern across all matching days of the year (e.g., all Mondays, all Tuesdays, etc.), excluding vacation, CME, and holiday dates.
-                </p>
-              </CardContent>
-            </Card>
-          )}
         </div>
       )}
 

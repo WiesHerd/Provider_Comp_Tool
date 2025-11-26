@@ -31,6 +31,7 @@ export interface WRVUForecasterInputs {
   providerName?: string;
   specialty?: string;
   customSpecialty?: string;
+  fte?: import('./index').FTE; // FTE for normalization (default: 1.0)
   vacationWeeks: number;
   statutoryHolidays: number;
   cmeDays: number;

@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DollarSign, User, Users, TrendingUp, Stethoscope, ChevronDown } from 'lucide-react';
+import { DollarSign, User, Users, TrendingUp, Stethoscope, ChevronDown, ChevronLeft } from 'lucide-react';
 import { PatientCalendarView } from '@/components/wrvu-forecaster/patient-calendar-view';
 import {
   formatDateString,
@@ -152,7 +152,7 @@ function ResultsStepContent({
   onPrint: () => void;
   onResetInputs: () => void;
 }) {
-  const { goToStep } = useProgressiveForm();
+  const { goToStep, previousStep } = useProgressiveForm();
 
   const handleStartOver = () => {
     onResetInputs();
@@ -160,8 +160,25 @@ function ResultsStepContent({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleBack = () => {
+    previousStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="space-y-6 pb-24 sm:pb-6">
+      {/* Back Button - Matches ProgressiveFormNavigation styling */}
+      <div className="flex gap-3 sm:gap-4 mt-8 sm:mt-10 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800">
+        <Button
+          variant="outline"
+          onClick={handleBack}
+          className="flex-1 sm:flex-initial sm:min-w-[120px]"
+        >
+          <ChevronLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+      </div>
+
       <ScenarioManager
         inputs={inputs}
         metrics={metrics}
@@ -702,8 +719,8 @@ function WRVUForecasterPageContent() {
       const updatedHours = { ...prev.dailyHours };
       const updatedPatients = { ...prev.dailyPatientCounts };
 
-      // If totalHours < 32, distribute evenly across Mon-Thu
-      if (totalHours < monThuHours) {
+      // If totalHours <= 32, distribute evenly across Mon-Thu
+      if (totalHours <= monThuHours) {
         const hoursPerDay = totalHours / 4;
         weekDays.forEach((date) => {
           const dateStr = formatDateString(date);
@@ -731,7 +748,7 @@ function WRVUForecasterPageContent() {
           }
         });
       } else {
-        // totalHours >= 32: 8h Mon-Thu, remainder on specified day (or Friday by default)
+        // totalHours > 32: 8h Mon-Thu, remainder on specified day (or Friday by default)
         const targetDay = dayToReduce || 5; // Default to Friday
         const hoursToReduce = totalHours - monThuHours;
         const reducedDayHours = Math.max(0, baseHoursPerDay - hoursToReduce);
