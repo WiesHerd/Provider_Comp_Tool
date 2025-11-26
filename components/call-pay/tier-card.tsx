@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { Calendar, Tag, Info, Sparkles } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CallPayContext } from '@/types/call-pay';
 
 interface TierCardProps {
@@ -271,74 +272,80 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
 
   return (
     <div className="space-y-4">
-      {/* Tier Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1">
-          <Switch
-            // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
-            checked={tier.enabled}
-            onCheckedChange={(checked: boolean) => updateField('enabled', checked)}
-          />
-          <Label className="text-sm text-gray-600 dark:text-gray-400">
-            {tier.enabled ? 'Enabled' : 'Disabled'}
-          </Label>
-        </div>
-        <Input
-          value={tier.name}
-          onChange={(e) => updateField('name', e.target.value)}
-          className="font-semibold text-base max-w-[120px]"
-          placeholder="C1"
-          icon={<Tag className="w-5 h-5" />}
-        />
-      </div>
+      {/* Coverage and Rates Card */}
+      <Card className="border-2">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Coverage & Rates</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
+                <Switch
+                  // @ts-ignore - TypeScript build type resolution issue with Radix UI Switch
+                  checked={tier.enabled}
+                  onCheckedChange={(checked: boolean) => updateField('enabled', checked)}
+                />
+                <Label className="text-sm text-gray-600 dark:text-gray-400">
+                  {tier.enabled ? 'Enabled' : 'Disabled'}
+                </Label>
+              </div>
+              <Input
+                value={tier.name}
+                onChange={(e) => updateField('name', e.target.value)}
+                className="font-semibold text-base max-w-[120px]"
+                placeholder="C1"
+                icon={<Tag className="w-5 h-5" />}
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6 space-y-4">
+          {/* Coverage Type and Payment Method - Side by side */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Coverage Type</Label>
+              <Select
+                value={tier.coverageType}
+                onValueChange={(value) =>
+                  updateField('coverageType', value as CoverageType)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COVERAGE_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* Coverage Type and Payment Method - Side by side */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Coverage Type</Label>
-          <Select
-            value={tier.coverageType}
-            onValueChange={(value) =>
-              updateField('coverageType', value as CoverageType)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              {COVERAGE_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Payment Method</Label>
-          <Select
-            value={tier.paymentMethod}
-            onValueChange={(value) =>
-              updateField('paymentMethod', value as PaymentMethod)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select method" />
-            </SelectTrigger>
-            <SelectContent>
-              {PAYMENT_METHODS.map((method) => (
-                <SelectItem key={method} value={method}>
-                  {method}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Payment Method</Label>
+              <Select
+                value={tier.paymentMethod}
+                onValueChange={(value) =>
+                  updateField('paymentMethod', value as PaymentMethod)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select method" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map((method) => (
+                    <SelectItem key={method} value={method}>
+                      {method}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
       {/* Rates */}
-      <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-3">
+      <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
         <Label className="text-sm font-semibold">Rates</Label>
 
         {tier.paymentMethod === 'Annual stipend' && (
@@ -651,19 +658,25 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
           </>
         )}
       </div>
+        </CardContent>
+      </Card>
 
       {/* Burden Assumptions - Only show for payment methods that use burden */}
       {(tier.paymentMethod === 'Daily / shift rate' ||
         tier.paymentMethod === 'Hourly rate' ||
         tier.paymentMethod === 'Per procedure' ||
         tier.paymentMethod === 'Per wRVU') && (
-        <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-3">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-0">
-            <Label className="text-sm font-semibold">Burden Assumptions</Label>
-            <span className="text-xs text-gray-500 dark:text-gray-400 italic">
-              Total service needs per month
-            </span>
-          </div>
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-0">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Burden Assumptions</CardTitle>
+              <span className="text-xs text-gray-500 dark:text-gray-400 italic">
+                Total service needs per month
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-3">
 
           {/* Auto-Fill Button */}
           {context && context.providersOnCall > 0 && context.rotationRatio > 0 && (
@@ -1066,7 +1079,9 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
             )}
           </div>
         )}
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

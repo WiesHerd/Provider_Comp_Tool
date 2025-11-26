@@ -109,7 +109,7 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
         <h3 className="text-base font-semibold text-gray-900 dark:text-white">Compensation Components</h3>
         <Button onClick={addComponent} size="sm" variant="default" className="gap-1.5">
           <Plus className="w-4 h-4" />
-          Add Component
+          Add
         </Button>
       </div>
 

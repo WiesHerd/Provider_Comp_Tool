@@ -16,6 +16,8 @@ export function Tooltip({ children, content, side = 'top', className, disableOnT
   const [isTouchDevice, setIsTouchDevice] = React.useState(false);
   const timeoutRef = React.useRef<NodeJS.Timeout>();
   const delayTimeoutRef = React.useRef<NodeJS.Timeout>();
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
 
   // Detect touch device on mount
   React.useEffect(() => {
@@ -58,6 +60,55 @@ export function Tooltip({ children, content, side = 'top', className, disableOnT
     }
   };
 
+  // Handle click/touch for mobile devices
+  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Don't handle clicks if disabled on touch
+    if (disableOnTouch && isTouchDevice) return;
+    
+    // Toggle tooltip on click/touch
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      // Clear any existing timeouts
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (delayTimeoutRef.current) {
+        clearTimeout(delayTimeoutRef.current);
+      }
+      setIsOpen(true);
+    }
+  };
+
+  // Close tooltip when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        isOpen &&
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node) &&
+        tooltipRef.current &&
+        !tooltipRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      // Use both mouse and touch events
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen]);
+
   React.useEffect(() => {
     // Store refs in variables that will be captured by closure
     const timeoutRefValue = timeoutRef;
@@ -81,14 +132,18 @@ export function Tooltip({ children, content, side = 'top', className, disableOnT
 
   return (
     <div 
+      ref={wrapperRef}
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
+      onClick={handleClick}
+      onTouchStart={handleClick}
     >
       {children}
       {isOpen && (
         <div
+          ref={tooltipRef}
           className={cn(
             'absolute z-[9999] px-3 py-2 text-sm rounded-lg shadow-xl border',
             'pointer-events-none whitespace-normal max-w-[250px] md:max-w-[350px]',

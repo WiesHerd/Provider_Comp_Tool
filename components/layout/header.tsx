@@ -11,16 +11,9 @@ import { cn } from '@/lib/utils/cn';
 import { SCREEN_GUIDES } from '@/lib/screen-guides';
 
 // Page title mapping for header
+// Note: Page titles removed from header to match gold standard - no screen titles in banner
 const getPageTitle = (pathname: string): string | null => {
-  if (pathname === '/') return null;
-  if (pathname === '/wrvu-modeler') return 'Productivity Incentive Calculator';
-  if (pathname === '/fmv-calculator') return 'FMV Calculator';
-  if (pathname.startsWith('/fmv-calculator/wrvu')) return 'wRVU Calculator';
-  if (pathname.startsWith('/fmv-calculator/tcc')) return 'TCC Calculator';
-  if (pathname.startsWith('/fmv-calculator/cf')) return 'CF Calculator';
-  if (pathname === '/call-pay-modeler') return 'Call Pay Modeler';
-  if (pathname === '/scenarios') return 'Scenarios';
-  if (pathname.startsWith('/scenarios/')) return 'Edit Scenario';
+  // Return null for all pages - no titles in header banner
   return null;
 };
 

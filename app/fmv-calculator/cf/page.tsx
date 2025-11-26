@@ -168,7 +168,6 @@ function CFCalculatorPageContent() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
-
       {/* Combined Input Screen - CF Input and Market Data together */}
       {!showResults && (
       <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">

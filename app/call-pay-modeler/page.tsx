@@ -8,6 +8,7 @@ import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
@@ -196,7 +197,8 @@ export default function CallPayModelerPage() {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
 
@@ -259,89 +261,95 @@ export default function CallPayModelerPage() {
               Back
             </Button>
           </div>
-          {/* Content - No container */}
+          {/* Content */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Configure Tiers</h3>
-            {/* Segmented Control for Tier Selection with Add/Remove buttons */}
-            <div className="space-y-3">
-              {/* Tier buttons - wrap to multiple lines */}
-              <div className="flex flex-wrap gap-2">
-                {tiers.map((tier) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => setExpandedTier(tier.id)}
-                    className={cn(
-                      'px-4 py-3 rounded-lg font-semibold text-sm whitespace-nowrap',
-                      'transition-all duration-150',
-                      'min-w-[48px] min-h-[44px] touch-manipulation',
-                      expandedTier === tier.id
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+            <Card className="border-2">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Configure Tiers</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6">
+                {/* Segmented Control for Tier Selection with Add/Remove buttons */}
+                <div className="space-y-3">
+                  {/* Tier buttons - wrap to multiple lines */}
+                  <div className="flex flex-wrap gap-2">
+                    {tiers.map((tier) => (
+                      <button
+                        key={tier.id}
+                        onClick={() => setExpandedTier(tier.id)}
+                        className={cn(
+                          'px-4 py-3 rounded-lg font-semibold text-sm whitespace-nowrap',
+                          'transition-all duration-150',
+                          'min-w-[48px] min-h-[44px] touch-manipulation',
+                          expandedTier === tier.id
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                        )}
+                      >
+                        {tier.name}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Add Tier and Remove Last buttons - Always on their own row */}
+                  <div className="flex items-center gap-2">
+                    {tiers.length < 10 && (
+                      <button
+                        onClick={() => {
+                          const nextNumber = tiers.length + 1;
+                          const newTier = createDefaultTier(`C${nextNumber}`, `C${nextNumber}`);
+                          handleTiersChange([...tiers, newTier]);
+                        }}
+                        className={cn(
+                          "inline-flex items-center justify-center",
+                          "px-2.5 sm:px-3.5 py-2.5 rounded-lg",
+                          "text-sm font-medium",
+                          "bg-white dark:bg-gray-800",
+                          "border border-gray-200 dark:border-gray-700",
+                          "text-gray-700 dark:text-gray-300",
+                          "hover:bg-gray-50 dark:hover:bg-gray-700",
+                          "active:bg-gray-100 dark:active:bg-gray-600",
+                          "transition-all duration-150",
+                          "shadow-sm hover:shadow",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+                          "min-h-[44px] min-w-[44px] sm:min-w-auto touch-manipulation"
+                        )}
+                        aria-label="Add tier"
+                      >
+                        <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                        <span className="hidden sm:inline ml-1.5">Add Tier</span>
+                      </button>
                     )}
-                  >
-                    {tier.name}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Add Tier and Remove Last buttons - Always on their own row */}
-              <div className="flex items-center gap-2">
-                {tiers.length < 10 && (
-                  <button
-                    onClick={() => {
-                      const nextNumber = tiers.length + 1;
-                      const newTier = createDefaultTier(`C${nextNumber}`, `C${nextNumber}`);
-                      handleTiersChange([...tiers, newTier]);
-                    }}
-                    className={cn(
-                      "inline-flex items-center justify-center",
-                      "px-2.5 sm:px-3.5 py-2.5 rounded-lg",
-                      "text-sm font-medium",
-                      "bg-white dark:bg-gray-800",
-                      "border border-gray-200 dark:border-gray-700",
-                      "text-gray-700 dark:text-gray-300",
-                      "hover:bg-gray-50 dark:hover:bg-gray-700",
-                      "active:bg-gray-100 dark:active:bg-gray-600",
-                      "transition-all duration-150",
-                      "shadow-sm hover:shadow",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
-                      "min-h-[44px] min-w-[44px] sm:min-w-auto touch-manipulation"
+                    {tiers.length > 1 && (
+                      <button
+                        onClick={() => {
+                          if (tiers.length <= 1) return;
+                          const updatedTiers = tiers.filter((t) => t.id !== tiers[tiers.length - 1].id);
+                          handleTiersChange(updatedTiers);
+                        }}
+                        className={cn(
+                          "inline-flex items-center justify-center",
+                          "px-2.5 sm:px-3.5 py-2.5 rounded-lg",
+                          "text-sm font-medium",
+                          "bg-white dark:bg-gray-800",
+                          "border border-red-200 dark:border-red-800/50",
+                          "text-red-600 dark:text-red-400",
+                          "hover:bg-red-50 dark:hover:bg-red-900/20",
+                          "active:bg-red-100 dark:active:bg-red-900/30",
+                          "transition-all duration-150",
+                          "shadow-sm hover:shadow",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1",
+                          "min-h-[44px] min-w-[44px] sm:min-w-auto touch-manipulation"
+                        )}
+                        aria-label="Remove last tier"
+                      >
+                        <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                        <span className="hidden sm:inline ml-1.5">Remove Last</span>
+                      </button>
                     )}
-                    aria-label="Add tier"
-                  >
-                    <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                    <span className="hidden sm:inline ml-1.5">Add Tier</span>
-                  </button>
-                )}
-                {tiers.length > 1 && (
-                  <button
-                    onClick={() => {
-                      if (tiers.length <= 1) return;
-                      const updatedTiers = tiers.filter((t) => t.id !== tiers[tiers.length - 1].id);
-                      handleTiersChange(updatedTiers);
-                    }}
-                    className={cn(
-                      "inline-flex items-center justify-center",
-                      "px-2.5 sm:px-3.5 py-2.5 rounded-lg",
-                      "text-sm font-medium",
-                      "bg-white dark:bg-gray-800",
-                      "border border-red-200 dark:border-red-800/50",
-                      "text-red-600 dark:text-red-400",
-                      "hover:bg-red-50 dark:hover:bg-red-900/20",
-                      "active:bg-red-100 dark:active:bg-red-900/30",
-                      "transition-all duration-150",
-                      "shadow-sm hover:shadow",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1",
-                      "min-h-[44px] min-w-[44px] sm:min-w-auto touch-manipulation"
-                    )}
-                    aria-label="Remove last tier"
-                  >
-                    <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                    <span className="hidden sm:inline ml-1.5">Remove Last</span>
-                  </button>
-                )}
-              </div>
-            </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Tier Card - Show selected tier directly without accordion */}
             {tiers
@@ -384,48 +392,57 @@ export default function CallPayModelerPage() {
 
       {activeStep === 2 && step2Complete && (
         <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
-          <Button
-            onClick={() => setActiveStep(3)}
-            className="w-full min-h-[48px] text-base font-semibold"
-            size="lg"
-          >
-            Review Budget
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              onClick={() => setActiveStep(3)}
+              className="w-auto max-w-[280px] min-h-[48px] text-base font-semibold"
+              size="lg"
+            >
+              Review Budget
+            </Button>
+          </div>
         </div>
       )}
 
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
         <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
-          {/* Content - No container */}
+          {/* Content */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Budget Review</h3>
-              <ImpactSummary 
-                impact={impact} 
-                annualAllowableBudget={annualAllowableBudget}
-                onBudgetChange={setAnnualAllowableBudget}
-                tiers={tiers}
-                context={context}
-              />
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-                <CallPaySaveButton
-                  context={context}
-                  tiers={tiers}
-                  impact={impact}
+            <Card className="border-2">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Budget Review</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6">
+                <ImpactSummary 
+                  impact={impact} 
                   annualAllowableBudget={annualAllowableBudget}
-                  currentScenarioId={currentScenarioId}
+                  onBudgetChange={setAnnualAllowableBudget}
+                  tiers={tiers}
+                  context={context}
                 />
-                <Button
-                  variant="outline"
-                  onClick={handleStartOver}
-                  className="w-full"
-                >
-                  Start New Calculation
-                </Button>
-              </div>
+              </CardContent>
+            </Card>
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+              <CallPaySaveButton
+                context={context}
+                tiers={tiers}
+                impact={impact}
+                annualAllowableBudget={annualAllowableBudget}
+                currentScenarioId={currentScenarioId}
+              />
+              <Button
+                variant="outline"
+                onClick={handleStartOver}
+                className="w-full sm:w-auto"
+              >
+                Start New Calculation
+              </Button>
+            </div>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
