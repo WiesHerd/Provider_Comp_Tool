@@ -153,22 +153,6 @@ export default function CallPayModelerPage() {
       (tier.burden.weekdayCallsPerMonth > 0 || tier.burden.weekendCallsPerMonth > 0)
     );
 
-
-  const handleStepClick = (step: number) => {
-    // Always allow going back to step 1
-    if (step === 1) {
-      setActiveStep(1);
-      return;
-    }
-    
-    // Allow going to step 2 if step 1 is complete
-    if (step === 2 && step1Complete) {
-      setActiveStep(2);
-      return;
-    }
-    
-  };
-
   const handleWalkthroughNavigate = (stepIndex: number, elementId: string) => {
     // Map element IDs to step numbers
     const elementToStep: Record<string, number> = {
