@@ -32,6 +32,7 @@ import { RotateCcw, User, Stethoscope } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { useProgressiveForm } from '@/components/ui/progressive-form';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
+import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { cn } from '@/lib/utils/cn';
 
 // Common medical specialties (matching the pattern from other components)
@@ -227,23 +228,19 @@ function WRVUModelerPageContent() {
 
   const STORAGE_KEY = 'wrvuModelerDraftState';
 
-  // Auto-save draft state to localStorage whenever inputs change
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const draftState = {
-        fte,
-        annualWrvus,
-        monthlyWrvus,
-        monthlyBreakdown,
-        conversionFactor,
-        providerName,
-        specialty,
-        customSpecialty,
-        basePay,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
-    }
-  }, [fte, annualWrvus, monthlyWrvus, monthlyBreakdown, conversionFactor, providerName, specialty, customSpecialty, basePay]);
+  // Auto-save draft state to localStorage whenever inputs change (debounced)
+  const draftState = {
+    fte,
+    annualWrvus,
+    monthlyWrvus,
+    monthlyBreakdown,
+    conversionFactor,
+    providerName,
+    specialty,
+    customSpecialty,
+    basePay,
+  };
+  useDebouncedLocalStorage(STORAGE_KEY, draftState);
 
   // Load draft state on mount (if no scenario is being loaded via URL)
   useEffect(() => {

@@ -135,7 +135,7 @@ export function ScenarioManager({ inputs, metrics, onLoadScenario, onEmailReport
         setLocalScenarios(JSON.parse(saved));
       }
     } catch (error) {
-      console.error('Error loading local scenarios:', error);
+      // Error is already handled by storage utilities
     }
   };
 

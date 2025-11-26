@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -76,19 +77,15 @@ export default function CallPayModelerPage() {
   
   const STORAGE_KEY = 'callPayModelerDraftState';
 
-  // Auto-save draft state to localStorage whenever inputs change
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !scenarioLoaded) {
-      const draftState = {
-        context,
-        tiers,
-        expandedTier,
-        annualAllowableBudget,
-        activeStep,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
-    }
-  }, [context, tiers, expandedTier, annualAllowableBudget, activeStep, scenarioLoaded]);
+  // Auto-save draft state to localStorage whenever inputs change (debounced, skip when scenario is loaded)
+  const draftState = scenarioLoaded ? null : {
+    context,
+    tiers,
+    expandedTier,
+    annualAllowableBudget,
+    activeStep,
+  };
+  useDebouncedLocalStorage(STORAGE_KEY, draftState);
 
   // Load draft state on mount (if no scenario is being loaded via URL)
   useEffect(() => {
@@ -131,7 +128,9 @@ export default function CallPayModelerPage() {
       );
       setTiers(updatedTiers);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // Only run on mount to initialize, tiers dependency intentionally omitted
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Calculate impact
   const impact = useMemo(() => {

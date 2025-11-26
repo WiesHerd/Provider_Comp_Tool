@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
+import { logger } from '@/lib/utils/logger';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PatientEncountersPanel } from '@/components/wrvu-forecaster/patient-encounters-panel';
@@ -100,7 +102,7 @@ const loadStateFromStorage = (): WRVUForecasterInputs | null => {
       return parsed;
     }
   } catch (error) {
-    console.error('Error loading saved state:', error);
+    logger.error('Error loading saved state:', error);
   }
 
   return null;
@@ -250,7 +252,7 @@ function WRVUForecasterPageContent() {
     if ('wrvuForecasterData' in scenario || ('scenarioType' in scenario && scenario.scenarioType === 'wrvu-forecaster')) {
       const converted = providerScenarioToWRVUForecasterScenario(scenario as ProviderScenario);
       if (!converted) {
-        console.error('Failed to convert ProviderScenario to WRVUForecasterScenario');
+        logger.error('Failed to convert ProviderScenario to WRVUForecasterScenario');
         return;
       }
       forecasterScenario = converted;
@@ -283,12 +285,8 @@ function WRVUForecasterPageContent() {
     }
   }, [scenarioLoaded]);
 
-  // Save to localStorage whenever inputs change
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !scenarioLoaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(inputs));
-    }
-  }, [inputs, scenarioLoaded]);
+  // Save to localStorage whenever inputs change (debounced, skip when scenario is loaded)
+  useDebouncedLocalStorage(STORAGE_KEY, scenarioLoaded ? null : inputs);
 
   // Auto-load scenario from query parameter
   useEffect(() => {

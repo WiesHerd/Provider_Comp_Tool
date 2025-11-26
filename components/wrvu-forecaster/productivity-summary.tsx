@@ -138,6 +138,10 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
     return `+${formatNumber(diff)}`;
   };
 
+  const formatFTE = (value: number) => {
+    return value.toFixed(2);
+  };
+
   const handleCalculatePercentile = () => {
     const specialty = inputs.specialty === 'Other' ? inputs.customSpecialty : inputs.specialty;
     const fte = inputs.fte ?? 1.0;
@@ -176,9 +180,21 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
   const timeMetrics: StatItemProps[] = [
     {
       icon: <Calendar className="w-6 h-6" />,
+      label: 'Total Weeks',
+      value: '52',
+      tooltipText: 'Total weeks in a year (52 weeks)',
+    },
+    {
+      icon: <Users className="w-6 h-6" />,
+      label: 'FTE Rate',
+      value: formatFTE(inputs.fte ?? 1.0),
+      tooltipText: `Full-Time Equivalent rate. 1.0 = 100% full-time, 0.5 = 50% part-time, etc. This affects all compensation calculations.`,
+    },
+    {
+      icon: <Calendar className="w-6 h-6" />,
       label: 'Clinical Weeks',
       value: formatNumber(metrics.weeksWorkedPerYear),
-      tooltipText: `Actual weeks patients were seen: 52 weeks - ${formatNumber(inputs.vacationWeeks)} vacation weeks - ${formatNumber((inputs.cmeDays + inputs.statutoryHolidays) / 7)} weeks (CME + holidays) = ${formatNumber(metrics.weeksWorkedPerYear)} clinical weeks`,
+      tooltipText: `Weeks when patients are actually seen: 52 weeks minus ${formatNumber(inputs.vacationWeeks)} vacation weeks minus ${formatNumber((inputs.cmeDays + inputs.statutoryHolidays) / 7)} weeks (CME + holidays) = ${formatNumber(metrics.weeksWorkedPerYear)} clinical weeks`,
     },
     {
       icon: <Calendar className="w-6 h-6" />,
@@ -379,7 +395,7 @@ export function ProductivitySummary({ metrics, inputs }: ProductivitySummaryProp
       {/* Time Section */}
       <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Time</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
           {timeMetrics.map((item, index) => (
             <StatItem key={`time-${index}`} {...item} />
           ))}

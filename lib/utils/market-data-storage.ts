@@ -1,4 +1,6 @@
 import { MarketBenchmarks } from '@/types';
+import { safeLocalStorage } from '@/hooks/use-debounced-local-storage';
+import { logger } from './logger';
 
 export interface SavedMarketData {
   id: string;
@@ -38,7 +40,16 @@ export function saveMarketData(
     allData.push(marketData);
   }
   
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+  try {
+    const serialized = JSON.stringify(allData);
+    if (!safeLocalStorage.setItem(STORAGE_KEY, serialized)) {
+      logger.error('Failed to save market data to localStorage');
+      throw new Error('Failed to save market data. Storage may be full.');
+    }
+  } catch (error) {
+    logger.error('Error saving market data:', error);
+    throw error instanceof Error ? error : new Error('Failed to save market data.');
+  }
 }
 
 /**
@@ -61,11 +72,11 @@ export function loadAllMarketData(): SavedMarketData[] {
   if (typeof window === 'undefined') return [];
   
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = safeLocalStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
     return JSON.parse(stored) as SavedMarketData[];
   } catch (error) {
-    console.error('Error loading market data:', error);
+    logger.error('Error loading market data:', error);
     return [];
   }
 }
@@ -89,10 +100,18 @@ export function deleteMarketData(
   specialty: string,
   metricType: 'tcc' | 'wrvu' | 'cf'
 ): void {
-  const allData = loadAllMarketData();
-  const id = `${specialty}-${metricType}`;
-  const filtered = allData.filter(d => d.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  try {
+    const allData = loadAllMarketData();
+    const id = `${specialty}-${metricType}`;
+    const filtered = allData.filter(d => d.id !== id);
+    const serialized = JSON.stringify(filtered);
+    if (!safeLocalStorage.setItem(STORAGE_KEY, serialized)) {
+      logger.error('Failed to delete market data from localStorage');
+    }
+  } catch (error) {
+    logger.error('Error deleting market data:', error);
+    throw new Error('Failed to delete market data. Please try again.');
+  }
 }
 
 /**

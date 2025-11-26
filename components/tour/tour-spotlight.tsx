@@ -89,7 +89,7 @@ export function TourSpotlight({
           onElementFound?.(null);
         }
       } catch (e) {
-        console.warn('Tour spotlight: Error finding element', e);
+        // Silently handle element not found - this is expected in some cases
         setTargetElement(null);
         setTargetRect(null);
         onElementFound?.(null);

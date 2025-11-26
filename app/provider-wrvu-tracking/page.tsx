@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { startOfMonth, format, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils/cn';
 import { WRVUCalendarView } from '@/components/provider-wrvu-tracking/wrvu-calendar-view';
@@ -52,7 +53,7 @@ const getInitialState = (): ProviderWRVUTrackingState => {
       return parsed;
     }
   } catch (error) {
-    console.error('Error loading saved state:', error);
+    logger.error('Error loading saved state:', error);
   }
 
   return getDefaultState();
@@ -123,14 +124,8 @@ export default function ProviderWRVUTrackingPage() {
     }
   }, []);
 
-  // Save to localStorage whenever state changes (silent auto-save)
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !isInitialMountRef.current) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } else {
-      isInitialMountRef.current = false;
-    }
-  }, [state]);
+  // Save to localStorage whenever state changes (silent auto-save, debounced)
+  useDebouncedLocalStorage(STORAGE_KEY, state);
 
   // Manual save handler with feedback
   const handleManualSave = () => {

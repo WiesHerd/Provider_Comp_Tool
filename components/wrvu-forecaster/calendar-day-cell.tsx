@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { memo } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { format, isWeekend } from 'date-fns';
 import { formatDateString, getDateType, type DateString } from '@/lib/utils/calendar-helpers';
@@ -23,7 +24,7 @@ interface CalendarDayCellProps {
   hideDate?: boolean; // Hide date number, show only day name (for template view)
 }
 
-export function CalendarDayCell({
+export const CalendarDayCell = memo(function CalendarDayCell({
   date,
   patientCount = 0,
   hours = 0,
@@ -415,4 +416,4 @@ export function CalendarDayCell({
         )}
       </div>
   );
-}
+});

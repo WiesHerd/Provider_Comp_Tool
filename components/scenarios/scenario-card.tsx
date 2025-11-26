@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { ProviderScenario } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ interface ScenarioCardProps {
   scenario: ProviderScenario;
 }
 
-export function ScenarioCard({ scenario }: ScenarioCardProps) {
+export const ScenarioCard = memo(function ScenarioCard({ scenario }: ScenarioCardProps) {
   const router = useRouter();
   const { deleteScenario, duplicateScenario } = useScenariosStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -137,5 +137,5 @@ export function ScenarioCard({ scenario }: ScenarioCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
 

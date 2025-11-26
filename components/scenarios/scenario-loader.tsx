@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { ProviderScenario, ScenarioType } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ interface ScenarioLoaderProps {
   className?: string;
 }
 
-export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoaderProps) {
+export const ScenarioLoader = memo(function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoaderProps) {
   const { scenarios, loadScenarios, deleteScenario } = useScenariosStore();
   const [mounted, setMounted] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -33,14 +33,18 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
   useEffect(() => {
     setMounted(true);
     loadScenarios();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // loadScenarios is stable from Zustand store, safe to omit from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reload scenarios when scenarioType changes
   useEffect(() => {
     if (mounted) {
       loadScenarios();
+      // loadScenarios is stable from Zustand store, safe to omit from deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }
-  }, [scenarioType, mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [scenarioType, mounted]);
 
   // Filter scenarios by type
   // Include scenarios that match the type, or legacy scenarios (no type) for 'wrvu-modeler' screen
@@ -196,5 +200,5 @@ export function ScenarioLoader({ scenarioType, onLoad, className }: ScenarioLoad
       </Dialog.Root>
     </div>
   );
-}
+});
 

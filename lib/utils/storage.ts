@@ -1,4 +1,6 @@
 import { ProviderScenario } from '@/types';
+import { safeLocalStorage } from '@/hooks/use-debounced-local-storage';
+import { logger } from './logger';
 
 const STORAGE_KEY = 'provider_scenarios';
 
@@ -6,16 +8,24 @@ const STORAGE_KEY = 'provider_scenarios';
  * Save a scenario to localStorage
  */
 export function saveScenario(scenario: ProviderScenario): void {
-  const scenarios = loadScenarios();
-  const existingIndex = scenarios.findIndex(s => s.id === scenario.id);
-  
-  if (existingIndex >= 0) {
-    scenarios[existingIndex] = scenario;
-  } else {
-    scenarios.push(scenario);
+  try {
+    const scenarios = loadScenarios();
+    const existingIndex = scenarios.findIndex(s => s.id === scenario.id);
+    
+    if (existingIndex >= 0) {
+      scenarios[existingIndex] = scenario;
+    } else {
+      scenarios.push(scenario);
+    }
+    
+    const serialized = JSON.stringify(scenarios);
+    if (!safeLocalStorage.setItem(STORAGE_KEY, serialized)) {
+      logger.error('Failed to save scenario to localStorage');
+    }
+  } catch (error) {
+    logger.error('Error saving scenario:', error);
+    throw new Error('Failed to save scenario. Please try again.');
   }
-  
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(scenarios));
 }
 
 /**
@@ -25,11 +35,11 @@ export function loadScenarios(): ProviderScenario[] {
   if (typeof window === 'undefined') return [];
   
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = safeLocalStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
     return JSON.parse(stored) as ProviderScenario[];
   } catch (error) {
-    console.error('Error loading scenarios:', error);
+    logger.error('Error loading scenarios:', error);
     return [];
   }
 }
@@ -38,9 +48,17 @@ export function loadScenarios(): ProviderScenario[] {
  * Delete a scenario by ID
  */
 export function deleteScenario(id: string): void {
-  const scenarios = loadScenarios();
-  const filtered = scenarios.filter(s => s.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  try {
+    const scenarios = loadScenarios();
+    const filtered = scenarios.filter(s => s.id !== id);
+    const serialized = JSON.stringify(filtered);
+    if (!safeLocalStorage.setItem(STORAGE_KEY, serialized)) {
+      logger.error('Failed to delete scenario from localStorage');
+    }
+  } catch (error) {
+    logger.error('Error deleting scenario:', error);
+    throw new Error('Failed to delete scenario. Please try again.');
+  }
 }
 
 /**

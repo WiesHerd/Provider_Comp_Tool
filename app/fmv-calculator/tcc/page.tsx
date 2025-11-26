@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { useSearchParams } from 'next/navigation';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
 import { PercentileBreakdown } from '@/components/fmv/percentile-breakdown';
@@ -41,19 +42,15 @@ function TCCCalculatorPageContent() {
 
   const STORAGE_KEY = 'fmvTccDraftState';
 
-  // Auto-save draft state to localStorage whenever inputs change
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !scenarioLoaded) {
-      const draftState = {
-        specialty,
-        fte,
-        tccComponents,
-        marketBenchmarks,
-        activeStep,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftState));
-    }
-  }, [specialty, fte, tccComponents, marketBenchmarks, activeStep, scenarioLoaded]);
+  // Auto-save draft state to localStorage whenever inputs change (debounced, skip when scenario is loaded)
+  const draftState = scenarioLoaded ? null : {
+    specialty,
+    fte,
+    tccComponents,
+    marketBenchmarks,
+    activeStep,
+  };
+  useDebouncedLocalStorage(STORAGE_KEY, draftState);
 
   // Load draft state on mount (if no scenario is being loaded via URL)
   useEffect(() => {

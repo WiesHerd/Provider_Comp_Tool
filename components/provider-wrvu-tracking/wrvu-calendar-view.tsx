@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { memo } from 'react';
 import { format, addMonths, subMonths, startOfToday } from 'date-fns';
 import { WRVUCalendarDayCell } from './wrvu-calendar-day-cell';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ interface WRVUCalendarViewProps {
 
 type ViewMode = 'week' | 'month';
 
-export function WRVUCalendarView({
+export const WRVUCalendarView = memo(function WRVUCalendarView({
   dailyData = {},
   onDataChange,
   onMonthChange,
@@ -409,5 +410,5 @@ export function WRVUCalendarView({
       </Card>
     </div>
   );
-}
+});
 
