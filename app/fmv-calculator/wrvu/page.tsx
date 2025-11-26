@@ -250,7 +250,42 @@ function WRVUCalculatorPageContent() {
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
         <Card className="border-2">
-          <CardContent className="space-y-6 pt-6">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">wRVUs</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-wrvu"
+                onLoad={(scenario) => {
+                  if (scenario.fte) {
+                    setFte(scenario.fte);
+                  }
+                  // Load annual wRVUs - prefer annualWrvus if available, otherwise calculate from normalized
+                  if (scenario.annualWrvus && scenario.annualWrvus > 0) {
+                    setAnnualWrvus(scenario.annualWrvus);
+                  } else if (scenario.normalizedWrvus) {
+                    const loadedFte = scenario.fte || 1.0;
+                    setAnnualWrvus(scenario.normalizedWrvus * loadedFte);
+                  }
+                  // Load monthly breakdown if available
+                  if (scenario.monthlyBreakdown && scenario.monthlyBreakdown.length === 12) {
+                    setMonthlyBreakdown([...scenario.monthlyBreakdown]);
+                  }
+                  // Load monthly average if available
+                  if (scenario.monthlyWrvus !== undefined) {
+                    setMonthlyWrvus(scenario.monthlyWrvus);
+                  }
+                  if (scenario.marketBenchmarks) {
+                    setMarketBenchmarks(scenario.marketBenchmarks);
+                  }
+                  if (scenario.specialty) {
+                    setSpecialty(scenario.specialty);
+                  }
+                  setScenarioLoaded(true);
+                }}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <SpecialtyInput
             metricType="wrvu"
             specialty={specialty}

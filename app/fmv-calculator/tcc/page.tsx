@@ -255,7 +255,7 @@ function TCCCalculatorPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
-      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
@@ -335,7 +335,16 @@ function TCCCalculatorPageContent() {
       {currentStep === 2 && (
       <div id="market-data" className="space-y-6">
         <Card className="border-2">
-          <CardContent className="space-y-6 pt-6">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-tcc"
+                onLoad={handleScenarioLoad}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <SpecialtyInput
             metricType="tcc"
             specialty={specialty}
