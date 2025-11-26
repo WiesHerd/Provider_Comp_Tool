@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { CallTier, CallPayContext } from '@/types/call-pay';
-import { calculateTierAnnualPay } from '@/lib/utils/call-pay-coverage';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
 import { cn } from '@/lib/utils/cn';
 
