@@ -12,7 +12,7 @@ import { WRVUCharts } from '@/components/provider-wrvu-tracking/wrvu-charts';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Stethoscope, Check, X } from 'lucide-react';
+import { User, Check, X } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -25,7 +25,6 @@ import {
 } from '@/components/ui/select';
 import {
   formatDateString,
-  type DateString,
 } from '@/lib/utils/calendar-helpers';
 import {
   ProviderWRVUTrackingState,
