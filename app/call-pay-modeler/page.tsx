@@ -235,42 +235,42 @@ export default function CallPayModelerPage() {
         <div id="context-card" data-tour="call-pay-context" className="space-y-4">
           {/* Content - No container, just direct content */}
           <div className="space-y-4">
-            <div className="flex items-center justify-end">
-              <ScenarioLoader
-                scenarioType="call-pay"
-                onLoad={(scenario: ProviderScenario) => {
-                  // Restore call-pay scenario data
-                  if (scenario.callPayData) {
-                    const callPayData = scenario.callPayData;
-                    setContext(callPayData.context);
-                    // Merge loaded tiers with existing tiers structure
-                    // Preserve tier IDs and structure
-                    const loadedTierIds = new Set(callPayData.tiers.map(t => t.id));
-                    const mergedTiers = tiers.map(t => {
-                      const loadedTier = callPayData.tiers.find(lt => lt.id === t.id);
-                      return loadedTier || t;
-                    });
-                    // Add any new tiers that weren't in the default structure
-                    callPayData.tiers.forEach(loadedTier => {
-                      if (!mergedTiers.some(t => t.id === loadedTier.id)) {
-                        mergedTiers.push(loadedTier);
-                      }
-                    });
-                    setTiers(mergedTiers);
-                    if (callPayData.tiers.length > 0) {
-                      setExpandedTier(callPayData.tiers[0].id);
-                    }
-                    setCurrentScenarioId(scenario.id); // Track loaded scenario
-                    setActiveStep(3); // Jump to review budget
-                    setScenarioLoaded(true); // Mark scenario as loaded to prevent auto-save overwrite
-                  }
-                }}
-              />
-            </div>
             <ContextCard 
               context={context} 
               onContextChange={setContext}
-              showTopBorder={hasCallPayScenarios}
+              showTopBorder={false}
+              headerAction={
+                <ScenarioLoader
+                  scenarioType="call-pay"
+                  onLoad={(scenario: ProviderScenario) => {
+                    // Restore call-pay scenario data
+                    if (scenario.callPayData) {
+                      const callPayData = scenario.callPayData;
+                      setContext(callPayData.context);
+                      // Merge loaded tiers with existing tiers structure
+                      // Preserve tier IDs and structure
+                      const loadedTierIds = new Set(callPayData.tiers.map(t => t.id));
+                      const mergedTiers = tiers.map(t => {
+                        const loadedTier = callPayData.tiers.find(lt => lt.id === t.id);
+                        return loadedTier || t;
+                      });
+                      // Add any new tiers that weren't in the default structure
+                      callPayData.tiers.forEach(loadedTier => {
+                        if (!mergedTiers.some(t => t.id === loadedTier.id)) {
+                          mergedTiers.push(loadedTier);
+                        }
+                      });
+                      setTiers(mergedTiers);
+                      if (callPayData.tiers.length > 0) {
+                        setExpandedTier(callPayData.tiers[0].id);
+                      }
+                      setCurrentScenarioId(scenario.id); // Track loaded scenario
+                      setActiveStep(3); // Jump to review budget
+                      setScenarioLoaded(true); // Mark scenario as loaded to prevent auto-save overwrite
+                    }
+                  }}
+                />
+              }
             />
           </div>
         </div>

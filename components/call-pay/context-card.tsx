@@ -23,6 +23,7 @@ interface ContextCardProps {
   context: CallPayContext;
   onContextChange: (context: CallPayContext) => void;
   showTopBorder?: boolean;
+  headerAction?: React.ReactNode;
 }
 
 const SPECIALTIES: Specialty[] = [
@@ -145,7 +146,7 @@ function getRotationRatioExplanation(providersOnCall: number, rotationRatio: num
   }
 }
 
-export function ContextCard({ context, onContextChange, showTopBorder = true }: ContextCardProps) {
+export function ContextCard({ context, onContextChange, showTopBorder = true, headerAction }: ContextCardProps) {
   const [serviceLineManuallyEdited, setServiceLineManuallyEdited] = useState(false);
   const [serviceLineFocused, setServiceLineFocused] = useState(false);
   
@@ -249,7 +250,10 @@ export function ContextCard({ context, onContextChange, showTopBorder = true }: 
       showTopBorder && "border-t border-gray-200 dark:border-gray-800",
       showTopBorder ? "pt-4" : "pt-0"
     )}>
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Context</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Context</h3>
+        {headerAction && <div>{headerAction}</div>}
+      </div>
       <div className="space-y-4">
           {/* Row 1: Model Year and Specialty side by side */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
