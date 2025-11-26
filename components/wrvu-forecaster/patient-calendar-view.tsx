@@ -45,6 +45,7 @@ interface PatientCalendarViewProps {
   patientsPerHour?: number;
   onPatientsPerHourChange?: (value: number) => void;
   onCalculatePatientsFromHours?: () => void;
+  onApplyWorkWeekTemplate?: (totalHours: number) => void;
   className?: string;
 }
 
@@ -78,6 +79,7 @@ export function PatientCalendarView({
   patientsPerHour = 0,
   onPatientsPerHourChange,
   onCalculatePatientsFromHours,
+  onApplyWorkWeekTemplate,
   className,
 }: PatientCalendarViewProps) {
   const [viewMode, setViewMode] = React.useState<ViewMode>('template');
@@ -429,6 +431,47 @@ export function PatientCalendarView({
                     </Button>
                   )}
                 </div>
+
+                {/* Predefined Work Week Templates */}
+                {onApplyWorkWeekTemplate && (
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
+                      Quick Fill
+                    </Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        type="button"
+                        onClick={() => onApplyWorkWeekTemplate(32)}
+                        variant="outline"
+                        className="min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2"
+                      >
+                        <span className="text-lg font-semibold">32</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => onApplyWorkWeekTemplate(36)}
+                        variant="outline"
+                        className="min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2"
+                      >
+                        <span className="text-lg font-semibold">36</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => onApplyWorkWeekTemplate(40)}
+                        variant="outline"
+                        className="min-h-[44px] touch-target flex flex-col items-center justify-center gap-0.5 py-2"
+                      >
+                        <span className="text-lg font-semibold">40</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">hours</span>
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                      8h Mon-Thu, Friday adjusts
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
