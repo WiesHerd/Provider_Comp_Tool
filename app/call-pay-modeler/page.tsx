@@ -8,7 +8,6 @@ import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
-import { StepIndicator } from '@/components/ui/step-indicator';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
