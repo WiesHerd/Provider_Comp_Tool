@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { logger } from '@/lib/utils/logger';
 import { useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { ProductivitySummary } from '@/components/wrvu-forecaster/productivity-summary';
 import { ScenarioManager } from '@/components/wrvu-forecaster/scenario-manager';

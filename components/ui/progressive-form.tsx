@@ -184,7 +184,7 @@ export function ProgressiveFormNavigation({
         onClick={handleNext}
         disabled={disabled}
         className={cn(
-          'flex-1 sm:flex-initial sm:ml-auto',
+          'w-auto max-w-[280px] mx-auto sm:flex-initial sm:ml-auto sm:max-w-none',
           isLastStep && 'sm:min-w-[140px]',
           !isLastStep && 'sm:min-w-[140px]'
         )}
