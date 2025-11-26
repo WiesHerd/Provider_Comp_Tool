@@ -9,6 +9,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-6 sm:pb-8 md:pb-12">
+        {/* CompLens Branding Title */}
+        <div className="text-center mb-12 sm:mb-16 pt-20 sm:pt-24 md:pt-28 safe-area-inset-top">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-2 flex items-baseline justify-center gap-0.5">
+            <span className="text-gray-900 dark:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Comp</span>
+            <span className="text-purple-600 dark:text-purple-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">Lens</span>
+            <sup className="text-xs font-normal text-gray-900 dark:text-white opacity-90 ml-0.5">™</sup>
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-light tracking-wide">
+            Provider Compensation Intelligence
+          </p>
+        </div>
+
         {/* Tools Grid - Primary navigation */}
         <div className="mb-8 sm:mb-10" data-tour="home-tools">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
