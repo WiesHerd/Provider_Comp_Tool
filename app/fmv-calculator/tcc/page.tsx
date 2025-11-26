@@ -12,7 +12,6 @@ import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-bu
 import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { Button } from '@/components/ui/button';
-import { BackButton } from '@/components/ui/back-button';
 import { Calculator, RotateCcw } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, TCCComponent, FTE, ProviderScenario } from '@/types';
@@ -255,31 +254,31 @@ function TCCCalculatorPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12 space-y-6 sm:space-y-8">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
       {/* Step 1: Provider Input (Only show when on Step 1) */}
       {currentStep === 1 && (
       <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
         {/* Content - No container */}
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Total Cash Compensation</h2>
-          <div className="flex items-end justify-between gap-2 sm:gap-4">
-            <div className="flex items-end gap-2 sm:gap-4">
-              {tccComponents.some(c => c.amount > 0) && (
-                <div className="flex items-end">
-                  <ProviderInputSaveButton
-                    scenarioType="fmv-tcc"
-                    fte={fte}
-                    tccComponents={tccComponents}
-                    specialty={specialty}
-                  />
-                </div>
-              )}
-              <FTEInput value={fte} onChange={setFte} />
-            </div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Total Cash Compensation</h2>
             <ScenarioLoader
               scenarioType="fmv-tcc"
               onLoad={handleScenarioLoad}
             />
+          </div>
+          <div className="flex items-end gap-2 sm:gap-4">
+            {tccComponents.some(c => c.amount > 0) && (
+              <div className="flex items-end">
+                <ProviderInputSaveButton
+                  scenarioType="fmv-tcc"
+                  fte={fte}
+                  tccComponents={tccComponents}
+                  specialty={specialty}
+                />
+              </div>
+            )}
+            <FTEInput value={fte} onChange={setFte} />
           </div>
           
           <TCCComponentsGrid
@@ -367,37 +366,35 @@ function TCCCalculatorPageContent() {
         </div>
       )}
       
-      {/* Back button in Step 2 to return to Step 1 */}
-      {currentStep === 2 && (
-        <div className="flex items-center gap-2 mb-4">
-          <BackButton onClick={() => setActiveStep(1)} aria-label="Back to Provider Input" />
-          <span className="text-sm text-gray-600 dark:text-gray-400">Back to Provider Input</span>
-        </div>
-      )}
       
       {/* Calculate Button - Always visible on Step 2 for easy recalculation */}
       {currentStep === 2 && (
         <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
-          <Button
-            onClick={handleCalculate}
-            className="w-full min-h-[48px] text-base font-semibold"
-            size="lg"
-            disabled={!hasMarketData || normalizedTcc === 0}
-          >
-            <Calculator className="w-5 h-5 mr-2" />
-            {showResults ? 'Recalculate Percentile' : 'Calculate Percentile'}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setActiveStep(1)}
+              className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
+              size="lg"
+            >
+              ← Previous
+            </Button>
+            <Button
+              onClick={handleCalculate}
+              className="w-full sm:flex-1 min-h-[48px] text-base font-semibold"
+              size="lg"
+              disabled={!hasMarketData || normalizedTcc === 0}
+            >
+              <Calculator className="w-5 h-5 mr-2" />
+              {showResults ? 'Recalculate Percentile' : 'Calculate Percentile'}
+            </Button>
+          </div>
         </div>
       )}
 
       {/* Step 3: Results (Only shown after calculation) */}
       {currentStep === 3 && showResults && normalizedTcc > 0 && (
         <div id="results-section" className="space-y-6">
-          {/* Back button in Step 3 to return to Step 2 */}
-          <div className="flex items-center gap-2 mb-4">
-            <BackButton onClick={() => setActiveStep(2)} aria-label="Back to Market Data" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Back to Market Data</span>
-          </div>
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Total Cash Compensation</h2>
           </div>
@@ -416,6 +413,15 @@ function TCCCalculatorPageContent() {
 
           {/* Save and Start Over Buttons */}
           <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col sm:flex-row gap-3 mb-3">
+              <Button
+                variant="outline"
+                onClick={() => setActiveStep(2)}
+                className="w-full sm:w-auto min-h-[44px] touch-target"
+              >
+                ← Edit Market Data
+              </Button>
+            </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <FMVSaveButton

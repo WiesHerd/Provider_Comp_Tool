@@ -166,43 +166,43 @@ function CFCalculatorPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12 space-y-6 sm:space-y-8">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
 
       {/* Combined Input Screen - CF Input and Market Data together */}
       {!showResults && (
       <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Factor</h2>
           <div className="flex items-center justify-between">
-            {cfValue > 0 && (
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Factor</h2>
+            <ScenarioLoader
+              scenarioType="fmv-cf"
+              onLoad={(scenario) => {
+                // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
+                if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
+                  setCfValue(scenario.cfValue);
+                } else if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
+                  setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
+                }
+                if (scenario.marketBenchmarks) {
+                  setMarketBenchmarks(scenario.marketBenchmarks);
+                }
+                if (scenario.specialty) {
+                  setSpecialty(scenario.specialty);
+                }
+                setScenarioLoaded(true);
+              }}
+            />
+          </div>
+          {cfValue > 0 && (
+            <div className="flex items-center">
               <ProviderInputSaveButton
                 scenarioType="fmv-cf"
                 fte={1.0}
                 cfValue={cfValue}
                 specialty={specialty}
               />
-            )}
-            <div className={cfValue > 0 ? '' : 'ml-auto'}>
-              <ScenarioLoader
-                scenarioType="fmv-cf"
-                onLoad={(scenario) => {
-                  // CF is stored in computedPercentiles or we can calculate from normalizedTcc/normalizedWrvus
-                  if (scenario.cfValue !== undefined && scenario.cfValue > 0) {
-                    setCfValue(scenario.cfValue);
-                  } else if (scenario.normalizedTcc && scenario.normalizedWrvus && scenario.normalizedWrvus > 0) {
-                    setCfValue(scenario.normalizedTcc / scenario.normalizedWrvus);
-                  }
-                  if (scenario.marketBenchmarks) {
-                    setMarketBenchmarks(scenario.marketBenchmarks);
-                  }
-                  if (scenario.specialty) {
-                    setSpecialty(scenario.specialty);
-                  }
-                  setScenarioLoaded(true);
-                }}
-              />
             </div>
-          </div>
+          )}
           
           {/* CF Input Section */}
           <div className="space-y-2">

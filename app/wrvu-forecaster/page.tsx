@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { logger } from '@/lib/utils/logger';
 import { useSearchParams } from 'next/navigation';
-import { BackButton } from '@/components/ui/back-button';
 import { ProductivitySummary } from '@/components/wrvu-forecaster/productivity-summary';
 import { ScenarioManager } from '@/components/wrvu-forecaster/scenario-manager';
 import { PrintView } from '@/components/wrvu-forecaster/print-view';
@@ -155,7 +154,7 @@ function ResultsStepContent({
   onPrint: () => void;
   onResetInputs: () => void;
 }) {
-  const { goToStep, previousStep } = useProgressiveForm();
+  const { goToStep } = useProgressiveForm();
 
   const handleStartOver = () => {
     onResetInputs();
@@ -163,19 +162,8 @@ function ResultsStepContent({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBack = () => {
-    previousStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <div className="space-y-6 pb-32 sm:pb-6">
-      {/* Back Button - Apple-style compact design */}
-      <div className="flex items-center gap-2 mb-4 mt-4">
-        <BackButton onClick={handleBack} aria-label="Back to previous step" />
-        <span className="text-sm text-gray-600 dark:text-gray-400">Back</span>
-      </div>
-
       <div data-tour="forecaster-productivity">
         <ProductivitySummary metrics={metrics} inputs={inputs} />
       </div>

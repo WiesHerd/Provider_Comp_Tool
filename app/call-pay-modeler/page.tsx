@@ -8,7 +8,7 @@ import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
-import { BackButton } from '@/components/ui/back-button';
+import { ChevronLeft } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
 import { ProviderScenario } from '@/types';
@@ -196,15 +196,15 @@ export default function CallPayModelerPage() {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8">
+    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pb-4 sm:pb-6 md:pb-8">
       {/* Welcome Walkthrough */}
       <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
 
       {/* Step 1: Set Context (Only show when on Step 1) */}
       {activeStep === 1 && (
-        <div id="context-card" data-tour="call-pay-context" className="space-y-4">
+        <div id="context-card" data-tour="call-pay-context" className="space-y-6">
           {/* Content - No container, just direct content */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <ContextCard 
               context={context}
               onContextChange={setContext}
@@ -248,12 +248,20 @@ export default function CallPayModelerPage() {
       {activeStep === 2 && (
         <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
           {/* Back button in Step 2 to return to Step 1 */}
-          <div className="flex items-center gap-2 mb-4">
-            <BackButton onClick={() => setActiveStep(1)} aria-label="Back to Set Context" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Back to Set Context</span>
+          <div className="flex items-center gap-2 mb-4 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setActiveStep(1)}
+              className="min-h-[44px] touch-target"
+              aria-label="Back to previous step"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
           </div>
           {/* Content - No container */}
           <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Configure Tiers</h3>
             {/* Segmented Control for Tier Selection with Add/Remove buttons */}
             <div className="space-y-3">
               {/* Tier buttons - wrap to multiple lines */}
@@ -389,15 +397,9 @@ export default function CallPayModelerPage() {
       {/* Step 3: Review Budget (Only shown when on Step 3) */}
       {activeStep === 3 && step2Complete && (
         <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
-          {/* Back button in Step 3 to return to Step 2 */}
-          <div className="flex items-center gap-2 mb-4">
-            <BackButton onClick={() => setActiveStep(2)} aria-label="Back to Configure Tiers" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Back to Configure Tiers</span>
-          </div>
-          {/* Header removed - step indicator above provides context */}
-          
           {/* Content - No container */}
           <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Budget Review</h3>
               <ImpactSummary 
                 impact={impact} 
                 annualAllowableBudget={annualAllowableBudget}
