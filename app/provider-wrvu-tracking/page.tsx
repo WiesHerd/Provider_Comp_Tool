@@ -12,7 +12,8 @@ import { WRVUCharts } from '@/components/provider-wrvu-tracking/wrvu-charts';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Check, X } from 'lucide-react';
+import { User, Check, X, Info } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
 import {
   Select,
   SelectContent,
@@ -325,13 +326,22 @@ export default function ProviderWRVUTrackingPage() {
 
   return (
     <div className="w-full px-3 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
+      {/* Page Title */}
+      <div className="mb-6 flex items-center gap-2 pt-6 sm:pt-8 md:pt-10">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+          Provider Work RVU Tracking
+        </h1>
+        <Tooltip 
+          content="Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports."
+          side="right"
+        >
+          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+        </Tooltip>
+      </div>
 
       {/* Provider Name Input - At the very top */}
       <Card className="mb-6 border-2 !pt-2 md:!pt-3">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
-            Provider Work RVU Tracking
-          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

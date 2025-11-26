@@ -28,12 +28,14 @@ import { FTE, ProviderScenario } from '@/types';
 import { normalizeWrvus } from '@/lib/utils/normalization';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, User, Stethoscope } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RotateCcw, User, Stethoscope, Info } from 'lucide-react';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { useProgressiveForm } from '@/components/ui/progressive-form';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { cn } from '@/lib/utils/cn';
+import { Tooltip } from '@/components/ui/tooltip';
 
 // Common medical specialties (matching the pattern from other components)
 const SPECIALTIES = [
@@ -402,6 +404,19 @@ function WRVUModelerPageContent() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
+      {/* Page Title */}
+      <div className="mb-6 flex items-center gap-2">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+          Productivity Incentive Calculator
+        </h1>
+        <Tooltip 
+          content="Calculate bonus pay based on how many patients you see. Perfect for reviewing productivity-based contracts."
+          side="right"
+        >
+          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+        </Tooltip>
+      </div>
+
       <ProgressiveForm
         totalSteps={4}
         stepNames={['Provider Info', 'Work RVUs', 'Conversion Factor', 'Results']}
@@ -415,15 +430,17 @@ function WRVUModelerPageContent() {
       >
         {/* Step 1: Provider Info */}
         <ProgressiveFormStep step={1}>
-          <div className="space-y-6">
-            <div className="space-y-4">
+          <Card className="border-2">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Provider Information</h3>
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Provider Information</CardTitle>
                 <ScenarioLoader
                   scenarioType="wrvu-modeler"
                   onLoad={handleLoadScenario}
                 />
               </div>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
                 {/* Provider Name and FTE - side by side on larger screens, stack on mobile */}
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
@@ -516,19 +533,18 @@ function WRVUModelerPageContent() {
                   />
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
           <ProgressiveFormNavigation nextLabel="Work RVUs" />
         </ProgressiveFormStep>
 
         {/* Step 2: Work RVUs */}
         <ProgressiveFormStep step={2}>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Work RVUs</h3>
-            </div>
-
-            <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800" data-tour="wrvu-input">
+          <Card className="border-2">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Work RVUs</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6" data-tour="wrvu-input">
               <WRVUInput
                 annualWrvus={annualWrvus}
                 monthlyWrvus={monthlyWrvus}
@@ -537,9 +553,8 @@ function WRVUModelerPageContent() {
                 onMonthlyChange={setMonthlyWrvus}
                 onMonthlyBreakdownChange={setMonthlyBreakdown}
               />
-            </div>
-
-          </div>
+            </CardContent>
+          </Card>
           <ProgressiveFormNavigation 
             nextLabel="Conversion Factor" 
             disabled={annualWrvus === 0}
@@ -548,18 +563,22 @@ function WRVUModelerPageContent() {
 
         {/* Step 3: Conversion Factor */}
         <ProgressiveFormStep step={3}>
-          <div className="space-y-4" data-tour="wrvu-conversion">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Conversion Factor</h3>
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Conversion Factor ($/wRVU)</Label>
-              <CurrencyInput
-                value={conversionFactor}
-                onChange={setConversionFactor}
-                placeholder="45.52"
-                disabled={annualWrvus === 0}
-              />
-            </div>
-          </div>
+          <Card className="border-2">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Conversion Factor</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6" data-tour="wrvu-conversion">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Conversion Factor ($/wRVU)</Label>
+                <CurrencyInput
+                  value={conversionFactor}
+                  onChange={setConversionFactor}
+                  placeholder="45.52"
+                  disabled={annualWrvus === 0}
+                />
+              </div>
+            </CardContent>
+          </Card>
           <ProgressiveFormNavigation nextLabel="Results" />
         </ProgressiveFormStep>
 
