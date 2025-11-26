@@ -78,7 +78,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
         </div>
       </div> */}
 
-      <main id="main-content" className="pt-[56px] sm:pt-[72px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900" role="main">
+      <main id="main-content" className="pt-[60px] sm:pt-[88px] md:pt-[104px] lg:pt-[108px] pb-20 md:pb-0 bg-gray-50 dark:bg-gray-900" role="main">
         {children}
       </main>
 

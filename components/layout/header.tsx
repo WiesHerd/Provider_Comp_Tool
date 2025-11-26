@@ -335,7 +335,7 @@ export function Header() {
           "shadow-[0_1px_0_0_rgba(0,0,0,0.03),0_4px_24px_rgba(0,0,0,0.02)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03),0_4px_24px_rgba(0,0,0,0.3)]",
           "supports-[backdrop-filter]:bg-white/65 supports-[backdrop-filter]:dark:bg-gray-950/65",
           isHeaderVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0",
-          isLandscape ? "py-2 md:py-3" : "py-4 md:py-6"
+          isLandscape ? "py-2 md:py-2" : "py-2 sm:py-2.5 md:py-3"
         )}
         suppressHydrationWarning
         role="banner"
@@ -345,8 +345,8 @@ export function Header() {
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/5 to-pink-500/0 dark:from-blue-400/0 dark:via-purple-400/8 dark:to-pink-400/0 pointer-events-none" />
       
       <div className={cn(
-        "relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 z-10",
-        isLandscape ? "py-1.5" : "py-2"
+        "relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-10",
+        isLandscape ? "py-1.5" : "py-1 sm:py-1.5"
       )}>
         <div className="flex items-center justify-between relative z-10">
           <div className={cn(
@@ -372,7 +372,7 @@ export function Header() {
                 aria-label="Go back"
                 suppressHydrationWarning
               >
-                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                <ChevronLeft className="w-6 h-6 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200 group-hover:-translate-x-0.5" />
               </Button>
             )}
             
@@ -438,7 +438,7 @@ export function Header() {
                   suppressHydrationWarning
                 >
                   <Sparkles className={cn(
-                    "w-5 h-5 text-gray-600 dark:text-gray-400",
+                    "w-6 h-6 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400",
                     "transition-all duration-200",
                     "group-hover:scale-110 group-hover:text-gray-900 dark:group-hover:text-gray-200",
                     "group-hover:animate-sparkle-pulse"
@@ -468,7 +468,7 @@ export function Header() {
                   suppressHydrationWarning
                 >
                   <Info className={cn(
-                    "w-5 h-5 text-gray-600 dark:text-gray-400",
+                    "w-6 h-6 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400",
                     "transition-all duration-200",
                     "group-hover:scale-110 group-hover:text-gray-900 dark:group-hover:text-gray-200"
                   )} />
@@ -635,10 +635,10 @@ export function Header() {
               style={{ animationDelay: '0.2s' }}
               suppressHydrationWarning
             >
-              <div className="relative w-5 h-5">
+              <div className="relative w-6 h-6 sm:w-5 sm:h-5">
                 <Sun 
                   className={cn(
-                    "absolute inset-0 w-5 h-5 transition-all duration-300 ease-out",
+                    "absolute inset-0 w-6 h-6 sm:w-5 sm:h-5 transition-all duration-300 ease-out",
                     "text-gray-600 dark:text-gray-400",
                     "group-hover:text-gray-900 dark:group-hover:text-gray-200",
                     theme === 'dark' 
@@ -648,7 +648,7 @@ export function Header() {
                 />
                 <Moon 
                   className={cn(
-                    "absolute inset-0 w-5 h-5 transition-all duration-300 ease-out",
+                    "absolute inset-0 w-6 h-6 sm:w-5 sm:h-5 transition-all duration-300 ease-out",
                     "text-gray-600 dark:text-gray-400",
                     "group-hover:text-gray-900 dark:group-hover:text-gray-200",
                     theme === 'light' 
