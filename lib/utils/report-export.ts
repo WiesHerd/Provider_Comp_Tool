@@ -4,7 +4,6 @@
  * Functions to export executive reports to PDF
  */
 
-import html2pdf from 'html2pdf.js';
 import { ScenarioReportData, ScenarioComparisonReportData } from '@/types/report';
 
 /**
@@ -14,6 +13,9 @@ export async function exportReportToPDF(
   element: HTMLElement,
   filename: string
 ): Promise<void> {
+  // Dynamic import for client-side only library
+  const html2pdf = (await import('html2pdf.js')).default;
+  
   const opt = {
     margin: [0.5, 0.5, 0.5, 0.5],
     filename: filename,
