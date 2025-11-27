@@ -39,3 +39,4 @@ export interface ScenarioComparisonReportData {
   generatedAt: string; // ISO timestamp
 }
 
+

@@ -27,7 +27,6 @@ import { CallSchedule } from '@/types/call-schedule';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, ChevronLeft, Info, DollarSign, Scale, Save } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';

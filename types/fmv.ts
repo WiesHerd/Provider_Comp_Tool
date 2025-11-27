@@ -48,3 +48,4 @@ export interface FMVEvaluationResult {
   narrativeSummary: string;      // 2–5 sentence justification paragraph
 }
 
+
