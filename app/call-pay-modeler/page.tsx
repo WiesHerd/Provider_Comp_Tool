@@ -200,6 +200,7 @@ export default function CallPayModelerPage() {
     if (modelingMode === "advanced" && !getActiveProgram()) {
       setModelingMode("quick");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProgramId, modelingMode, setModelingMode]);
 
   // Switch to Cost tab when switching from Advanced to Quick Mode
@@ -228,6 +229,7 @@ export default function CallPayModelerPage() {
       const assumptions = getDefaultAssumptionsFromProgram(activeProgram);
       setTiers(prevTiers => applyProgramAssumptionsToTiers(prevTiers, assumptions));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProgramId, scenarioLoaded, context.specialty]); // Re-run when active program changes
 
   // Handle scenario loading
@@ -404,7 +406,7 @@ export default function CallPayModelerPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const comparisonData = useMemo(() => getComparisonData(), [getComparisonData, scenarios]);
+  const comparisonData = useMemo(() => getComparisonData(), [getComparisonData]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">

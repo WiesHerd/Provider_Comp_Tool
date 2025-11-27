@@ -352,7 +352,7 @@ export function BurdenFairnessPanel({
                   </Button>
                 </div>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
-                  "Load Test Data" will populate a sample schedule with 4 test providers
+                  &quot;Load Test Data&quot; will populate a sample schedule with 4 test providers
                 </p>
               </CardContent>
             </Card>

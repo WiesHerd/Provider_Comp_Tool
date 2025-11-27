@@ -113,7 +113,7 @@ export function ShiftTypeList() {
       <CardContent>
         {shiftTypes.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-            No shift types defined. Click "Add Shift Type" to create one.
+            No shift types defined. Click &quot;Add Shift Type&quot; to create one.
           </p>
         ) : (
           <div className="overflow-x-auto">

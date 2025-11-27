@@ -173,7 +173,7 @@ export function CallProgramList() {
       <CardContent>
         {programs.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-            No call programs defined. Click "Add Program" to create one.
+            No call programs defined. Click &quot;Add Program&quot; to create one.
           </p>
         ) : (
           <div className="overflow-x-auto">
