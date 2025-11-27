@@ -36,6 +36,8 @@ export type Specialty =
 
 export type SpecialtyCategory = 'primary-care' | 'procedural' | 'medical-subspecialty' | 'other';
 
+export type ModelingMode = "quick" | "advanced";
+
 /**
  * Get the category of a specialty to determine appropriate call pay structures
  */
@@ -99,14 +101,6 @@ export type PaymentMethod =
   | 'Per procedure'
   | 'Per wRVU';
 
-export interface CallPayContext {
-  specialty: Specialty | string; // Allow custom specialties
-  serviceLine: string;
-  providersOnCall: number;
-  rotationRatio: number; // 1-in-N format
-  modelYear: number;
-}
-
 export interface CallTierRate {
   weekday: number;
   weekend: number;
@@ -124,16 +118,6 @@ export interface CallTierBurden {
   holidaysPerYear: number;
   avgCallbacksPer24h: number;
   avgCasesPer24h?: number; // For procedural specialties
-}
-
-export interface CallTier {
-  id: string; // C1, C2, C3, C4, C5
-  name: string; // Default "C1", editable
-  coverageType: CoverageType;
-  paymentMethod: PaymentMethod;
-  rates: CallTierRate;
-  burden: CallTierBurden;
-  enabled: boolean; // Whether this tier is active
 }
 
 export interface CallPayBenchmarks {
@@ -172,5 +156,72 @@ export interface CallPayImpact {
   averageCallPayPerProvider: number;
   callPayPer1FTE: number;
   callPayAsPercentOfTCC?: number; // If TCC reference is available
+}
+
+/**
+ * Compliance & Audit Types
+ */
+export interface FMVOverride {
+  tierId: string;
+  rateType: 'weekday' | 'weekend' | 'holiday';
+  rate: number;
+  benchmarkPercentile: number;
+  benchmarkValue: number;
+  justification: string;
+  approvedBy?: string;
+  approvedDate?: string;
+  supportingDocumentation?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  userId?: string;
+  action: 'rate_change' | 'benchmark_update' | 'scenario_save' | 'scenario_load' | 'compliance_review' | 'override_approval';
+  description: string;
+  previousValue?: any;
+  newValue?: any;
+  metadata?: Record<string, any>;
+}
+
+export interface ComplianceMetadata {
+  lastComplianceReview?: string;
+  nextComplianceReview?: string;
+  reviewedBy?: string;
+  fmvOverrides: FMVOverride[];
+  auditLog: AuditLogEntry[];
+  benchmarkDataSource?: string;
+  benchmarkSurveyYear?: number;
+  commercialReasonablenessStatement?: string;
+}
+
+/**
+ * Risk Adjustment Types
+ */
+export interface RiskAdjustmentFactors {
+  patientComplexityMultiplier?: number; // 0.8 - 1.5
+  acuityLevelModifier?: number; // 0.9 - 1.3
+  traumaCenterAdjustment?: number; // 1.0 - 1.25
+  caseMixAdjustment?: number; // 0.85 - 1.15
+}
+
+export interface CallTier {
+  id: string; // C1, C2, C3, C4, C5
+  name: string; // Default "C1", editable
+  coverageType: CoverageType;
+  paymentMethod: PaymentMethod;
+  rates: CallTierRate;
+  burden: CallTierBurden;
+  enabled: boolean; // Whether this tier is active
+  riskAdjustment?: RiskAdjustmentFactors;
+}
+
+export interface CallPayContext {
+  specialty: Specialty | string; // Allow custom specialties
+  serviceLine: string;
+  providersOnCall: number;
+  rotationRatio: number; // 1-in-N format
+  modelYear: number;
+  complianceMetadata?: ComplianceMetadata;
 }
 

@@ -20,7 +20,7 @@ export function calculateTierAnnualPay(
 ): number {
   if (!tier.enabled) return 0;
 
-  const { paymentMethod, rates, burden } = tier;
+  const { paymentMethod, rates, burden, riskAdjustment } = tier;
   const { rotationRatio } = context;
 
   // Calculate monthly pay based on payment method
@@ -113,7 +113,34 @@ export function calculateTierAnnualPay(
   // Example: 1-in-4 rotation means each provider covers 1/4 of total calls
   // If rotation is 1-in-4, each provider gets 1/4 of the annual pay
   // This is mathematically correct: if 4 providers rotate, each takes 1/4 of the burden
-  const adjustedAnnualPay = annualPayPerProvider / rotationRatio;
+  let adjustedAnnualPay = annualPayPerProvider / rotationRatio;
+
+  // Apply risk adjustment factors if present
+  if (riskAdjustment) {
+    let adjustmentMultiplier = 1.0;
+
+    // Patient complexity multiplier
+    if (riskAdjustment.patientComplexityMultiplier) {
+      adjustmentMultiplier *= riskAdjustment.patientComplexityMultiplier;
+    }
+
+    // Acuity level modifier
+    if (riskAdjustment.acuityLevelModifier) {
+      adjustmentMultiplier *= riskAdjustment.acuityLevelModifier;
+    }
+
+    // Trauma center adjustment
+    if (riskAdjustment.traumaCenterAdjustment) {
+      adjustmentMultiplier *= riskAdjustment.traumaCenterAdjustment;
+    }
+
+    // Case mix adjustment
+    if (riskAdjustment.caseMixAdjustment) {
+      adjustmentMultiplier *= riskAdjustment.caseMixAdjustment;
+    }
+
+    adjustedAnnualPay *= adjustmentMultiplier;
+  }
 
   return adjustedAnnualPay;
 }

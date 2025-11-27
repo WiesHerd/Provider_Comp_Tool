@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { ProviderScenario } from '@/types';
-import { saveScenario, loadScenarios, deleteScenario as deleteScenarioStorage } from '@/lib/utils/storage';
+import { loadScenarios as loadScenariosFromStorage, saveScenarios } from '@/lib/utils/storageClient';
 
 interface ScenariosState {
   scenarios: ProviderScenario[];
@@ -18,13 +18,21 @@ export const useScenariosStore = create<ScenariosState>()((set, get) => ({
   scenarios: [],
   
   loadScenarios: () => {
-    const scenarios = loadScenarios();
+    const scenarios = loadScenariosFromStorage();
     set({ scenarios });
   },
   
   saveScenario: (scenario: ProviderScenario) => {
-    saveScenario(scenario);
-    const scenarios = loadScenarios();
+    const scenarios = loadScenariosFromStorage();
+    const existingIndex = scenarios.findIndex(s => s.id === scenario.id);
+    
+    if (existingIndex >= 0) {
+      scenarios[existingIndex] = scenario;
+    } else {
+      scenarios.push(scenario);
+    }
+    
+    saveScenarios(scenarios);
     set({ scenarios });
   },
   
@@ -42,8 +50,8 @@ export const useScenariosStore = create<ScenariosState>()((set, get) => ({
   },
   
   deleteScenario: (id: string) => {
-    deleteScenarioStorage(id);
-    const scenarios = loadScenarios();
+    const scenarios = loadScenariosFromStorage().filter(s => s.id !== id);
+    saveScenarios(scenarios);
     set({ scenarios });
   },
   

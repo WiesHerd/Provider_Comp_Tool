@@ -451,12 +451,12 @@ export function ContextCard({ context, onContextChange, headerAction }: ContextC
               />
               {/* Show suggestions dropdown only when specialty is selected and field is focused */}
               {context.specialty && serviceLineFocused && serviceLineSuggestions.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 rounded-lg shadow-[0_4px_6px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.1)] max-h-48 overflow-auto">
                   {serviceLineSuggestions.map((suggestion) => (
                     <button
                       key={suggestion}
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50/80 dark:hover:bg-gray-800/80 first:rounded-t-lg last:rounded-b-lg transition-colors duration-150"
                       onMouseDown={(e) => {
                         e.preventDefault(); // Prevent blur before click
                         handleServiceLineSuggestionClick(suggestion);

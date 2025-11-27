@@ -273,7 +273,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
   return (
     <div className="space-y-4">
       {/* Coverage and Rates Card */}
-      <Card className="border-2">
+      <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Coverage & Rates</CardTitle>
@@ -345,7 +345,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
           </div>
 
       {/* Rates */}
-      <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+      <div className="space-y-3 pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
         <Label className="text-sm font-semibold">Rates</Label>
 
         {tier.paymentMethod === 'Annual stipend' && (
@@ -401,7 +401,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
             </div>
 
             {/* Toggle between manual and percentage-based rates */}
-            <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between py-2 border-t border-gray-200/60 dark:border-gray-700/60">
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 Calculate from Base Rate
               </Label>
@@ -666,7 +666,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
         tier.paymentMethod === 'Hourly rate' ||
         tier.paymentMethod === 'Per procedure' ||
         tier.paymentMethod === 'Per wRVU') && (
-        <Card className="border-2">
+        <Card>
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-0">
               <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Burden Assumptions</CardTitle>
@@ -1083,6 +1083,150 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
           </CardContent>
         </Card>
       )}
+
+      {/* Risk Adjustment Factors - Optional */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                Risk Adjustment Factors
+              </CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                Apply adjustments for patient complexity, acuity, trauma center status, or case mix
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <Label htmlFor={`risk-adjustment-toggle-${tier.id}`} className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                Enable
+              </Label>
+              <Switch
+                id={`risk-adjustment-toggle-${tier.id}`}
+                checked={!!tier.riskAdjustment}
+                onCheckedChange={(enabled) => {
+                  if (enabled) {
+                    // Initialize with default values (all 1.0 = no adjustment)
+                    updateField('riskAdjustment', {
+                      patientComplexityMultiplier: 1.0,
+                      acuityLevelModifier: 1.0,
+                      traumaCenterAdjustment: 1.0,
+                      caseMixAdjustment: 1.0,
+                    });
+                  } else {
+                    // Remove risk adjustment
+                    updateField('riskAdjustment', undefined);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </CardHeader>
+        {tier.riskAdjustment && (
+          <CardContent className="p-4 sm:p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Patient Complexity Multiplier
+              </Label>
+              <NumberInput
+                value={tier.riskAdjustment?.patientComplexityMultiplier || 1.0}
+                onChange={(value) =>
+                  updateField('riskAdjustment', {
+                    ...tier.riskAdjustment,
+                    patientComplexityMultiplier: value,
+                  })
+                }
+                min={0.8}
+                max={1.5}
+                step={0.05}
+                placeholder="1.0"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Range: 0.8 - 1.5 (1.0 = no adjustment)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Acuity Level Modifier
+              </Label>
+              <NumberInput
+                value={tier.riskAdjustment?.acuityLevelModifier || 1.0}
+                onChange={(value) =>
+                  updateField('riskAdjustment', {
+                    ...tier.riskAdjustment,
+                    acuityLevelModifier: value,
+                  })
+                }
+                min={0.9}
+                max={1.3}
+                step={0.05}
+                placeholder="1.0"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Range: 0.9 - 1.3 (1.0 = no adjustment)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Trauma Center Adjustment
+              </Label>
+              <NumberInput
+                value={tier.riskAdjustment?.traumaCenterAdjustment || 1.0}
+                onChange={(value) =>
+                  updateField('riskAdjustment', {
+                    ...tier.riskAdjustment,
+                    traumaCenterAdjustment: value,
+                  })
+                }
+                min={1.0}
+                max={1.25}
+                step={0.05}
+                placeholder="1.0"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Range: 1.0 - 1.25 (1.0 = no adjustment)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-gray-600 dark:text-gray-400">
+                Case Mix Adjustment
+              </Label>
+              <NumberInput
+                value={tier.riskAdjustment?.caseMixAdjustment || 1.0}
+                onChange={(value) =>
+                  updateField('riskAdjustment', {
+                    ...tier.riskAdjustment,
+                    caseMixAdjustment: value,
+                  })
+                }
+                min={0.85}
+                max={1.15}
+                step={0.05}
+                placeholder="1.0"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Range: 0.85 - 1.15 (1.0 = no adjustment)
+              </p>
+            </div>
+          </div>
+
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                <strong>Combined Adjustment:</strong>{' '}
+                {(
+                  (tier.riskAdjustment.patientComplexityMultiplier || 1.0) *
+                  (tier.riskAdjustment.acuityLevelModifier || 1.0) *
+                  (tier.riskAdjustment.traumaCenterAdjustment || 1.0) *
+                  (tier.riskAdjustment.caseMixAdjustment || 1.0)
+                ).toFixed(2)}x
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 }

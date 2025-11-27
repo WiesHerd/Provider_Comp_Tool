@@ -1,25 +1,53 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
+import { motion } from 'framer-motion';
 import { Plus, Trash2 } from 'lucide-react';
 import { ContextCard } from '@/components/call-pay/context-card';
 import { TierCard } from '@/components/call-pay/tier-card';
 import { ImpactSummary } from '@/components/call-pay/impact-summary';
+import { ProviderRoster } from '@/components/call-pay/provider-roster';
+import { BurdenFairnessPanel } from '@/components/call-pay/burden-fairness-panel';
+import { FMVPanel } from '@/components/call-pay/fmv-panel';
+import { ScenarioComparisonTable } from '@/components/call-pay/scenario-comparison-table';
+import { ExecutiveReportExport } from '@/components/call-pay/executive-report-export';
+import { useCallPayScenariosStore } from '@/lib/store/call-pay-scenarios-store';
+import { hydrateStateFromScenario, createScenarioFromCurrentState } from '@/lib/utils/call-pay-scenario-utils';
+import { useProgramCatalogStore } from '@/lib/store/program-catalog-store';
+import { useUserPreferencesStore } from '@/lib/store/user-preferences-store';
+import { mapCatalogProgramToContext, getDefaultAssumptionsFromProgram } from '@/lib/utils/program-catalog-adapter';
+import { mapCallPayStateToEngineInputs } from '@/lib/utils/call-pay-adapter';
+import { calculateCallBudget } from '@/lib/utils/call-pay-engine';
+import { calculateExpectedBurden, calculateFairnessMetrics } from '@/lib/utils/burden-calculations';
+import { generateCallSchedule } from '@/lib/utils/call-schedule-generator';
+import { generateTestSchedule } from '@/lib/utils/generate-test-schedule';
+import { CallSchedule } from '@/types/call-schedule';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, Info } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, ChevronLeft, Info, DollarSign, Scale, Save } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
+import { FMVOverrideTracker } from '@/components/call-pay/fmv-override-tracker';
+import { ComplianceExport } from '@/components/call-pay/compliance-export';
+import { FMVBenchmarkPanel } from '@/components/call-pay/fmv-benchmark-panel';
+import { ProgramSelector } from '@/components/call-pay/program-selector';
 import { ProviderScenario } from '@/types';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import {
   CallPayContext,
   CallTier,
   Specialty,
+  ComplianceMetadata,
+  CallPayBenchmarks,
+  ModelingMode,
 } from '@/types/call-pay';
+import { CallProvider, CallAssumptions } from '@/types/call-pay-engine';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
 import { cn } from '@/lib/utils/cn';
 
@@ -62,8 +90,63 @@ const DEFAULT_TIERS: CallTier[] = [
   // C6 and beyond can be added by users if needed
 ];
 
+/**
+ * Apply program assumptions to tiers if burden values are empty/default
+ * Only applies to first enabled tier, or first tier if none enabled
+ * Preserves existing manual edits
+ */
+function applyProgramAssumptionsToTiers(
+  tiers: CallTier[],
+  assumptions: CallAssumptions
+): CallTier[] {
+  // Find first enabled tier, or first tier if none enabled
+  const firstEnabledTier = tiers.find(t => t.enabled);
+  const targetTier = firstEnabledTier || tiers[0];
+  
+  if (!targetTier) {
+    return tiers; // No tiers to update
+  }
+  
+  // Check if burden values are empty/default (all zeros)
+  const isBurdenEmpty = 
+    targetTier.burden.weekdayCallsPerMonth === 0 &&
+    targetTier.burden.weekendCallsPerMonth === 0 &&
+    targetTier.burden.holidaysPerYear === 0;
+  
+  // Only apply if burden is empty (preserve manual edits)
+  if (!isBurdenEmpty) {
+    return tiers;
+  }
+  
+  // Apply assumptions to the target tier
+  return tiers.map(tier => 
+    tier.id === targetTier.id
+      ? {
+          ...tier,
+          burden: {
+            ...tier.burden,
+            weekdayCallsPerMonth: assumptions.weekdayCallsPerMonth,
+            weekendCallsPerMonth: assumptions.weekendCallsPerMonth,
+            holidaysPerYear: assumptions.holidaysPerYear,
+            // Keep avgCallbacksPer24h as is (not in assumptions)
+          },
+        }
+      : tier
+  );
+}
+
 export default function CallPayModelerPage() {
+  const router = useRouter();
   const { loadScenarios } = useScenariosStore();
+  const { scenarios, getComparisonData, getScenario, setActiveScenario, loadScenarios: loadCallPayScenarios, activeScenarioId, saveScenario } = useCallPayScenariosStore();
+  const { getProgram, loadInitialData: loadProgramCatalog } = useProgramCatalogStore();
+  const { modelingMode, setModelingMode, activeProgramId, loadPreferences } = useUserPreferencesStore();
+  
+  // Helper to get active program
+  const getActiveProgram = () => {
+    if (!activeProgramId) return null;
+    return getProgram(activeProgramId) || null;
+  };
   const [context, setContext] = useState<CallPayContext>(DEFAULT_CONTEXT);
   const [tiers, setTiers] = useState<CallTier[]>(DEFAULT_TIERS);
   const [expandedTier, setExpandedTier] = useState<string>('C1');
@@ -71,6 +154,15 @@ export default function CallPayModelerPage() {
   const [activeStep, setActiveStep] = useState<number>(1);
   const [currentScenarioId, setCurrentScenarioId] = useState<string | null>(null);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
+  const [benchmarks, setBenchmarks] = useState<CallPayBenchmarks>({});
+  const [complianceMetadata, setComplianceMetadata] = useState<ComplianceMetadata>({
+    fmvOverrides: [],
+    auditLog: [],
+  });
+  const [providerRoster, setProviderRoster] = useState<CallProvider[]>([]);
+  const [budgetReviewTab, setBudgetReviewTab] = useState<'cost' | 'burden'>('cost');
+  const [enableFMVBenchmarks, setEnableFMVBenchmarks] = useState<boolean>(false);
+  const [callSchedule, setCallSchedule] = useState<CallSchedule | null>(null);
   
   const STORAGE_KEY = 'callPayModelerDraftState';
 
@@ -81,8 +173,76 @@ export default function CallPayModelerPage() {
     expandedTier,
     annualAllowableBudget,
     activeStep,
+    providerRoster,
+    enableFMVBenchmarks,
+    callSchedule,
+    modelingMode,
   };
   useDebouncedLocalStorage(STORAGE_KEY, draftState);
+
+  // Load user preferences on mount
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
+
+  // Load call pay scenarios on mount
+  useEffect(() => {
+    loadCallPayScenarios();
+  }, [loadCallPayScenarios]);
+
+  // Load program catalog on mount
+  useEffect(() => {
+    loadProgramCatalog();
+  }, [loadProgramCatalog]);
+
+  // Auto-switch to Quick Mode if Advanced Mode is selected but no program is active
+  useEffect(() => {
+    if (modelingMode === "advanced" && !getActiveProgram()) {
+      setModelingMode("quick");
+    }
+  }, [activeProgramId, modelingMode, setModelingMode]);
+
+  // Switch to Cost tab when switching from Advanced to Quick Mode
+  useEffect(() => {
+    if (modelingMode === "quick" && budgetReviewTab === 'burden') {
+      setBudgetReviewTab('cost');
+    }
+  }, [modelingMode, budgetReviewTab]);
+
+  // Initialize from active program if available
+  useEffect(() => {
+    const activeProgram = getActiveProgram();
+    if (activeProgram && !scenarioLoaded) {
+      // Pre-populate context from active program
+      const programContext = mapCatalogProgramToContext(
+        activeProgram,
+        context.providersOnCall || 0,
+        context.rotationRatio || 4
+      );
+      // Only update if context is empty or matches default
+      if (context.specialty === '' || context.specialty === DEFAULT_CONTEXT.specialty) {
+        setContext(programContext);
+      }
+      
+      // Apply default assumptions to tiers if burden is empty
+      const assumptions = getDefaultAssumptionsFromProgram(activeProgram);
+      setTiers(prevTiers => applyProgramAssumptionsToTiers(prevTiers, assumptions));
+    }
+  }, [activeProgramId, scenarioLoaded, context.specialty]); // Re-run when active program changes
+
+  // Handle scenario loading
+  const handleLoadScenario = (scenarioId: string) => {
+    const scenario = getScenario(scenarioId);
+    if (!scenario) return;
+
+    const hydrated = hydrateStateFromScenario(scenario);
+    setContext(hydrated.context);
+    setTiers(hydrated.tiers);
+    setProviderRoster(hydrated.providers);
+    setScenarioLoaded(true);
+    setCurrentScenarioId(scenarioId);
+    setActiveScenario(scenarioId);
+  };
 
   // Load draft state on mount (if no scenario is being loaded via URL)
   useEffect(() => {
@@ -98,7 +258,20 @@ export default function CallPayModelerPage() {
           setTiers(draft.tiers || DEFAULT_TIERS);
           setExpandedTier(draft.expandedTier || 'C1');
           setAnnualAllowableBudget(draft.annualAllowableBudget || null);
-          setActiveStep(draft.activeStep || 1);
+          setProviderRoster(draft.providerRoster || []);
+          setEnableFMVBenchmarks(draft.enableFMVBenchmarks ?? false);
+          // Note: modelingMode is now managed by user preferences store
+          // Load test schedule if available, or generate one for demo
+          if (draft.callSchedule) {
+            setCallSchedule(draft.callSchedule);
+          } else if (typeof window !== 'undefined' && window.location.search.includes('test=true')) {
+            // Auto-load test data if ?test=true in URL
+            const testSchedule = generateTestSchedule(draft.context?.modelYear || new Date().getFullYear());
+            setCallSchedule(testSchedule);
+          }
+          // Only restore activeStep if it's valid (1 or 2), otherwise default to 1
+          const savedStep = draft.activeStep || 1;
+          setActiveStep(savedStep === 1 || savedStep === 2 ? savedStep : 1);
         }
       }
     } catch (error) {
@@ -124,6 +297,33 @@ export default function CallPayModelerPage() {
     // Only run on mount to initialize, tiers dependency intentionally omitted
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-generate provider roster when providersOnCall changes
+  useEffect(() => {
+    const targetCount = context.providersOnCall;
+    const currentCount = providerRoster.length;
+    const firstEnabledTier = tiers.find(t => t.enabled) || tiers[0];
+    const defaultTierId = firstEnabledTier?.id || 'C1';
+
+    if (targetCount > currentCount) {
+      // Add new providers
+      const newProviders: CallProvider[] = Array.from({ length: targetCount - currentCount }, (_, i) => ({
+        id: `provider-${currentCount + i + 1}`,
+        name: `Provider ${currentCount + i + 1}`,
+        fte: 1.0,
+        tierId: defaultTierId,
+        eligibleForCall: true,
+      }));
+      setProviderRoster([...providerRoster, ...newProviders]);
+    } else if (targetCount < currentCount) {
+      // Remove excess providers (keep first N)
+      setProviderRoster(providerRoster.slice(0, targetCount));
+    } else if (targetCount === 0) {
+      // Clear roster if providersOnCall is 0
+      setProviderRoster([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context.providersOnCall]);
 
   // Calculate impact
   const impact = useMemo(() => {
@@ -154,6 +354,13 @@ export default function CallPayModelerPage() {
       tier.rates.weekday > 0 && 
       (tier.burden.weekdayCallsPerMonth > 0 || tier.burden.weekendCallsPerMonth > 0)
     );
+
+  // Auto-reset to Step 1 if we're on Step 3 but haven't completed Step 2
+  useEffect(() => {
+    if (activeStep === 3 && !step2Complete) {
+      setActiveStep(1);
+    }
+  }, [activeStep, step2Complete]);
 
   const handleWalkthroughNavigate = (_stepIndex: number, elementId: string) => {
     // Map element IDs to step numbers
@@ -197,20 +404,165 @@ export default function CallPayModelerPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const comparisonData = useMemo(() => getComparisonData(), [getComparisonData, scenarios]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
-      {/* Page Title */}
-      <div className="mb-6 flex items-center gap-2">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
-          Call Pay Modeler
-        </h1>
-        <Tooltip 
-          content="Model call pay schedules and calculate total costs. Perfect for planning call coverage compensation."
-          side="right"
-        >
-          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
-        </Tooltip>
+      {/* Scenario Comparison Table - Show when there are multiple scenarios */}
+      {comparisonData.length > 1 && (
+        <div className="mb-6 space-y-4">
+          <ScenarioComparisonTable
+            comparisons={comparisonData}
+            onSelectScenario={handleLoadScenario}
+          />
+          <div className="flex justify-end">
+            <ExecutiveReportExport
+              comparisonMode={true}
+              selectedScenarioIds={scenarios.map(s => s.id)}
+              className="min-h-[44px] touch-target"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Page Header - Consistent with other pages */}
+      <div className="mb-6">
+        {/* Header with Back Button and Title */}
+        <div className="mb-6 flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="min-h-[44px] touch-target"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+              Call Pay Modeler
+            </h1>
+            <Tooltip 
+              content="Model call pay schedules and calculate total costs. Perfect for planning call coverage compensation."
+              side="right"
+            >
+              <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+            </Tooltip>
+          </div>
+          <div className="ml-auto">
+            <ScenarioLoader
+              scenarioType="call-pay"
+              onLoad={(providerScenario) => {
+                // Try to load from CallScenario format first
+                const callPayScenario = getScenario(providerScenario.id);
+                if (callPayScenario) {
+                  handleLoadScenario(callPayScenario.id);
+                } else if (providerScenario.callPayData) {
+                  // Fallback: load from ProviderScenario format
+                  setContext(providerScenario.callPayData.context);
+                  setTiers(providerScenario.callPayData.tiers);
+                  setScenarioLoaded(true);
+                  setCurrentScenarioId(providerScenario.id);
+                  setActiveScenario(providerScenario.id);
+                }
+              }}
+            />
+          </div>
+        </div>
+        
+        {/* Program Selector - Clean Apple-style design */}
+        <ProgramSelector />
+      </div>
+
+      {/* Mode Selector */}
+      <div className="mb-6">
+        <div className="inline-flex items-center rounded-xl border border-gray-200/60 dark:border-gray-700/60 bg-white dark:bg-gray-900 p-1 shadow-sm">
+          <motion.button
+            onClick={() => setModelingMode("quick")}
+            disabled={false}
+            className={cn(
+              "relative flex items-center justify-center min-h-[36px] px-4 text-sm font-medium rounded-lg",
+              "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-1",
+              "transition-colors duration-200 ease-out",
+              modelingMode === "quick"
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+            whileHover={modelingMode !== "quick" ? { scale: 1.02 } : {}}
+            whileTap={{ scale: 0.98 }}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 25,
+            }}
+          >
+            {modelingMode === "quick" && (
+              <motion.div
+                className="absolute inset-0 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm"
+                layoutId="activeMode"
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 30,
+                }}
+              />
+            )}
+            <span className="relative z-10">Quick Budget</span>
+          </motion.button>
+          <div className="w-px h-5 bg-gray-200/50 dark:bg-gray-700/50 mx-0.5" />
+          <motion.button
+            onClick={() => {
+              const activeProgram = getActiveProgram();
+              if (activeProgram) {
+                setModelingMode("advanced");
+              }
+            }}
+            disabled={!getActiveProgram()}
+            className={cn(
+              "relative flex items-center justify-center min-h-[36px] px-4 text-sm font-medium rounded-lg",
+              "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-1",
+              "transition-colors duration-200 ease-out",
+              modelingMode === "advanced"
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white",
+              "disabled:opacity-40 disabled:cursor-not-allowed"
+            )}
+            title={!getActiveProgram() ? "Please select a Call Program before starting Advanced Mode." : undefined}
+            whileHover={modelingMode !== "advanced" && getActiveProgram() ? { scale: 1.02 } : {}}
+            whileTap={getActiveProgram() ? { scale: 0.98 } : {}}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 25,
+            }}
+          >
+            {modelingMode === "advanced" && (
+              <motion.div
+                className="absolute inset-0 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm"
+                layoutId="activeMode"
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 30,
+                }}
+              />
+            )}
+            <span className="relative z-10">Advanced Mode</span>
+          </motion.button>
+        </div>
+        {modelingMode === "advanced" && !getActiveProgram() && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 p-3 rounded-lg bg-yellow-50/80 dark:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-800/60 shadow-sm"
+          >
+            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+              Please select a Call Program before starting Advanced Mode.
+            </p>
+          </motion.div>
+        )}
       </div>
 
       {/* Welcome Walkthrough */}
@@ -224,37 +576,6 @@ export default function CallPayModelerPage() {
             <ContextCard 
               context={context}
               onContextChange={setContext}
-              headerAction={
-                <ScenarioLoader
-                  scenarioType="call-pay"
-                  onLoad={(scenario: ProviderScenario) => {
-                    // Restore call-pay scenario data
-                    if (scenario.callPayData) {
-                      const callPayData = scenario.callPayData;
-                      setContext(callPayData.context);
-                      // Merge loaded tiers with existing tiers structure
-                      // Preserve tier IDs and structure
-                      const mergedTiers = tiers.map(t => {
-                        const loadedTier = callPayData.tiers.find(lt => lt.id === t.id);
-                        return loadedTier || t;
-                      });
-                      // Add any new tiers that weren't in the default structure
-                      callPayData.tiers.forEach(loadedTier => {
-                        if (!mergedTiers.some(t => t.id === loadedTier.id)) {
-                          mergedTiers.push(loadedTier);
-                        }
-                      });
-                      setTiers(mergedTiers);
-                      if (callPayData.tiers.length > 0) {
-                        setExpandedTier(callPayData.tiers[0].id);
-                      }
-                      setCurrentScenarioId(scenario.id); // Track loaded scenario
-                      setActiveStep(3); // Jump to review budget
-                      setScenarioLoaded(true); // Mark scenario as loaded to prevent auto-save overwrite
-                    }
-                  }}
-                />
-              }
             />
           </div>
         </div>
@@ -263,20 +584,16 @@ export default function CallPayModelerPage() {
       {/* Step 2: Configure Tiers (Only show when on Step 2) */}
       {activeStep === 2 && (
         <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
-          {/* Back button in Step 2 to return to Step 1 */}
-          <div className="flex items-center gap-2 mb-4 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setActiveStep(1)}
-              className="min-h-[44px] touch-target"
-              aria-label="Back to previous step"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </div>
           {/* Content */}
           <div className="space-y-6">
+            {/* Provider Roster - Only show in Advanced Mode */}
+            {modelingMode === "advanced" && providerRoster.length > 0 && (
+              <ProviderRoster
+                providers={providerRoster}
+                tiers={tiers}
+                onProvidersChange={setProviderRoster}
+              />
+            )}
             <Card className="border-2">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Configure Tiers</CardTitle>
@@ -369,13 +686,24 @@ export default function CallPayModelerPage() {
             {tiers
               .filter((tier) => tier.id === expandedTier)
               .map((tier) => (
-                <TierCard 
-                  key={tier.id}
-                  tier={tier} 
-                  onTierChange={handleTierChange}
-                  specialty={context.specialty as Specialty | undefined}
-                  context={context}
-                />
+                <div key={tier.id} className="space-y-4">
+                  <TierCard 
+                    tier={tier} 
+                    onTierChange={handleTierChange}
+                    specialty={context.specialty as Specialty | undefined}
+                    context={context}
+                  />
+                  {/* FMV Benchmark Panel for this tier */}
+                  <FMVBenchmarkPanel
+                    weekdayRate={tier.rates.weekday}
+                    weekendRate={tier.rates.weekend}
+                    holidayRate={tier.rates.holiday}
+                    benchmarks={benchmarks}
+                    onBenchmarksChange={setBenchmarks}
+                    enabled={enableFMVBenchmarks}
+                    onEnabledChange={setEnableFMVBenchmarks}
+                  />
+                </div>
               ))}
           </div>
         </div>
@@ -425,26 +753,197 @@ export default function CallPayModelerPage() {
           <div className="space-y-6">
             <Card className="border-2">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Budget Review</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Budget Review</CardTitle>
+                  {/* Tab Switcher - Apple-style Segmented Control - Only show in Advanced Mode */}
+                  {modelingMode === "advanced" && (
+                    <div className="inline-flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-0.5 shadow-sm">
+                      <button
+                        onClick={() => setBudgetReviewTab('cost')}
+                        className={cn(
+                          "relative flex items-center justify-center min-h-[32px] px-4 text-sm font-medium transition-all duration-200 rounded-md",
+                          "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-1",
+                          budgetReviewTab === 'cost'
+                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        )}
+                      >
+                        <DollarSign className="w-4 h-4 mr-1.5" />
+                        Cost Estimate
+                      </button>
+                      <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-0.5" />
+                      <button
+                        onClick={() => setBudgetReviewTab('burden')}
+                        className={cn(
+                          "relative flex items-center justify-center min-h-[32px] px-4 text-sm font-medium transition-all duration-200 rounded-md",
+                          "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-1",
+                          budgetReviewTab === 'burden'
+                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        )}
+                      >
+                        <Scale className="w-4 h-4 mr-1.5" />
+                        Burden & Fairness
+                      </button>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6">
-                <ImpactSummary 
-                  impact={impact} 
-                  annualAllowableBudget={annualAllowableBudget}
-                  onBudgetChange={setAnnualAllowableBudget}
-                  tiers={tiers}
-                  context={context}
-                />
+              <CardContent className="p-4 sm:p-6 space-y-6">
+                {modelingMode === "quick" || budgetReviewTab === 'cost' ? (
+                  <>
+                    <ImpactSummary 
+                      impact={impact} 
+                      annualAllowableBudget={annualAllowableBudget}
+                      onBudgetChange={setAnnualAllowableBudget}
+                      tiers={tiers}
+                      context={context}
+                      providerRoster={providerRoster}
+                    />
+                    {/* FMV Compliance Analysis */}
+                    {(() => {
+                      try {
+                        // Get effective rate from engine
+                        const engineInputs = mapCallPayStateToEngineInputs(context, tiers, providerRoster);
+                        const engineResult = calculateCallBudget(
+                          engineInputs.program,
+                          engineInputs.providers,
+                          engineInputs.tiers,
+                          engineInputs.assumptions
+                        );
+                        
+                        // Get active tier for coverage type
+                        const activeTier = tiers.find(t => t.enabled) || tiers[0];
+                        const coverageType = activeTier?.coverageType || 'In-house';
+                        
+                        // Get burden score from fairness metrics if available (only in Advanced Mode with roster)
+                        // In Quick Mode, burden score is optional
+                        let burdenScore: number | undefined;
+                        if (providerRoster.length > 0) {
+                          const burdenResults = calculateExpectedBurden(providerRoster, engineInputs.assumptions);
+                          const fairnessMetrics = calculateFairnessMetrics(burdenResults);
+                          burdenScore = fairnessMetrics.fairnessScore;
+                        }
+                        
+                        return (
+                          <FMVPanel
+                            specialty={context.specialty || ''}
+                            coverageType={coverageType}
+                            effectiveRatePer24h={engineResult.effectivePer24h}
+                            burdenScore={burdenScore}
+                          />
+                        );
+                      } catch (error) {
+                        console.error('Error preparing FMV analysis:', error);
+                        return null;
+                      }
+                    })()}
+                  </>
+                ) : modelingMode === "advanced" && (
+                  (() => {
+                    // Get assumptions from adapter
+                    try {
+                      const engineInputs = mapCallPayStateToEngineInputs(context, tiers, providerRoster);
+                      const activeTier = tiers.find(t => t.enabled) || tiers[0];
+                      
+                      const handleGenerateSchedule = () => {
+                        const schedule = generateCallSchedule({
+                          year: context.modelYear,
+                          providers: providerRoster,
+                          assumptions: engineInputs.assumptions,
+                          activeTierId: activeTier?.id || null,
+                        });
+                        setCallSchedule(schedule);
+                      };
+
+                      return (
+                        <BurdenFairnessPanel
+                          providers={providerRoster}
+                          assumptions={engineInputs.assumptions}
+                          schedule={callSchedule}
+                          onScheduleChange={setCallSchedule}
+                          onGenerateSchedule={handleGenerateSchedule}
+                          tiers={tiers}
+                        />
+                      );
+                    } catch (error) {
+                      console.error('Error preparing burden analysis:', error);
+                      // Even if there's an error, show the panel with empty data so user can load test data
+                      const defaultAssumptions = {
+                        weekdayCallsPerMonth: 5,
+                        weekendCallsPerMonth: 2,
+                        holidaysPerYear: 10,
+                      };
+                      
+                      const handleGenerateSchedule = () => {
+                        const schedule = generateCallSchedule({
+                          year: context.modelYear || new Date().getFullYear(),
+                          providers: providerRoster,
+                          assumptions: defaultAssumptions,
+                          activeTierId: tiers.find(t => t.enabled)?.id || tiers[0]?.id || null,
+                        });
+                        setCallSchedule(schedule);
+                      };
+
+                      return (
+                        <BurdenFairnessPanel
+                          providers={providerRoster}
+                          assumptions={defaultAssumptions}
+                          schedule={callSchedule}
+                          onScheduleChange={setCallSchedule}
+                          onGenerateSchedule={handleGenerateSchedule}
+                          tiers={tiers}
+                        />
+                      );
+                    }
+                  })()
+                )}
               </CardContent>
             </Card>
+            
+            {/* Export Executive Report - Show when a scenario is active */}
+            {activeScenarioId && (
+              <div className="flex justify-end">
+                <ExecutiveReportExport
+                  activeScenarioId={activeScenarioId}
+                  className="min-h-[44px] touch-target"
+                />
+              </div>
+            )}
+            
+            {/* FMV Override Tracker - Only show if FMV benchmarks are enabled */}
+            {enableFMVBenchmarks && Object.keys(benchmarks).length > 0 && (
+              <Card className="border-2">
+                <CardContent className="p-4 sm:p-6">
+                  <FMVOverrideTracker
+                    tiers={tiers}
+                    benchmarks={benchmarks}
+                    overrides={complianceMetadata.fmvOverrides}
+                    onOverridesChange={(overrides) =>
+                      setComplianceMetadata((prev) => ({ ...prev, fmvOverrides: overrides }))
+                    }
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-              <CallPaySaveButton
-                context={context}
-                tiers={tiers}
-                impact={impact}
-                annualAllowableBudget={annualAllowableBudget}
-                currentScenarioId={currentScenarioId}
-              />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <CallPaySaveButton
+                  context={context}
+                  tiers={tiers}
+                  impact={impact}
+                  annualAllowableBudget={annualAllowableBudget}
+                  currentScenarioId={currentScenarioId}
+                />
+                <ComplianceExport
+                  context={context}
+                  tiers={tiers}
+                  impact={impact}
+                  benchmarks={benchmarks}
+                  complianceMetadata={complianceMetadata}
+                />
+              </div>
               <Button
                 variant="outline"
                 onClick={handleStartOver}

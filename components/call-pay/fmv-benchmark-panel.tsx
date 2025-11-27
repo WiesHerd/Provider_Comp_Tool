@@ -17,6 +17,8 @@ interface FMVBenchmarkPanelProps {
   holidayRate: number;
   benchmarks: CallPayBenchmarks;
   onBenchmarksChange: (benchmarks: CallPayBenchmarks) => void;
+  enabled?: boolean;
+  onEnabledChange?: (enabled: boolean) => void;
 }
 
 export function FMVBenchmarkPanel({
@@ -25,6 +27,8 @@ export function FMVBenchmarkPanel({
   holidayRate,
   benchmarks,
   onBenchmarksChange,
+  enabled = true,
+  onEnabledChange,
 }: FMVBenchmarkPanelProps) {
   // Expand by default if there are no benchmarks entered yet
   const [isExpanded, setIsExpanded] = useState(
@@ -152,21 +156,47 @@ export function FMVBenchmarkPanel({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between"
-        >
-          <CardTitle className="text-lg font-semibold">
-            FMV Benchmark Analysis
-          </CardTitle>
-          {isExpanded ? (
-            <ChevronUp className="w-5 h-5" />
+        <div className="flex items-center justify-between">
+          {onEnabledChange !== undefined ? (
+            <>
+              <div className="flex flex-col">
+                <CardTitle className="text-lg font-semibold">
+                  FMV Benchmark Analysis
+                </CardTitle>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Compare your rates against market benchmarks
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Label htmlFor="fmv-toggle" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                  {enabled ? 'Enabled' : 'Disabled'}
+                </Label>
+                <Switch
+                  id="fmv-toggle"
+                  checked={enabled}
+                  onCheckedChange={onEnabledChange}
+                  aria-label="Toggle FMV Benchmark Analysis"
+                />
+              </div>
+            </>
           ) : (
-            <ChevronDown className="w-5 h-5" />
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-full flex items-center justify-between"
+            >
+              <CardTitle className="text-lg font-semibold">
+                FMV Benchmark Analysis
+              </CardTitle>
+              {isExpanded ? (
+                <ChevronUp className="w-5 h-5" />
+              ) : (
+                <ChevronDown className="w-5 h-5" />
+              )}
+            </button>
           )}
-        </button>
+        </div>
       </CardHeader>
-      {isExpanded && (
+      {((onEnabledChange !== undefined && enabled) || (onEnabledChange === undefined && isExpanded)) && (
         <CardContent className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
             Enter market benchmark data from MGMA, SullivanCotter, or other survey sources to compare your rates.

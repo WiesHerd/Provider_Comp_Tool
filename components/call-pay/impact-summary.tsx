@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { CallPayImpact, CallTier, CallPayContext } from '@/types/call-pay';
+import { CallProvider } from '@/types/call-pay-engine';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -9,13 +10,16 @@ import { cn } from '@/lib/utils/cn';
 import { useMemo } from 'react';
 import { CalculationBreakdown } from './calculation-breakdown';
 import { ChevronDown, ChevronUp, DollarSign, Users, TrendingUp } from 'lucide-react';
+import { mapCallPayStateToEngineInputs } from '@/lib/utils/call-pay-adapter';
+import { calculateCallBudget } from '@/lib/utils/call-pay-engine';
 
 interface ImpactSummaryProps {
-  impact: CallPayImpact;
+  impact: CallPayImpact; // Fallback values from old calculation
   annualAllowableBudget: number | null;
   onBudgetChange: (budget: number | null) => void;
   tiers: CallTier[];
   context: CallPayContext;
+  providerRoster?: CallProvider[]; // Optional: if provided, use engine
 }
 
 export function ImpactSummary({ 
@@ -24,26 +28,88 @@ export function ImpactSummary({
   onBudgetChange,
   tiers,
   context,
+  providerRoster = [],
 }: ImpactSummaryProps) {
   const hasEnabledTiers = impact.tiers.length > 0;
   const [expandedTierId, setExpandedTierId] = useState<string | null>(null);
   
+  // Try to use engine calculation, fallback to old impact if it fails
+  const engineResult = useMemo(() => {
+    if (providerRoster.length === 0) {
+      return null; // No roster, use fallback
+    }
+
+    try {
+      const engineInputs = mapCallPayStateToEngineInputs(context, providerRoster, tiers);
+      const result = calculateCallBudget(
+        engineInputs.program,
+        engineInputs.providers,
+        engineInputs.tiers,
+        engineInputs.assumptions
+      );
+
+      // Validate result - check for NaN or invalid values
+      const isValid = 
+        !isNaN(result.totalAnnualCallBudget) &&
+        !isNaN(result.avgCallPayPerProvider) &&
+        !isNaN(result.callPayPerFTE) &&
+        !isNaN(result.effectivePer24h) &&
+        !isNaN(result.effectivePerCall) &&
+        isFinite(result.totalAnnualCallBudget) &&
+        isFinite(result.avgCallPayPerProvider) &&
+        isFinite(result.callPayPerFTE) &&
+        isFinite(result.effectivePer24h) &&
+        isFinite(result.effectivePerCall);
+
+      if (!isValid) {
+        console.warn('Engine returned invalid values, using fallback', { result, engineInputs });
+        return null;
+      }
+
+      return result;
+    } catch (error) {
+      console.warn('Engine calculation failed, using fallback', { error, context, providerRoster, tiers });
+      return null;
+    }
+  }, [context, providerRoster, tiers]);
+
+  // Use engine result if available, otherwise fallback to impact
+  const displayValues = useMemo(() => {
+    if (engineResult) {
+      return {
+        totalAnnualCallSpend: engineResult.totalAnnualCallBudget,
+        averageCallPayPerProvider: engineResult.avgCallPayPerProvider,
+        callPayPer1FTE: engineResult.callPayPerFTE,
+        effectiveDollarsPer24h: engineResult.effectivePer24h,
+        effectiveDollarsPerCall: engineResult.effectivePerCall,
+      };
+    }
+    // Fallback to old calculation
+    return {
+      totalAnnualCallSpend: impact.totalAnnualCallSpend,
+      averageCallPayPerProvider: impact.averageCallPayPerProvider,
+      callPayPer1FTE: impact.callPayPer1FTE,
+      effectiveDollarsPer24h: impact.tiers[0]?.effectiveDollarsPer24h || 0,
+      effectiveDollarsPerCall: impact.tiers[0]?.effectiveDollarsPerCall || 0,
+    };
+  }, [engineResult, impact]);
+
   // Calculate budget usage
   const budgetUsage = useMemo(() => {
     if (!annualAllowableBudget || annualAllowableBudget <= 0) {
       return null;
     }
-    const usagePercent = (impact.totalAnnualCallSpend / annualAllowableBudget) * 100;
-    const remainingBudget = annualAllowableBudget - impact.totalAnnualCallSpend;
+    const usagePercent = (displayValues.totalAnnualCallSpend / annualAllowableBudget) * 100;
+    const remainingBudget = annualAllowableBudget - displayValues.totalAnnualCallSpend;
     return {
       percent: Math.min(100, Math.max(0, usagePercent)),
       remaining: remainingBudget,
-      exceeded: impact.totalAnnualCallSpend > annualAllowableBudget,
+      exceeded: displayValues.totalAnnualCallSpend > annualAllowableBudget,
     };
-  }, [impact.totalAnnualCallSpend, annualAllowableBudget]);
+  }, [displayValues.totalAnnualCallSpend, annualAllowableBudget]);
 
   // Format values to avoid template literal issues in JSX
-  const formattedTotalSpend = impact.totalAnnualCallSpend.toLocaleString('en-US', {
+  const formattedTotalSpend = displayValues.totalAnnualCallSpend.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -78,12 +144,12 @@ export function ImpactSummary({
 
   function StatItem({ icon, label, value, tooltipText }: StatItemProps) {
     return (
-      <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-lg transition-all bg-white dark:bg-gray-900 hover:shadow-sm">
+      <div className="p-3 sm:p-4 border border-gray-200/60 dark:border-gray-800/60 rounded-lg transition-all duration-200 ease-out bg-white dark:bg-gray-900 hover:shadow-md shadow-sm">
         {/* Icon and label - Compact layout for mobile */}
         <div className="flex items-start gap-2 mb-3 sm:mb-4">
           <div className="text-primary flex-shrink-0 mt-0.5">{icon}</div>
           <Tooltip content={tooltipText} side="top" className="max-w-[250px] sm:max-w-[300px]">
-            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-tight block flex-1">
+            <span className="text-xs sm:text-sm text-gray-600/80 dark:text-gray-400/80 leading-tight block flex-1 font-medium">
               {label}
             </span>
           </Tooltip>
@@ -91,7 +157,7 @@ export function ImpactSummary({
         
         {/* Value - Apple-style: value large */}
         <div className="flex items-baseline justify-between gap-3">
-          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold break-words flex-1 text-gray-900 dark:text-gray-100">
+          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold break-words flex-1 text-gray-900 dark:text-gray-100 tracking-tight">
             {value}
           </span>
         </div>
@@ -104,13 +170,13 @@ export function ImpactSummary({
       {/* 1. Overall Budget Summary - Show First */}
       <div className="space-y-6">
         {/* Main Budget Display - Prominent Hero Section */}
-        <div className="pb-6 border-b-2 border-gray-200 dark:border-gray-800">
+        <div className="pb-6 border-b border-gray-200/60 dark:border-gray-800/60">
           <div className="flex items-baseline justify-between">
             <div>
               <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                 Total Annual Call Budget
               </div>
-              <div className="text-base text-gray-500 dark:text-gray-400">
+              <div className="text-base text-gray-500/80 dark:text-gray-400/80">
                 Annual budget for call coverage
               </div>
             </div>
@@ -130,13 +196,13 @@ export function ImpactSummary({
             <StatItem
               icon={<Users className="w-6 h-6" />}
               label="Average Call Pay per Provider"
-              value={formatCurrency(impact.averageCallPayPerProvider)}
-              tooltipText={`Average annual call pay per provider: ${formatCurrency(impact.totalAnnualCallSpend)} total budget ÷ ${context.providersOnCall || 1} providers = ${formatCurrency(impact.averageCallPayPerProvider)}`}
+              value={formatCurrency(displayValues.averageCallPayPerProvider)}
+              tooltipText={`Average annual call pay per provider: ${formatCurrency(displayValues.totalAnnualCallSpend)} total budget ÷ ${context.providersOnCall || 1} providers = ${formatCurrency(displayValues.averageCallPayPerProvider)}`}
             />
             <StatItem
               icon={<DollarSign className="w-6 h-6" />}
               label="Call Pay per 1.0 FTE"
-              value={formatCurrency(impact.callPayPer1FTE)}
+              value={formatCurrency(displayValues.callPayPer1FTE)}
               tooltipText={`Call pay normalized to 1.0 FTE (full-time equivalent). This represents the call pay amount per full-time provider.`}
             />
             {impact.callPayAsPercentOfTCC !== undefined && (
@@ -153,7 +219,7 @@ export function ImpactSummary({
 
       {/* 2. Per-Tier Impact Breakdown */}
       {hasEnabledTiers && (
-        <div className="space-y-6 pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+        <div className="space-y-6 pt-4 border-t border-gray-200/60 dark:border-gray-800/60">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Tier Impact</h3>
           <div className="space-y-6">
             {impact.tiers.map((tierImpact) => {
@@ -173,7 +239,7 @@ export function ImpactSummary({
                       "min-h-[44px] touch-target"
                     )}
                   >
-                    <div className="flex items-center justify-between pb-3 border-b-2 border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-200/60 dark:border-gray-800/60">
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {tierImpact.tierName}
                       </h4>
@@ -355,7 +421,7 @@ export function ImpactSummary({
         </p>
       )}
       
-      {hasEnabledTiers && impact.totalAnnualCallSpend === 0 && (
+      {hasEnabledTiers && displayValues.totalAnnualCallSpend === 0 && (
         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
           Enter rates and burden assumptions in your enabled tiers to calculate the budget.
         </p>

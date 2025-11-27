@@ -1,4 +1,5 @@
 import * as React from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
 const Card = React.forwardRef<
@@ -7,31 +8,41 @@ const Card = React.forwardRef<
     variant?: "default" | "borderless" | "subtle";
   }
 >(({ className, variant = "default", ...props }, ref) => (
-  <div
+  <motion.div
     ref={ref}
     className={cn(
       // Base styles
       "bg-white dark:bg-gray-900",
       // Variant styles
       variant === "default" && [
-        "rounded-xl sm:rounded-2xl border border-gray-100 dark:border-gray-800",
-        "shadow-sm hover:shadow-md transition-shadow duration-150",
+        "rounded-xl sm:rounded-2xl border border-gray-200/60 dark:border-gray-800/60",
+        "shadow-[0_1px_3px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)]",
+        "hover:shadow-[0_4px_6px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.1)]",
+        "transition-all duration-200 ease-out",
         "p-3 md:p-6",
       ],
       variant === "borderless" && [
-        "md:rounded-xl md:border md:border-gray-100 md:dark:border-gray-800",
-        "md:shadow-sm md:hover:shadow-md md:transition-shadow md:duration-150",
+        "md:rounded-xl md:border md:border-gray-200/60 md:dark:border-gray-800/60",
+        "md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)]",
+        "md:hover:shadow-[0_4px_6px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.1)]",
+        "md:transition-all md:duration-200 md:ease-out",
         "p-3 md:p-6",
         // Mobile: no border, no shadow, edge-to-edge
       ],
       variant === "subtle" && [
-        "border-b border-gray-100 dark:border-gray-800",
+        "border-b border-gray-200/40 dark:border-gray-800/40",
         "pb-4 md:pb-6",
         // Just a bottom border, minimal styling
       ],
       className
     )}
     role="article"
+    whileHover={variant === "default" || variant === "borderless" ? { y: -1 } : {}}
+    transition={{
+      type: "spring",
+      stiffness: 300,
+      damping: 30,
+    }}
     {...props}
   />
 ));
