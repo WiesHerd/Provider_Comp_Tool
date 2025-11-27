@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { useProgramCatalogStore } from '@/lib/store/program-catalog-store';
 import { ShiftType, CoverageType } from '@/types/call-program';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -256,7 +256,7 @@ export function ShiftTypeList() {
                   <Switch
                     id="weekendEligible"
                     checked={formData.isWeekendEligible ?? false}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isWeekendEligible: checked })}
+                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, isWeekendEligible: checked })}
                   />
                 </div>
                 
@@ -265,7 +265,7 @@ export function ShiftTypeList() {
                   <Switch
                     id="holidayEligible"
                     checked={formData.isHolidayEligible ?? true}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isHolidayEligible: checked })}
+                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, isHolidayEligible: checked })}
                   />
                 </div>
                 
@@ -274,7 +274,7 @@ export function ShiftTypeList() {
                   <Switch
                     id="countsTowardBurden"
                     checked={formData.countsTowardBurden ?? true}
-                    onCheckedChange={(checked) => setFormData({ ...formData, countsTowardBurden: checked })}
+                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, countsTowardBurden: checked })}
                   />
                 </div>
                 
@@ -283,7 +283,7 @@ export function ShiftTypeList() {
                   <Switch
                     id="isBackupShift"
                     checked={formData.isBackupShift ?? false}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isBackupShift: checked })}
+                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, isBackupShift: checked })}
                   />
                 </div>
               </div>

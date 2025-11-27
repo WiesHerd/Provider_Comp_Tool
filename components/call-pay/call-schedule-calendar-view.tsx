@@ -5,10 +5,9 @@ import { format, addMonths, subMonths, addWeeks, subWeeks, startOfToday, isWeeke
 import { CallScheduleDayCell } from './call-schedule-day-cell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Calendar, Grid, Info, Phone } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Grid } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/cn';
-import { Tooltip } from '@/components/ui/tooltip';
 import { ScreenInfoModal } from '@/components/ui/screen-info-modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -16,9 +15,8 @@ import {
   getWeekDays,
   getWeeksInMonth,
   formatDateString,
-  type DateString,
 } from '@/lib/utils/calendar-helpers';
-import { CallSchedule, CallDayAssignment, TierAssignment } from '@/types/call-schedule';
+import { CallSchedule, CallDayAssignment, TierAssignment, CallDayType } from '@/types/call-schedule';
 import { CallProvider } from '@/types/call-pay-engine';
 
 interface CallScheduleCalendarViewProps {
@@ -148,7 +146,7 @@ export function CallScheduleCalendarView({
     
     // Build tier assignments array from the map
     const tierAssignments: TierAssignment[] = Object.entries(tierProviderMap)
-      .filter(([tierId, providerId]) => providerId !== null) // Only include assigned tiers
+      .filter(([_tierId, providerId]) => providerId !== null) // Only include assigned tiers
       .map(([tierId, providerId]) => ({
         tierId,
         providerId,

@@ -204,7 +204,7 @@ This compensation arrangement is necessary to ensure adequate call coverage for 
       yPosition -= lineHeight;
       if (yPosition < 100) {
         // New page if needed
-        const newPage = pdfDoc.addPage([612, 792]);
+        pdfDoc.addPage([612, 792]);
         yPosition = 750;
       }
     }

@@ -134,7 +134,7 @@ export function ProviderRoster({ providers, tiers, onProvidersChange }: Provider
                       <div className="flex items-center">
                         <Switch
                           checked={provider.eligibleForCall}
-                          onCheckedChange={(checked) => handleEligibleChange(provider.id, checked)}
+                          onCheckedChange={(checked: boolean) => handleEligibleChange(provider.id, checked)}
                         />
                       </div>
                     </td>
@@ -202,7 +202,7 @@ export function ProviderRoster({ providers, tiers, onProvidersChange }: Provider
                     </Label>
                     <Switch
                       checked={provider.eligibleForCall}
-                      onCheckedChange={(checked) => handleEligibleChange(provider.id, checked)}
+                      onCheckedChange={(checked: boolean) => handleEligibleChange(provider.id, checked)}
                     />
                   </div>
                 </CardContent>

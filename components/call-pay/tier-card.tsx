@@ -1103,7 +1103,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
               <Switch
                 id={`risk-adjustment-toggle-${tier.id}`}
                 checked={!!tier.riskAdjustment}
-                onCheckedChange={(enabled) => {
+                onCheckedChange={(enabled: boolean) => {
                   if (enabled) {
                     // Initialize with default values (all 1.0 = no adjustment)
                     updateField('riskAdjustment', {

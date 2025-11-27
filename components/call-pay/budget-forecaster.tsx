@@ -4,10 +4,9 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { NumberInput } from '@/components/ui/number-input';
-import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { CallPayContext, CallTier, CallPayImpact } from '@/types/call-pay';
-import { generateBudgetForecast, ForecastAssumptions, MultiYearForecast } from '@/lib/utils/budget-forecasting';
+import { generateBudgetForecast, ForecastAssumptions } from '@/lib/utils/budget-forecasting';
 import {
   LineChart,
   Line,

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { CallPayContext, CallTier, CallPayImpact } from '@/types/call-pay';
 import { calculateTierAnnualPay } from '@/lib/utils/call-pay-coverage';
 
@@ -121,7 +121,7 @@ export function TransparencyReport({
             Calculation Methodology
           </h3>
           <div className="space-y-3 text-sm">
-            {tiers.filter(t => t.enabled).map((tier, index) => {
+            {tiers.filter(t => t.enabled).map((tier) => {
               const tierPay = calculateTierAnnualPay(tier, context);
               return (
                 <div key={tier.id} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">

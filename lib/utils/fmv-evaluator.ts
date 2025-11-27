@@ -152,7 +152,7 @@ function generateNotes(
   burdenScore?: number
 ): string[] {
   const notes: string[] = [];
-  const { medianRatePer24h, p25RatePer24h, p75RatePer24h, p90RatePer24h } = benchmark;
+  const { p75RatePer24h, p90RatePer24h } = benchmark;
 
   // Percentile-based notes
   if (percentile < 25) {

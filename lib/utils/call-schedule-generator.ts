@@ -10,8 +10,7 @@ import {
   GenerateScheduleOptions,
   ScheduleBurdenResult,
   ScheduleFairnessSummary,
-  CallDayType,
-  TierAssignment
+  CallDayType
 } from '@/types/call-schedule';
 import { startOfYear, endOfYear, eachDayOfInterval, isWeekend, format } from 'date-fns';
 
@@ -162,7 +161,7 @@ export function generateCallSchedule(options: GenerateScheduleOptions): CallSche
   // Assign providers using weighted distribution
   // For now, assign only to the active tier (C1, C2, etc.)
   // Each tier will get its own provider assignment
-  shuffled.forEach(({ day, type }, index) => {
+  shuffled.forEach(({ day }, index) => {
     const provider = selectProviderByWeight(providerWeights, index, shuffled.length);
     // Create tier assignment for the active tier
     if (activeTierId) {

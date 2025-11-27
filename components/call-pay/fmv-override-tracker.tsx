@@ -102,7 +102,7 @@ export function FMVOverrideTracker({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {detectedOverrides.map((override, index) => {
+        {detectedOverrides.map((override) => {
           const existingOverride = overrides.find(
             o => o.tierId === override.tierId && o.rateType === override.rateType
           );

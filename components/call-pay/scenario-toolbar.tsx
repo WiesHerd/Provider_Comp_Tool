@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Save, Loader2, Trash2, X } from 'lucide-react';
+import { Save, Loader2, Trash2 } from 'lucide-react';
 import { useCallPayScenariosStore } from '@/lib/store/call-pay-scenarios-store';
 import { createScenarioFromCurrentState } from '@/lib/utils/call-pay-scenario-utils';
 import { CallPayContext, CallTier } from '@/types/call-pay';
@@ -145,8 +145,6 @@ export function ScenarioToolbar({
       setScenarioToDelete(null);
     }
   };
-
-  const activeScenario = activeScenarioId ? getScenario(activeScenarioId) : null;
 
   return (
     <div className={cn('flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700', className)}>
@@ -293,7 +291,7 @@ export function ScenarioToolbar({
               <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDeleteConfirm}>
+              <Button variant="outline" onClick={handleDeleteConfirm} className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
                 Delete
               </Button>
             </div>

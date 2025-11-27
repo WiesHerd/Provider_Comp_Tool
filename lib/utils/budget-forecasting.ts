@@ -8,7 +8,6 @@ import {
   CallTier,
   CallPayImpact,
 } from '@/types/call-pay';
-import { calculateCallPayImpact } from './call-pay-coverage';
 
 export interface ForecastAssumptions {
   rateIncreasePercent: number; // Annual rate increase (e.g., 2.5 for 2.5%)
@@ -39,7 +38,7 @@ export interface MultiYearForecast {
  */
 export function generateBudgetForecast(
   context: CallPayContext,
-  tiers: CallTier[],
+  _tiers: CallTier[],
   impact: CallPayImpact,
   assumptions: ForecastAssumptions
 ): MultiYearForecast {

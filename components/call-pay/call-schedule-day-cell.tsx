@@ -4,10 +4,8 @@ import * as React from 'react';
 import { memo } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { format, isWeekend } from 'date-fns';
-import { formatDateString, type DateString } from '@/lib/utils/calendar-helpers';
-import { CallDayAssignment, CallDayType, TierAssignment } from '@/types/call-schedule';
+import { CallDayAssignment, CallDayType } from '@/types/call-schedule';
 import { CallProvider } from '@/types/call-pay-engine';
-import { User, X } from 'lucide-react';
 
 interface CallScheduleDayCellProps {
   date: Date;
@@ -15,6 +13,7 @@ interface CallScheduleDayCellProps {
   providers: CallProvider[];
   isToday?: boolean;
   isCurrentMonth?: boolean;
+  onAssignmentChange?: (assignment: CallDayAssignment) => void;
   onClick?: (date: Date) => void; // Opens assignment dialog
   disabled?: boolean;
 }
@@ -25,23 +24,18 @@ export const CallScheduleDayCell = memo(function CallScheduleDayCell({
   providers,
   isToday = false,
   isCurrentMonth = true,
-  onAssignmentChange,
   onClick,
   disabled = false,
 }: CallScheduleDayCellProps) {
-  const [isMounted, setIsMounted] = React.useState(false);
 
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const dateString = formatDateString(date);
   const isWeekendDay = isWeekend(date);
   // Use assignment type if available, otherwise infer from date
   const dayType: CallDayType = assignment?.type || (isWeekendDay ? 'weekend' : 'weekday');
   
   // Get all tier assignments for this day
   const tierAssignments = assignment?.tierAssignments || [];
+  // Check if any tier has an assigned provider
+  const hasAssignedProvider = assignment?.tierAssignments?.some(ta => ta.providerId !== null) ?? false;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -52,14 +46,6 @@ export const CallScheduleDayCell = memo(function CallScheduleDayCell({
     }
   };
 
-  const handleClearTier = (e: React.MouseEvent, tierId: string) => {
-    e.stopPropagation();
-    if (disabled || !onAssignmentChange) return;
-    // Clear specific tier assignment - handled by parent
-    // For now, just prevent default behavior
-  };
-
-  // Determine cell styling based on day type
   const cellClasses = cn(
     'relative flex flex-col h-full min-h-[100px] sm:min-h-[120px] md:min-h-[140px] lg:min-h-[110px]',
     'rounded-xl border transition-all duration-200 ease-out',
@@ -75,14 +61,14 @@ export const CallScheduleDayCell = memo(function CallScheduleDayCell({
     // Hover effects
     !disabled && 'hover:border-primary/50 hover:shadow-sm hover:bg-gray-50/50 dark:hover:bg-gray-800/50',
     // Day type styling
-    dayType === 'weekend' && !assignment?.providerId && [
+    dayType === 'weekend' && !hasAssignedProvider && [
       'bg-gradient-to-br from-purple-50/30 to-purple-100/20 dark:from-purple-900/10 dark:to-purple-800/5',
     ],
-    dayType === 'holiday' && !assignment?.providerId && [
+    dayType === 'holiday' && !hasAssignedProvider && [
       'bg-gradient-to-br from-red-50/30 to-red-100/20 dark:from-red-900/10 dark:to-red-800/5',
     ],
     // Assigned styling
-    assignment?.providerId && [
+    hasAssignedProvider && [
       dayType === 'weekday' && 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700',
       dayType === 'weekend' && 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700',
       dayType === 'holiday' && 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700',

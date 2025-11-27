@@ -43,7 +43,7 @@ const Card = React.forwardRef<
       stiffness: 300,
       damping: 30,
     }}
-    {...props}
+    {...(props as any)}
   />
 ));
 Card.displayName = "Card";

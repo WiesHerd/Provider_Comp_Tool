@@ -5,9 +5,7 @@ import { CallProvider, CallAssumptions } from '@/types/call-pay-engine';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   calculateExpectedBurden, 
-  calculateFairnessMetrics,
-  ProviderBurdenResult,
-  FairnessSummary 
+  calculateFairnessMetrics
 } from '@/lib/utils/burden-calculations';
 import { Users, TrendingUp, AlertCircle, CheckCircle2, XCircle, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';

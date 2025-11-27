@@ -8,7 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", children, disabled, ...props }, ref) => {
+  ({ className, variant = "default", size = "default", children, disabled, onDrag, onDragStart, onDragEnd, ...props }, ref) => {
     const [isPressed, setIsPressed] = React.useState(false);
     
     return (
@@ -57,7 +57,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onMouseDown={() => !disabled && setIsPressed(true)}
         onMouseUp={() => setIsPressed(false)}
         onMouseLeave={() => setIsPressed(false)}
-        {...props}
+        {...(props as any)}
       >
         {variant === "default" && (
           <motion.div

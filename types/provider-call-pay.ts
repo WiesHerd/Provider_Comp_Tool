@@ -2,7 +2,7 @@
  * Provider-Level Call Pay Types
  */
 
-import { CallPayContext, CallTier } from '@/types/call-pay';
+import { CallPayContext } from '@/types/call-pay';
 
 export interface ProviderCallPayData {
   providerId: string;

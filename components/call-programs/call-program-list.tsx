@@ -17,7 +17,6 @@ import { Plus, Edit2, Trash2, CheckCircle2 } from 'lucide-react';
 import { useProgramCatalogStore } from '@/lib/store/program-catalog-store';
 import { useUserPreferencesStore } from '@/lib/store/user-preferences-store';
 import { CallProgram, CoverageType } from '@/types/call-program';
-import { CallAssumptions } from '@/types/call-pay-engine';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Specialty } from '@/types/call-pay';
 import { cn } from '@/lib/utils/cn';

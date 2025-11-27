@@ -53,33 +53,6 @@ function callScenarioToProviderScenario(scenario: CallScenario): ProviderScenari
   };
 }
 
-/**
- * Convert ProviderScenario to CallScenario
- */
-function providerScenarioToCallScenario(providerScenario: ProviderScenario): CallScenario | null {
-  if (providerScenario.scenarioType !== 'call-pay' || !providerScenario.callPayData) {
-    return null;
-  }
-
-  // Try to load full scenario data from localStorage
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const scenarios: CallScenario[] = JSON.parse(stored);
-      const fullScenario = scenarios.find(s => s.id === providerScenario.id);
-      if (fullScenario) {
-        return fullScenario;
-      }
-    }
-  } catch (error) {
-    console.error('Error loading full scenario data:', error);
-  }
-
-  // Fallback: reconstruct from ProviderScenario (limited data)
-  // This won't have engine types, but we can work with what we have
-  return null; // For now, require full scenario data
-}
-
 // Storage functions are now in storageClient
 
 export const useCallPayScenariosStore = create<CallPayScenariosState>()((set, get) => ({

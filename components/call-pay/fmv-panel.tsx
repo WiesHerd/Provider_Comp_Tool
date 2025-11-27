@@ -7,8 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle, CheckCircle2, AlertTriangle, FileText, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
-import { evaluateFMV, FMVEvaluationResult } from '@/lib/utils/fmv-evaluator';
-import { FMVEvaluationInput } from '@/types/fmv';
+import { evaluateFMV } from '@/lib/utils/fmv-evaluator';
+import { FMVEvaluationInput, FMVEvaluationResult } from '@/types/fmv';
 import { Tooltip } from '@/components/ui/tooltip';
 
 interface FMVPanelProps {

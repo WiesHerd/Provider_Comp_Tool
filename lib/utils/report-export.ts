@@ -17,7 +17,7 @@ export async function exportReportToPDF(
   const html2pdf = (await import('html2pdf.js')).default;
   
   const opt = {
-    margin: [0.5, 0.5, 0.5, 0.5],
+    margin: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
     filename: filename,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { 
@@ -34,7 +34,7 @@ export async function exportReportToPDF(
   };
 
   try {
-    await html2pdf().set(opt).from(element).save();
+    await html2pdf().set(opt as any).from(element).save();
   } catch (error) {
     console.error('Error exporting to PDF:', error);
     throw new Error('Failed to export PDF. Please try again.');

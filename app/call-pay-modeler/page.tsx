@@ -35,7 +35,6 @@ import { FMVOverrideTracker } from '@/components/call-pay/fmv-override-tracker';
 import { ComplianceExport } from '@/components/call-pay/compliance-export';
 import { FMVBenchmarkPanel } from '@/components/call-pay/fmv-benchmark-panel';
 import { ProgramSelector } from '@/components/call-pay/program-selector';
-import { ProviderScenario } from '@/types';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import {
   CallPayContext,
@@ -43,7 +42,6 @@ import {
   Specialty,
   ComplianceMetadata,
   CallPayBenchmarks,
-  ModelingMode,
 } from '@/types/call-pay';
 import { CallProvider, CallAssumptions } from '@/types/call-pay-engine';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
@@ -136,7 +134,7 @@ function applyProgramAssumptionsToTiers(
 export default function CallPayModelerPage() {
   const router = useRouter();
   const { loadScenarios } = useScenariosStore();
-  const { scenarios, getComparisonData, getScenario, setActiveScenario, loadScenarios: loadCallPayScenarios, activeScenarioId, saveScenario } = useCallPayScenariosStore();
+  const { scenarios, getComparisonData, getScenario, setActiveScenario, loadScenarios: loadCallPayScenarios, activeScenarioId } = useCallPayScenariosStore();
   const { getProgram, loadInitialData: loadProgramCatalog } = useProgramCatalogStore();
   const { modelingMode, setModelingMode, activeProgramId, loadPreferences } = useUserPreferencesStore();
   
@@ -804,7 +802,7 @@ export default function CallPayModelerPage() {
                     {(() => {
                       try {
                         // Get effective rate from engine
-                        const engineInputs = mapCallPayStateToEngineInputs(context, tiers, providerRoster);
+                        const engineInputs = mapCallPayStateToEngineInputs(context, providerRoster, tiers);
                         const engineResult = calculateCallBudget(
                           engineInputs.program,
                           engineInputs.providers,
@@ -843,7 +841,7 @@ export default function CallPayModelerPage() {
                   (() => {
                     // Get assumptions from adapter
                     try {
-                      const engineInputs = mapCallPayStateToEngineInputs(context, tiers, providerRoster);
+                      const engineInputs = mapCallPayStateToEngineInputs(context, providerRoster, tiers);
                       const activeTier = tiers.find(t => t.enabled) || tiers[0];
                       
                       const handleGenerateSchedule = () => {

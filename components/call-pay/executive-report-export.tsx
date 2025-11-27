@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, FileText } from 'lucide-react';
 import { useCallPayScenariosStore } from '@/lib/store/call-pay-scenarios-store';
@@ -8,7 +8,6 @@ import { mapScenarioToReportData, mapScenariosToComparisonReportData } from '@/l
 import { exportReportToPDF, exportComparisonReportToPDF, generateScenarioReportFilename, generateComparisonReportFilename } from '@/lib/utils/report-export';
 import { ExecutiveReport } from './executive-report';
 import { ExecutiveReportComparison } from './executive-report-comparison';
-import { ScenarioReportData, ScenarioComparisonReportData } from '@/types/report';
 import { createRoot } from 'react-dom/client';
 
 interface ExecutiveReportExportProps {
@@ -26,7 +25,6 @@ export function ExecutiveReportExport({
 }: ExecutiveReportExportProps) {
   const { getScenario, scenarios } = useCallPayScenariosStore();
   const [isExporting, setIsExporting] = useState(false);
-  const reportContainerRef = useRef<HTMLDivElement>(null);
 
   const handleExportSingle = async () => {
     if (!activeScenarioId) {
@@ -53,7 +51,8 @@ export function ExecutiveReportExport({
       document.body.appendChild(container);
 
       // Render the report component
-      render(<ExecutiveReport data={reportData} />, container);
+      const root = createRoot(container);
+      root.render(<ExecutiveReport data={reportData} />);
 
       // Wait for render to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -62,7 +61,7 @@ export function ExecutiveReportExport({
       await exportReportToPDF(container, filename);
 
       // Cleanup
-      render(null, container);
+      root.unmount();
       document.body.removeChild(container);
     } catch (error) {
       console.error('Error exporting report:', error);
@@ -74,7 +73,7 @@ export function ExecutiveReportExport({
 
   const handleExportComparison = async () => {
     const scenariosToCompare = selectedScenarioIds 
-      ? selectedScenarioIds.map(id => getScenario(id)).filter(Boolean)
+      ? selectedScenarioIds.map(id => getScenario(id)).filter((s): s is NonNullable<typeof s> => s !== null)
       : scenarios.slice(0, 5); // Default to first 5 if none selected
 
     if (scenariosToCompare.length < 2) {
@@ -95,7 +94,8 @@ export function ExecutiveReportExport({
       document.body.appendChild(container);
 
       // Render the comparison report component
-      render(<ExecutiveReportComparison data={comparisonData} />, container);
+      const root = createRoot(container);
+      root.render(<ExecutiveReportComparison data={comparisonData} />);
 
       // Wait for render to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -104,7 +104,7 @@ export function ExecutiveReportExport({
       await exportComparisonReportToPDF(container, filename);
 
       // Cleanup
-      render(null, container);
+      root.unmount();
       document.body.removeChild(container);
     } catch (error) {
       console.error('Error exporting comparison report:', error);

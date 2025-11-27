@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Loader2 } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import { CallPayContext, CallTier, CallPayImpact, CallPayBenchmarks } from '@/types/call-pay';
 import { generateCompliancePDF } from '@/lib/utils/compliance-documentation';
 import { ComplianceMetadata } from '@/types/call-pay';
@@ -36,7 +36,7 @@ export function ComplianceExport({
       });
 
       // Create download link
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const blob = new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

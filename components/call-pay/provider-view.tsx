@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { CallPayContext, CallTier, CallPayImpact } from '@/types/call-pay';
-import { ProviderCallPayData, CallSchedule } from '@/types/provider-call-pay';
 import { calculateTierAnnualPay } from '@/lib/utils/call-pay-coverage';
 import { Calendar, DollarSign, Users } from 'lucide-react';
 
@@ -17,11 +16,9 @@ interface ProviderViewProps {
 }
 
 export function ProviderView({
-  providerId,
   providerName,
   context,
   tiers,
-  impact,
 }: ProviderViewProps) {
   // Calculate provider-specific call pay
   const providerCallPay = useMemo(() => {
@@ -47,8 +44,6 @@ export function ProviderView({
 
     // Use the first enabled tier's burden as reference
     const referenceTier = enabledTiers[0];
-    const totalCallsPerMonth = referenceTier.burden.weekdayCallsPerMonth + referenceTier.burden.weekendCallsPerMonth;
-    const callsPerProviderPerMonth = totalCallsPerMonth / context.rotationRatio;
 
     const months = [];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

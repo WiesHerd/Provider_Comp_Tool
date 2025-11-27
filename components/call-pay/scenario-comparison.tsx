@@ -14,7 +14,7 @@ import {
 import { TrendingUp, TrendingDown, Minus, X } from 'lucide-react';
 import { ProviderScenario } from '@/types';
 import { ScenarioData, compareScenarios, compareMultipleScenarios, formatVariance } from '@/lib/utils/scenario-comparison';
-import { CallPayContext, CallTier, CallPayImpact } from '@/types/call-pay';
+import { CallPayImpact } from '@/types/call-pay';
 import { cn } from '@/lib/utils/cn';
 
 interface ScenarioComparisonProps {
@@ -40,7 +40,10 @@ export function ScenarioComparison({ scenarios, onClose }: ScenarioComparisonPro
       name: scenario.name,
       context: scenario.callPayData.context,
       tiers: scenario.callPayData.tiers,
-      impact: scenario.callPayData.impact,
+      impact: {
+        ...scenario.callPayData.impact,
+        tiers: ('tiers' in scenario.callPayData.impact ? scenario.callPayData.impact.tiers : []),
+      } as CallPayImpact,
     };
   };
 

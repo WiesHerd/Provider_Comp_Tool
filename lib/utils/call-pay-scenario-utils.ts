@@ -6,11 +6,7 @@
 
 import { CallScenario } from '@/types/call-scenarios';
 import {
-  CallProgram,
   CallProvider,
-  CallTier as EngineCallTier,
-  CallAssumptions,
-  BudgetResult,
 } from '@/types/call-pay-engine';
 import { CallPayContext, CallTier as UICallTier } from '@/types/call-pay';
 import { calculateCallBudget } from '@/lib/utils/call-pay-engine';
@@ -29,7 +25,7 @@ export function createScenarioFromCurrentState(
   existingId?: string
 ): CallScenario {
   // Map UI state to engine inputs
-  const engineInputs = mapCallPayStateToEngineInputs(context, uiTiers, providers);
+  const engineInputs = mapCallPayStateToEngineInputs(context, providers, uiTiers);
   
   // Calculate budget result
   const budgetResult = calculateCallBudget(
