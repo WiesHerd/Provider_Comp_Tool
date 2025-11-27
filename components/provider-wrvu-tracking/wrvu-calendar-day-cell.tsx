@@ -143,7 +143,7 @@ export function WRVUCalendarDayCell({
 
   // Determine cell styling
   const cellClasses = cn(
-    'relative flex flex-col h-full min-h-[100px] sm:min-h-[120px] md:min-h-[140px]',
+    'relative flex flex-col h-full min-h-[120px] sm:min-h-[120px] md:min-h-[140px]',
     'rounded-xl border transition-all duration-200 ease-out',
     'group',
     // Base styles
@@ -182,13 +182,19 @@ export function WRVUCalendarDayCell({
       <div
         className={cellClasses}
         onDoubleClick={handleDoubleClick}
-        role="button"
+        role="gridcell"
         tabIndex={disabled ? -1 : 0}
-        aria-label={`${format(date, 'EEEE, MMMM d')}, ${trackingData.patients} patients, ${trackingData.workRVUs} wRVUs`}
+        aria-label={`${format(date, 'EEEE, MMMM d, yyyy')}. ${trackingData.patients} patients, ${trackingData.workRVUs.toFixed(2)} work RVUs. ${hasData ? 'Has data' : 'No data entered'}. Click to edit.`}
+        aria-selected={hasData}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             if (!disabled) handlePatientsClick(e as any);
+          } else if (e.key === 'Delete' || e.key === 'Backspace') {
+            e.preventDefault();
+            if (!disabled && hasData) {
+              updateData(0, 0);
+            }
           }
         }}
       >
@@ -231,7 +237,7 @@ export function WRVUCalendarDayCell({
                 min={0}
                 step={1}
                 placeholder="0"
-                className="h-10 sm:h-11 text-base sm:text-lg font-bold text-center p-2 pr-8 border-2 border-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
+                className="h-11 sm:h-11 text-base sm:text-lg font-bold text-center p-2 pr-8 border-2 border-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 min-h-[44px]"
                 onClick={(e) => e.stopPropagation()}
               />
               <button
@@ -247,6 +253,7 @@ export function WRVUCalendarDayCell({
           ) : (
             <button
               onClick={handlePatientsClick}
+              aria-label={`Edit patients for ${format(date, 'MMMM d')}. Current: ${trackingData.patients} patients`}
               className={cn(
                 'w-full flex flex-col items-center justify-center gap-0.5',
                 'rounded-lg p-1.5 sm:p-2 transition-all duration-200 min-h-[44px]',
@@ -280,7 +287,7 @@ export function WRVUCalendarDayCell({
                 min={0}
                 step={0.01}
                 placeholder="0.00"
-                className="h-10 sm:h-11 text-base sm:text-lg font-bold text-center p-2 pr-8 border-2 border-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
+                className="h-11 sm:h-11 text-base sm:text-lg font-bold text-center p-2 pr-8 border-2 border-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 min-h-[44px]"
                 onClick={(e) => e.stopPropagation()}
               />
               <button
@@ -296,6 +303,7 @@ export function WRVUCalendarDayCell({
           ) : (
             <button
               onClick={handleWRVUClick}
+              aria-label={`Edit work RVUs for ${format(date, 'MMMM d')}. Current: ${trackingData.workRVUs.toFixed(2)} work RVUs`}
               className={cn(
                 'w-full flex flex-col items-center justify-center gap-0.5',
                 'rounded-lg p-1.5 sm:p-2 transition-all duration-200 min-h-[44px]',

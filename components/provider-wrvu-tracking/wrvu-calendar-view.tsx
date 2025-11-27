@@ -29,6 +29,7 @@ interface WRVUCalendarViewProps {
   onMonthChange?: (date: Date) => void;
   initialDate?: Date;
   className?: string;
+  hasAnyData?: boolean;
 }
 
 type ViewMode = 'week' | 'month';
@@ -39,6 +40,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
   onMonthChange,
   initialDate,
   className,
+  hasAnyData = false,
 }: WRVUCalendarViewProps) {
   const [viewMode, setViewMode] = React.useState<ViewMode>('month');
   const [mounted, setMounted] = React.useState(false);
@@ -168,7 +170,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
   return (
     <div className={cn('w-full space-y-4', className)}>
       {/* Header Card */}
-      <Card className="border-2">
+      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -325,12 +327,31 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
       </Card>
 
       {/* Calendar grid - Desktop optimized */}
-      <Card className="border-2">
+      <Card className="border-2 shadow-md">
         <CardContent className="p-4 sm:p-6 pb-6">
+          {/* Empty state guidance for first-time users */}
+          {!hasAnyData && (
+            <div className="mb-4 p-4 bg-primary/5 dark:bg-primary/10 rounded-lg border border-primary/20">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                    Get Started
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                    Tap any day in the calendar below to add your patient count and work RVUs. Your data is automatically saved as you enter it.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Multi-select hint - Simple text, no container */}
-          <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
-            Select multiple dates, then enter data once to apply the same values to all selected dates.
-          </p>
+          {hasAnyData && (
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+              Select multiple dates, then enter data once to apply the same values to all selected dates.
+            </p>
+          )}
           
           <div className="w-full overflow-x-auto overflow-y-visible -mx-4 sm:mx-0 px-4 sm:px-6 sm:px-0 calendar-container-landscape">
             {/* Day headers */}
@@ -363,9 +384,20 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
                       <div
                         key={dateStr}
                         onClick={() => handleDateClick(date)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Select ${format(date, 'MMMM d, yyyy')} for bulk data entry`}
+                        aria-pressed={isSelected}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleDateClick(date);
+                          }
+                        }}
                         className={cn(
                           'transition-all duration-200',
-                          isSelected && 'ring-2 ring-primary ring-offset-0 rounded-xl'
+                          isSelected && 'ring-2 ring-primary ring-offset-0 rounded-xl',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
                         )}
                       >
                         <WRVUCalendarDayCell
@@ -386,7 +418,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
       </Card>
 
       {/* Legend */}
-      <Card className="border-2">
+      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
             <div className="flex items-center gap-2">

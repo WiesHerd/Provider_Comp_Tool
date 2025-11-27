@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { startOfMonth, format, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils/cn';
@@ -12,7 +12,7 @@ import { WRVUCharts } from '@/components/provider-wrvu-tracking/wrvu-charts';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Check, X, Info } from 'lucide-react';
+import { User, Check, X, Info, ChevronRight } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import {
   Select,
@@ -107,6 +107,8 @@ export default function ProviderWRVUTrackingPage() {
   const [currentDate, setCurrentDate] = useState<Date>(startOfMonth(new Date()));
   const [saveFeedback, setSaveFeedback] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Load from localStorage only after mount
   useEffect(() => {
@@ -120,6 +122,36 @@ export default function ProviderWRVUTrackingPage() {
       }
     }
   }, []);
+
+  // Track state changes for auto-save indicator
+  const prevStateRef = React.useRef(state);
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Skip on initial mount
+    if (prevStateRef.current === state) return;
+    
+    // Mark as saving
+    setIsAutoSaving(true);
+    
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Set timeout to mark as saved
+    saveTimeoutRef.current = setTimeout(() => {
+      setIsAutoSaving(false);
+      setLastSaved(new Date());
+      prevStateRef.current = state;
+    }, 600); // Slightly longer than debounce to show feedback
+    
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [state]);
 
   // Save to localStorage whenever state changes (silent auto-save, debounced)
   useDebouncedLocalStorage(STORAGE_KEY, state);
@@ -324,247 +356,156 @@ export default function ProviderWRVUTrackingPage() {
     }
   };
 
+  // State for collapsible navigation
+  const [isNavigationOpen, setIsNavigationOpen] = useState(false);
+  
+  // Check if there's any data to show empty state
+  const hasAnyData = Object.keys(state.dailyData).some(
+    (dateStr) => {
+      const data = state.dailyData[dateStr];
+      return data && (data.patients > 0 || data.workRVUs > 0);
+    }
+  );
+
   return (
-    <div className="w-full px-3 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
+    <div className="w-full px-4 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
       {/* Page Title */}
-      <div className="mb-6 flex items-center gap-2 pt-6 sm:pt-8 md:pt-10">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
-          Provider Work RVU Tracking
-        </h1>
-        <Tooltip 
-          content="Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports."
-          side="right"
-        >
-          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
-        </Tooltip>
+      <div className="mb-6 flex items-center justify-between pt-6 sm:pt-8 md:pt-10">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+            Provider Work RVU Tracking
+          </h1>
+          <Tooltip 
+            content="Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports."
+            side="right"
+          >
+            <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+          </Tooltip>
+        </div>
+        
+        {/* Auto-save indicator */}
+        {(isAutoSaving || lastSaved) && (
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            {isAutoSaving ? (
+              <>
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="hidden sm:inline">Saving...</span>
+              </>
+            ) : lastSaved && (
+              <>
+                <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                <span className="hidden sm:inline">
+                  Saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Provider Name Input - At the very top */}
-      <Card className="mb-6 border-2 !pt-2 md:!pt-3">
-        <CardHeader className="pb-4">
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="provider-name" className="text-sm font-semibold">
-                Provider Name (Optional)
-              </Label>
-              <Input
-                id="provider-name"
-                value={state.providerName || ''}
-                onChange={(e) => handleProviderNameChange(e.target.value)}
-                placeholder="Enter provider name"
-                className="w-full text-sm sm:text-base"
-                icon={<User className="w-5 h-5" />}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="specialty" className="text-sm font-semibold">
-                Specialty (Optional)
-              </Label>
-              <Select
-                value={state.specialty || ''}
-                onValueChange={handleSpecialtyChange}
-              >
-                <SelectTrigger id="specialty" className="w-full">
-                  <SelectValue placeholder="Select specialty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Primary Care / Hospital Medicine</SelectLabel>
-                    {COMMON_SPECIALTIES.slice(0, 4).map((specialty) => (
-                      <SelectItem key={specialty} value={specialty}>
-                        {specialty}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                  <SelectSeparator />
-                  <SelectGroup>
-                    <SelectLabel>Procedural / Surgical</SelectLabel>
-                    {COMMON_SPECIALTIES.slice(4, 15).map((specialty) => (
-                      <SelectItem key={specialty} value={specialty}>
-                        {specialty}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                  <SelectSeparator />
-                  <SelectGroup>
-                    <SelectLabel>Medical Subspecialties</SelectLabel>
-                    {COMMON_SPECIALTIES.slice(15, 23).map((specialty) => (
-                      <SelectItem key={specialty} value={specialty}>
-                        {specialty}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                  <SelectSeparator />
-                  <SelectGroup>
-                    <SelectLabel>Other</SelectLabel>
-                    {COMMON_SPECIALTIES.slice(23).map((specialty) => (
-                      <SelectItem key={specialty} value={specialty}>
-                        {specialty}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+      {/* Provider Name Input - Compact at top */}
+      <Card className="mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <CardContent className="pt-4 pb-4">
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="provider-name" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Provider Name (Optional)
+                </Label>
+                <Input
+                  id="provider-name"
+                  value={state.providerName || ''}
+                  onChange={(e) => handleProviderNameChange(e.target.value)}
+                  placeholder="Enter provider name"
+                  className="w-full text-sm sm:text-base h-10"
+                  icon={<User className="w-4 h-4" />}
+                />
+              </div>
+              
+              <div className="space-y-1.5">
+                <Label htmlFor="specialty" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Specialty (Optional)
+                </Label>
+                <Select
+                  value={state.specialty || ''}
+                  onValueChange={handleSpecialtyChange}
+                >
+                  <SelectTrigger id="specialty" className="w-full h-10 text-sm">
+                    <SelectValue placeholder="Select specialty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Primary Care / Hospital Medicine</SelectLabel>
+                      {COMMON_SPECIALTIES.slice(0, 4).map((specialty) => (
+                        <SelectItem key={specialty} value={specialty}>
+                          {specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Procedural / Surgical</SelectLabel>
+                      {COMMON_SPECIALTIES.slice(4, 15).map((specialty) => (
+                        <SelectItem key={specialty} value={specialty}>
+                          {specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Medical Subspecialties</SelectLabel>
+                      {COMMON_SPECIALTIES.slice(15, 23).map((specialty) => (
+                        <SelectItem key={specialty} value={specialty}>
+                          {specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Other</SelectLabel>
+                      {COMMON_SPECIALTIES.slice(23).map((specialty) => (
+                        <SelectItem key={specialty} value={specialty}>
+                          {specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               <div className="flex-shrink-0 mt-0.5">
-                <Check className="w-4 h-4 text-primary" />
+                <Check className="w-3.5 h-3.5 text-primary" />
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                <span className="font-medium">Auto-save enabled:</span> Your data is automatically saved to your browser. No save button needed!
+                <span className="font-medium">Auto-save enabled:</span> Your data is automatically saved to your browser.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Year Navigation - Quick access to different years */}
-      {availableYears.length > 1 && (
-        <Card className="mb-6 border-2">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-              Navigate by Year
-            </CardTitle>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Jump to entries from a specific year
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <Label htmlFor="year-navigator" className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                Select Year:
-              </Label>
-              <Select
-                value={selectedYear.toString()}
-                onValueChange={(value) => handleYearChange(parseInt(value, 10))}
-              >
-                <SelectTrigger id="year-navigator" className="w-[140px] h-10 text-base font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableYears.map((year) => {
-                    const yearMonthCount = allMonthsWithData.filter(
-                      (monthDate) => monthDate.getFullYear() === year
-                    ).length;
-                    return (
-                      <SelectItem key={year} value={year.toString()}>
-                        <div className="flex items-center justify-between w-full">
-                          <span className="font-semibold">{year}</span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-3">
-                            ({yearMonthCount} {yearMonthCount === 1 ? 'month' : 'months'})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-              <div className="flex-1 text-xs text-gray-600 dark:text-gray-400">
-                {monthsWithData.length > 0 && (
-                  <span>
-                    Showing {monthsWithData.length} saved {monthsWithData.length === 1 ? 'month' : 'months'} for {selectedYear}
-                  </span>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Calendar View - PRIMARY ACTION - moved to top */}
+      <div className="mb-6">
+        <WRVUCalendarView
+          dailyData={state.dailyData}
+          onDataChange={handleDataChange}
+          onMonthChange={handleMonthChange}
+          initialDate={currentDate}
+          hasAnyData={hasAnyData}
+        />
+      </div>
 
-      {/* Month Navigation Buttons - Show saved months */}
-      {allMonthsWithData.length > 0 && (
-        <Card className="mb-6 border-2">
-          <CardHeader className="pb-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                  Saved Months{availableYears.length > 0 ? ` - ${selectedYear}` : ''}
-                </CardTitle>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Quick navigation to months with saved data
-                </p>
-              </div>
-              {availableYears.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="year-selector" className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                    Year:
-                  </Label>
-                  <Select
-                    value={selectedYear.toString()}
-                    onValueChange={(value) => handleYearChange(parseInt(value, 10))}
-                  >
-                    <SelectTrigger id="year-selector" className="w-[120px] h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {monthsWithData.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {monthsWithData.map((monthDate) => {
-                const monthKey = format(monthDate, 'yyyy-MM');
-                const isActive = monthKey === format(currentDate, 'yyyy-MM');
-                const monthLabel = format(monthDate, 'MMM yyyy');
-                
-                return (
-                  <div
-                    key={monthKey}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-sm whitespace-nowrap',
-                      'transition-all duration-150',
-                      'min-h-[44px] touch-manipulation',
-                      isActive
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-                    )}
-                  >
-                    <button
-                      onClick={() => handleMonthButtonClick(monthDate)}
-                      className="flex-1 text-left"
-                      aria-label={`Navigate to ${monthLabel}`}
-                    >
-                      {monthLabel}
-                    </button>
-                    <button
-                      onClick={(e) => handleDeleteMonth(monthDate, e)}
-                      className={cn(
-                        'p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors',
-                        'min-w-[24px] min-h-[24px] flex items-center justify-center',
-                        isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
-                      )}
-                      aria-label={`Delete ${monthLabel}`}
-                      title={`Delete ${monthLabel}`}
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                );
-              })}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                No saved months for {selectedYear}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* Monthly Summary - Context after data entry */}
+      <div className="mb-6">
+        <WRVUMonthlySummary
+          currentDate={currentDate}
+          dailyData={state.dailyData}
+        />
+      </div>
 
-      {/* Goal Tracking */}
+      {/* Goal Tracking - Set goals after seeing data */}
       <div className="mb-6">
         <WRVUGoalTracking
           currentDate={currentDate}
@@ -576,29 +517,142 @@ export default function ProviderWRVUTrackingPage() {
         />
       </div>
 
-      {/* Calendar View */}
+      {/* Visual Charts - Visualization after data */}
       <div className="mb-6">
-        <WRVUCalendarView
-          dailyData={state.dailyData}
-          onDataChange={handleDataChange}
-          onMonthChange={handleMonthChange}
-          initialDate={currentDate}
-        />
-      </div>
-
-      {/* Monthly Summary */}
-      <WRVUMonthlySummary
-        currentDate={currentDate}
-        dailyData={state.dailyData}
-      />
-
-      {/* Visual Charts */}
-      <div className="mt-6">
         <WRVUCharts
           currentDate={currentDate}
           dailyData={state.dailyData}
         />
       </div>
+
+      {/* Month/Year Navigation - Collapsible, secondary */}
+      {(allMonthsWithData.length > 0 || availableYears.length > 1) && (
+        <Card className="mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <CardHeader 
+            className="pb-3 cursor-pointer"
+            onClick={() => setIsNavigationOpen(!isNavigationOpen)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                  Navigate to Other Months
+                </CardTitle>
+                {allMonthsWithData.length > 0 && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({allMonthsWithData.length} {allMonthsWithData.length === 1 ? 'month' : 'months'})
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label={isNavigationOpen ? 'Collapse navigation' : 'Expand navigation'}
+                aria-expanded={isNavigationOpen}
+              >
+                <ChevronRight 
+                  className={cn(
+                    "w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-200",
+                    isNavigationOpen && "rotate-90"
+                  )} 
+                />
+              </button>
+            </div>
+          </CardHeader>
+          {isNavigationOpen && (
+            <CardContent className="space-y-4">
+              {/* Consolidated Year Navigation */}
+              {availableYears.length > 1 && (
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                  <Label htmlFor="year-navigator" className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                    Filter by Year:
+                  </Label>
+                  <Select
+                    value={selectedYear.toString()}
+                    onValueChange={(value) => handleYearChange(parseInt(value, 10))}
+                  >
+                    <SelectTrigger id="year-navigator" className="w-[140px] h-10 text-base font-semibold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((year) => {
+                        const yearMonthCount = allMonthsWithData.filter(
+                          (monthDate) => monthDate.getFullYear() === year
+                        ).length;
+                        return (
+                          <SelectItem key={year} value={year.toString()}>
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-semibold">{year}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 ml-3">
+                                ({yearMonthCount} {yearMonthCount === 1 ? 'month' : 'months'})
+                              </span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Month Navigation - Horizontal scroll on mobile */}
+              {allMonthsWithData.length > 0 ? (
+                <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                  <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-2 min-w-max sm:min-w-0">
+                    {monthsWithData.map((monthDate) => {
+                      const monthKey = format(monthDate, 'yyyy-MM');
+                      const isActive = monthKey === format(currentDate, 'yyyy-MM');
+                      const monthLabel = format(monthDate, 'MMM yyyy');
+                      
+                      return (
+                        <div
+                          key={monthKey}
+                          className={cn(
+                            'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-sm whitespace-nowrap',
+                            'transition-all duration-150 flex-shrink-0',
+                            'min-h-[44px] touch-manipulation',
+                            isActive
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                          )}
+                        >
+                          <button
+                            onClick={() => {
+                              handleMonthButtonClick(monthDate);
+                              setIsNavigationOpen(false);
+                            }}
+                            className="flex-1 text-left min-w-0"
+                            aria-label={`Navigate to ${monthLabel}`}
+                          >
+                            {monthLabel}
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteMonth(monthDate, e)}
+                            className={cn(
+                              'p-1.5 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex-shrink-0',
+                              'min-w-[32px] min-h-[32px] flex items-center justify-center',
+                              isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                            )}
+                            aria-label={`Delete ${monthLabel}`}
+                            title={`Delete ${monthLabel}`}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                  {availableYears.length > 1 
+                    ? `No saved months for ${selectedYear}`
+                    : 'No saved months yet. Start tracking by adding data to the calendar above.'}
+                </p>
+              )}
+            </CardContent>
+          )}
+        </Card>
+      )}
 
       {/* Action Buttons */}
       <div className="mt-6 flex justify-center">

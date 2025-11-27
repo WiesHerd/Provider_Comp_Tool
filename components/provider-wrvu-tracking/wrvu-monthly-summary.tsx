@@ -79,7 +79,7 @@ export function WRVUMonthlySummary({
   };
 
   return (
-    <Card className={cn('border-2', className)}>
+    <Card className={cn('border border-gray-200 dark:border-gray-700 shadow-sm', className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
           <Calculator className="w-5 h-5 text-primary" />

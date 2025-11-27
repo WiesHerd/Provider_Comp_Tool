@@ -109,7 +109,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
   return (
     <div className="space-y-6">
       {/* Daily Trends Chart */}
-      <Card className="border-2">
+      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
@@ -205,7 +205,7 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
       </Card>
 
       {/* Weekly Summary Chart */}
-      <Card className="border-2">
+      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />

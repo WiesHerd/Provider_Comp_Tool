@@ -133,7 +133,7 @@ export function WRVUGoalTracking({
   };
 
   return (
-    <Card className="border-2">
+    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
