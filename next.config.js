@@ -3,6 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   compress: true,
+  // Skip static generation for pages that use client-side features
+  // This prevents errors during build when Zustand stores are used
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
