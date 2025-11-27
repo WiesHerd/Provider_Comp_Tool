@@ -14,7 +14,7 @@ import { FMVPanel } from '@/components/call-pay/fmv-panel';
 import { ScenarioComparisonTable } from '@/components/call-pay/scenario-comparison-table';
 import { ExecutiveReportExport } from '@/components/call-pay/executive-report-export';
 import { useCallPayScenariosStore } from '@/lib/store/call-pay-scenarios-store';
-import { hydrateStateFromScenario, createScenarioFromCurrentState } from '@/lib/utils/call-pay-scenario-utils';
+import { hydrateStateFromScenario } from '@/lib/utils/call-pay-scenario-utils';
 import { useProgramCatalogStore } from '@/lib/store/program-catalog-store';
 import { useUserPreferencesStore } from '@/lib/store/user-preferences-store';
 import { mapCatalogProgramToContext, getDefaultAssumptionsFromProgram } from '@/lib/utils/program-catalog-adapter';
