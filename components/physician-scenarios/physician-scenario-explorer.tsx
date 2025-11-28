@@ -330,7 +330,10 @@ export function PhysicianScenarioExplorer() {
 
   // Handle adding a model
   const handleAddModel = () => {
-    if (!results) return;
+    if (!results) {
+      alert('Please enter market benchmark data in the Setup tab to calculate results before saving the model.');
+      return;
+    }
     
     const effectiveSpecialty = specialty === 'Other' ? customSpecialty : (specialty || '');
     const modelName = newModelName.trim() || `CF Model ${new Date().toLocaleDateString()}`;
@@ -617,7 +620,7 @@ export function PhysicianScenarioExplorer() {
               <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
                 CF Model
               </CardTitle>
-              {results && wrvus > 0 && (
+              {wrvus > 0 && cfModel && (
                 <Button 
                   onClick={() => setShowAddModelDialog(true)} 
                   variant="outline" 
@@ -713,16 +716,22 @@ export function PhysicianScenarioExplorer() {
             )}
             
             {/* Add Model Button - Mobile-friendly bottom placement */}
-            {results && wrvus > 0 && (
+            {wrvus > 0 && cfModel && (
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <Button 
                   onClick={() => setShowAddModelDialog(true)} 
                   className="w-full min-h-[48px] touch-manipulation"
                   size="lg"
+                  disabled={!results}
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Save This Model
                 </Button>
+                {!results && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                    Enter market data in Setup to see results and save model
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
@@ -829,7 +838,7 @@ export function PhysicianScenarioExplorer() {
             <Button
               variant="outline"
               onClick={() => {
-                const tabs = ['setup', 'modeling', 'comparison', 'results'];
+                const tabs = ['setup', 'modeling', 'results', 'comparison'];
                 const currentIndex = tabs.indexOf(activeTab);
                 if (currentIndex > 0) {
                   setActiveTab(tabs[currentIndex - 1]);
@@ -844,16 +853,16 @@ export function PhysicianScenarioExplorer() {
             
             <Button
               onClick={() => {
-                const tabs = ['setup', 'modeling', 'comparison', 'results'];
+                const tabs = ['setup', 'modeling', 'results', 'comparison'];
                 const currentIndex = tabs.indexOf(activeTab);
                 if (currentIndex < tabs.length - 1) {
                   setActiveTab(tabs[currentIndex + 1]);
                 }
               }}
-              disabled={activeTab === 'results'}
+              disabled={activeTab === 'comparison'}
               className="min-h-[48px] min-w-[140px] ml-auto"
             >
-              {activeTab === 'comparison' ? 'View Results' : 'Continue'}
+              {activeTab === 'results' ? 'View Comparison' : 'Continue'}
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
