@@ -19,7 +19,6 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, AlertTriangle, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 import { getCFModelSummary } from '@/lib/utils/cf-model-engine';
 import { Tooltip } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils/cn';
 
 interface CFStewardshipContextProps {
   specialty: string;
