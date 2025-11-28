@@ -4,6 +4,11 @@ import { MarketBenchmarks } from '@/types';
  * Calculate percentile using piecewise linear interpolation
  * between known benchmark points (25th, 50th, 75th, 90th)
  * Extrapolates for values below 25th and above 90th percentiles
+ * 
+ * Interpolation method:
+ * - Uses linear interpolation between adjacent percentile points
+ * - Below 25th: assumes 0th percentile = 0, linear to 25th
+ * - Above 90th: extrapolates assuming 100th percentile ≈ 1.3 × 90th percentile
  */
 export function calculatePercentile(
   value: number,
@@ -125,5 +130,135 @@ export function calculateCFPercentile(
     p75: benchmarks.cf75,
     p90: benchmarks.cf90,
   });
+}
+
+/**
+ * Get value at a given percentile using linear interpolation
+ * Reverse operation of calculatePercentile - given a percentile, return the value
+ * Uses piecewise linear interpolation between known benchmark points (25th, 50th, 75th, 90th)
+ * Extrapolates for percentiles below 25th and above 90th
+ * 
+ * Interpolation method:
+ * - Uses linear interpolation between adjacent percentile points
+ * - Below 25th: linear from 0 to 25th percentile value
+ * - Above 90th: extrapolates assuming 100th percentile ≈ 1.3 × 90th percentile
+ */
+export function getValueAtPercentile(
+  percentile: number,
+  benchmarks: { p25?: number; p50?: number; p75?: number; p90?: number }
+): number | null {
+  const { p25, p50, p75, p90 } = benchmarks;
+
+  // If no benchmarks, return null
+  if (!p25 && !p50 && !p75 && !p90) {
+    return null;
+  }
+
+  // Handle edge cases
+  if (percentile <= 0) {
+    return 0;
+  }
+  if (percentile >= 100) {
+    // Extrapolate above 90th - assume 100th is 1.3 * 90th
+    if (p90) {
+      return p90 * 1.3;
+    }
+    return null;
+  }
+
+  // Extrapolate below 25th percentile
+  if (percentile < 25 && p25) {
+    // Linear interpolation from 0 to p25
+    // percentile = 25 * (value / p25)
+    // value = p25 * (percentile / 25)
+    return p25 * (percentile / 25);
+  }
+
+  // Extrapolate above 90th percentile
+  if (percentile > 90 && p90) {
+    // Assume p100 = 1.3 * p90
+    const p100 = p90 * 1.3;
+    // Linear interpolation between p90 and p100
+    const ratio = (percentile - 90) / 10;
+    return p90 + (p100 - p90) * ratio;
+  }
+
+  // Piecewise linear interpolation within known range
+  if (p25 && p50 && percentile >= 25 && percentile <= 50) {
+    // Between 25th and 50th
+    const ratio = (percentile - 25) / 25;
+    return p25 + (p50 - p25) * ratio;
+  }
+
+  if (p50 && p75 && percentile >= 50 && percentile <= 75) {
+    // Between 50th and 75th
+    const ratio = (percentile - 50) / 25;
+    return p50 + (p75 - p50) * ratio;
+  }
+
+  if (p75 && p90 && percentile >= 75 && percentile <= 90) {
+    // Between 75th and 90th
+    const ratio = (percentile - 75) / 15;
+    return p75 + (p90 - p75) * ratio;
+  }
+
+  // Edge case: percentile equals a benchmark exactly
+  if (percentile === 25 && p25) return p25;
+  if (percentile === 50 && p50) return p50;
+  if (percentile === 75 && p75) return p75;
+  if (percentile === 90 && p90) return p90;
+
+  return null;
+}
+
+/**
+ * Get TCC value at a given percentile from market benchmarks
+ */
+export function getTccValueAtPercentile(
+  percentile: number,
+  benchmarks: MarketBenchmarks
+): number | null {
+  return getValueAtPercentile(percentile, {
+    p25: benchmarks.tcc25,
+    p50: benchmarks.tcc50,
+    p75: benchmarks.tcc75,
+    p90: benchmarks.tcc90,
+  });
+}
+
+/**
+ * Get wRVU value at a given percentile from market benchmarks
+ */
+export function getWrvuValueAtPercentile(
+  percentile: number,
+  benchmarks: MarketBenchmarks
+): number | null {
+  return getValueAtPercentile(percentile, {
+    p25: benchmarks.wrvu25,
+    p50: benchmarks.wrvu50,
+    p75: benchmarks.wrvu75,
+    p90: benchmarks.wrvu90,
+  });
+}
+
+/**
+ * Get percentile for a value - wrapper function for consistency
+ * Maps value → percentile using the appropriate metric type
+ */
+export function getPercentileForValue(
+  value: number,
+  metric: 'wrvu' | 'tcc' | 'cf',
+  benchmarks: MarketBenchmarks
+): number {
+  switch (metric) {
+    case 'wrvu':
+      return calculateWRVUPercentile(value, benchmarks);
+    case 'tcc':
+      return calculateTCCPercentile(value, benchmarks);
+    case 'cf':
+      return calculateCFPercentile(value, benchmarks);
+    default:
+      return 50;
+  }
 }
 

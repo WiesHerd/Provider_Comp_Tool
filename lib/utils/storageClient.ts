@@ -10,6 +10,7 @@ import { logger } from './logger';
 import { CallProgram, ShiftType } from '@/types/call-program';
 import { ProviderScenario } from '@/types';
 import { CallScenario } from '@/types/call-scenarios';
+import { SavedCFModel } from '@/types/cf-models';
 import { DEFAULT_CALL_PROGRAMS } from '@/data/call-programs';
 import { DEFAULT_SHIFT_TYPES } from '@/data/shift-types';
 import { ModelingMode } from '@/types/call-pay';
@@ -20,6 +21,7 @@ const STORAGE_KEY_SHIFT_TYPES = 'call-shift-types-catalog';
 const STORAGE_KEY_SCENARIOS = 'provider_scenarios';
 const STORAGE_KEY_CALL_PAY_SCENARIOS = 'call-pay-scenarios';
 const STORAGE_KEY_USER_PREFS = 'complens-user-preferences';
+const STORAGE_KEY_CF_MODELS = 'cf-models';
 
 export interface ProgramCatalogState {
   programs: CallProgram[];
@@ -236,6 +238,53 @@ export function saveUserPrefs(prefs: UserPreferences): void {
     }
   } catch (error) {
     logger.error('Error saving user preferences to storage:', error);
+    // Don't throw - allow app to continue even if storage fails
+  }
+}
+
+/**
+ * Load CF models from storage
+ */
+export function loadCFModels(): SavedCFModel[] {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const stored = safeLocalStorage.getItem(STORAGE_KEY_CF_MODELS);
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+
+    // Validate models have required fields
+    return parsed.filter((m: unknown): m is SavedCFModel => {
+      if (typeof m !== 'object' || m === null) return false;
+      const model = m as Record<string, unknown>;
+      return (
+        typeof model.id === 'string' &&
+        typeof model.name === 'string' &&
+        typeof model.model === 'object' &&
+        model.model !== null
+      );
+    });
+  } catch (error) {
+    logger.error('Error loading CF models from storage:', error);
+    return [];
+  }
+}
+
+/**
+ * Save CF models to storage
+ */
+export function saveCFModels(models: SavedCFModel[]): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const serialized = JSON.stringify(models);
+    if (!safeLocalStorage.setItem(STORAGE_KEY_CF_MODELS, serialized)) {
+      logger.error('Failed to save CF models to storage');
+    }
+  } catch (error) {
+    logger.error('Error saving CF models to storage:', error);
     // Don't throw - allow app to continue even if storage fails
   }
 }

@@ -23,6 +23,7 @@ import {
   hasMarketData,
   deleteMarketData,
 } from '@/lib/utils/market-data-storage';
+import { cn } from '@/lib/utils/cn';
 
 // Common medical specialties
 const COMMON_SPECIALTIES = [
@@ -255,37 +256,37 @@ export function SpecialtySelector({
 
       {/* Saved Specialties Quick Access - Scalable Design */}
       {savedSpecialties.length > 0 && (
-        <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div>
-            <Label className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-              💾 Saved Market Data
-            </Label>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-              {savedSpecialties.length <= 5 
-                ? "Click a specialty below to instantly load saved benchmarks"
-                : `Select from ${savedSpecialties.length} saved specialties to load benchmarks`}
-            </p>
-          </div>
+        <div className="space-y-3 -mt-2">
+          <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
+            Quick load saved market data:
+          </Label>
           {savedSpecialties.length <= 5 ? (
             // For 5 or fewer: Show buttons (quick access)
             <div className="flex flex-wrap gap-2">
-              {savedSpecialties.map((savedSpec) => (
-                <Button
-                  key={savedSpec}
-                  variant={currentSpecialty === savedSpec ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleLoad(savedSpec)}
-                  className="text-sm min-h-[36px]"
-                >
-                  <Download className="w-3 h-3 mr-1" />
-                  {savedSpec}
-                </Button>
-              ))}
+              {savedSpecialties.map((savedSpec) => {
+                const isActive = currentSpecialty === savedSpec;
+                return (
+                  <button
+                    key={savedSpec}
+                    type="button"
+                    onClick={() => handleLoad(savedSpec)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
+                      "min-h-[32px] touch-manipulation",
+                      isActive
+                        ? "bg-primary text-white shadow-sm"
+                        : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
+                    )}
+                  >
+                    {savedSpec}
+                  </button>
+                );
+              })}
             </div>
           ) : (
             // For 6+: Use dropdown (scalable, mobile-friendly)
             <Select value={currentSpecialty || ''} onValueChange={(value) => handleLoad(value)}>
-              <SelectTrigger className="w-full bg-white dark:bg-gray-900">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={`Select from ${savedSpecialties.length} saved specialties...`} />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
@@ -294,10 +295,7 @@ export function SpecialtySelector({
                   {savedSpecialties.map((savedSpec) => (
                     <SelectItem key={savedSpec} value={savedSpec}>
                       <div className="flex items-center justify-between w-full">
-                        <span className="flex items-center gap-2">
-                          <Download className="w-3 h-3" />
-                          {savedSpec}
-                        </span>
+                        <span>{savedSpec}</span>
                         {currentSpecialty === savedSpec && (
                           <span className="text-primary text-xs ml-2">●</span>
                         )}
@@ -307,6 +305,11 @@ export function SpecialtySelector({
                 </SelectGroup>
               </SelectContent>
             </Select>
+          )}
+          {savedSpecialties.length > 5 && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              {savedSpecialties.length} saved specialties available
+            </p>
           )}
         </div>
       )}

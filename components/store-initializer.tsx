@@ -5,6 +5,7 @@ import { useProgramCatalogStore } from '@/lib/store/program-catalog-store';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { useCallPayScenariosStore } from '@/lib/store/call-pay-scenarios-store';
 import { useUserPreferencesStore } from '@/lib/store/user-preferences-store';
+import { useCFModelsStore } from '@/lib/store/cf-models-store';
 
 /**
  * Store Initializer Component
@@ -18,6 +19,7 @@ export function StoreInitializer() {
   const loadScenarios = useScenariosStore((state) => state.loadScenarios);
   const loadCallPayScenarios = useCallPayScenariosStore((state) => state.loadScenarios);
   const loadUserPreferences = useUserPreferencesStore((state) => state.loadPreferences);
+  const loadCFModels = useCFModelsStore((state) => state.loadModels);
 
   useEffect(() => {
     setIsMounted(true);
@@ -32,7 +34,8 @@ export function StoreInitializer() {
     loadScenarios();
     loadCallPayScenarios();
     loadUserPreferences();
-  }, [isMounted, loadProgramCatalog, loadScenarios, loadCallPayScenarios, loadUserPreferences]);
+    loadCFModels();
+  }, [isMounted, loadProgramCatalog, loadScenarios, loadCallPayScenarios, loadUserPreferences, loadCFModels]);
 
   // This component doesn't render anything
   return null;

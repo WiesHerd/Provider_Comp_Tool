@@ -20,14 +20,18 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     // Initialize display value
     React.useEffect(() => {
       if (!isFocused) {
-        // When not focused, show formatted value
+        // When not focused, show formatted value with comma separators
         if (value !== undefined && value !== 0) {
           if (integerOnly) {
-            // For integers, show as whole number
-            setDisplayValue(Math.round(value).toString());
+            // For integers, show as whole number with comma formatting
+            const rounded = Math.round(value);
+            setDisplayValue(rounded.toLocaleString('en-US', { maximumFractionDigits: 0 }));
           } else {
-            // Format to 2 decimal places, but don't show trailing zeros if not needed
-            const formatted = value.toFixed(2);
+            // Format to 2 decimal places with comma formatting
+            const formatted = value.toLocaleString('en-US', { 
+              minimumFractionDigits: 2, 
+              maximumFractionDigits: 2 
+            });
             setDisplayValue(formatted);
           }
         } else {
@@ -37,7 +41,10 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     }, [value, isFocused, integerOnly]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = e.target.value;
+      let inputValue = e.target.value;
+      
+      // Remove commas for parsing (user might paste or type with commas)
+      inputValue = inputValue.replace(/,/g, '');
       
       // Allow empty input
       if (inputValue === '' || inputValue === '-') {
@@ -110,21 +117,23 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(false);
-      // Format value when blurring
+      // Format value when blurring with comma separators
       if (value !== undefined && value !== 0) {
         if (integerOnly) {
-          // For integers, round to whole number
+          // For integers, round to whole number with comma formatting
           const rounded = Math.round(value);
-          setDisplayValue(rounded.toString());
+          setDisplayValue(rounded.toLocaleString('en-US', { maximumFractionDigits: 0 }));
           if (rounded !== value) {
             onChange?.(rounded);
           }
         } else {
-          // Format to 2 decimal places
-          const formatted = value.toFixed(2);
-          setDisplayValue(formatted);
-          // Round the value to 2 decimal places and update if needed
+          // Format to 2 decimal places with comma formatting
           const rounded = Math.round(value * 100) / 100;
+          const formatted = rounded.toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          });
+          setDisplayValue(formatted);
           if (rounded !== value) {
             onChange?.(rounded);
           }

@@ -16,6 +16,41 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Calendar, Tag, Info, Sparkles } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
+
+// Helper component for formatted tooltip content
+const FormattedTooltipContent = ({ 
+  description, 
+  formula, 
+  example, 
+  appliesTo 
+}: { 
+  description: string; 
+  formula?: string; 
+  example?: string; 
+  appliesTo?: string; 
+}) => {
+  return (
+    <div className="space-y-2 text-left">
+      <div className="text-sm leading-relaxed">{description}</div>
+      {formula && (
+        <div className="pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+          <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Formula:</div>
+          <div className="text-xs font-mono text-gray-600 dark:text-gray-400">{formula}</div>
+        </div>
+      )}
+      {example && (
+        <div className="pt-1">
+          <div className="text-xs text-gray-600 dark:text-gray-400 italic">{example}</div>
+        </div>
+      )}
+      {appliesTo && (
+        <div className="pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+          <div className="text-xs text-gray-500 dark:text-gray-500">Applies to: {appliesTo}</div>
+        </div>
+      )}
+    </div>
+  );
+};
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CallPayContext } from '@/types/call-pay';
@@ -189,7 +224,14 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
       ? `Example: ${tier.burden.weekdayCallsPerMonth} calls × $${tier.rates.weekday.toLocaleString()} = $${(tier.burden.weekdayCallsPerMonth * tier.rates.weekday).toLocaleString()}/month`
       : '';
     const appliesTo = 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU';
-    return `Total weekday calls needed per month for the service (not per provider)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return (
+      <FormattedTooltipContent
+        description="Total weekday calls needed per month for the service (not per provider)"
+        formula={formula}
+        example={example}
+        appliesTo={appliesTo}
+      />
+    );
   };
 
   const getWeekendTooltip = () => {
@@ -198,7 +240,14 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
       ? `Example: ${tier.burden.weekendCallsPerMonth} calls × $${tier.rates.weekend.toLocaleString()} = $${(tier.burden.weekendCallsPerMonth * tier.rates.weekend).toLocaleString()}/month`
       : '';
     const appliesTo = 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU';
-    return `Total weekend calls needed per month for the service\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return (
+      <FormattedTooltipContent
+        description="Total weekend calls needed per month for the service"
+        formula={formula}
+        example={example}
+        appliesTo={appliesTo}
+      />
+    );
   };
 
   const getHolidayTooltip = () => {
@@ -220,7 +269,14 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
     const appliesTo = isProcedureOrWrvu
       ? 'Daily/Shift Rate, Hourly Rate, Per Procedure, Per wRVU (optional)'
       : 'Daily/Shift Rate, Hourly Rate';
-    return `Total holidays covered per year (averaged monthly: ÷12)\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return (
+      <FormattedTooltipContent
+        description="Total holidays covered per year (averaged monthly: ÷12)"
+        formula={formula}
+        example={example}
+        appliesTo={appliesTo}
+      />
+    );
   };
 
   const getCallbacksTooltip = () => {
@@ -236,10 +292,17 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
         : `Example: ${tier.burden.avgCallbacksPer24h} callbacks × ${totalCalls} calls = ${(tier.burden.avgCallbacksPer24h * totalCalls).toFixed(1)} procedures/month`
       : '';
     const description = isWrvu 
-      ? `Average work RVUs per 24-hour call period\n\nFor Per wRVU payment method, enter the average wRVUs generated per 24-hour call period. This is used to calculate total wRVUs per month.`
-      : `Average callbacks per 24-hour call period`;
+      ? 'Average work RVUs per 24-hour call period. For Per wRVU payment method, enter the average wRVUs generated per 24-hour call period. This is used to calculate total wRVUs per month.'
+      : 'Average callbacks per 24-hour call period';
     const appliesTo = 'Per Procedure, Per wRVU';
-    return `${description}\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return (
+      <FormattedTooltipContent
+        description={description}
+        formula={formula}
+        example={example}
+        appliesTo={appliesTo}
+      />
+    );
   };
 
   const getCasesTooltip = () => {
@@ -255,10 +318,17 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
         : `Example: ${tier.burden.avgCasesPer24h} cases × ${totalCalls} calls = ${((tier.burden.avgCasesPer24h || 0) * totalCalls).toFixed(1)} cases/month`
       : '';
     const description = isWrvu
-      ? `Average work RVUs per 24-hour call period (for procedural specialties)\n\nFor Per wRVU payment method, enter the average wRVUs generated per 24-hour call period. This is preferred over callbacks for procedural specialties and is used to calculate total wRVUs per month.`
-      : `Average cases per 24-hour call period (for procedural specialties)`;
+      ? 'Average work RVUs per 24-hour call period (for procedural specialties). For Per wRVU payment method, enter the average wRVUs generated per 24-hour call period. This is preferred over callbacks for procedural specialties and is used to calculate total wRVUs per month.'
+      : 'Average cases per 24-hour call period (for procedural specialties)';
     const appliesTo = 'Per Procedure, Per wRVU (preferred for procedural specialties)';
-    return `${description}\n\nFormula: ${formula}${example ? `\n${example}` : ''}\n\nApplies to: ${appliesTo}`;
+    return (
+      <FormattedTooltipContent
+        description={description}
+        formula={formula}
+        example={example}
+        appliesTo={appliesTo}
+      />
+    );
   };
 
   const showTraumaUplift =

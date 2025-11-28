@@ -13,12 +13,14 @@ interface MarketDataSaveButtonProps {
   specialty: string;
   metricType: 'tcc' | 'wrvu' | 'cf';
   benchmarks: MarketBenchmarks;
+  onSave?: () => void;
 }
 
 export function MarketDataSaveButton({
   specialty,
   metricType,
   benchmarks,
+  onSave,
 }: MarketDataSaveButtonProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -43,6 +45,11 @@ export function MarketDataSaveButton({
     saveMarketData(specialty.trim(), metricType, benchmarks);
     setSaved(true);
     setIsSaving(false);
+
+    // Notify parent to refresh saved specialties list
+    if (onSave) {
+      onSave();
+    }
 
     // Reset saved state after 3 seconds
     setTimeout(() => setSaved(false), 3000);

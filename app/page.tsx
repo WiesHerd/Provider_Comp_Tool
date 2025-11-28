@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calculator, TrendingUp, Phone, BarChart3, ClipboardList } from 'lucide-react';
+import { Calculator, TrendingUp, Phone, BarChart3, ClipboardList, Shield } from 'lucide-react';
 
 export default function Home() {
 
@@ -22,87 +22,117 @@ export default function Home() {
         </div>
 
         {/* Tools Grid - Primary navigation */}
-        <div className="mb-8 sm:mb-10" data-tour="home-tools">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
-            <Link href="/wrvu-modeler">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
-                <CardHeader className="space-y-4">
-                  <div className="w-16 h-16 flex items-center justify-center">
-                    <Calculator className="w-8 h-8 text-primary" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg">Productivity Incentive Calculator</CardTitle>
-                    <CardDescription>
-                      Calculate bonus pay based on how many patients you see. Perfect for reviewing productivity-based contracts.
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+        <div className="mb-8 sm:mb-10 space-y-10 sm:space-y-12" data-tour="home-tools">
+          {/* Productivity & RVU Tools Section */}
+          <div>
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
+              Productivity & RVU Tools
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <Link href="/wrvu-modeler">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                  <CardHeader className="space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <Calculator className="w-8 h-8 text-primary" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">Productivity Incentive Calculator</CardTitle>
+                      <CardDescription>
+                        Calculate bonus pay based on how many patients you see. Perfect for reviewing productivity-based contracts.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-            <Link href="/wrvu-forecaster">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
-                <CardHeader className="space-y-4">
-                  <div className="w-16 h-16 flex items-center justify-center">
-                    <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg">Schedule-Based Productivity Calculator</CardTitle>
-                    <CardDescription>
-                      See how your schedule translates to pay. Enter shifts and patient visits to forecast annual compensation.
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+              <Link href="/wrvu-forecaster">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                  <CardHeader className="space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">Schedule-Based Productivity Calculator</CardTitle>
+                      <CardDescription>
+                        See how your schedule translates to pay. Enter shifts and patient visits to forecast annual compensation.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-            <Link href="/fmv-calculator">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
-                <CardHeader className="space-y-4">
-                  <div className="w-16 h-16 flex items-center justify-center">
-                    <TrendingUp className="w-8 h-8 text-primary" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg">FMV Calculator</CardTitle>
-                    <CardDescription>
-                      Check if an offer is fair by comparing to market data. Use before signing contracts or making offers.
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+              <Link href="/provider-wrvu-tracking">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                  <CardHeader className="space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <ClipboardList className="w-8 h-8 text-primary" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">Provider Work RVU Tracking</CardTitle>
+                      <CardDescription>
+                        Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+            </div>
+          </div>
 
-            <Link href="/call-pay-modeler">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
-                <CardHeader className="space-y-4">
-                  <div className="w-16 h-16 flex items-center justify-center">
-                    <Phone className="w-8 h-8 text-primary" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg">Call Pay Modeler</CardTitle>
-                    <CardDescription>
-                      Model call pay schedules and calculate total costs. Perfect for planning call coverage compensation.
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+          {/* Market Analysis & Planning Section */}
+          <div>
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
+              Market Analysis & Planning
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <Link href="/fmv-calculator">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                  <CardHeader className="space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <TrendingUp className="w-8 h-8 text-primary" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">FMV Calculator</CardTitle>
+                      <CardDescription>
+                        Check if an offer is fair by comparing to market data. Use before signing contracts or making offers.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-            <Link href="/provider-wrvu-tracking" className="sm:col-start-1 sm:col-span-2">
-              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
-                <CardHeader className="space-y-4">
-                  <div className="w-16 h-16 flex items-center justify-center">
-                    <ClipboardList className="w-8 h-8 text-primary" strokeWidth={2} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base sm:text-lg">Provider Work RVU Tracking</CardTitle>
-                    <CardDescription>
-                      Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports.
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+              <Link href="/physician-scenarios">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                  <CardHeader className="space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <Shield className="w-8 h-8 text-primary" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">CF Modelling</CardTitle>
+                      <CardDescription>
+                        Model conversion factors and productivity levels. Enter market data, select a CF model, and see how wRVU percentiles align with TCC percentiles.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+
+              <Link href="/call-pay-modeler">
+                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full group">
+                  <CardHeader className="space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <Phone className="w-8 h-8 text-primary" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base sm:text-lg">Call Pay Modeler</CardTitle>
+                      <CardDescription>
+                        Model call pay schedules and calculate total costs. Perfect for planning call coverage compensation.
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+            </div>
           </div>
         </div>
 
