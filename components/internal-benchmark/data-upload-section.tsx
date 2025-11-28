@@ -280,7 +280,7 @@ export function DataUploadSection({
           {records.length === 0 && (
             <div className="p-8 text-center text-gray-500 dark:text-gray-400">
               <FileSpreadsheet className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Upload a CSV/Excel file or click "Add Row" to enter data manually.</p>
+              <p>Upload a CSV/Excel file or click &quot;Add Row&quot; to enter data manually.</p>
               <p className="text-sm mt-2">
                 Required columns: Provider Name, Clinical FTE, Annual wRVUs, Total Cash Compensation
               </p>

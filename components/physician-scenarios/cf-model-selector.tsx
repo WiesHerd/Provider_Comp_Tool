@@ -987,7 +987,7 @@ function PercentileTieredCFInputs({
       <div className="space-y-2">
         <Label className="text-sm font-semibold">Percentile-Based Tiers</Label>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Define tiers by productivity percentiles. The system will calculate which tier applies based on the actual wRVU value's percentile in the market data.
+          Define tiers by productivity percentiles. The system will calculate which tier applies based on the actual wRVU value&apos;s percentile in the market data.
         </p>
         {!marketBenchmarks?.wrvu25 && (
           <p className="text-sm text-amber-600 dark:text-amber-400">

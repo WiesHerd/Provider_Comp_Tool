@@ -231,7 +231,7 @@ export function ProviderConfiguration({
         </div>
         {providers.length === 0 && (
           <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-            <p>No providers configured. Click "Add Provider" to get started.</p>
+            <p>No providers configured. Click &quot;Add Provider&quot; to get started.</p>
           </div>
         )}
       </CardContent>
