@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ConversionFactorModel } from '@/types/cf-models';
 import { CFModelSelector } from '@/components/physician-scenarios/cf-model-selector';
 import { Label } from '@/components/ui/label';
