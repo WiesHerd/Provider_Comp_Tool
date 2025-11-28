@@ -613,9 +613,23 @@ export function PhysicianScenarioExplorer() {
           <TabsContent value="modeling" className="mt-0">
             <Card className="border-2">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-              CF Model
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                CF Model
+              </CardTitle>
+              {results && wrvus > 0 && (
+                <Button 
+                  onClick={() => setShowAddModelDialog(true)} 
+                  variant="outline" 
+                  size="sm"
+                  className="min-h-[36px] touch-manipulation"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Add Model</span>
+                  <span className="sm:hidden">Add</span>
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <CFModelSelector
@@ -697,6 +711,20 @@ export function PhysicianScenarioExplorer() {
                 </div>
               </div>
             )}
+            
+            {/* Add Model Button - Mobile-friendly bottom placement */}
+            {results && wrvus > 0 && (
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Button 
+                  onClick={() => setShowAddModelDialog(true)} 
+                  className="w-full min-h-[48px] touch-manipulation"
+                  size="lg"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Save This Model
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
           </TabsContent>
@@ -736,52 +764,6 @@ export function PhysicianScenarioExplorer() {
                   onAddModel={() => setShowAddModelDialog(true)}
                   showAddButton={true}
                 />
-                
-                {/* Add Model Dialog */}
-                <Dialog.Root open={showAddModelDialog} onOpenChange={setShowAddModelDialog}>
-                  <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" />
-                    <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-                      <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                        Save CF Model
-                      </Dialog.Title>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label>Model Name</Label>
-                          <Input
-                            value={newModelName}
-                            onChange={(e) => setNewModelName(e.target.value)}
-                            placeholder={`CF Model ${new Date().toLocaleDateString()}`}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleAddModel();
-                              }
-                            }}
-                          />
-                        </div>
-                        {results && (
-                          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm text-blue-800 dark:text-blue-200">
-                              <strong>Model Summary:</strong> {getCFModelSummary(cfModel)}
-                            </p>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                              Alignment: {results.alignmentStatus} ({Math.abs(results.tccPercentile - results.wrvuPercentile).toFixed(1)}% difference)
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex justify-end gap-3 mt-6">
-                        <Button variant="outline" onClick={() => setShowAddModelDialog(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleAddModel}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Model
-                        </Button>
-                      </div>
-                    </Dialog.Content>
-                  </Dialog.Portal>
-                </Dialog.Root>
               </>
             ) : (
               <Card className="border-2">
@@ -794,6 +776,52 @@ export function PhysicianScenarioExplorer() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Add Model Dialog - Accessible from all tabs */}
+        <Dialog.Root open={showAddModelDialog} onOpenChange={setShowAddModelDialog}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-lg w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+              <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Save CF Model
+              </Dialog.Title>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Model Name</Label>
+                  <Input
+                    value={newModelName}
+                    onChange={(e) => setNewModelName(e.target.value)}
+                    placeholder={`CF Model ${new Date().toLocaleDateString()}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddModel();
+                      }
+                    }}
+                  />
+                </div>
+                {results && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>Model Summary:</strong> {getCFModelSummary(cfModel)}
+                    </p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                      Alignment: {results.alignmentStatus} ({Math.abs(results.tccPercentile - results.wrvuPercentile).toFixed(1)}% difference)
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <Button variant="outline" onClick={() => setShowAddModelDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddModel}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Model
+                </Button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
 
         {/* Bottom Navigation Buttons */}
         <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10 mt-8">
