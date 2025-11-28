@@ -32,7 +32,7 @@ import { getAlignmentStatus } from '@/lib/utils/scenario-modeling';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Stethoscope, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Stethoscope, Plus, ChevronLeft, ChevronRight, AlertTriangle, X } from 'lucide-react';
 import { MarketDataSaveAllButton } from '@/components/fmv/market-data-save-all-button';
 import { 
   loadMarketData, 
@@ -111,6 +111,17 @@ export function PhysicianScenarioExplorer() {
   const [wrvus, setWrvus] = useState<number>(0);
   const [showAddModelDialog, setShowAddModelDialog] = useState(false);
   const [newModelName, setNewModelName] = useState<string>('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Auto-dismiss toast after 5 seconds
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   // Helper function to get formatted model type name
   const getModelTypeName = (modelType: string): string => {
@@ -140,7 +151,7 @@ export function PhysicianScenarioExplorer() {
     }
   }, [showAddModelDialog, cfModel.modelType]);
 
-  const { addModel, loadModels, setActiveModel, activeModelId, getModel } = useCFModelsStore();
+  const { addModel, loadModels, setActiveModel, activeModelId, getModel, models } = useCFModelsStore();
 
   useEffect(() => {
     loadModels();
@@ -358,7 +369,7 @@ export function PhysicianScenarioExplorer() {
     addModel(savedModel);
     setNewModelName('');
     setShowAddModelDialog(false);
-    setActiveTab('comparison'); // Switch to comparison tab to see the new model
+    // Stay on modeling screen after adding model
   };
 
   return (
@@ -376,8 +387,41 @@ export function PhysicianScenarioExplorer() {
           </p>
         </div>
 
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-3 animate-in slide-in-from-top-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                {toastMessage}
+              </p>
+            </div>
+            <button
+              onClick={() => setToastMessage(null)}
+              className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Apple-style Tab Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => {
+            // Check if wRVUs are required for this tab
+            if ((value === 'results' || value === 'comparison') && wrvus <= 0) {
+              setToastMessage('Please enter Annual wRVUs in the Setup tab to view results and comparisons.');
+              return;
+            }
+            setActiveTab(value);
+            // Clear toast when switching to a valid tab
+            if (toastMessage) {
+              setToastMessage(null);
+            }
+          }} 
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 dark:bg-gray-800">
             <TabsTrigger value="setup" className="text-sm font-medium">
               Setup
@@ -385,11 +429,11 @@ export function PhysicianScenarioExplorer() {
             <TabsTrigger value="modeling" className="text-sm font-medium">
               Modeling
             </TabsTrigger>
-            <TabsTrigger value="results" className="text-sm font-medium">
-              Results
-            </TabsTrigger>
             <TabsTrigger value="comparison" className="text-sm font-medium">
               Comparison
+            </TabsTrigger>
+            <TabsTrigger value="results" className="text-sm font-medium">
+              Results
             </TabsTrigger>
           </TabsList>
 
@@ -549,8 +593,7 @@ export function PhysicianScenarioExplorer() {
                   onChange={setWrvus}
                   placeholder="Enter annual wRVUs"
                   min={0}
-                  step={1}
-                  integerOnly={true}
+                  step={0.01}
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Productivity level to test against market benchmarks
@@ -635,6 +678,71 @@ export function PhysicianScenarioExplorer() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Quick Load Saved Models */}
+            {models.length > 0 && (
+              <div className="mb-4">
+                <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
+                  Quick load saved models:
+                </Label>
+                {models.length <= 5 ? (
+                  // For 5 or fewer: Show buttons (quick access)
+                  <div className="flex flex-wrap gap-2">
+                    {models.map((savedModel) => {
+                      const isActive = activeModelId === savedModel.id;
+                      return (
+                        <button
+                          key={savedModel.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveModel(savedModel.id);
+                            setCfModel(savedModel.model);
+                          }}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
+                            "min-h-[32px] touch-manipulation",
+                            isActive
+                              ? "bg-primary text-white shadow-sm"
+                              : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
+                          )}
+                        >
+                          {savedModel.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  // For 6+: Show first 5 as buttons, then indicate more
+                  <div className="flex flex-wrap gap-2">
+                    {models.slice(0, 5).map((savedModel) => {
+                      const isActive = activeModelId === savedModel.id;
+                      return (
+                        <button
+                          key={savedModel.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveModel(savedModel.id);
+                            setCfModel(savedModel.model);
+                          }}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
+                            "min-h-[32px] touch-manipulation",
+                            isActive
+                              ? "bg-primary text-white shadow-sm"
+                              : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
+                          )}
+                        >
+                          {savedModel.name}
+                        </button>
+                      );
+                    })}
+                    <span className="px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                      +{models.length - 5} more
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <CFModelSelector
               model={cfModel}
               onModelChange={setCfModel}
@@ -855,8 +963,16 @@ export function PhysicianScenarioExplorer() {
               onClick={() => {
                 const tabs = ['setup', 'modeling', 'results', 'comparison'];
                 const currentIndex = tabs.indexOf(activeTab);
+                const nextTab = tabs[currentIndex + 1];
+                
+                // Check if wRVUs are required for next tab
+                if ((nextTab === 'results' || nextTab === 'comparison') && wrvus <= 0) {
+                  setToastMessage('Please enter Annual wRVUs in the Setup tab to view results and comparisons.');
+                  return;
+                }
+                
                 if (currentIndex < tabs.length - 1) {
-                  setActiveTab(tabs[currentIndex + 1]);
+                  setActiveTab(nextTab);
                 }
               }}
               disabled={activeTab === 'comparison'}
