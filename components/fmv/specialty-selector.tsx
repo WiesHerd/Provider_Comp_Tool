@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, Download, X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import {
   saveMarketData,
   loadMarketData,

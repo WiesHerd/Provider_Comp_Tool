@@ -30,7 +30,6 @@ import {
 import { Plus, Trash2 } from 'lucide-react';
 import { FTE, MarketBenchmarks } from '@/types';
 import { calculateWRVUPercentile, getWrvuValueAtPercentile, calculateCFPercentile, calculateTCCPercentile } from '@/lib/utils/percentile';
-import { calculateIncentivePayWithModel } from '@/lib/utils/cf-model-engine';
 import { normalizeTcc } from '@/lib/utils/normalization';
 import { useMemo } from 'react';
 

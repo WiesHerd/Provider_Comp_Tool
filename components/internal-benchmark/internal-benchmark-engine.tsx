@@ -13,7 +13,6 @@ import { CFRecommendationPanel } from './cf-recommendation-panel';
 import { ExportPanel } from './export-panel';
 import {
   calculateInternalPercentiles,
-  blendBenchmarks,
   calculateCFRecommendation,
   generateJustificationText,
 } from '@/lib/utils/internal-benchmark';

@@ -4,8 +4,6 @@ import { Provider, NonClinicalCompensation } from '@/types/provider-mix';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { CurrencyInput } from '@/components/ui/currency-input';
-import { NumberInput } from '@/components/ui/number-input';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,

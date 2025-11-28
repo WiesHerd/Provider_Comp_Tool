@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, Download } from 'lucide-react';
 import { generateCFModelExcelReport, CFModelReportData } from '@/lib/utils/cf-model-report-generator';
+import { CFModelReportView } from './cf-model-report-view';
 
 interface CFModelReportExportProps {
   reportData: CFModelReportData;
@@ -25,24 +26,27 @@ export function CFModelReportExport({ reportData }: CFModelReportExportProps) {
   };
 
   return (
-    <Button
-      onClick={handleExport}
-      disabled={isExporting}
-      className="w-full sm:w-auto"
-      variant="outline"
-    >
-      {isExporting ? (
-        <>
-          <Download className="w-4 h-4 mr-2 animate-spin" />
-          Exporting...
-        </>
-      ) : (
-        <>
-          <FileSpreadsheet className="w-4 h-4 mr-2" />
-          Export Excel
-        </>
-      )}
-    </Button>
+    <div className="flex items-center gap-2">
+      <CFModelReportView reportData={reportData} />
+      <Button
+        onClick={handleExport}
+        disabled={isExporting}
+        className="w-full sm:w-auto"
+        variant="outline"
+      >
+        {isExporting ? (
+          <>
+            <Download className="w-4 h-4 mr-2 animate-spin" />
+            Exporting...
+          </>
+        ) : (
+          <>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Excel
+          </>
+        )}
+      </Button>
+    </div>
   );
 }
 

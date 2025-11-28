@@ -19,11 +19,6 @@ export function StewardshipComparisonTable({ comparisons }: StewardshipCompariso
     }).format(value);
   };
 
-  const formatPercentile = (value: number) => {
-    if (value >= 90) return '>90th';
-    return `${Math.round(value)}th`;
-  };
-
   const formatPercentileMatch = (value: number) => {
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(1)}`;

@@ -46,12 +46,13 @@ export function calculateSurveyTCC(basePay: number, incentivePay: number): numbe
  * - TCC ≤ 75th percentile: Safe zone - use alignment logic based on wRVU/TCC percentile delta
  * 
  * Alignment evaluation (for TCC ≤ 75th):
- * - |delta| ≤ 10 → "Aligned" (TCC percentile matches wRVU percentile closely)
- * - |delta| ≤ 15 → "Mild Drift" (some deviation but acceptable)
- * - Else → "Risk Zone" (significant misalignment)
+ * - TCC percentile within 10 points of wRVU percentile → "Aligned" (TCC percentile matches wRVU percentile closely)
+ * - TCC percentile within 15 points of wRVU percentile → "Mild Drift" (some deviation but acceptable)
+ * - TCC percentile significantly higher than wRVU percentile (margin > 15) → "Risk Zone" (compensation too high relative to productivity)
+ * - TCC percentile lower than wRVU percentile → "Aligned" or "Mild Drift" (compensation lower than productivity is acceptable)
  * 
- * The principle: wRVU percentile and TCC percentile should "walk together"
- * if CF is set correctly, while staying within FMV compliance thresholds.
+ * The principle: Risk Zone only appears when TCC percentile is significantly higher than wRVU percentile,
+ * indicating compensation is too high relative to productivity. Lower compensation relative to productivity is acceptable.
  */
 export function getAlignmentStatus(wrvuPercentile: number, tccPercentile: number): AlignmentStatus {
   const delta = tccPercentile - wrvuPercentile;
@@ -69,12 +70,16 @@ export function getAlignmentStatus(wrvuPercentile: number, tccPercentile: number
   }
   
   // TCC ≤ 75th percentile: Use alignment logic
-  if (Math.abs(delta) <= 10) {
-    return 'Aligned'; // Green badge
-  } else if (Math.abs(delta) <= 15) {
-    return 'Mild Drift'; // Yellow badge
+  // Risk Zone only when TCC is significantly higher than wRVU (margin > 15)
+  if (delta > 15) {
+    return 'Risk Zone'; // TCC percentile significantly higher than wRVU percentile
+  } else if (Math.abs(delta) <= 10) {
+    return 'Aligned'; // TCC percentile matches wRVU percentile closely
+  } else if (delta <= 15) {
+    return 'Mild Drift'; // Some deviation but acceptable
   } else {
-    return 'Risk Zone'; // Red badge
+    // TCC lower than wRVU (negative delta) - acceptable, treat as aligned
+    return 'Aligned';
   }
 }
 

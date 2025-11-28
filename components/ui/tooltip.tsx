@@ -26,7 +26,6 @@ type CalculatedPosition = {
 
 const VIEWPORT_PADDING = 8;
 const TOOLTIP_OFFSET = 8;
-const ARROW_SIZE = 8;
 
 export function Tooltip({ 
   children, 
@@ -363,9 +362,8 @@ export function Tooltip({
           {/* Arrow */}
           {position && position.arrowX !== undefined && position.arrowY !== undefined && wrapperRef.current && (
             (() => {
-              const triggerRect = wrapperRef.current!.getBoundingClientRect();
-              let arrowLeft = 0;
-              let arrowTop = 0;
+              let arrowLeft: string | number = 0;
+              let arrowTop: string | number = 0;
               
               if (position.side === 'top' || position.side === 'bottom') {
                 // Arrow is centered horizontally, positioned at top/bottom edge

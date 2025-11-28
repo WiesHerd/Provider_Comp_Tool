@@ -10,12 +10,11 @@ import {
   StewardshipComparison,
   BudgetImpact,
   MarketMovement,
-  AlignmentStatus,
 } from '@/types/cf-stewardship';
 import { ConversionFactorModel } from '@/types/cf-models';
 import { MarketBenchmarks, FTE } from '@/types';
 import { calculateScenarioResult, getAlignmentStatus } from './scenario-modeling';
-import { ProductivityScenario } from '@/types/physician-scenarios';
+import { ProductivityScenario, AlignmentStatus } from '@/types/physician-scenarios';
 
 /**
  * Generate stewardship scenarios from market benchmarks

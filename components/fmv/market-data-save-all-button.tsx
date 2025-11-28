@@ -42,7 +42,6 @@ export function MarketDataSaveAllButton({
   const isWrvuSaved = specialty && hasMarketData(specialty, 'wrvu');
   const isTccSaved = specialty && hasMarketData(specialty, 'tcc');
   const isCfSaved = specialty && hasMarketData(specialty, 'cf');
-  const allSaved = isWrvuSaved && isTccSaved && isCfSaved;
 
   const handleSave = () => {
     if (!specialty.trim()) {

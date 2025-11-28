@@ -3,15 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ConversionFactorModel, SavedCFModel, TieredCFParameters, PercentileTieredCFParameters } from '@/types/cf-models';
+import { ConversionFactorModel, TieredCFParameters, PercentileTieredCFParameters } from '@/types/cf-models';
 import { TCCComponent, MarketBenchmarks } from '@/types';
 import { FTE } from '@/types';
 import { getCFModelSummary } from '@/lib/utils/cf-model-engine';
 import { calculateIncentivePayWithModel } from '@/lib/utils/cf-model-engine';
 import { Plus } from 'lucide-react';
 import { useMemo } from 'react';
-import { TieredCFParameters } from '@/types/cf-models';
-import { calculateWRVUPercentile, getWrvuValueAtPercentile } from '@/lib/utils/percentile';
+import { calculateWRVUPercentile } from '@/lib/utils/percentile';
 
 interface CFModelResultsProps {
   cfModel: ConversionFactorModel;
@@ -772,7 +771,7 @@ function PercentileTierContributionBreakdown({
           <Label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-3 block uppercase tracking-wide">
             All Tier Definitions
           </Label>
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {parameters.tiers.map((tier, index) => {
               const isApplicable = index === breakdown.applicableTierIndex;
               const prevThreshold = index > 0 
@@ -785,29 +784,39 @@ function PercentileTierContributionBreakdown({
               return (
                 <div
                   key={index}
-                  className={`p-3 rounded-lg border ${
+                  className={`p-4 rounded-lg border ${
                     isApplicable
                       ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800'
                       : 'bg-gray-50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          Tier {index + 1}
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-semibold text-gray-900 dark:text-white">
+                        Tier {index + 1}
+                      </span>
+                      {isApplicable && (
+                        <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded">
+                          Active
                         </span>
-                        {isApplicable && (
-                          <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded">
-                            Active
-                          </span>
-                        )}
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                          Percentile Range
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900 dark:text-white text-right ml-2">
+                          {tierRange}
+                        </span>
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        Percentile Range: {tierRange}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        CF Rate: {formatCurrency(tier.cf)}/wRVU
+                      <div className="flex items-start justify-between">
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                          CF Rate
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900 dark:text-white text-right ml-2">
+                          {formatCurrency(tier.cf)}/wRVU
+                        </span>
                       </div>
                     </div>
                   </div>

@@ -10,7 +10,7 @@ import { calculateWRVUPercentile, calculateTCCPercentile, calculateCFPercentile 
 import { normalizeTcc, normalizeWrvus } from '@/lib/utils/normalization';
 import { getAlignmentStatus } from '@/lib/utils/scenario-modeling';
 import { useCFModelsStore } from '@/lib/store/cf-models-store';
-import { Edit2, Copy, Trash2 } from 'lucide-react';
+import { Edit2, Copy, Trash2, ArrowDown, ArrowUp } from 'lucide-react';
 import { CFModelReportExport } from './cf-model-report-export';
 
 const formatCurrency = (value: number) => {
@@ -65,8 +65,6 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
       const clinicalDollars = Math.max(0, incentivePay);
       const productivityIncentives = clinicalDollars; // Alias for report compatibility
       const modeledTcc = fixedComp + clinicalDollars;
-      // Store actual incentive pay (can be negative) for display
-      const actualIncentivePay = incentivePay;
       // Effective CF = Total Cash Compensation / wRVUs (blended rate including fixed + variable)
       const effectiveCF = wrvus > 0 ? modeledTcc / wrvus : 0;
       const normalizedTcc = normalizeTcc(modeledTcc, fte);
@@ -97,7 +95,7 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
         model,
         clinicalDollars,
         productivityIncentives, // Alias for report compatibility
-        actualIncentivePay, // Actual incentive pay (can be negative)
+        actualIncentivePay: incentivePay, // Actual incentive pay (can be negative)
         effectiveCF,
         modeledTcc,
         wrvuPercentile,
@@ -114,11 +112,18 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
     const baselineTcc = calculatedResults.length > 0 
       ? Math.min(...calculatedResults.map(r => r.modeledTcc)) 
       : 0;
+    
+    // Calculate highest TCC for comparison
+    const highestTcc = calculatedResults.length > 0
+      ? Math.max(...calculatedResults.map(r => r.modeledTcc))
+      : 0;
 
     // Add cost delta to each result (difference from lowest TCC model)
     return calculatedResults.map(result => ({
       ...result,
       costDelta: result.modeledTcc - baselineTcc,
+      isLowest: result.modeledTcc === baselineTcc,
+      isHighest: result.modeledTcc === highestTcc,
     }));
   }, [models, wrvus, fte, fixedComp, marketBenchmarks]);
 
@@ -355,15 +360,24 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
                         <div className="space-y-6 mb-6">
                           {/* Total TCC */}
                           <div>
-                            <div className="flex items-baseline justify-between mb-2">
+                              <div className="flex items-baseline justify-between mb-2">
                               <span className="text-xs text-gray-500 dark:text-gray-400">Total Cash Compensation</span>
-                              {result.costDelta !== undefined && result.costDelta !== 0 && (
+                              {result.isLowest && (
+                                <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                                  <ArrowDown className="w-3 h-3" />
+                                  Lowest
+                                </span>
+                              )}
+                              {result.isHighest && !result.isLowest && (
+                                <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                                  <ArrowUp className="w-3 h-3" />
+                                  Highest
+                                </span>
+                              )}
+                              {!result.isLowest && !result.isHighest && result.costDelta !== undefined && result.costDelta !== 0 && (
                                 <span className="text-xs text-gray-400 dark:text-gray-500">
                                   {result.costDelta > 0 ? `+${formatCurrency(result.costDelta)}` : formatCurrency(result.costDelta)}
                                 </span>
-                              )}
-                              {result.costDelta === 0 && (
-                                <span className="text-xs text-gray-400 dark:text-gray-500">Lowest</span>
                               )}
                             </div>
                             <div className="flex items-baseline gap-3">
@@ -394,43 +408,62 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
 
                         {/* Alignment */}
                         <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Percentile Alignment</span>
-                            <span className="text-xs text-gray-900 dark:text-white">{result.alignmentStatus}</span>
+                          <div className="flex items-center justify-between mb-5">
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400 tracking-wide uppercase">Percentile Alignment</span>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-6 mb-3">
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs text-gray-500 dark:text-gray-400">wRVU</span>
-                                <span className="text-sm text-gray-900 dark:text-white">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 mb-4">
+                            <div className="space-y-2.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">wRVU</span>
+                                <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">
                                   {formatPercentile(result.wrvuPercentile)}
                                 </span>
                               </div>
-                              <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
                                 <div 
-                                  className="h-full bg-gray-900 dark:bg-gray-100"
-                                  style={{ width: `${Math.min(result.wrvuPercentile, 100)}%` }}
+                                  className={`h-full rounded-full transition-all duration-700 ease-out ${
+                                    result.tccPercentile > result.wrvuPercentile
+                                      ? 'bg-gradient-to-r from-red-500 to-red-600 dark:from-red-400 dark:to-red-500 shadow-sm shadow-red-500/20'
+                                      : 'bg-gradient-to-r from-green-500 to-green-600 dark:from-green-400 dark:to-green-500 shadow-sm shadow-green-500/20'
+                                  }`}
+                                  style={{ 
+                                    width: `${Math.min(result.wrvuPercentile, 100)}%`,
+                                    transition: 'width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                  }}
                                 />
                               </div>
                             </div>
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs text-gray-500 dark:text-gray-400">TCC</span>
-                                <span className="text-sm text-gray-900 dark:text-white">
+                            <div className="space-y-2.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">TCC</span>
+                                <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">
                                   {formatPercentile(result.tccPercentile)}
                                 </span>
                               </div>
-                              <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
                                 <div 
-                                  className="h-full bg-gray-900 dark:bg-gray-100"
-                                  style={{ width: `${Math.min(result.tccPercentile, 100)}%` }}
+                                  className={`h-full rounded-full transition-all duration-700 ease-out ${
+                                    result.tccPercentile > result.wrvuPercentile
+                                      ? 'bg-gradient-to-r from-red-500 to-red-600 dark:from-red-400 dark:to-red-500 shadow-sm shadow-red-500/20'
+                                      : 'bg-gradient-to-r from-green-500 to-green-600 dark:from-green-400 dark:to-green-500 shadow-sm shadow-green-500/20'
+                                  }`}
+                                  style={{ 
+                                    width: `${Math.min(result.tccPercentile, 100)}%`,
+                                    transition: 'width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                  }}
                                 />
                               </div>
                             </div>
                           </div>
                           
-                          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                          <div className={`text-xs text-center font-medium pt-1 ${
+                            result.wrvuPercentile > result.tccPercentile
+                              ? 'text-green-600 dark:text-green-400'
+                              : result.tccPercentile > result.wrvuPercentile
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-gray-500 dark:text-gray-400'
+                          }`}>
                             {result.alignmentDelta.toFixed(1)}% difference
                           </div>
                         </div>
@@ -438,16 +471,19 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
                         {/* CF Market Position */}
                         {result.cfPercentile !== null && (
                           <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
-                            <div className="flex items-center justify-between mb-4">
-                              <span className="text-xs text-gray-500 dark:text-gray-400">CF Market Position</span>
-                              <span className="text-sm text-gray-900 dark:text-white">
+                            <div className="flex items-center justify-between mb-5">
+                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 tracking-wide uppercase">CF Market Position</span>
+                              <span className="text-sm font-semibold text-gray-900 dark:text-white tabular-nums">
                                 {formatPercentile(result.cfPercentile)}
                               </span>
                             </div>
-                            <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
                               <div 
-                                className="h-full bg-gray-900 dark:bg-gray-100"
-                                style={{ width: `${Math.min(result.cfPercentile, 100)}%` }}
+                                className="h-full rounded-full bg-gradient-to-r from-gray-400 to-gray-500 dark:from-gray-500 dark:to-gray-400 transition-all duration-700 ease-out shadow-sm"
+                                style={{ 
+                                  width: `${Math.min(result.cfPercentile, 100)}%`,
+                                  transition: 'width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                }}
                               />
                             </div>
                           </div>

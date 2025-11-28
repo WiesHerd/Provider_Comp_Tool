@@ -44,7 +44,7 @@ export function CFStewardshipDashboard() {
   const [adjustmentType, setAdjustmentType] = useState<'manual' | 'percentage'>('manual');
   const [adjustmentPercent, setAdjustmentPercent] = useState<number>(0);
   const [lastYearCF, setLastYearCF] = useState<number | undefined>(undefined);
-  const [lastYearBenchmarks, setLastYearBenchmarks] = useState<MarketBenchmarks | undefined>(undefined);
+  const [lastYearBenchmarks, _setLastYearBenchmarks] = useState<MarketBenchmarks | undefined>(undefined);
   const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
   const [providerCount, setProviderCount] = useState<number>(1);
   const [medianWrvus, setMedianWrvus] = useState<number>(0);

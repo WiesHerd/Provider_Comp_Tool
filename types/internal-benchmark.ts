@@ -2,8 +2,6 @@
  * Types for Internal Benchmark Engine
  */
 
-import { MarketBenchmarks } from '@/types';
-
 /**
  * Provider Record from uploaded data
  */

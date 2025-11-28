@@ -80,7 +80,7 @@ export function DataUploadSection({
       }
 
       // Parse data rows
-      const importedRecords: ProviderRecord[] = jsonData.slice(1).map((row, index) => {
+      const importedRecords = jsonData.slice(1).map((row, index) => {
         const name = String(row[nameIndex] || '').trim();
         const fte = parseFloat(row[fteIndex]) || 1.0;
         const wrvus = parseFloat(row[wrvusIndex]) || 0;
@@ -91,14 +91,17 @@ export function DataUploadSection({
           return null; // Skip invalid rows
         }
 
-        return {
+        const record: ProviderRecord = {
           id: `imported-${Date.now()}-${index}`,
           name,
           fte: Math.max(0, Math.min(1.0, fte)),
           wrvus,
           tcc,
-          notes: notes || undefined,
         };
+        if (notes) {
+          record.notes = notes;
+        }
+        return record;
       }).filter((r): r is ProviderRecord => r !== null);
 
       if (importedRecords.length === 0) {

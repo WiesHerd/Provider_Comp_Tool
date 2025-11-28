@@ -100,7 +100,6 @@ function calculateTieredCF(
 ): number {
   const { tierType, tiers } = parameters;
   let totalCompensation = 0;
-  let remainingWrvus = wrvus;
 
   if (tierType === 'threshold') {
     // Threshold-based: Apply CF to wRVU ranges

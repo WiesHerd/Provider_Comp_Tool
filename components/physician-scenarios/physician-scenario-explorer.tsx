@@ -29,11 +29,10 @@ import { calculateWRVUPercentile, calculateTCCPercentile, calculateCFPercentile 
 import { normalizeTcc } from '@/lib/utils/normalization';
 import { calculateIncentivePayWithModel, getCFModelSummary } from '@/lib/utils/cf-model-engine';
 import { getAlignmentStatus } from '@/lib/utils/scenario-modeling';
-import { Tooltip } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Stethoscope, Info, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Stethoscope, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MarketDataSaveAllButton } from '@/components/fmv/market-data-save-all-button';
 import { 
   loadMarketData, 
@@ -368,21 +367,6 @@ export function PhysicianScenarioExplorer() {
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
               CF Modelling
             </h1>
-            <Tooltip 
-              content={`CF Modelling helps you model different conversion factor structures and see how wRVU percentiles align with TCC percentiles.
-
-HOW TO USE:
-1. Setup: Enter specialty, FTE, wRVUs, compensation components, and market data
-2. Modeling: Configure your CF model (flat, tiered, etc.)
-3. Results: View detailed results and save the model
-4. Comparison: Compare multiple saved models side-by-side
-
-ALIGNMENT PRINCIPLE:
-For a given productivity level (wRVUs), the chosen conversion factor should produce a TCC that lands in a similar percentile band as that wRVU in the market data.`}
-              side="right"
-            >
-              <Info className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help flex-shrink-0" />
-            </Tooltip>
           </div>
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
             Model conversion factors and see how wRVU percentiles align with TCC percentiles.

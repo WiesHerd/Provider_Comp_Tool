@@ -21,6 +21,7 @@ export interface CFModelReportData {
     name: string;
     effectiveCF: number;
     productivityIncentives: number;
+    actualIncentivePay?: number;
     modeledTcc: number;
     wrvuPercentile: number;
     tccPercentile: number;

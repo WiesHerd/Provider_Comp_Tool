@@ -188,7 +188,6 @@ export function calculateCFRecommendation(
   const cf25 = calculateEffectiveCF(blendedBenchmarks.tcc25, blendedBenchmarks.wrvu25);
   const cf50 = calculateEffectiveCF(blendedBenchmarks.tcc50, blendedBenchmarks.wrvu50);
   const cf75 = calculateEffectiveCF(blendedBenchmarks.tcc75, blendedBenchmarks.wrvu75);
-  const cf90 = calculateEffectiveCF(blendedBenchmarks.tcc90, blendedBenchmarks.wrvu90);
 
   // Use median as base, 25th-75th as range
   const recommendedMin = Math.min(cf25, cf50 * 0.9);
@@ -210,7 +209,7 @@ export function calculateCFRecommendation(
 export function generateJustificationText(
   internalPercentiles: InternalPercentiles,
   surveyBenchmarks: MarketBenchmarks,
-  blendedBenchmarks: BlendedBenchmarks,
+  _blendedBenchmarks: BlendedBenchmarks,
   recommendation: CFRecommendation
 ): string {
   // Calculate how internal median compares to survey median

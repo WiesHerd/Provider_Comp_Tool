@@ -10,14 +10,11 @@ import {
   ProviderAnalysis,
   ProviderProfile,
   GroupSummary,
-  NonClinicalCompensation,
 } from '@/types/provider-mix';
 import { ConversionFactorModel } from '@/types/cf-models';
 import { MarketBenchmarks, FTE } from '@/types';
-import { AlignmentStatus } from '@/types/physician-scenarios';
 import {
   calculateIncentivePayWithModel,
-  getCFModelSummary,
 } from './cf-model-engine';
 import {
   calculateWRVUPercentile,
@@ -296,7 +293,6 @@ export function calculateGroupSummary(
   // Calculate weighted average CF
   // This is a simplified calculation - in reality, CF varies by wRVU tier
   // For now, we'll use the CF model summary to extract a representative CF value
-  const cfSummary = getCFModelSummary(cfModel);
   let weightedAverageCF = 0;
   
   // Extract CF value from summary (for single CF models)
