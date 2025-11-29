@@ -28,14 +28,18 @@ export function ProviderMixStepGuide({
       specialty !== '' && 
       Object.keys(marketBenchmarks).length > 0;
 
-    const validProviders = providers.filter(p => 
-      p.name && 
-      p.clinicalFTE > 0 && 
-      p.basePay > 0 &&
-      (p.cfModel.modelType === 'single' 
-        ? (p.cfModel.parameters as { cf: number })?.cf > 0
-        : p.cfModel.modelType !== 'single')
-    );
+    const validProviders = providers.filter(p => {
+      if (!p.name || p.clinicalFTE <= 0 || p.basePay <= 0) {
+        return false;
+      }
+      // Validate CF model based on type
+      if (p.cfModel.modelType === 'single') {
+        const params = p.cfModel.parameters as { cf: number };
+        return params?.cf > 0;
+      }
+      // For other model types, just check that modelType is valid (non-empty)
+      return p.cfModel.modelType !== undefined && p.cfModel.parameters !== undefined;
+    });
     const step2Complete = validProviders.length > 0;
 
     const step3Complete = step2Complete && step1Complete;
