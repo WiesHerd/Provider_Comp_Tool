@@ -302,6 +302,16 @@ function CFCalculatorPageContent() {
 
           {/* Save and Start Over Buttons */}
           <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col sm:flex-row gap-3 mb-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowResults(false)}
+                className="w-full sm:w-auto min-h-[44px] touch-target"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+            </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <FMVSaveButton

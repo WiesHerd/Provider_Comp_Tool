@@ -126,8 +126,8 @@ export default function ScenarioDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-8">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
-        <div className="flex flex-col sm:flex-row gap-2 flex-1 sm:flex-none">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:flex-none">
           <Button variant="outline" onClick={() => router.push('/scenarios')} className="w-full sm:w-auto min-h-[44px] touch-target">
             Cancel
           </Button>
@@ -138,7 +138,7 @@ export default function ScenarioDetailPage() {
         </div>
         <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
           <Dialog.Trigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto text-red-600 hover:text-red-700 border-red-200 hover:border-red-300">
+            <Button variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target text-red-600 hover:text-red-700 border-red-200 hover:border-red-300">
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
             </Button>
@@ -150,11 +150,11 @@ export default function ScenarioDetailPage() {
               <Dialog.Description className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Are you sure you want to delete &quot;{scenario?.name}&quot;? This action cannot be undone.
               </Dialog.Description>
-              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                 <Dialog.Close asChild>
-                  <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
+                  <Button variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target">Cancel</Button>
                 </Dialog.Close>
-                <Button onClick={handleDelete} variant="outline" className="w-full sm:w-auto text-red-600 hover:text-red-700">
+                <Button onClick={handleDelete} variant="outline" className="w-full sm:w-auto min-h-[44px] touch-target text-red-600 hover:text-red-700">
                   Delete
                 </Button>
               </div>

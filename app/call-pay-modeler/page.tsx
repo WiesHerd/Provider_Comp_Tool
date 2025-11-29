@@ -26,7 +26,7 @@ import { CallSchedule } from '@/types/call-schedule';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Info, DollarSign, Scale } from 'lucide-react';
+import { Info, DollarSign, Scale, ChevronLeft, RotateCcw } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
@@ -909,8 +909,21 @@ export default function CallPayModelerPage() {
               </Card>
             )}
 
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-              <div className="flex flex-col sm:flex-row gap-2">
+            <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+              <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setActiveTab('configuration');
+                    setActiveStep(2);
+                  }}
+                  className="w-full sm:w-auto min-h-[44px] touch-target"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
                 <CallPaySaveButton
                   context={context}
                   tiers={tiers}
@@ -926,13 +939,16 @@ export default function CallPayModelerPage() {
                   complianceMetadata={complianceMetadata}
                 />
               </div>
-              <Button
-                variant="outline"
-                onClick={handleStartOver}
-                className="w-full sm:w-auto"
-              >
-                Start New Calculation
-              </Button>
+              <div className="mt-3">
+                <Button
+                  variant="outline"
+                  onClick={handleStartOver}
+                  className="w-full sm:w-auto min-h-[44px] touch-target"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Start New Calculation
+                </Button>
+              </div>
             </div>
           </div>
           </div>
