@@ -31,8 +31,9 @@ import { calculateIncentivePayWithModel, getCFModelSummary } from '@/lib/utils/c
 import { getAlignmentStatus } from '@/lib/utils/scenario-modeling';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tooltip } from '@/components/ui/tooltip';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Stethoscope, Plus, ChevronLeft, ChevronRight, AlertTriangle, X } from 'lucide-react';
+import { Stethoscope, Plus, ChevronLeft, ChevronRight, AlertTriangle, X, Info } from 'lucide-react';
 import { MarketDataSaveAllButton } from '@/components/fmv/market-data-save-all-button';
 import { 
   loadMarketData, 
@@ -377,14 +378,17 @@ export function PhysicianScenarioExplorer() {
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
         {/* Page Title */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
               CF Modelling
             </h1>
+            <Tooltip 
+              content="Model conversion factors and see how wRVU percentiles align with TCC percentiles."
+              side="right"
+            >
+              <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+            </Tooltip>
           </div>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
-            Model conversion factors and see how wRVU percentiles align with TCC percentiles.
-          </p>
         </div>
 
         {/* Toast Notification */}

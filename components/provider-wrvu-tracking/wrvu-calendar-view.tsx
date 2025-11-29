@@ -2,11 +2,13 @@
 
 import * as React from 'react';
 import { memo } from 'react';
-import { format, addMonths, subMonths, startOfToday } from 'date-fns';
+import { format, addMonths, subMonths, startOfToday, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { WRVUCalendarDayCell } from './wrvu-calendar-day-cell';
+import { MonthGoalsCompact } from './month-goals-compact';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Calendar, Grid, Info, CalendarDays } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
 import {
   Select,
   SelectContent,
@@ -21,7 +23,7 @@ import {
   formatDateString,
   type DateString,
 } from '@/lib/utils/calendar-helpers';
-import { DailyTrackingData } from '@/types/provider-wrvu-tracking';
+import { DailyTrackingData, MonthlyGoals } from '@/types/provider-wrvu-tracking';
 
 interface WRVUCalendarViewProps {
   dailyData?: Record<DateString, DailyTrackingData>;
@@ -30,6 +32,9 @@ interface WRVUCalendarViewProps {
   initialDate?: Date;
   className?: string;
   hasAnyData?: boolean;
+  saveIndicator?: React.ReactNode;
+  goals?: MonthlyGoals;
+  onGoalsChange?: (goals: MonthlyGoals) => void;
 }
 
 type ViewMode = 'week' | 'month';
@@ -41,6 +46,9 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
   initialDate,
   className,
   hasAnyData = false,
+  saveIndicator,
+  goals,
+  onGoalsChange,
 }: WRVUCalendarViewProps) {
   const [viewMode, setViewMode] = React.useState<ViewMode>('month');
   const [mounted, setMounted] = React.useState(false);
@@ -141,6 +149,30 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
     viewMode === 'week'
       ? `${format(weeks[0][0], 'MMM d')} - ${format(weeks[0][6], 'MMM d, yyyy')}`
       : monthYear;
+
+  // Calculate current month stats for goals progress
+  const monthStats = React.useMemo(() => {
+    if (viewMode === 'month') {
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+      
+      let totalPatients = 0;
+      let totalWRVUs = 0;
+      
+      monthDays.forEach((day) => {
+        const dateStr = formatDateString(day);
+        const data = dailyData[dateStr];
+        if (data) {
+          totalPatients += data.patients || 0;
+          totalWRVUs += data.workRVUs || 0;
+        }
+      });
+      
+      return { totalPatients, totalWRVUs };
+    }
+    return { totalPatients: 0, totalWRVUs: 0 };
+  }, [currentDate, dailyData, viewMode]);
 
   const handleDataChange = (date: Date, data: DailyTrackingData) => {
     if (onDataChange) {
@@ -307,21 +339,17 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
             </div>
           </div>
 
-          {/* Month/Year display */}
-          <div className="flex items-center justify-between pt-2">
+          {/* Month/Year display with save indicator on right */}
+          <div className="flex items-center justify-between pt-2 gap-4">
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
               {weekRange}
             </h3>
-            
-            {/* Help text */}
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <Info className="w-3.5 h-3.5" />
-              <span>
-                {selectedDates.length > 0 
-                  ? `${selectedDates.length} date${selectedDates.length !== 1 ? 's' : ''} selected • Enter data to apply to all`
-                  : 'Click dates to select multiple'}
-              </span>
-            </div>
+            {/* Save indicator - Right side, inline with month name */}
+            {saveIndicator && (
+              <div className="flex-shrink-0">
+                {saveIndicator}
+              </div>
+            )}
           </div>
         </CardHeader>
       </Card>
@@ -329,6 +357,36 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
       {/* Calendar grid - Desktop optimized */}
       <Card className="border-2 shadow-md">
         <CardContent className="p-4 sm:p-6 pb-6">
+          {/* Top: Tooltip on left, Goals on right */}
+          <div className="flex items-center justify-between gap-4 mb-4">
+            {/* Help tooltip - Left side */}
+            <Tooltip
+              content="Select multiple dates, then enter data once to apply the same values to all selected dates."
+              side="bottom"
+            >
+              <button
+                type="button"
+                className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors touch-target"
+                aria-label="Help"
+              >
+                <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              </button>
+            </Tooltip>
+            
+            {/* Goals - Right side */}
+            {onGoalsChange && (
+              <div className="flex-shrink-0">
+                <MonthGoalsCompact
+                  currentDate={currentDate}
+                  goals={goals}
+                  onGoalsChange={onGoalsChange}
+                  actualPatients={monthStats.totalPatients}
+                  actualWRVUs={monthStats.totalWRVUs}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Empty state guidance for first-time users */}
           {!hasAnyData && (
             <div className="mb-4 p-4 bg-primary/5 dark:bg-primary/10 rounded-lg border border-primary/20">
@@ -344,13 +402,6 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
                 </div>
               </div>
             </div>
-          )}
-          
-          {/* Multi-select hint - Simple text, no container */}
-          {hasAnyData && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
-              Select multiple dates, then enter data once to apply the same values to all selected dates.
-            </p>
           )}
           
           <div className="w-full overflow-x-auto overflow-y-visible -mx-4 sm:mx-0 px-4 sm:px-6 sm:px-0 calendar-container-landscape">
@@ -414,30 +465,14 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
               ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Legend */}
-      <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-lg bg-gray-50 dark:bg-gray-800/30 border-2 border-gray-200 dark:border-gray-700" />
-              <span className="font-medium text-gray-700 dark:text-gray-300">Weekend</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              <Info className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {selectedDates.length > 0 
-                  ? `Click dates to select • Enter data to apply to ${selectedDates.length} selected date${selectedDates.length !== 1 ? 's' : ''}`
-                  : 'Click dates to select multiple • Enter data to apply to all selected • Double-click to clear'}
-              </span>
-              <span className="sm:hidden">
-                {selectedDates.length > 0 
-                  ? `${selectedDates.length} selected`
-                  : 'Tap to add • Long-press to clear'}
-              </span>
-            </div>
+          
+          {/* Subtle help text - Apple style, no container */}
+          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+              {selectedDates.length > 0 
+                ? `${selectedDates.length} date${selectedDates.length !== 1 ? 's' : ''} selected • Enter data to apply to all`
+                : 'Click dates to select multiple • Enter data to apply to all selected • Double-click to clear'}
+            </p>
           </div>
         </CardContent>
       </Card>

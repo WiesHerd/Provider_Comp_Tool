@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, endOfWeek, eachWeekOfInterval } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useDarkMode } from '@/lib/hooks/use-dark-mode';
 import { useMobile } from '@/hooks/use-mobile';
 import { TrendingUp, Calendar } from 'lucide-react';
@@ -178,6 +178,23 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                     return [value.toLocaleString(), 'Patients'];
                   }}
                 />
+                <Legend
+                  wrapperStyle={{ 
+                    paddingTop: '20px',
+                    paddingBottom: '10px',
+                  }}
+                  iconType="line"
+                  iconSize={16}
+                  formatter={(value: string) => (
+                    <span style={{ 
+                      color: textColor, 
+                      fontSize: isMobile ? '13px' : '12px',
+                      fontWeight: 500
+                    }}>
+                      {value}
+                    </span>
+                  )}
+                />
                 <Line
                   yAxisId="left"
                   type="monotone"
@@ -269,6 +286,23 @@ export function WRVUCharts({ currentDate, dailyData }: WRVUChartsProps) {
                     }
                     return [value.toLocaleString(), 'Patients'];
                   }}
+                />
+                <Legend
+                  wrapperStyle={{ 
+                    paddingTop: '20px',
+                    paddingBottom: '10px',
+                  }}
+                  iconType="rect"
+                  iconSize={12}
+                  formatter={(value: string) => (
+                    <span style={{ 
+                      color: textColor, 
+                      fontSize: isMobile ? '13px' : '12px',
+                      fontWeight: 500
+                    }}>
+                      {value}
+                    </span>
+                  )}
                 />
                 <Bar 
                   yAxisId="left" 

@@ -108,32 +108,45 @@ export function Header() {
   }, []);
 
   // Scroll-based auto-hide header (Safari-style)
+  // Optimized with requestAnimationFrame for better performance
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    let ticking = false;
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Always show header at top of page
-      if (currentScrollY === 0) {
-        setIsHeaderVisible(true);
-        setLastScrollY(currentScrollY);
-        return;
-      }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          
+          // Always show header at top of page
+          if (currentScrollY === 0) {
+            setIsHeaderVisible(true);
+            lastScrollY = currentScrollY;
+            setLastScrollY(currentScrollY);
+            ticking = false;
+            return;
+          }
 
-      // Hide when scrolling down, show when scrolling up
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setIsHeaderVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsHeaderVisible(true);
-      }
+          // Hide when scrolling down, show when scrolling up
+          if (currentScrollY > lastScrollY && currentScrollY > 50) {
+            setIsHeaderVisible(false);
+          } else if (currentScrollY < lastScrollY) {
+            setIsHeaderVisible(true);
+          }
 
-      setLastScrollY(currentScrollY);
+          lastScrollY = currentScrollY;
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';

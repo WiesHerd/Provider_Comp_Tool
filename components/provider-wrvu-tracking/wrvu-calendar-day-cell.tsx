@@ -35,10 +35,30 @@ export function WRVUCalendarDayCell({
   const isWeekendDay = isWeekend(date);
   const hasData = trackingData.patients > 0 || trackingData.workRVUs > 0;
 
+  // Only update local state from props when NOT editing to prevent clearing user input
+  // Use refs to track the last synced values to avoid unnecessary updates
+  const lastSyncedPatientsRef = React.useRef(trackingData.patients);
+  const lastSyncedWRVUsRef = React.useRef(trackingData.workRVUs);
+  
   React.useEffect(() => {
-    setPatientsValue(trackingData.patients.toString());
-    setWrvuValue(trackingData.workRVUs.toString());
-  }, [trackingData]);
+    // Don't update if user is currently editing either field
+    if (isEditingPatients || isEditingWRVUs) {
+      return;
+    }
+    
+    // Only update if the values actually changed from what we last synced
+    const newPatients = trackingData.patients;
+    const newWRVUs = trackingData.workRVUs;
+    
+    if (lastSyncedPatientsRef.current !== newPatients) {
+      setPatientsValue(newPatients.toString());
+      lastSyncedPatientsRef.current = newPatients;
+    }
+    if (lastSyncedWRVUsRef.current !== newWRVUs) {
+      setWrvuValue(newWRVUs.toString());
+      lastSyncedWRVUsRef.current = newWRVUs;
+    }
+  }, [trackingData.patients, trackingData.workRVUs, isEditingPatients, isEditingWRVUs]);
 
   React.useEffect(() => {
     if (isEditingPatients && patientsInputRef.current) {
@@ -210,16 +230,25 @@ export function WRVUCalendarDayCell({
           >
             {dayName}
           </span>
-          <span
-            className={cn(
-              'text-sm sm:text-base font-bold',
-              isToday && 'text-primary',
-              !isToday && isCurrentMonth && 'text-gray-900 dark:text-gray-100',
-              !isCurrentMonth && 'text-gray-400 dark:text-gray-600'
+          <div className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                'text-sm sm:text-base font-bold',
+                isToday && 'text-primary',
+                !isToday && isCurrentMonth && 'text-gray-900 dark:text-gray-100',
+                !isCurrentMonth && 'text-gray-400 dark:text-gray-600'
+              )}
+            >
+              {dayNumber}
+            </span>
+            {/* Data indicator dot - positioned next to day number */}
+            {hasData && (
+              <div
+                className="w-2 h-2 rounded-full bg-primary flex-shrink-0"
+                aria-label="Has data"
+              />
             )}
-          >
-            {dayNumber}
-          </span>
+          </div>
         </div>
 
         {/* Dual input section - mobile-first: stacked vertically */}
@@ -324,14 +353,6 @@ export function WRVUCalendarDayCell({
             </button>
           )}
         </div>
-
-        {/* Data indicator dot */}
-        {hasData && (
-          <div
-            className="absolute top-4 right-2 w-2 h-2 rounded-full bg-primary"
-            aria-label="Has data"
-          />
-        )}
       </div>
     </Tooltip>
   );

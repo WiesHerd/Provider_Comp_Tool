@@ -74,9 +74,9 @@ function StatItem({ icon, label, value, difference, tooltipText, onClick, isClic
         </span>
         {difference && (
           <Tooltip content="Potential increase using adjusted wRVU per encounter" side="top">
-            <div className="flex items-center gap-1 px-2.5 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold flex-shrink-0 touch-target">
+            <div className="flex items-center gap-1 px-2.5 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold flex-shrink-0 touch-target cursor-help">
               {difference}
-              <Info className="w-3 h-3" />
+              <Info className="w-3 h-3 text-green-700 dark:text-green-400" />
             </div>
           </Tooltip>
         )}

@@ -35,7 +35,7 @@ export function CFModelReportView({ reportData }: CFModelReportViewProps) {
           variant="outline"
           className="w-full sm:w-auto"
         >
-          Report
+          Create Report
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>

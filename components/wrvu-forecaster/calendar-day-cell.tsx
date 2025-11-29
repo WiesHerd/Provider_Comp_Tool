@@ -269,17 +269,31 @@ export const CalendarDayCell = memo(function CalendarDayCell({
             {dayName}
           </span>
           {!hideDate && (
-            <span
-              className={cn(
-                'text-sm sm:text-base font-bold',
-                isToday && 'text-primary',
-                !isToday && isCurrentMonth && !isNonWorking && 'text-gray-900 dark:text-gray-100',
-                !isCurrentMonth && 'text-gray-400 dark:text-gray-600',
-                isNonWorking && 'opacity-60'
+            <div className="flex items-center gap-1.5">
+              <span
+                className={cn(
+                  'text-sm sm:text-base font-bold',
+                  isToday && 'text-primary',
+                  !isToday && isCurrentMonth && !isNonWorking && 'text-gray-900 dark:text-gray-100',
+                  !isCurrentMonth && 'text-gray-400 dark:text-gray-600',
+                  isNonWorking && 'opacity-60'
+                )}
+              >
+                {dayNumber}
+              </span>
+              {/* Type indicator dot - positioned next to day number */}
+              {dateType && (
+                <div
+                  className={cn(
+                    'w-2 h-2 rounded-full flex-shrink-0',
+                    dateType === 'vacation' && 'bg-blue-500',
+                    dateType === 'cme' && 'bg-purple-500',
+                    dateType === 'holiday' && 'bg-red-500'
+                  )}
+                  aria-label={dateType}
+                />
               )}
-            >
-              {dayNumber}
-            </span>
+            </div>
           )}
         </div>
 
@@ -398,19 +412,6 @@ export const CalendarDayCell = memo(function CalendarDayCell({
             </>
           )}
         </div>
-
-        {/* Type indicator dot */}
-        {dateType && (
-          <div
-            className={cn(
-              'absolute top-2 right-2 w-2 h-2 rounded-full',
-              dateType === 'vacation' && 'bg-blue-500',
-              dateType === 'cme' && 'bg-purple-500',
-              dateType === 'holiday' && 'bg-red-500'
-            )}
-            aria-label={dateType}
-          />
-        )}
       </div>
   );
 });

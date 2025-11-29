@@ -784,15 +784,15 @@ function PercentileTierContributionBreakdown({
               return (
                 <div
                   key={index}
-                  className={`p-4 rounded-lg border ${
+                  className={`p-3 rounded-lg border ${
                     isApplicable
                       ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800'
                       : 'bg-gray-50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700'
                   }`}
                 >
-                  <div className="flex flex-col space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-base font-semibold text-gray-900 dark:text-white">
+                  <div className="flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         Tier {index + 1}
                       </span>
                       {isApplicable && (
@@ -801,23 +801,21 @@ function PercentileTierContributionBreakdown({
                         </span>
                       )}
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Percentile Range
-                        </span>
-                        <span className="text-xs font-semibold text-gray-900 dark:text-white text-right ml-2">
-                          {tierRange}
-                        </span>
-                      </div>
-                      <div className="flex items-start justify-between">
-                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          CF Rate
-                        </span>
-                        <span className="text-xs font-semibold text-gray-900 dark:text-white text-right ml-2">
-                          {formatCurrency(tier.cf)}/wRVU
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        Percentile Range:
+                      </span>
+                      <span className="text-xs text-gray-900 dark:text-white font-medium">
+                        {tierRange}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        CF Rate:
+                      </span>
+                      <span className="text-xs text-gray-900 dark:text-white font-medium">
+                        {formatCurrency(tier.cf)}/wRVU
+                      </span>
                     </div>
                   </div>
                 </div>

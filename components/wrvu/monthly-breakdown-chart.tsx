@@ -123,9 +123,23 @@ export function MonthlyBreakdownChart({ monthlyBreakdown, conversionFactor }: Mo
               return [`$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, name];
             }}
           />
-          <Legend 
-            wrapperStyle={{ color: textColor }}
+          <Legend
+            wrapperStyle={{ 
+              paddingTop: '20px',
+              paddingBottom: '10px',
+              color: textColor
+            }}
             iconType="rect"
+            iconSize={12}
+            formatter={(value: string) => (
+              <span style={{ 
+                color: textColor, 
+                fontSize: isMobile ? '13px' : '12px',
+                fontWeight: 500
+              }}>
+                {value}
+              </span>
+            )}
           />
           <Bar 
             yAxisId="left" 

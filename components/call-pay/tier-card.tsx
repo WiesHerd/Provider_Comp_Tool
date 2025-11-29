@@ -775,7 +775,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 Weekday Calls per Month
               </Label>
-              <Tooltip content={getWeekdayTooltip()} side="top" className="max-w-[300px]">
+              <Tooltip content={getWeekdayTooltip()} side="top" className="max-w-[280px]">
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
             </div>
@@ -850,7 +850,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 Weekend Calls per Month
               </Label>
-              <Tooltip content={getWeekendTooltip()} side="top" className="max-w-[300px]">
+              <Tooltip content={getWeekendTooltip()} side="top" className="max-w-[280px]">
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
             </div>
@@ -931,7 +931,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 Holidays Covered per Year
               </Label>
-              <Tooltip content={getHolidayTooltip()} side="top" className="max-w-[300px]">
+              <Tooltip content={getHolidayTooltip()} side="top" className="max-w-[280px]">
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
             </div>
@@ -1011,7 +1011,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
               <Label className="text-xs text-gray-600 dark:text-gray-400">
                 {tier.paymentMethod === 'Per wRVU' ? 'Avg wRVUs per 24h' : 'Avg Callbacks per 24h'}
               </Label>
-              <Tooltip content={getCallbacksTooltip()} side="top" className="max-w-[300px]">
+              <Tooltip content={getCallbacksTooltip()} side="top" className="max-w-[280px]">
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
             </div>
@@ -1086,7 +1086,7 @@ export function TierCard({ tier, onTierChange, specialty, context }: TierCardPro
                   <span className="text-gray-400 ml-1">(optional for non-procedural specialties)</span>
                 )}
               </Label>
-              <Tooltip content={getCasesTooltip()} side="top" className="max-w-[300px]">
+              <Tooltip content={getCasesTooltip()} side="top" className="max-w-[280px]">
                 <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
               </Tooltip>
             </div>
