@@ -70,7 +70,7 @@ export function CFModelResults({
           </CardTitle>
           {showAddButton && onAddModel && (
             <Button onClick={onAddModel} variant="outline" size="sm">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
               Add Model
             </Button>
           )}

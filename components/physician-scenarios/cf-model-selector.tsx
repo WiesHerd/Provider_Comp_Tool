@@ -437,7 +437,7 @@ function TieredCFInputs({
           onClick={addTier}
           className="w-full"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
           Add Tier
         </Button>
       </div>
@@ -1091,8 +1091,8 @@ function PercentileTieredCFInputs({
         onClick={addTier}
         className="w-full sm:w-auto"
       >
-        <Plus className="w-4 h-4 mr-2" />
-        Add Tier
+          <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
+          Add Tier
       </Button>
     </div>
   );

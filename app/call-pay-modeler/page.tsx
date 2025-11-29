@@ -812,7 +812,7 @@ export default function CallPayModelerPage() {
                 }}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
+                <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
                 Back to Configuration
               </Button>
               <Button
@@ -1020,7 +1020,7 @@ export default function CallPayModelerPage() {
                   }}
                   className="w-full sm:w-auto min-h-[44px] touch-target"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
                   Back to FMV Benchmarking
                 </Button>
               </div>
@@ -1046,7 +1046,7 @@ export default function CallPayModelerPage() {
                   onClick={handleStartOver}
                   className="w-full sm:w-auto min-h-[44px] touch-target"
                 >
-                  <RotateCcw className="w-4 h-4 mr-2" />
+                  <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
                   Start New Calculation
                 </Button>
               </div>

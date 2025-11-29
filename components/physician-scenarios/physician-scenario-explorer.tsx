@@ -674,7 +674,7 @@ export function PhysicianScenarioExplorer() {
                   size="sm"
                   className="min-h-[36px] touch-manipulation"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
                   <span className="hidden sm:inline">Add Model</span>
                   <span className="sm:hidden">Add</span>
                 </Button>
@@ -836,7 +836,7 @@ export function PhysicianScenarioExplorer() {
                   size="lg"
                   disabled={!results}
                 >
-                  <Plus className="w-5 h-5 mr-2" />
+                  <Plus className="w-5 h-5 mr-2 flex-shrink-0" />
                   Save This Model
                 </Button>
                 {!results && (
@@ -936,7 +936,7 @@ export function PhysicianScenarioExplorer() {
                   Cancel
                 </Button>
                 <Button onClick={handleAddModel}>
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
                   Add Model
                 </Button>
               </div>
@@ -959,7 +959,7 @@ export function PhysicianScenarioExplorer() {
               disabled={activeTab === 'setup'}
               className="min-h-[48px] min-w-[120px]"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
+              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
               Back
             </Button>
             
@@ -983,7 +983,7 @@ export function PhysicianScenarioExplorer() {
               className="min-h-[48px] min-w-[140px] ml-auto"
             >
               {activeTab === 'results' ? 'View Comparison' : 'Continue'}
-              <ChevronRight className="w-4 h-4 ml-2" />
+              <ChevronRight className="w-4 h-4 ml-2 flex-shrink-0" />
             </Button>
           </div>
         </div>

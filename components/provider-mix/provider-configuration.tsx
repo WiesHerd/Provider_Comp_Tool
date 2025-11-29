@@ -90,7 +90,7 @@ export function ProviderConfiguration({
             </Tooltip>
           </div>
           <Button variant="outline" size="sm" onClick={handleAddProvider} className="min-h-[36px] touch-manipulation">
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
             Add Provider
           </Button>
         </div>

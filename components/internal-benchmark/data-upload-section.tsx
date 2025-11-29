@@ -153,11 +153,11 @@ export function DataUploadSection({
               size="sm"
               disabled={isImporting}
             >
-              <Upload className="w-4 h-4 mr-2" />
+              <Upload className="w-4 h-4 mr-2 flex-shrink-0" />
               {isImporting ? 'Importing...' : 'Upload CSV/Excel'}
             </Button>
             <Button variant="outline" size="sm" onClick={handleAddRecord}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
               Add Row
             </Button>
           </div>

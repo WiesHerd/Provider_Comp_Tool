@@ -68,12 +68,12 @@ export function MarketDataSaveButton({
       >
         {saved ? (
           <>
-            <Check className="w-4 h-4 mr-2" />
+            <Check className="w-4 h-4 mr-2 flex-shrink-0" />
             Saved!
           </>
         ) : (
           <>
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="w-4 h-4 mr-2 flex-shrink-0" />
             Save
           </>
         )}

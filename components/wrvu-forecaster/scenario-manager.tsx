@@ -194,7 +194,7 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
                 onClick={() => setShowSaveDialog(true)}
                 className="min-h-[44px] touch-target flex-1 sm:flex-initial"
               >
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="w-4 h-4 mr-2 flex-shrink-0" />
                 Save
               </Button>
               
@@ -204,7 +204,7 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
                   onClick={onEmailReport}
                   className="min-h-[44px] touch-target flex-1 sm:flex-initial"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
+                  <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
                   Email
                 </Button>
               )}
@@ -215,7 +215,7 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
                   onClick={onPrint}
                   className="hidden sm:inline-flex min-h-[44px] touch-target"
                 >
-                  <Printer className="w-4 h-4 mr-2" />
+                  <Printer className="w-4 h-4 mr-2 flex-shrink-0" />
                   Print
                 </Button>
               )}
@@ -227,7 +227,7 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
                 onClick={onStartOver}
                 className="min-h-[44px] touch-target sm:ml-auto"
               >
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
                 Start Over
               </Button>
             )}

@@ -414,7 +414,7 @@ function ResultsStepContent({
             onClick={onBack}
             className="w-full sm:w-auto min-h-[44px] touch-target"
           >
-            <ChevronLeft className="w-4 h-4 mr-2" />
+            <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
             Back
           </Button>
         </div>
@@ -436,7 +436,7 @@ function ResultsStepContent({
             onClick={handleStartOver}
             className="w-full sm:w-auto min-h-[44px] touch-target"
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
+            <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
             Start Over
           </Button>
         </div>
@@ -843,21 +843,22 @@ function WRVUModelerPageContent() {
             <Button
               variant="outline"
               onClick={() => {
+                setActiveTab('setup');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
+              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
               Back
             </Button>
             <Button
               onClick={handleCalculate}
-              className="w-full sm:flex-1 min-h-[48px] text-base font-semibold"
+              className="w-full sm:flex-1 min-h-[48px] text-base font-semibold flex items-center"
               size="lg"
             >
-              <Calculator className="w-5 h-5 mr-2" />
-              Calculate Results
+              <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
+              Calculate
             </Button>
           </div>
         </div>

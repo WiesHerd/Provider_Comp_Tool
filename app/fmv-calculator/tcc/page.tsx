@@ -391,7 +391,7 @@ function TCCCalculatorPageContent() {
               className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
+              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
               Back
             </Button>
             <Button
@@ -400,7 +400,7 @@ function TCCCalculatorPageContent() {
               size="lg"
               disabled={!hasMarketData || normalizedTcc === 0}
             >
-              <Calculator className="w-5 h-5 mr-2" />
+              <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
               {showResults ? 'Recalculate' : 'Calculate'}
             </Button>
           </div>
@@ -434,7 +434,7 @@ function TCCCalculatorPageContent() {
                 onClick={() => setActiveStep(2)}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
+                <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
                 Back
               </Button>
             </div>
@@ -456,7 +456,7 @@ function TCCCalculatorPageContent() {
                 onClick={handleStartNew}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
                 Start Over
               </Button>
             </div>

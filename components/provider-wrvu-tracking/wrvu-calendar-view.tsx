@@ -263,7 +263,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
                   }}
                 >
                   <SelectTrigger className="h-9 flex-1 sm:w-[140px] text-sm">
-                    <CalendarDays className="w-4 h-4 mr-2" />
+                    <CalendarDays className="w-4 h-4 mr-2 flex-shrink-0" />
                     <SelectValue>
                       {format(currentDate, 'MMM yyyy')}
                     </SelectValue>

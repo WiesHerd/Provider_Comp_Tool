@@ -539,7 +539,7 @@ export function PatientCalendarView({
                             className="w-full sm:w-auto min-h-[44px] touch-target"
                             variant="outline"
                           >
-                            <Users className="w-4 h-4 mr-2" />
+                            <Users className="w-4 h-4 mr-2 flex-shrink-0" />
                             Calculate from Hours
                           </Button>
                         )}
@@ -571,7 +571,7 @@ export function PatientCalendarView({
                             className="w-full sm:w-auto min-h-[44px] touch-target"
                             variant="outline"
                           >
-                            <Users className="w-4 h-4 mr-2" />
+                            <Users className="w-4 h-4 mr-2 flex-shrink-0" />
                             Apply Patients Per Day
                           </Button>
                         )}
@@ -832,7 +832,7 @@ export function PatientCalendarView({
                         )}
                         size="lg"
                       >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        <CheckCircle2 className="w-4 h-4 mr-2 flex-shrink-0" />
                         Apply to Entire Year
                       </Button>
                     </div>
@@ -895,7 +895,7 @@ export function PatientCalendarView({
                         className="w-full sm:w-auto min-h-[44px] touch-target"
                         variant="outline"
                       >
-                        <Users className="w-4 h-4 mr-2" />
+                        <Users className="w-4 h-4 mr-2 flex-shrink-0" />
                         Calculate Patients from Hours
                       </Button>
                     )}
@@ -1052,7 +1052,7 @@ export function PatientCalendarView({
                 variant="outline"
                 className="w-full sm:w-auto min-h-[44px] touch-target text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
               >
-                <Trash2 className="w-4 h-4 mr-2" />
+                <Trash2 className="w-4 h-4 mr-2 flex-shrink-0" />
                 Clear
               </Button>
             </div>

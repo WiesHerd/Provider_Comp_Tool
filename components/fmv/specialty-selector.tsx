@@ -324,7 +324,7 @@ export function SpecialtySelector({
               className="flex-1 min-h-[44px]"
               variant={isSaved ? 'outline' : 'default'}
             >
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4 mr-2 flex-shrink-0" />
               {isSaved ? 'Update Saved Data' : 'Save Market Data'}
             </Button>
             

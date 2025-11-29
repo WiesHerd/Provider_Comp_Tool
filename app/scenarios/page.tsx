@@ -20,7 +20,7 @@ export default function ScenariosPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Models</h1>
         <Button onClick={() => router.push('/fmv-calculator')}>
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
           New Model
         </Button>
       </div>

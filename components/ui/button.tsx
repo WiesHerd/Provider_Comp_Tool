@@ -67,7 +67,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             transition={{ duration: 0.15 }}
           />
         )}
-        <span className="relative z-10">{children}</span>
+        <span className="relative z-10 flex items-center">{children}</span>
       </motion.button>
     );
   }

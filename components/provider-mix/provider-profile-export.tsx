@@ -225,12 +225,12 @@ ${provider.notes ? `Notes: ${provider.notes}` : ''}
                 >
                   {isExporting ? (
                     <>
-                      <Download className="w-4 h-4 mr-2 animate-pulse" />
+                      <Download className="w-4 h-4 mr-2 animate-pulse flex-shrink-0" />
                       Exporting...
                     </>
                   ) : (
                     <>
-                      <FileSpreadsheet className="w-4 h-4 mr-2" />
+                      <FileSpreadsheet className="w-4 h-4 mr-2 flex-shrink-0" />
                       Export All
                     </>
                   )}
@@ -257,7 +257,7 @@ ${provider.notes ? `Notes: ${provider.notes}` : ''}
                     variant="ghost"
                     size="sm"
                   >
-                    <FileText className="w-4 h-4 mr-2" />
+                    <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
                     Export
                   </Button>
                 </div>

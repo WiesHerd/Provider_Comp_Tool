@@ -36,12 +36,12 @@ export function CFModelReportExport({ reportData }: CFModelReportExportProps) {
       >
         {isExporting ? (
           <>
-            <Download className="w-4 h-4 mr-2 animate-spin" />
+            <Download className="w-4 h-4 mr-2 animate-spin flex-shrink-0" />
             Exporting...
           </>
         ) : (
           <>
-            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            <FileSpreadsheet className="w-4 h-4 mr-2 flex-shrink-0" />
             Excel
           </>
         )}

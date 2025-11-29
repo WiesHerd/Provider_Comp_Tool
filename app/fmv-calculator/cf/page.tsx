@@ -264,7 +264,7 @@ function CFCalculatorPageContent() {
               className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
               size="lg"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
+              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
               Back
             </Button>
             <Button
@@ -273,7 +273,7 @@ function CFCalculatorPageContent() {
               size="lg"
               disabled={!hasMarketData}
             >
-              <Calculator className="w-5 h-5 mr-2" />
+              <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
               Calculate
             </Button>
           </div>
@@ -308,7 +308,7 @@ function CFCalculatorPageContent() {
                 onClick={() => setShowResults(false)}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
+                <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
                 Back
               </Button>
             </div>
@@ -327,7 +327,7 @@ function CFCalculatorPageContent() {
                 onClick={handleStartNew}
                 className="w-full sm:w-auto min-h-[44px] touch-target"
               >
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
                 Start Over
               </Button>
             </div>

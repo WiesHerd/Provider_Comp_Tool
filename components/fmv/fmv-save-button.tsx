@@ -144,7 +144,7 @@ export function FMVSaveButton({
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <Button className="w-full sm:w-auto min-h-[44px] touch-target">
-          <Save className="w-4 h-4 mr-2" />
+          <Save className="w-4 h-4 mr-2 flex-shrink-0" />
           Save
         </Button>
       </Dialog.Trigger>

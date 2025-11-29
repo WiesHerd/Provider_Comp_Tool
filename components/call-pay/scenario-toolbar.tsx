@@ -199,7 +199,7 @@ export function ScenarioToolbar({
             onClick={() => setShowSaveDialog(true)}
             className="whitespace-nowrap"
           >
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="w-4 h-4 mr-2 flex-shrink-0" />
             Update Scenario
           </Button>
         ) : null}
@@ -209,7 +209,7 @@ export function ScenarioToolbar({
           onClick={() => setShowSaveDialog(true)}
           className="whitespace-nowrap"
         >
-          <Save className="w-4 h-4 mr-2" />
+          <Save className="w-4 h-4 mr-2 flex-shrink-0" />
           Save as New
         </Button>
       </div>
@@ -264,7 +264,7 @@ export function ScenarioToolbar({
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin flex-shrink-0" />
                     Saving...
                   </>
                 ) : activeScenarioId ? (
