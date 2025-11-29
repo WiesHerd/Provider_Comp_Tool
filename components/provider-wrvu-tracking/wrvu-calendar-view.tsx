@@ -377,7 +377,6 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
             {onGoalsChange && (
               <div className="flex-shrink-0">
                 <MonthGoalsCompact
-                  currentDate={currentDate}
                   goals={goals}
                   onGoalsChange={onGoalsChange}
                   actualPatients={monthStats.totalPatients}

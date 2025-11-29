@@ -42,7 +42,6 @@ export function Header() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   // Ensure consistent pathname for SSR - use pathname directly, not conditional on mounted
@@ -124,7 +123,6 @@ export function Header() {
           if (currentScrollY === 0) {
             setIsHeaderVisible(true);
             lastScrollY = currentScrollY;
-            setLastScrollY(currentScrollY);
             ticking = false;
             return;
           }
@@ -137,7 +135,6 @@ export function Header() {
           }
 
           lastScrollY = currentScrollY;
-          setLastScrollY(currentScrollY);
           ticking = false;
         });
         ticking = true;

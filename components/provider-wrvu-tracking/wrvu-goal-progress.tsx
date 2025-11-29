@@ -6,14 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Target, TrendingUp, Users, Calendar, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { MonthlyGoals } from '@/types/provider-wrvu-tracking';
-import { DailyTrackingData } from '@/types/provider-wrvu-tracking';
 
 interface WRVUGoalProgressProps {
   currentDate: Date;
   goals?: MonthlyGoals;
   actualPatients: number;
   actualWRVUs: number;
-  dailyData?: Record<string, DailyTrackingData>;
 }
 
 export function WRVUGoalProgress({
@@ -21,7 +19,6 @@ export function WRVUGoalProgress({
   goals,
   actualPatients,
   actualWRVUs,
-  dailyData = {},
 }: WRVUGoalProgressProps) {
   const monthName = format(currentDate, 'MMMM yyyy');
   

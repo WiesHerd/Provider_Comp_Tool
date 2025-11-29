@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { motion } from 'framer-motion';
 import { Plus, Trash2 } from 'lucide-react';
@@ -27,7 +26,7 @@ import { CallSchedule } from '@/types/call-schedule';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Info, DollarSign, Scale } from 'lucide-react';
+import { Info, DollarSign, Scale } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
@@ -46,6 +45,7 @@ import {
 import { CallProvider, CallAssumptions } from '@/types/call-pay-engine';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
 import { cn } from '@/lib/utils/cn';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const DEFAULT_CONTEXT: CallPayContext = {
   specialty: '',
@@ -132,7 +132,6 @@ function applyProgramAssumptionsToTiers(
 }
 
 export default function CallPayModelerPage() {
-  const router = useRouter();
   const { loadScenarios } = useScenariosStore();
   const { scenarios, getComparisonData, getScenario, setActiveScenario, loadScenarios: loadCallPayScenarios, activeScenarioId } = useCallPayScenariosStore();
   const { getProgram, loadInitialData: loadProgramCatalog } = useProgramCatalogStore();
@@ -148,6 +147,7 @@ export default function CallPayModelerPage() {
   const [expandedTier, setExpandedTier] = useState<string>('C1');
   const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [activeTab, setActiveTab] = useState<'setup' | 'configuration' | 'results'>('setup');
   const [currentScenarioId, setCurrentScenarioId] = useState<string | null>(null);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
   const [benchmarks, setBenchmarks] = useState<CallPayBenchmarks>({});
@@ -361,21 +361,32 @@ export default function CallPayModelerPage() {
   }, [activeStep, step2Complete]);
 
   const handleWalkthroughNavigate = (_stepIndex: number, elementId: string) => {
-    // Map element IDs to step numbers
-    const elementToStep: Record<string, number> = {
-      'context-card': 1,
-      'tier-card': 2,
-      'impact-summary': 3,
+    // Map element IDs to tabs
+    const elementToTab: Record<string, 'setup' | 'configuration' | 'results'> = {
+      'context-card': 'setup',
+      'tier-card': 'configuration',
+      'impact-summary': 'results',
     };
-    const targetStep = elementToStep[elementId];
-    if (targetStep) {
-      setActiveStep(targetStep);
+    const targetTab = elementToTab[elementId];
+    if (targetTab) {
+      setActiveTab(targetTab);
+      // Map tabs to steps for backward compatibility
+      if (targetTab === 'setup') setActiveStep(1);
+      else if (targetTab === 'configuration') setActiveStep(2);
+      else if (targetTab === 'results') setActiveStep(3);
       // Scroll to top after a brief delay
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
     }
   };
+  
+  // Sync activeTab with activeStep when step changes externally
+  useEffect(() => {
+    if (activeStep === 1) setActiveTab('setup');
+    else if (activeStep === 2) setActiveTab('configuration');
+    else if (activeStep === 3) setActiveTab('results');
+  }, [activeStep]);
 
   const handleStartOver = () => {
     // Reset context to empty defaults
@@ -424,19 +435,9 @@ export default function CallPayModelerPage() {
         </div>
       )}
 
-      {/* Page Header - Consistent with other pages */}
-      <div className="mb-6">
-        {/* Header with Back Button and Title */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.back()}
-            className="min-h-[44px] touch-target"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
+      {/* Page Header - Clean Apple-style */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Call Pay Modeler
@@ -448,34 +449,52 @@ export default function CallPayModelerPage() {
               <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
             </Tooltip>
           </div>
-          <div className="ml-auto">
-            <ScenarioLoader
-              scenarioType="call-pay"
-              onLoad={(providerScenario) => {
-                // Try to load from CallScenario format first
-                const callPayScenario = getScenario(providerScenario.id);
-                if (callPayScenario) {
-                  handleLoadScenario(callPayScenario.id);
-                } else if (providerScenario.callPayData) {
-                  // Fallback: load from ProviderScenario format
-                  setContext(providerScenario.callPayData.context);
-                  setTiers(providerScenario.callPayData.tiers);
-                  setScenarioLoaded(true);
-                  setCurrentScenarioId(providerScenario.id);
-                  setActiveScenario(providerScenario.id);
-                }
-              }}
-            />
-          </div>
+          <ScenarioLoader
+            scenarioType="call-pay"
+            onLoad={(providerScenario) => {
+              // Try to load from CallScenario format first
+              const callPayScenario = getScenario(providerScenario.id);
+              if (callPayScenario) {
+                handleLoadScenario(callPayScenario.id);
+              } else if (providerScenario.callPayData) {
+                // Fallback: load from ProviderScenario format
+                setContext(providerScenario.callPayData.context);
+                setTiers(providerScenario.callPayData.tiers);
+                setScenarioLoaded(true);
+                setCurrentScenarioId(providerScenario.id);
+                setActiveScenario(providerScenario.id);
+              }
+            }}
+          />
         </div>
-        
-        {/* Program Selector - Clean Apple-style design */}
-        <ProgramSelector />
       </div>
 
-      {/* Mode Selector */}
-      <div className="mb-6">
-        <div className="inline-flex items-center rounded-xl border border-gray-200/60 dark:border-gray-700/60 bg-white dark:bg-gray-900 p-1 shadow-sm">
+      {/* Tabs for organizing content */}
+      <Tabs value={activeTab} onValueChange={(value) => {
+        const tab = value as 'setup' | 'configuration' | 'results';
+        setActiveTab(tab);
+        // Map tabs to steps for backward compatibility
+        if (tab === 'setup') setActiveStep(1);
+        else if (tab === 'configuration') setActiveStep(2);
+        else if (tab === 'results') setActiveStep(3);
+      }} className="w-full mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="setup" className="text-sm font-medium">
+            Setup
+          </TabsTrigger>
+          <TabsTrigger value="configuration" className="text-sm font-medium" disabled={!step1Complete}>
+            Configuration
+          </TabsTrigger>
+          <TabsTrigger value="results" className="text-sm font-medium" disabled={!step2Complete}>
+            Results
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Setup Tab - Context */}
+        <TabsContent value="setup" className="space-y-6 mt-0">
+          {/* Mode Selector and Program Selector - Side by side */}
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-between">
+            <div className="inline-flex items-center rounded-xl border border-gray-200/60 dark:border-gray-700/60 bg-white dark:bg-gray-900 p-1 shadow-sm">
           <motion.button
             onClick={() => setModelingMode("quick")}
             disabled={false}
@@ -547,43 +566,45 @@ export default function CallPayModelerPage() {
                 }}
               />
             )}
-            <span className="relative z-10">Advanced Mode</span>
+            <span className="relative z-10">Advanced Mode            </span>
           </motion.button>
         </div>
-        {modelingMode === "advanced" && !getActiveProgram() && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-3 p-3 rounded-lg bg-yellow-50/80 dark:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-800/60 shadow-sm"
-          >
-            <p className="text-sm text-yellow-800 dark:text-yellow-300">
-              Please select a Call Program before starting Advanced Mode.
-            </p>
-          </motion.div>
-        )}
+        
+        {/* Program Selector - Compact, all the way to the right */}
+        <div className="sm:ml-auto min-w-0">
+          <ProgramSelector compact />
+        </div>
       </div>
+      
+      {modelingMode === "advanced" && !getActiveProgram() && (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-3 rounded-lg bg-yellow-50/80 dark:bg-yellow-900/20 border border-yellow-200/60 dark:border-yellow-800/60 shadow-sm"
+        >
+          <p className="text-sm text-yellow-800 dark:text-yellow-300">
+            Please select a Call Program before starting Advanced Mode.
+          </p>
+        </motion.div>
+      )}
 
-      {/* Welcome Walkthrough */}
-      <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
-
-      {/* Step 1: Set Context (Only show when on Step 1) */}
-      {activeStep === 1 && (
-        <div id="context-card" data-tour="call-pay-context" className="space-y-6">
-          {/* Content - No container, just direct content */}
-          <div className="space-y-6">
+          {/* Context Card */}
+          <div id="context-card" data-tour="call-pay-context" className="space-y-6">
             <ContextCard 
               context={context}
               onContextChange={setContext}
             />
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Step 2: Configure Tiers (Only show when on Step 2) */}
-      {activeStep === 2 && (
-        <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
-          {/* Content */}
-          <div className="space-y-6">
+      {/* Welcome Walkthrough */}
+      <WelcomeWalkthrough onNavigateToStep={handleWalkthroughNavigate} />
+
+        {/* Configuration Tab - Tiers */}
+        <TabsContent value="configuration" className="space-y-6 mt-0">
+          <div id="tier-card" className="space-y-6" data-tour="call-pay-tiers">
+            {/* Content */}
+            <div className="space-y-6">
             {/* Provider Roster - Only show in Advanced Mode */}
             {modelingMode === "advanced" && providerRoster.length > 0 && (
               <ProviderRoster
@@ -703,52 +724,15 @@ export default function CallPayModelerPage() {
                   />
                 </div>
               ))}
+            </div>
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Navigation Buttons - Show when on Step 1 or 2 */}
-      {activeStep === 1 && step1Complete && (
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
-          <div className="flex gap-3">
-            <Button
-              onClick={handleStartOver}
-              variant="outline"
-              className="flex-1 min-h-[48px] text-base font-semibold"
-              size="lg"
-            >
-              Start Over
-            </Button>
-            <Button
-              onClick={() => setActiveStep(2)}
-              className="flex-1 min-h-[48px] text-base font-semibold"
-              size="lg"
-            >
-              Configure Tiers
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {activeStep === 2 && step2Complete && (
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom">
-          <div className="flex justify-center">
-            <Button
-              onClick={() => setActiveStep(3)}
-              className="w-auto max-w-[280px] min-h-[48px] text-base font-semibold"
-              size="lg"
-            >
-              Review Budget
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 3: Review Budget (Only shown when on Step 3) */}
-      {activeStep === 3 && step2Complete && (
-        <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
-          {/* Content */}
-          <div className="space-y-6">
+        {/* Results Tab - Budget Review */}
+        <TabsContent value="results" className="space-y-6 mt-0">
+          <div id="impact-summary" className="space-y-6" data-tour="call-pay-budget">
+            {/* Content */}
+            <div className="space-y-6">
             <Card className="border-2">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
@@ -951,8 +935,9 @@ export default function CallPayModelerPage() {
               </Button>
             </div>
           </div>
-        </div>
-      )}
+          </div>
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { WRVUInput } from '@/components/wrvu/wrvu-input';
-import { KPIChip } from '@/components/wrvu/kpi-chip';
 import { ScenarioSaveButton } from '@/components/wrvu/scenario-save-button';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
@@ -546,20 +545,6 @@ function WRVUModelerPageContent() {
   const normalizedWrvus = normalizeWrvus(annualWrvus, fte);
   const normalizedBasePay = fte > 0 ? basePay / fte : 0;
   const normalizedProductivityPay = (normalizedWrvus * conversionFactor) - normalizedBasePay;
-
-  // Validation functions
-  const validateStep1 = () => {
-    // Provider name and specialty are optional, so step 1 is always valid
-    return true;
-  };
-
-  const validateStep2 = () => {
-    return annualWrvus > 0;
-  };
-
-  const validateStep3 = () => {
-    return conversionFactor > 0;
-  };
 
   // Load scenarios on mount
   useEffect(() => {

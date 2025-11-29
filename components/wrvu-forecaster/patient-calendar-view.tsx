@@ -7,7 +7,7 @@ import { DateTypeSelector } from './date-type-selector';
 import { CalendarSummary } from './calendar-summary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Calendar, Grid, Info, Trash2, FileText, Users, Plane, CalendarCheck, BookOpen, Clock, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Grid, Trash2, FileText, Users, Plane, CalendarCheck, BookOpen, Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/cn';
 import { Tooltip } from '@/components/ui/tooltip';

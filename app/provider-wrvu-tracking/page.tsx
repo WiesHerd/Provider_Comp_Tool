@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { startOfMonth, format, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
-import { cn } from '@/lib/utils/cn';
 import { WRVUCalendarView } from '@/components/provider-wrvu-tracking/wrvu-calendar-view';
 import { WRVUMonthlySummary } from '@/components/provider-wrvu-tracking/wrvu-monthly-summary';
 import { WRVUTrackingActions } from '@/components/provider-wrvu-tracking/wrvu-tracking-actions';
@@ -491,7 +490,6 @@ export default function ProviderWRVUTrackingPage() {
             goals={currentGoals}
             actualPatients={monthStats.totalPatients}
             actualWRVUs={monthStats.totalWRVUs}
-            dailyData={state.dailyData}
           />
         </TabsContent>
 

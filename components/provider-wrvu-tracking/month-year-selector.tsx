@@ -85,11 +85,6 @@ export function MonthYearSelector({
         <SelectContent className="max-h-[300px] min-w-[120px]">
           <SelectGroup>
             {years.map((year) => {
-              const yearMonthCount = monthsWithData.filter(
-                (date) => date.getFullYear() === year
-              ).length;
-              const hasData = yearMonthCount > 0;
-              
               return (
                 <SelectItem 
                   key={year} 

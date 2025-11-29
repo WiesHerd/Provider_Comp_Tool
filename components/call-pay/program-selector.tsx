@@ -14,7 +14,11 @@ import {
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils/cn';
 
-export function ProgramSelector() {
+interface ProgramSelectorProps {
+  compact?: boolean;
+}
+
+export function ProgramSelector({ compact = false }: ProgramSelectorProps) {
   const router = useRouter();
   const { programs, getProgram } = useProgramCatalogStore();
   const { activeProgramId, setActiveProgram } = useUserPreferencesStore();
@@ -30,33 +34,32 @@ export function ProgramSelector() {
 
   if (programs.length === 0) {
     return (
-      <div className="space-y-2">
-        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Program Selector
-        </Label>
-        <button
-          onClick={() => router.push('/call-programs')}
-          className="w-full text-left text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/30 border border-gray-200/60 dark:border-gray-700/60"
-        >
-          No programs available
-        </button>
-      </div>
+      <button
+        onClick={() => router.push('/call-programs')}
+        className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/30 border border-gray-200/60 dark:border-gray-700/60 whitespace-nowrap"
+      >
+        {compact ? 'No program' : 'No programs available'}
+      </button>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Program Selector
-      </Label>
+    <div className={cn(compact ? "" : "space-y-2")}>
+      {!compact && (
+        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Program Selector
+        </Label>
+      )}
       <Select
         value={activeProgramId || undefined}
         onValueChange={handleProgramChange}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger className={cn(compact ? "w-auto min-w-[200px]" : "w-full")}>
           <SelectValue placeholder="Select a program">
             {activeProgram 
-              ? `${activeProgram.name}${activeProgram.specialty ? ` • ${activeProgram.specialty}` : ''}${activeProgram.site ? ` • ${activeProgram.site}` : ''}${activeProgram.modelYear ? ` • ${activeProgram.modelYear}` : ''}`
+              ? compact 
+                ? activeProgram.name
+                : `${activeProgram.name}${activeProgram.specialty ? ` • ${activeProgram.specialty}` : ''}${activeProgram.site ? ` • ${activeProgram.site}` : ''}${activeProgram.modelYear ? ` • ${activeProgram.modelYear}` : ''}`
               : 'Select a program'
             }
           </SelectValue>

@@ -308,7 +308,8 @@ function WRVUForecasterPageContent() {
         dailyPatientCounts: updatedPatientCounts,
       };
     });
-  }, [inputs.patientsPerHour, inputs.isPerHour]); // Only recalculate when these change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputs.patientsPerHour, inputs.isPerHour]); // Only recalculate when calculation parameters change, not when dailyHours changes
 
   // Calculate metrics whenever inputs change
   useEffect(() => {

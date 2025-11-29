@@ -1,14 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { format } from 'date-fns';
 import { Target, Plus, X, Check, Edit2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/cn';
 import { MonthlyGoals } from '@/types/provider-wrvu-tracking';
 
 interface MonthGoalsCompactProps {
-  currentDate: Date;
   goals?: MonthlyGoals;
   onGoalsChange: (goals: MonthlyGoals) => void;
   className?: string;
@@ -17,7 +15,6 @@ interface MonthGoalsCompactProps {
 }
 
 export function MonthGoalsCompact({
-  currentDate,
   goals,
   onGoalsChange,
   className,
@@ -68,13 +65,6 @@ export function MonthGoalsCompact({
     setEditingField(null);
   };
 
-  const handleClear = () => {
-    setTargetPatients('');
-    setTargetWRVUs('');
-    onGoalsChange({ targetPatients: undefined, targetWRVUs: undefined });
-    setIsEditing(false);
-    setEditingField(null);
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent, field: 'patients' | 'wrvus') => {
     if (e.key === 'Enter') {

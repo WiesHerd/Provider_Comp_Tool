@@ -8,7 +8,7 @@ import { Calculator, TrendingUp, Phone, BarChart3, ClipboardList, ArrowRightLeft
 // Memoized card component to prevent unnecessary re-renders
 const ToolCard = memo(({ href, icon: Icon, title, description }: {
   href: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: string | number }>;
   title: string;
   description: string;
 }) => (
