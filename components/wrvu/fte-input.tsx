@@ -17,15 +17,23 @@ export function FTEInput({ value, onChange }: FTEInputProps) {
   const min = 0;
   const max = 1.0;
 
-  const handleIncrement = () => {
-    const newValue = Number((value + step).toFixed(2));
+  const handleIncrement = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const currentValue = value ?? 0;
+    const newValue = Number((currentValue + step).toFixed(2));
     onChange(Math.min(newValue, max) as FTE);
-  };
+  }, [value, step, max, onChange]);
 
-  const handleDecrement = () => {
-    const newValue = Number((value - step).toFixed(2));
+  const handleDecrement = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const currentValue = value ?? 0;
+    const newValue = Number((currentValue - step).toFixed(2));
     onChange(Math.max(newValue, min) as FTE);
-  };
+  }, [value, step, min, onChange]);
+
+  const currentValue = value ?? 0;
 
   return (
     <div className="space-y-1.5">
@@ -35,7 +43,7 @@ export function FTEInput({ value, onChange }: FTEInputProps) {
       <div className="flex items-center gap-2">
         <div className="relative w-20">
           <NumberInput
-            value={value}
+            value={currentValue}
             onChange={(val) => {
               // Constrain value to FTE range
               const constrained = Math.max(min, Math.min(max, val));
@@ -54,7 +62,7 @@ export function FTEInput({ value, onChange }: FTEInputProps) {
             size="sm"
             onClick={handleDecrement}
             className="h-11 w-11 sm:h-8 sm:w-8 p-0 hover:bg-primary hover:text-white rounded-md active:scale-95 transition-transform touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center"
-            disabled={value <= min}
+            disabled={currentValue <= min}
             aria-label="Decrease FTE"
           >
             <Minus className="h-5 w-5 sm:h-4 sm:w-4" />
@@ -65,7 +73,7 @@ export function FTEInput({ value, onChange }: FTEInputProps) {
             size="sm"
             onClick={handleIncrement}
             className="h-11 w-11 sm:h-8 sm:w-8 p-0 hover:bg-primary hover:text-white rounded-md active:scale-95 transition-transform touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center"
-            disabled={value >= max}
+            disabled={currentValue >= max}
             aria-label="Increase FTE"
           >
             <Plus className="h-5 w-5 sm:h-4 sm:w-4" />

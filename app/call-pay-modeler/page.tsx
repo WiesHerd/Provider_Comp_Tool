@@ -26,6 +26,8 @@ import { CallSchedule } from '@/types/call-schedule';
 import { WelcomeWalkthrough } from '@/components/call-pay/welcome-walkthrough';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Info, DollarSign, Scale, ChevronLeft, RotateCcw } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
@@ -147,7 +149,7 @@ export default function CallPayModelerPage() {
   const [expandedTier, setExpandedTier] = useState<string>('C1');
   const [annualAllowableBudget, setAnnualAllowableBudget] = useState<number | null>(null);
   const [activeStep, setActiveStep] = useState<number>(1);
-  const [activeTab, setActiveTab] = useState<'setup' | 'configuration' | 'results'>('setup');
+  const [activeTab, setActiveTab] = useState<'setup' | 'configuration' | 'fmv-benchmarking' | 'results'>('setup');
   const [currentScenarioId, setCurrentScenarioId] = useState<string | null>(null);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
   const [benchmarks, setBenchmarks] = useState<CallPayBenchmarks>({});
@@ -267,9 +269,9 @@ export default function CallPayModelerPage() {
             const testSchedule = generateTestSchedule(draft.context?.modelYear || new Date().getFullYear());
             setCallSchedule(testSchedule);
           }
-          // Only restore activeStep if it's valid (1 or 2), otherwise default to 1
+          // Only restore activeStep if it's valid (1-4), otherwise default to 1
           const savedStep = draft.activeStep || 1;
-          setActiveStep(savedStep === 1 || savedStep === 2 ? savedStep : 1);
+          setActiveStep(savedStep >= 1 && savedStep <= 4 ? savedStep : 1);
         }
       }
     } catch (error) {
@@ -353,27 +355,32 @@ export default function CallPayModelerPage() {
       (tier.burden.weekdayCallsPerMonth > 0 || tier.burden.weekendCallsPerMonth > 0)
     );
 
-  // Auto-reset to Step 1 if we're on Step 3 but haven't completed Step 2
+  // Auto-reset logic for steps
   useEffect(() => {
     if (activeStep === 3 && !step2Complete) {
-      setActiveStep(1);
+      setActiveStep(2);
+    }
+    if (activeStep === 4 && !step2Complete) {
+      setActiveStep(2);
     }
   }, [activeStep, step2Complete]);
 
   const handleWalkthroughNavigate = (_stepIndex: number, elementId: string) => {
     // Map element IDs to tabs
-    const elementToTab: Record<string, 'setup' | 'configuration' | 'results'> = {
+    const elementToTab: Record<string, 'setup' | 'configuration' | 'fmv-benchmarking' | 'results'> = {
       'context-card': 'setup',
       'tier-card': 'configuration',
+      'fmv-benchmarking': 'fmv-benchmarking',
       'impact-summary': 'results',
     };
     const targetTab = elementToTab[elementId];
     if (targetTab) {
       setActiveTab(targetTab);
-      // Map tabs to steps for backward compatibility
+      // Map tabs to steps
       if (targetTab === 'setup') setActiveStep(1);
       else if (targetTab === 'configuration') setActiveStep(2);
-      else if (targetTab === 'results') setActiveStep(3);
+      else if (targetTab === 'fmv-benchmarking') setActiveStep(3);
+      else if (targetTab === 'results') setActiveStep(4);
       // Scroll to top after a brief delay
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -385,7 +392,8 @@ export default function CallPayModelerPage() {
   useEffect(() => {
     if (activeStep === 1) setActiveTab('setup');
     else if (activeStep === 2) setActiveTab('configuration');
-    else if (activeStep === 3) setActiveTab('results');
+    else if (activeStep === 3) setActiveTab('fmv-benchmarking');
+    else if (activeStep === 4) setActiveTab('results');
   }, [activeStep]);
 
   const handleStartOver = () => {
@@ -471,19 +479,23 @@ export default function CallPayModelerPage() {
 
       {/* Tabs for organizing content */}
       <Tabs value={activeTab} onValueChange={(value) => {
-        const tab = value as 'setup' | 'configuration' | 'results';
+        const tab = value as 'setup' | 'configuration' | 'fmv-benchmarking' | 'results';
         setActiveTab(tab);
-        // Map tabs to steps for backward compatibility
+        // Map tabs to steps
         if (tab === 'setup') setActiveStep(1);
         else if (tab === 'configuration') setActiveStep(2);
-        else if (tab === 'results') setActiveStep(3);
+        else if (tab === 'fmv-benchmarking') setActiveStep(3);
+        else if (tab === 'results') setActiveStep(4);
       }} className="w-full mb-6">
-        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 dark:bg-gray-800">
+        <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 dark:bg-gray-800">
           <TabsTrigger value="setup" className="text-sm font-medium">
             Setup
           </TabsTrigger>
           <TabsTrigger value="configuration" className="text-sm font-medium" disabled={!step1Complete}>
             Configuration
+          </TabsTrigger>
+          <TabsTrigger value="fmv-benchmarking" className="text-sm font-medium" disabled={!step2Complete}>
+            FMV Benchmarking
           </TabsTrigger>
           <TabsTrigger value="results" className="text-sm font-medium" disabled={!step2Complete}>
             Results
@@ -712,18 +724,107 @@ export default function CallPayModelerPage() {
                     specialty={context.specialty as Specialty | undefined}
                     context={context}
                   />
-                  {/* FMV Benchmark Panel for this tier */}
-                  <FMVBenchmarkPanel
-                    weekdayRate={tier.rates.weekday}
-                    weekendRate={tier.rates.weekend}
-                    holidayRate={tier.rates.holiday}
-                    benchmarks={benchmarks}
-                    onBenchmarksChange={setBenchmarks}
-                    enabled={enableFMVBenchmarks}
-                    onEnabledChange={setEnableFMVBenchmarks}
-                  />
                 </div>
               ))}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* FMV Benchmarking Tab */}
+        <TabsContent value="fmv-benchmarking" className="space-y-6 mt-0">
+          <div id="fmv-benchmarking" className="space-y-6" data-tour="call-pay-fmv-benchmarking">
+            <Card className="border-2">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                  FMV Benchmarking
+                </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  Enter market benchmark data to validate your call pay rates against FMV standards. This step is optional but recommended for compliance.
+                </p>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 space-y-6">
+                {/* Enable/Disable FMV Benchmarking Toggle */}
+                <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex-1">
+                    <Label className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Enable FMV Benchmarking
+                    </Label>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      Compare your rates against market benchmarks to assess FMV compliance
+                    </p>
+                  </div>
+                  <Switch
+                    checked={enableFMVBenchmarks}
+                    onCheckedChange={setEnableFMVBenchmarks}
+                  />
+                </div>
+
+                {/* FMV Benchmark Panels for each enabled tier */}
+                {enableFMVBenchmarks && enabledTiers.length > 0 && (
+                  <div className="space-y-6">
+                    {enabledTiers.map((tier) => (
+                      <div key={tier.id} className="space-y-4">
+                        <div className="pb-2 border-b border-gray-200 dark:border-gray-700">
+                          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                            {tier.name} Tier Benchmarking
+                          </h3>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            Weekday: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(tier.rates.weekday)} • 
+                            Weekend: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(tier.rates.weekend)} • 
+                            Holiday: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(tier.rates.holiday)}
+                          </p>
+                        </div>
+                        <FMVBenchmarkPanel
+                          weekdayRate={tier.rates.weekday}
+                          weekendRate={tier.rates.weekend}
+                          holidayRate={tier.rates.holiday}
+                          benchmarks={benchmarks}
+                          onBenchmarksChange={setBenchmarks}
+                          enabled={enableFMVBenchmarks}
+                          onEnabledChange={setEnableFMVBenchmarks}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {enableFMVBenchmarks && enabledTiers.length === 0 && (
+                  <div className="p-6 text-center text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <p className="text-sm">Please configure at least one tier in the Configuration tab before entering benchmarks.</p>
+                  </div>
+                )}
+
+                {!enableFMVBenchmarks && (
+                  <div className="p-6 text-center text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <p className="text-sm">Enable FMV Benchmarking above to enter market benchmark data and validate your rates.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Navigation buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setActiveTab('configuration');
+                  setActiveStep(2);
+                }}
+                className="w-full sm:w-auto min-h-[44px] touch-target"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back to Configuration
+              </Button>
+              <Button
+                onClick={() => {
+                  setActiveTab('results');
+                  setActiveStep(4);
+                }}
+                className="w-full sm:w-auto min-h-[44px] touch-target"
+                disabled={!step2Complete}
+              >
+                Continue to Results
+              </Button>
             </div>
           </div>
         </TabsContent>
@@ -914,13 +1015,13 @@ export default function CallPayModelerPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setActiveTab('configuration');
-                    setActiveStep(2);
+                    setActiveTab('fmv-benchmarking');
+                    setActiveStep(3);
                   }}
                   className="w-full sm:w-auto min-h-[44px] touch-target"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
-                  Back
+                  Back to FMV Benchmarking
                 </Button>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
