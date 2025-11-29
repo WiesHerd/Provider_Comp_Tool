@@ -57,8 +57,7 @@ export function calculateClinicalCF(
  * Supports manual input or formula-based calculation
  */
 export function calculateNonClinicalCompensation(
-  provider: Provider,
-  basePay: number
+  provider: Provider
 ): number {
   if (!provider.nonClinicalCompensation) {
     return 0;
@@ -71,8 +70,8 @@ export function calculateNonClinicalCompensation(
       return config.manualAmount || 0;
 
     case 'formula-admin-fte':
-      // Admin FTE × Base Salary
-      return provider.adminFTE * basePay;
+      // Admin FTE × Base Salary (uses provider's own basePay)
+      return provider.adminFTE * provider.basePay;
 
     case 'formula-stipend':
       // Fixed stipend amount
@@ -116,8 +115,8 @@ export function calculateProviderTCC(
   );
   const clinicalIncentivePay = fullIncentivePay * provider.clinicalFTE;
 
-  // Non-clinical compensation
-  const nonClinicalComp = calculateNonClinicalCompensation(provider, basePay);
+  // Non-clinical compensation (uses provider's own basePay)
+  const nonClinicalComp = calculateNonClinicalCompensation(provider);
 
   // Call pay (if applicable and included)
   const callPayAmount = includeCallPay && provider.callBurden ? (provider.callPay || 0) : 0;
@@ -145,17 +144,15 @@ export function calculateProviderTCC(
 export function calculateProviderAnalysis(
   provider: Provider,
   wrvus: number,
-  cfModel: ConversionFactorModel,
-  basePay: number,
   marketBenchmarks: MarketBenchmarks,
   includeCallPay: boolean = false
 ): ProviderAnalysis {
-  // Calculate TCC components
+  // Calculate TCC components using provider's own basePay and cfModel
   const tccBreakdown = calculateProviderTCC(
     provider,
     wrvus,
-    cfModel,
-    basePay,
+    provider.cfModel,
+    provider.basePay,
     marketBenchmarks,
     includeCallPay
   );
@@ -213,9 +210,7 @@ export function generateProviderProfile(
   provider: Provider,
   analysis: ProviderAnalysis,
   specialty: string,
-  modelYear: number,
-  cfModel: ConversionFactorModel,
-  basePay: number
+  modelYear: number
 ): ProviderProfile {
   // Determine FMV risk level
   let fmvRiskLevel: 'LOW' | 'MEDIUM' | 'HIGH' = 'LOW';
@@ -259,8 +254,6 @@ export function generateProviderProfile(
     analysis,
     specialty,
     modelYear,
-    cfModel,
-    basePay,
     recommendations,
     fmvRiskLevel,
   };
@@ -271,8 +264,7 @@ export function generateProviderProfile(
  */
 export function calculateGroupSummary(
   providers: Provider[],
-  analyses: ProviderAnalysis[],
-  cfModel: ConversionFactorModel
+  analyses: ProviderAnalysis[]
 ): GroupSummary {
   if (providers.length === 0) {
     return {
@@ -290,18 +282,29 @@ export function calculateGroupSummary(
   const providersAtRisk = analyses.filter((a) => a.riskFlag === 'Risk Zone').length;
   const totalTCC = analyses.reduce((sum, a) => sum + a.totalTCC, 0);
 
-  // Calculate weighted average CF
-  // This is a simplified calculation - in reality, CF varies by wRVU tier
-  // For now, we'll use the CF model summary to extract a representative CF value
-  let weightedAverageCF = 0;
+  // Calculate weighted average CF from all providers' individual CF models
+  // Weight by clinical FTE to get a representative average
+  let totalWeightedCF = 0;
+  let totalWeight = 0;
   
-  // Extract CF value from summary (for single CF models)
-  if (cfModel.modelType === 'single') {
-    weightedAverageCF = (cfModel.parameters as { cf: number }).cf;
-  } else {
-    // For other models, use a representative value (could be enhanced)
-    weightedAverageCF = 50; // Default placeholder
-  }
+  providers.forEach((provider) => {
+    const weight = provider.clinicalFTE;
+    if (weight > 0) {
+      // Extract CF value from provider's CF model
+      if (provider.cfModel.modelType === 'single') {
+        const cf = (provider.cfModel.parameters as { cf: number }).cf;
+        totalWeightedCF += cf * weight;
+        totalWeight += weight;
+      } else {
+        // For other models, use a representative value (could be enhanced)
+        // For now, estimate based on model type
+        totalWeightedCF += 50 * weight; // Default placeholder
+        totalWeight += weight;
+      }
+    }
+  });
+  
+  const weightedAverageCF = totalWeight > 0 ? totalWeightedCF / totalWeight : 0;
 
   return {
     totalProviders: providers.length,

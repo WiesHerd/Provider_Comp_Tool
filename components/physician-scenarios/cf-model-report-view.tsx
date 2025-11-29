@@ -33,9 +33,9 @@ export function CFModelReportView({ reportData }: CFModelReportViewProps) {
       <Dialog.Trigger asChild>
         <Button
           variant="outline"
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto min-h-[44px] touch-target"
         >
-          Create Report
+          View Comparison
         </Button>
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -45,7 +45,7 @@ export function CFModelReportView({ reportData }: CFModelReportViewProps) {
           <div className="flex items-start justify-between mb-6 sm:mb-8 pb-4 sm:pb-5 border-b border-gray-200 dark:border-gray-700">
             <div className="flex-1 pr-4">
               <Dialog.Title className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2 tracking-tight">
-                Model Comparison Report
+                Model Comparison
               </Dialog.Title>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
                 {reportData.context.specialty || 'All Specialties'} • {reportData.models.length} {reportData.models.length === 1 ? 'model' : 'models'}

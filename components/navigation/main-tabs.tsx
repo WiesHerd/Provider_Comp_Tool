@@ -2,23 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3, Database, Sparkles, Shield, Users, TrendingDown } from 'lucide-react';
+import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3, Database, Sparkles, Shield, TrendingDown } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import Link from 'next/link';
 
 const tabs = [
   { id: 'home', label: 'Home', icon: Home, path: '/' },
-  { id: 'wrvu-modeler', label: 'wRVU', icon: Calculator, path: '/wrvu-modeler' },
-  { id: 'wrvu-forecaster', label: 'Schedule', icon: BarChart3, path: '/wrvu-forecaster' },
+  { id: 'wrvu-modeler', label: 'Productivity', icon: Calculator, path: '/wrvu-modeler' },
+  { id: 'wrvu-forecaster', label: 'Schedule Forecast', icon: BarChart3, path: '/wrvu-forecaster' },
   { id: 'fmv-calculator', label: 'FMV', icon: TrendingUp, path: '/fmv-calculator' },
-  { id: 'physician-scenarios', label: 'Scenario Explorer', icon: Sparkles, path: '/physician-scenarios' },
+  { id: 'physician-scenarios', label: 'CF Modeler', icon: Sparkles, path: '/physician-scenarios' },
   { id: 'cf-stewardship-dashboard', label: 'CF Stewardship', icon: Shield, path: '/cf-stewardship-dashboard' },
-  { id: 'provider-mix', label: 'Provider Mix', icon: Users, path: '/provider-mix' },
   { id: 'internal-benchmark-engine', label: 'Internal Benchmark', icon: TrendingDown, path: '/internal-benchmark-engine' },
   { id: 'call-pay-modeler', label: 'Call Pay', icon: Phone, path: '/call-pay-modeler' },
   { id: 'call-programs', label: 'Programs', icon: Database, path: '/call-programs' },
-  { id: 'scenarios', label: 'Scenarios', icon: FolderOpen, path: '/scenarios' },
+  { id: 'scenarios', label: 'My Models', icon: FolderOpen, path: '/scenarios' },
 ];
 
 export function MainTabs({ children }: { children: React.ReactNode }) {

@@ -259,7 +259,7 @@ export function CFModelComparison({ wrvus, fte, fixedComp, marketBenchmarks, onV
             </p>
           </div>
           {results.length > 0 && (
-            <div className="ml-4">
+            <div className="mt-4 sm:mt-0 sm:ml-4">
               <CFModelReportExport
                 reportData={{
                   models: models.map(m => ({

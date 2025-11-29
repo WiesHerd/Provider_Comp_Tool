@@ -12,16 +12,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { calculateNonClinicalCompensation } from '@/lib/utils/provider-mix';
+import { Tooltip } from '@/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 interface NonClinicalCompensationProps {
   providers: Provider[];
-  basePay: number;
   onProvidersChange: (providers: Provider[]) => void;
 }
 
 export function NonClinicalCompensationInput({
   providers,
-  basePay,
   onProvidersChange,
 }: NonClinicalCompensationProps) {
   const handleUpdateNonClinicalComp = (
@@ -46,7 +46,7 @@ export function NonClinicalCompensationInput({
   };
 
   const getCalculatedAmount = (provider: Provider): number => {
-    return calculateNonClinicalCompensation(provider, basePay);
+    return calculateNonClinicalCompensation(provider);
   };
 
   if (providers.length === 0) {
@@ -64,9 +64,14 @@ export function NonClinicalCompensationInput({
   return (
     <Card className="border-2">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-          Non-Clinical Compensation
-        </CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+            Non-Clinical Compensation
+          </CardTitle>
+          <Tooltip content="Compensation for administrative, academic, or leadership activities. This is separate from clinical productivity-based compensation and is calculated based on admin FTE or role-based stipends." side="right">
+            <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+          </Tooltip>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -96,7 +101,12 @@ export function NonClinicalCompensationInput({
 
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold">Calculation Method</Label>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm font-semibold">Calculation Method</Label>
+                      <Tooltip content="Choose how non-clinical compensation is calculated: Manual input, Admin FTE × Base Salary, Fixed Stipend, or Role-Based Stipend." side="right">
+                        <Info className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+                      </Tooltip>
+                    </div>
                     <Select
                       value={config.calculationMethod}
                       onValueChange={(value: NonClinicalCompensation['calculationMethod']) =>
@@ -132,7 +142,7 @@ export function NonClinicalCompensationInput({
                   {config.calculationMethod === 'formula-admin-fte' && (
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                       <p className="text-sm text-blue-800 dark:text-blue-200">
-                        Formula: Admin FTE ({provider.adminFTE}) × Base Salary (${basePay.toLocaleString()}) = ${calculatedAmount.toLocaleString()}
+                        Formula: Admin FTE ({provider.adminFTE}) × Base Salary (${provider.basePay.toLocaleString()}) = ${calculatedAmount.toLocaleString()}
                       </p>
                     </div>
                   )}

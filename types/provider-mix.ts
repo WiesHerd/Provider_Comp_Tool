@@ -8,7 +8,7 @@ import { ConversionFactorModel } from '@/types/cf-models';
 /**
  * Provider Role Types
  */
-export type ProviderRole = 'Core PCP' | 'Lead' | 'Academic' | 'Part-time' | 'Other';
+export type ProviderRole = 'Clinical' | 'Lead' | 'Academic' | 'Part-time' | 'Other';
 
 /**
  * Non-Clinical Compensation Configuration
@@ -28,6 +28,8 @@ export interface Provider {
   id: string;
   name: string;
   role: ProviderRole;
+  basePay: number; // Individual base pay for this provider
+  cfModel: ConversionFactorModel; // Individual CF model for this provider
   clinicalFTE: number; // 0-1.0, required
   adminFTE: number; // 0-1.0, clinical + admin ≤ 1.0
   callBurden: boolean; // Whether provider has call burden
@@ -62,8 +64,6 @@ export interface ProviderProfile {
   analysis: ProviderAnalysis;
   specialty: string;
   modelYear: number;
-  cfModel: ConversionFactorModel;
-  basePay: number;
   recommendations: string[]; // Actionable recommendations
   fmvRiskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
 }

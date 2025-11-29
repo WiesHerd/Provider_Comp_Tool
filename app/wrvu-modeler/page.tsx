@@ -253,20 +253,27 @@ function ResultsStepContent({
   return (
     <div className="space-y-6" data-tour="wrvu-results">
       {/* Hero Section - Large Total Compensation Display */}
-      <div className="text-center py-8 sm:py-12">
-        <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400 mb-2">
-          {heroTitle}
-        </p>
-        <div className={cn(
-          "text-3xl sm:text-4xl lg:text-5xl font-bold mb-1",
-          isPositive ? "text-primary" : "text-red-600 dark:text-red-400"
-        )}>
-          {isPositive ? '+' : ''}${Math.abs(productivityPay).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </div>
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
-          {heroSubtitle}
-        </p>
-      </div>
+      <Card className={cn(
+        "border-2 text-center",
+        isPositive 
+          ? "border-primary/20 bg-primary/5 dark:bg-primary/10" 
+          : "border-red-200 dark:border-red-800/50 bg-red-50/50 dark:bg-red-900/10"
+      )}>
+        <CardContent className="py-8 sm:py-12">
+          <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400 mb-2">
+            {heroTitle}
+          </p>
+          <div className={cn(
+            "text-3xl sm:text-4xl lg:text-5xl font-bold mb-1",
+            isPositive ? "text-primary" : "text-red-600 dark:text-red-400"
+          )}>
+            {isPositive ? '+' : ''}${Math.abs(productivityPay).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2">
+            {heroSubtitle}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Compensation Section - Matching wrvu-forecaster style */}
       <div className="space-y-3">
@@ -648,10 +655,10 @@ function WRVUModelerPageContent() {
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'setup' | 'input' | 'results')} className="w-full mb-6">
         <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 dark:bg-gray-800">
           <TabsTrigger value="setup" className="text-sm font-medium">
-            Setup
+            Provider
           </TabsTrigger>
           <TabsTrigger value="input" className="text-sm font-medium">
-            Input
+            wRVUs
           </TabsTrigger>
           <TabsTrigger value="results" className="text-sm font-medium" disabled={annualWrvus === 0 || conversionFactor === 0}>
             Results

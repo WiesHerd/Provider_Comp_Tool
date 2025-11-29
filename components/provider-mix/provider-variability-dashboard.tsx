@@ -105,7 +105,7 @@ export function ProviderVariabilityDashboard({
               Filter:
             </Label>
             <Select value={riskFilter} onValueChange={(value: RiskFilter) => setRiskFilter(value)}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[140px] min-h-[44px] touch-manipulation">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -26,12 +26,12 @@ export function CFModelReportExport({ reportData }: CFModelReportExportProps) {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <CFModelReportView reportData={reportData} />
       <Button
         onClick={handleExport}
         disabled={isExporting}
-        className="w-full sm:w-auto"
+        className="w-full sm:w-auto min-h-[44px] touch-target"
         variant="outline"
       >
         {isExporting ? (

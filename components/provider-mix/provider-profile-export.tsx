@@ -44,8 +44,8 @@ export function ProviderProfileExport({
   };
 
   const generateProfileText = (profile: ProviderProfile): string => {
-    const { provider, analysis, cfModel, basePay } = profile;
-    const cfSummary = getCFModelSummary(cfModel);
+    const { provider, analysis } = profile;
+    const cfSummary = getCFModelSummary(provider.cfModel);
 
     return `Provider Profile — ${provider.name}
 ${'='.repeat(50)}
@@ -58,7 +58,7 @@ Call Burden: ${provider.callBurden ? 'Yes' : 'No'}
 Role: ${provider.role}
 
 Compensation Breakdown:
-- Base Pay (Clinical): ${formatCurrency(basePay * provider.clinicalFTE)}
+- Base Pay (Clinical): ${formatCurrency(provider.basePay * provider.clinicalFTE)}
 - Productivity Incentive: ${formatCurrency(analysis.clinicalIncentivePay)}
 - Non-Clinical Compensation: ${formatCurrency(analysis.nonClinicalComp)}
 ${provider.callBurden && analysis.callPayAmount > 0 ? `- Call Pay: ${formatCurrency(analysis.callPayAmount)}` : ''}
