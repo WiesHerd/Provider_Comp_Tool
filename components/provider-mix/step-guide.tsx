@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Provider } from '@/types/provider-mix';
-import { ConversionFactorModel } from '@/types/cf-models';
 import { MarketBenchmarks } from '@/types';
 
 interface StepGuideProps {
@@ -71,7 +70,7 @@ export function ProviderMixStepGuide({
         current: step3Complete,
       },
     ];
-  }, [specialty, basePay, cfModel, providers, marketBenchmarks]);
+  }, [specialty, providers, marketBenchmarks]);
 
   const completedCount = steps.filter(s => s.completed).length;
   const stepElementIds = ['setup-tab', 'providers-tab', 'analysis-tab', 'export-tab'];
