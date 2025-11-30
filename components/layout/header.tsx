@@ -465,7 +465,7 @@ export function Header() {
                             "border border-blue-200/50 dark:border-blue-800/50"
                           )}>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
-                              <strong className="text-gray-900 dark:text-white">Note:</strong> For education and planning only. Not legal or FMV advice.
+                              <strong className="text-gray-900 dark:text-white">Note:</strong> For planning and analysis purposes only. Not a substitute for formal FMV opinions, legal review, or regulatory compliance verification.
                             </p>
                           </div>
                         </div>

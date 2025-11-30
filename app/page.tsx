@@ -110,7 +110,7 @@ export default function Home() {
 
         {/* Disclaimer - Apple-style minimal */}
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-12 mb-8">
-          For education and planning only. Not legal or FMV advice.
+          For planning and analysis purposes only. Not a substitute for formal FMV opinions, legal review, or regulatory compliance verification.
         </p>
       </div>
       

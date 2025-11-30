@@ -173,7 +173,7 @@ ISC
 
 ## Disclaimer
 
-**For education and planning only. Not legal or FMV advice.**
+**For planning and analysis purposes only. Not a substitute for formal FMV opinions, legal review, or regulatory compliance verification.**
 
 This tool is designed to assist with compensation modeling and analysis. It should not be used as a substitute for professional legal, financial, or FMV consulting services.
 
