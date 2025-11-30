@@ -64,12 +64,12 @@ function TCCCalculatorPageContent() {
       if (savedDraft) {
         const draft = JSON.parse(savedDraft);
         // Only load draft if it has meaningful data
-        if (draft.tccComponents && draft.tccComponents.some((c: TCCComponent) => c.amount > 0)) {
+        if (draft.tccComponents && Array.isArray(draft.tccComponents) && draft.tccComponents.some((c: TCCComponent) => c.amount > 0)) {
           setSpecialty(draft.specialty || '');
           setFte(draft.fte || 1.0);
-          setTccComponents(draft.tccComponents || []);
+          setTccComponents(Array.isArray(draft.tccComponents) ? draft.tccComponents : []);
           setMarketBenchmarks(draft.marketBenchmarks || {});
-          setActiveStep(draft.activeStep || 1);
+          setActiveStep((draft.activeStep >= 1 && draft.activeStep <= 3) ? draft.activeStep : 1);
         }
       }
     } catch (error) {
@@ -78,7 +78,7 @@ function TCCCalculatorPageContent() {
   }, [searchParams, scenarioLoaded]);
 
   // Calculate total TCC from components
-  const totalTcc = tccComponents.reduce((sum, c) => sum + c.amount, 0);
+  const totalTcc = Array.isArray(tccComponents) ? tccComponents.reduce((sum, c) => sum + (c?.amount || 0), 0) : 0;
   const normalizedTcc = normalizeTcc(totalTcc, fte);
   const percentile = calculateTCCPercentile(normalizedTcc, marketBenchmarks);
 
@@ -251,7 +251,11 @@ function TCCCalculatorPageContent() {
     }
   }, [marketBenchmarks, activeStep, showResults]);
 
-  const currentStep = activeStep;
+  // Ensure activeStep is always valid (1, 2, or 3)
+  // If step 3 is selected but we don't have results, reset to step 1
+  const currentStep = (activeStep >= 1 && activeStep <= 3) 
+    ? (activeStep === 3 && !showResults ? 1 : activeStep)
+    : 1;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
@@ -461,6 +465,20 @@ function TCCCalculatorPageContent() {
               </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Fallback: If somehow no step matches, show Step 1 */}
+      {currentStep !== 1 && currentStep !== 2 && currentStep !== 3 && (
+        <div className="space-y-6">
+          <Card className="border-2">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Loading...</p>
+            </CardContent>
+          </Card>
         </div>
       )}
       </div>

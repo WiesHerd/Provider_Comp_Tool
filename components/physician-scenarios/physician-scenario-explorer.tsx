@@ -418,6 +418,7 @@ export function PhysicianScenarioExplorer() {
               setToastMessage('Please enter Annual wRVUs in the Setup tab to view results and comparisons.');
               return;
             }
+            // Provider Compare tab doesn't require wRVUs - it's a standalone comparison tool
             setActiveTab(value);
             // Clear toast when switching to a valid tab
             if (toastMessage) {
@@ -950,7 +951,7 @@ export function PhysicianScenarioExplorer() {
             <Button
               variant="outline"
               onClick={() => {
-                const tabs = ['setup', 'modeling', 'results', 'comparison'];
+                const tabs = ['setup', 'modeling', 'comparison', 'results'];
                 const currentIndex = tabs.indexOf(activeTab);
                 if (currentIndex > 0) {
                   setActiveTab(tabs[currentIndex - 1]);
@@ -965,7 +966,7 @@ export function PhysicianScenarioExplorer() {
             
             <Button
               onClick={() => {
-                const tabs = ['setup', 'modeling', 'results', 'comparison'];
+                const tabs = ['setup', 'modeling', 'comparison', 'results'];
                 const currentIndex = tabs.indexOf(activeTab);
                 const nextTab = tabs[currentIndex + 1];
                 
@@ -982,7 +983,7 @@ export function PhysicianScenarioExplorer() {
               disabled={activeTab === 'comparison'}
               className="min-h-[48px] min-w-[140px] ml-auto"
             >
-              {activeTab === 'results' ? 'View Comparison' : 'Continue'}
+              {activeTab === 'comparison' ? 'View Results' : 'Continue'}
               <ChevronRight className="w-4 h-4 ml-2 flex-shrink-0" />
             </Button>
           </div>

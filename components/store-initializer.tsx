@@ -46,7 +46,8 @@ export function StoreInitializer() {
       pathname.startsWith('/wrvu-modeler') ||
       pathname.startsWith('/wrvu-forecaster') ||
       pathname.startsWith('/call-pay-modeler') ||
-      pathname.startsWith('/physician-scenarios')
+      pathname.startsWith('/physician-scenarios') ||
+      pathname.startsWith('/fmv-calculator')
     ) {
       loadScenarios();
     }

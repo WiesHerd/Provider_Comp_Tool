@@ -43,7 +43,9 @@ import {
   syncCalendarToNumbers,
   calculateTotalPatientsFromCalendar,
   replicateWeekTemplate,
+  analyzeCalendarDataCoverage,
 } from '@/lib/utils/calendar-helpers';
+import { format } from 'date-fns';
 import { startOfWeek, endOfWeek, eachDayOfInterval, addDays } from 'date-fns';
 
 const STORAGE_KEY = 'wrvuForecasterState';
@@ -841,8 +843,8 @@ function WRVUForecasterPageContent() {
     // Calculate adjusted metrics
     const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
     const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
-    const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
-    const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
+    const currentIncentive = metrics.wrvuCompensation - inputs.baseSalary;
+    const adjustedIncentive = adjustedWRVUCompensation - inputs.baseSalary;
 
     const formatNumber = (value: number) =>
       new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
@@ -859,62 +861,140 @@ function WRVUForecasterPageContent() {
         ? inputs.baseSalary / inputs.wrvuConversionFactor
         : 0;
 
-    // Build email subject
-    const subject = encodeURIComponent('Provider Schedule & wRVU Forecast Report');
+    // Get provider information
+    const providerName = inputs.providerName?.trim() || 'Provider';
+    const specialty = inputs.specialty === 'Other' ? inputs.customSpecialty?.trim() : inputs.specialty?.trim() || 'Not specified';
+    const fte = inputs.fte ?? 1.0;
 
-    // Build email body with nicely formatted report
-    const emailBody = encodeURIComponent(`Provider Schedule & wRVU Forecast Report
-Generated: ${new Date().toLocaleDateString()}
+    // Analyze calendar data coverage
+    const calendarCoverage = inputs.dailyPatientCounts && Object.keys(inputs.dailyPatientCounts).length > 0
+      ? analyzeCalendarDataCoverage(
+          inputs.dailyPatientCounts,
+          inputs.vacationDates,
+          inputs.cmeDates,
+          inputs.statutoryHolidayDates
+        )
+      : null;
+
+    // Format days of week for shifts
+    const formatDaysOfWeek = (daysOfWeek: number[]) => {
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return daysOfWeek.map(d => dayNames[d]).join(', ');
+    };
+
+    // Build email subject with provider name if available
+    const subjectText = providerName && providerName !== 'Provider' 
+      ? `${providerName} - Schedule & wRVU Forecast Report`
+      : 'Provider Schedule & wRVU Forecast Report';
+    const subject = encodeURIComponent(subjectText);
+
+    // Build comprehensive email body
+    let emailBody = `${subjectText}
+Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+
+═══════════════════════════════════════════════════════
+PROVIDER INFORMATION
+═══════════════════════════════════════════════════════
+
+Provider Name: ${providerName}
+Specialty: ${specialty}
+FTE: ${fte.toFixed(2)} (${(fte * 100).toFixed(0)}% full-time equivalent)
 
 ═══════════════════════════════════════════════════════
 SUMMARY METRICS
 ═══════════════════════════════════════════════════════
 
 Total Compensation: ${formatCurrency(metrics.estimatedTotalCompensation)}
-Incentive Payment: ${formatCurrency(currentIncentive)}${adjustedIncentive > currentIncentive ? ` (Potential: ${formatCurrency(adjustedIncentive)})` : ''}
+  • Base Salary: ${formatCurrency(inputs.baseSalary)}
+  • wRVU Compensation: ${formatCurrency(metrics.wrvuCompensation)}
+  • Selected: ${formatCurrency(metrics.estimatedTotalCompensation)} (max of base salary or wRVU compensation)
+
+Incentive Payment: ${currentIncentive >= 0 ? '+' : ''}${formatCurrency(currentIncentive)}${adjustedIncentive > currentIncentive ? ` (Potential with adjusted wRVU: ${formatCurrency(adjustedIncentive)})` : ''}
+  • Calculation: (${formatCurrency(inputs.wrvuConversionFactor)} × ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs) - ${formatCurrency(inputs.baseSalary)} = ${formatCurrency(currentIncentive)}
+
 Estimated Annual wRVUs: ${formatNumber(metrics.estimatedAnnualWRVUs)}${adjustedAnnualWRVUs > metrics.estimatedAnnualWRVUs ? ` (Potential: ${formatNumber(adjustedAnnualWRVUs)})` : ''}
+  • Calculation: ${formatNumber(metrics.annualPatientEncounters)} encounters × ${inputs.avgWRVUPerEncounter.toFixed(2)} wRVU/encounter = ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs
+
+Target Annual wRVUs: ${formatNumber(targetAnnualWRVUs)}
+  • Calculation: ${formatCurrency(inputs.baseSalary)} ÷ ${formatCurrency(inputs.wrvuConversionFactor)}/wRVU = ${formatNumber(targetAnnualWRVUs)} wRVUs
 
 ═══════════════════════════════════════════════════════
 WORK SCHEDULE
 ═══════════════════════════════════════════════════════
 
-Weeks Worked Per Year: ${formatNumber(metrics.weeksWorkedPerYear)}
-Vacation Weeks: ${inputs.vacationWeeks}
-CME Days: ${inputs.cmeDays}
-Statutory Holidays: ${inputs.statutoryHolidays}
+Total Weeks in Year: 52 weeks
+Weeks Worked Per Year: ${formatNumber(metrics.weeksWorkedPerYear)} weeks
+  • Vacation Weeks Excluded: ${inputs.vacationWeeks} weeks
+  • CME Days Excluded: ${inputs.cmeDays} days (${(inputs.cmeDays / 7).toFixed(1)} weeks)
+  • Statutory Holidays Excluded: ${inputs.statutoryHolidays} days (${(inputs.statutoryHolidays / 7).toFixed(1)} weeks)
 
 Shift Types:
-${inputs.shifts.map((shift, i) => `  ${i + 1}. ${shift.name}: ${shift.hours} hours × ${shift.perWeek} per week`).join('\n')}
+${inputs.shifts.map((shift, i) => {
+  const daysOfWeekStr = shift.daysOfWeek && shift.daysOfWeek.length > 0 
+    ? ` (${formatDaysOfWeek(shift.daysOfWeek)})`
+    : '';
+  return `  ${i + 1}. ${shift.name}: ${shift.hours} hours × ${shift.perWeek} per week${daysOfWeekStr}`;
+}).join('\n')}
 
-Annual Clinic Days: ${formatNumber(metrics.annualClinicDays)}
-Annual Clinical Hours: ${formatNumber(metrics.annualClinicalHours)}
+Annual Clinic Days: ${formatNumber(metrics.annualClinicDays)} days
+Annual Clinical Hours: ${formatNumber(metrics.annualClinicalHours)} hours
+  • Average Hours per Week: ${metrics.weeksWorkedPerYear > 0 ? formatNumber(metrics.annualClinicalHours / metrics.weeksWorkedPerYear) : '0'} hours
+  • Average Hours per Day: ${metrics.annualClinicDays > 0 ? (metrics.annualClinicalHours / metrics.annualClinicDays).toFixed(1) : '0'} hours
 
 ═══════════════════════════════════════════════════════
 PATIENT ENCOUNTERS
 ═══════════════════════════════════════════════════════
 
-Patients Per ${inputs.isPerHour ? 'Hour' : 'Day'}: ${inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
-Encounters per Week: ${formatNumber(metrics.encountersPerWeek)}
-Annual Patient Encounters: ${formatNumber(metrics.annualPatientEncounters)}
+Calculation Method: ${inputs.isPerHour ? 'Patients Per Hour' : 'Patients Per Day'}
+${inputs.isPerHour 
+  ? `Patients Per Hour: ${inputs.patientsPerHour} patients/hour`
+  : `Patients Per Day: ${inputs.patientsPerDay} patients/day`}
 
-Average wRVU Per Encounter: ${inputs.avgWRVUPerEncounter.toFixed(2)}
-Adjusted wRVU Per Encounter: ${inputs.adjustedWRVUPerEncounter.toFixed(2)}
+Encounters per Week: ${formatNumber(metrics.encountersPerWeek)} encounters
+Annual Patient Encounters: ${formatNumber(metrics.annualPatientEncounters)} encounters
+  • Average Encounters per Day: ${metrics.annualClinicDays > 0 ? (metrics.annualPatientEncounters / metrics.annualClinicDays).toFixed(1) : '0'} encounters
+
+Average wRVU Per Encounter: ${inputs.avgWRVUPerEncounter.toFixed(2)} wRVU/encounter
+Adjusted wRVU Per Encounter: ${inputs.adjustedWRVUPerEncounter.toFixed(2)} wRVU/encounter${inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter ? ` (${inputs.adjustedWRVUPerEncounter > inputs.avgWRVUPerEncounter ? '+' : ''}${(inputs.adjustedWRVUPerEncounter - inputs.avgWRVUPerEncounter).toFixed(2)} difference)` : ''}
+
+${calendarCoverage ? `\nCalendar Data Source:
+  • ${calendarCoverage.isFullYear ? 'Full Year Data' : 'Partial Data (Annualized)'}
+  • ${calendarCoverage.monthsCovered} month${calendarCoverage.monthsCovered !== 1 ? 's' : ''} of data (${calendarCoverage.totalDaysWithData} working days)
+  • ${Math.round(calendarCoverage.coveragePercentage)}% of year covered${calendarCoverage.dateRange.start && calendarCoverage.dateRange.end ? `\n  • Date Range: ${format(calendarCoverage.dateRange.start, 'MMM d, yyyy')} - ${format(calendarCoverage.dateRange.end, 'MMM d, yyyy')}` : ''}
+  • ${calendarCoverage.isFullYear ? 'Projections based on actual calendar entries' : 'Projections annualized from average daily pattern'}` : ''}
+
+${inputs.isFromTemplate ? '\nNote: Forecast built from weekly template replicated across matching days of the year.' : ''}
 
 ═══════════════════════════════════════════════════════
-COMPENSATION
+COMPENSATION DETAILS
 ═══════════════════════════════════════════════════════
 
 Base Salary: ${formatCurrency(inputs.baseSalary)}
 wRVU Conversion Factor: ${formatCurrency(inputs.wrvuConversionFactor)}/wRVU
-Target Annual wRVUs: ${formatNumber(targetAnnualWRVUs)}
 
-${adjustedIncentive > currentIncentive ? `\n⚠️ POTENTIAL INCREASE WITH ADJUSTED wRVU:\n   Additional Incentive: ${formatCurrency(adjustedIncentive - currentIncentive)}\n   Additional wRVUs: ${formatNumber(adjustedAnnualWRVUs - metrics.estimatedAnnualWRVUs)}\n` : ''}
+Compensation Calculation:
+  • wRVU Compensation = ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs × ${formatCurrency(inputs.wrvuConversionFactor)}/wRVU = ${formatCurrency(metrics.wrvuCompensation)}
+  • Total Compensation = Max(${formatCurrency(inputs.baseSalary)}, ${formatCurrency(metrics.wrvuCompensation)}) = ${formatCurrency(metrics.estimatedTotalCompensation)}
+
+${adjustedIncentive > currentIncentive ? `\n⚠️ POTENTIAL INCREASE WITH ADJUSTED wRVU:
+   Current Annual wRVUs: ${formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs
+   Adjusted Annual wRVUs: ${formatNumber(adjustedAnnualWRVUs)} wRVUs
+   Additional wRVUs: +${formatNumber(adjustedAnnualWRVUs - metrics.estimatedAnnualWRVUs)} wRVUs
+   
+   Current Incentive: ${formatCurrency(currentIncentive)}
+   Adjusted Incentive: ${formatCurrency(adjustedIncentive)}
+   Additional Incentive: +${formatCurrency(adjustedIncentive - currentIncentive)}
+   
+   This potential increase assumes improved billing practices that increase average wRVU per encounter from ${inputs.avgWRVUPerEncounter.toFixed(2)} to ${inputs.adjustedWRVUPerEncounter.toFixed(2)} wRVU/encounter.\n` : ''}
+
 ═══════════════════════════════════════════════════════
 Generated by CompLens™ Provider Compensation Intelligence
-═══════════════════════════════════════════════════════`);
+═══════════════════════════════════════════════════════`;
+
+    const emailBodyEncoded = encodeURIComponent(emailBody);
 
     // Open email client
-    window.location.href = `mailto:?subject=${subject}&body=${emailBody}`;
+    window.location.href = `mailto:?subject=${subject}&body=${emailBodyEncoded}`;
   };
 
   const targetAnnualWRVUs =

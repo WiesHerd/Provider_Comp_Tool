@@ -382,8 +382,6 @@ export function TCCComponentsGrid({ components, onComponentsChange }: TCCCompone
                   </p>
                   <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
                     {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     }).format(

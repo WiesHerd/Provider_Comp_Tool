@@ -455,20 +455,11 @@ export function Header() {
                           </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                          <Button
-                            onClick={() => {
-                              setDialogOpen(false);
-                              openScreenGuide();
-                            }}
-                            className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-                          >
-                            Take Tour
-                          </Button>
+                        <div className="flex justify-end mt-8">
                           <Dialog.Close asChild>
                             <Button 
                               variant="outline" 
-                              className="flex-1 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                              className="transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                             >
                               Close
                             </Button>

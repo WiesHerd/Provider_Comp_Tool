@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FTE, MarketBenchmarks } from '@/types';
 import { ConversionFactorModel } from '@/types/cf-models';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 
 interface ProviderComparisonProps {
   marketBenchmarks: MarketBenchmarks;
+  providers?: ProviderInput[];
+  onProvidersChange?: (providers: ProviderInput[]) => void;
 }
 
 interface ProviderInput {
@@ -67,8 +69,8 @@ const formatPercentile = (value: number | null) => {
   return `${Math.round(value)}th`;
 };
 
-export function ProviderComparison({ marketBenchmarks }: ProviderComparisonProps) {
-  const [providers, setProviders] = useState<ProviderInput[]>([
+export function ProviderComparison({ marketBenchmarks, providers: providersProp, onProvidersChange }: ProviderComparisonProps) {
+  const defaultProviders: ProviderInput[] = [
     {
       id: 'provider-1',
       name: 'Provider A',
@@ -91,7 +93,27 @@ export function ProviderComparison({ marketBenchmarks }: ProviderComparisonProps
       wrvus: 7000,
       fte: 1.0,
     },
-  ]);
+  ];
+
+  const [internalProviders, setInternalProviders] = useState<ProviderInput[]>(defaultProviders);
+  
+  // Use prop providers if provided, otherwise use internal state
+  const providers = providersProp ?? internalProviders;
+  
+  const setProviders = (newProviders: ProviderInput[]) => {
+    if (onProvidersChange) {
+      onProvidersChange(newProviders);
+    } else {
+      setInternalProviders(newProviders);
+    }
+  };
+
+  // Sync internal state when prop changes
+  useEffect(() => {
+    if (providersProp) {
+      setInternalProviders(providersProp);
+    }
+  }, [providersProp]);
 
   const [editingProviderId, setEditingProviderId] = useState<string | null>(null);
   const [editingCFModel, setEditingCFModel] = useState<ConversionFactorModel | null>(null);

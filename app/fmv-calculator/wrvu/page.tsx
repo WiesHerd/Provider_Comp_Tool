@@ -13,6 +13,7 @@ import { FTEInput } from '@/components/wrvu/fte-input';
 import { WRVUInput } from '@/components/wrvu/wrvu-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Calculator, RotateCcw, ChevronLeft } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, FTE } from '@/types';
@@ -63,10 +64,10 @@ function WRVUCalculatorPageContent() {
           setSpecialty(draft.specialty || '');
           setAnnualWrvus(draft.annualWrvus || 0);
           setMonthlyWrvus(draft.monthlyWrvus || 0);
-          setMonthlyBreakdown(draft.monthlyBreakdown || Array(12).fill(0));
+          setMonthlyBreakdown(Array.isArray(draft.monthlyBreakdown) && draft.monthlyBreakdown.length === 12 ? draft.monthlyBreakdown : Array(12).fill(0));
           setFte(draft.fte || 1.0);
           setMarketBenchmarks(draft.marketBenchmarks || {});
-          setActiveStep(draft.activeStep || 1);
+          setActiveStep((draft.activeStep >= 1 && draft.activeStep <= 3) ? draft.activeStep : 1);
         }
       }
     } catch (error) {
@@ -157,7 +158,11 @@ function WRVUCalculatorPageContent() {
     }
   }, [marketBenchmarks, activeStep, showResults]);
 
-  const currentStep = activeStep;
+  // Ensure activeStep is always valid (1, 2, or 3)
+  // If step 3 is selected but we don't have results, reset to step 1
+  const currentStep = (activeStep >= 1 && activeStep <= 3) 
+    ? (activeStep === 3 && !showResults ? 1 : activeStep)
+    : 1;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
@@ -233,7 +238,7 @@ function WRVUCalculatorPageContent() {
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Normalized wRVUs (1.0 FTE)</span>
+                  <Label className="text-sm font-semibold">Normalized wRVUs (1.0 FTE)</Label>
                   <span className="font-semibold text-lg text-primary">
                     {formatValue(normalizedWrvus)}
                   </span>

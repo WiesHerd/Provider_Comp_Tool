@@ -142,7 +142,8 @@ export function ProviderInputSaveButton({
       <Dialog.Trigger asChild>
         <Button 
           disabled={!hasData}
-          className="w-full sm:w-auto min-h-[44px] touch-target"
+          className="w-full sm:w-auto min-h-[48px] text-base font-semibold touch-target"
+          size="lg"
         >
           <Save className="w-4 h-4 mr-2" />
           Save

@@ -274,6 +274,27 @@ function TieredCFInputs({
     }));
   };
 
+  // Calculate tier range for display
+  const getTierRange = (index: number): { from: number; to: number | null } => {
+    if (parameters.tierType !== 'threshold') {
+      return { from: 0, to: null };
+    }
+    
+    if (index === 0) {
+      return { from: 0, to: parameters.tiers[0].threshold || null };
+    }
+    
+    if (index < parameters.tiers.length - 1) {
+      const prevThreshold = parameters.tiers[index - 1].threshold || 0;
+      const currentThreshold = parameters.tiers[index].threshold || null;
+      return { from: prevThreshold, to: currentThreshold };
+    }
+    
+    // Final tier
+    const prevThreshold = parameters.tiers[index - 1].threshold || 0;
+    return { from: prevThreshold, to: null };
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -301,21 +322,31 @@ function TieredCFInputs({
             : null;
           
           return (
-            <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900">
+            <div key={index} className="border border-gray-200/60 dark:border-gray-700/60 rounded-xl p-4 bg-white dark:bg-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)]">
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-start">
                 {/* Threshold/Percentile Input Column */}
                 <div className="space-y-1.5">
                   {index < parameters.tiers.length - 1 ? (
                     <>
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          {isPercentileMode ? 'Percentile Threshold' : (parameters.tierType === 'threshold' ? 'Threshold (wRVUs)' : 'Percentage (%)')}
-                        </Label>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex flex-col gap-0.5 flex-1">
+                          <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {isPercentileMode ? 'Percentile Threshold' : (parameters.tierType === 'threshold' ? 'Threshold (wRVUs)' : 'Percentage (%)')}
+                          </Label>
+                          {parameters.tierType === 'threshold' && (() => {
+                            const range = getTierRange(index);
+                            return (
+                              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
+                                {range.from.toLocaleString('en-US', { maximumFractionDigits: 0 })} → {range.to !== null ? range.to.toLocaleString('en-US', { maximumFractionDigits: 0 }) : '—'} wRVUs
+                              </span>
+                            );
+                          })()}
+                        </div>
                         {parameters.tierType === 'threshold' && marketBenchmarks && (
                           <button
                             type="button"
                             onClick={() => togglePercentileInput(index)}
-                            className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                            className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium whitespace-nowrap mt-0.5"
                           >
                             {isPercentileMode ? 'Switch to wRVU' : 'Enter percentile'}
                           </button>
@@ -362,36 +393,57 @@ function TieredCFInputs({
                     </>
                   ) : (
                     <>
-                      <Label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
-                        Final Tier Threshold (wRVUs)
-                      </Label>
-                      <div className="relative">
-                        <NumberInput
-                          value={tier.threshold || 0}
-                          onChange={(value) => updateTier(index, { threshold: value })}
-                          min={0}
-                          step={100}
-                          placeholder="e.g., 8000"
-                          className="h-10 pr-20"
-                        />
-                        {parameters.tierType === 'threshold' && tier.threshold && getPercentileForWrvu(tier.threshold) !== null && (
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 pointer-events-none">
-                            ≈ {Math.round(getPercentileForWrvu(tier.threshold) || 0)}th
-                          </span>
-                        )}
+                      <div className="flex flex-col gap-0.5">
+                        <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          Final Tier
+                        </Label>
+                        {parameters.tierType === 'threshold' && (() => {
+                          const range = getTierRange(index);
+                          return (
+                            <span className="text-[11px] text-gray-500 dark:text-gray-400 font-normal">
+                              {range.from.toLocaleString('en-US', { maximumFractionDigits: 0 })}+ wRVUs
+                            </span>
+                          );
+                        })()}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        Applies to all wRVUs above this threshold
-                      </p>
+                      <div className="relative">
+                        <div className="h-10 px-3 flex items-center bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
+                          {parameters.tierType === 'threshold' && (() => {
+                            const prevThreshold = index > 0 ? (parameters.tiers[index - 1].threshold || 0) : 0;
+                            return (
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                {prevThreshold.toLocaleString('en-US', { maximumFractionDigits: 0 })}+ wRVUs
+                              </span>
+                            );
+                          })()}
+                          {parameters.tierType === 'percentage' && (
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              Remaining wRVUs
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </>
                   )}
                 </div>
 
                 {/* CF Input Column */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-700 dark:text-gray-300 block">
-                    CF ($/wRVU)
-                  </Label>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col gap-0.5 flex-1">
+                      <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        CF ($/wRVU)
+                      </Label>
+                      {/* Spacer to match range text height in threshold column */}
+                      {parameters.tierType === 'threshold' && (
+                        <span className="text-[11px] text-transparent select-none leading-tight" aria-hidden="true">0 → 0 wRVUs</span>
+                      )}
+                    </div>
+                    {/* Empty space to match button position in threshold column */}
+                    {parameters.tierType === 'threshold' && marketBenchmarks && (
+                      <div className="w-0" aria-hidden="true"></div>
+                    )}
+                  </div>
                   <div className="relative">
                     <CurrencyInput
                       value={tier.cf}
@@ -415,12 +467,12 @@ function TieredCFInputs({
 
                 {/* Delete Button Column */}
                 {index < parameters.tiers.length - 1 && parameters.tiers.length > 2 && (
-                  <div className="flex items-start pt-6">
+                  <div className="flex items-center justify-end">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeTier(index)}
-                      className="h-10 w-10 p-0 text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400"
+                      className="h-9 w-9 p-0 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
                       aria-label="Delete tier"
                     >
                       <Trash2 className="w-4 h-4" />

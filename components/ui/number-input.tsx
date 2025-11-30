@@ -21,7 +21,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     React.useEffect(() => {
       if (!isFocused) {
         // When not focused, show formatted value with comma separators
-        if (value !== undefined && value !== 0) {
+        if (value !== undefined && value !== null) {
           if (integerOnly) {
             // For integers, show as whole number with comma formatting
             const rounded = Math.round(value);
@@ -107,7 +107,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
       // Show raw value when focusing for easy editing
-      if (value !== undefined && value !== 0) {
+      if (value !== undefined && value !== null) {
         setDisplayValue(value.toString());
       } else {
         setDisplayValue('');
@@ -118,7 +118,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(false);
       // Format value when blurring with comma separators
-      if (value !== undefined && value !== 0) {
+      if (value !== undefined && value !== null) {
         if (integerOnly) {
           // For integers, round to whole number with comma formatting
           const rounded = Math.round(value);

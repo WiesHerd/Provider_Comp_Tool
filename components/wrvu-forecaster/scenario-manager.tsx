@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Save, Mail, Printer, RotateCcw } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
 import {
   WRVUForecasterInputs,
   ProductivityMetrics,
@@ -199,14 +200,19 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
               </Button>
               
               {onEmailReport && (
-                <Button 
-                  variant="outline" 
-                  onClick={onEmailReport}
-                  className="min-h-[44px] touch-target flex-1 sm:flex-initial"
+                <Tooltip 
+                  content="Email a comprehensive report with all forecast details, provider information, schedule breakdown, and compensation calculations"
+                  side="top"
                 >
-                  <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-                  Email
-                </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={onEmailReport}
+                    className="min-h-[44px] touch-target flex-1 sm:flex-initial"
+                  >
+                    <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                    Email
+                  </Button>
+                </Tooltip>
               )}
               
               {onPrint && (
