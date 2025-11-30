@@ -181,7 +181,7 @@ export function ProviderComparison({ marketBenchmarks }: ProviderComparisonProps
   };
 
   const removeProvider = (id: string) => {
-    if (providers.length <= 2) return;
+    if (providers.length <= 1) return;
     setProviders(providers.filter(p => p.id !== id));
   };
 
@@ -355,21 +355,20 @@ export function ProviderComparison({ marketBenchmarks }: ProviderComparisonProps
                                 size="sm"
                                 onClick={() => duplicateProvider(provider.id)}
                                 className="h-8 w-8 sm:h-9 sm:w-9 p-0 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 touch-manipulation"
-                                title="Duplicate"
+                                title="Duplicate provider"
                               >
                                 <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               </Button>
-                              {providers.length > 2 && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeProvider(provider.id)}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 p-0 text-gray-400 hover:text-red-500 dark:hover:text-red-400 touch-manipulation"
-                                  title="Remove"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                </Button>
-                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeProvider(provider.id)}
+                                disabled={providers.length <= 1}
+                                className="h-8 w-8 sm:h-9 sm:w-9 p-0 text-gray-400 hover:text-red-500 dark:hover:text-red-400 touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed"
+                                title={providers.length <= 1 ? "Cannot delete the last provider" : "Remove provider"}
+                              >
+                                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </Button>
                             </div>
                           </div>
                         </div>
