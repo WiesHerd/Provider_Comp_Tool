@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
-import { FTEInput } from '@/components/wrvu/fte-input';
 import { CFModelSelector } from './cf-model-selector';
 import { Button } from '@/components/ui/button';
 import { calculateIncentivePayWithModel, getCFModelSummary } from '@/lib/utils/cf-model-engine';
