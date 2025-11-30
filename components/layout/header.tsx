@@ -49,35 +49,6 @@ export function Header() {
   const isHome = safePathname === '/';
   const pageTitle = safePathname ? getPageTitle(safePathname) : null;
 
-  // Function to open the tour/guide modal for current screen
-  const openScreenGuide = () => {
-    if (typeof window === 'undefined') return;
-    
-    // Determine which guide to show based on current path
-    // Use safePathname for consistent behavior
-    let storageKey = SCREEN_GUIDES.home.storageKey; // default to home
-    
-    if (safePathname === '/') {
-      storageKey = SCREEN_GUIDES.home.storageKey;
-    } else if (safePathname === '/wrvu-modeler') {
-      storageKey = SCREEN_GUIDES.wrvuModeler.storageKey;
-    } else if (safePathname === '/fmv-calculator' || safePathname.startsWith('/fmv-calculator/')) {
-      storageKey = SCREEN_GUIDES.fmvCalculator.storageKey;
-    } else if (safePathname === '/call-pay-modeler') {
-      storageKey = SCREEN_GUIDES.callPayModeler.storageKey;
-    } else if (safePathname === '/wrvu-forecaster') {
-      storageKey = SCREEN_GUIDES.wrvuForecaster.storageKey;
-    } else if (safePathname === '/provider-wrvu-tracking') {
-      storageKey = SCREEN_GUIDES.providerWRVUTracking.storageKey;
-    } else if (safePathname === '/scenarios') {
-      storageKey = SCREEN_GUIDES.scenarios.storageKey;
-    }
-    
-    // Dispatch event to open the modal
-    const eventName = `${storageKey}-open`;
-    window.dispatchEvent(new CustomEvent(eventName));
-  };
-
   useEffect(() => {
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const storedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;

@@ -225,7 +225,7 @@ export function ProviderComparisonPageContent() {
         <Card className="border-2 mb-6">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-              Market Data (Optional)
+              Market Data
             </CardTitle>
           </CardHeader>
           <CardContent>
