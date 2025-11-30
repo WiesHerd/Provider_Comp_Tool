@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Info, ChevronLeft, Sparkles } from 'lucide-react';
+import { Sun, Moon, Info, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
@@ -313,35 +313,6 @@ export function Header() {
                     "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
                     "relative z-20"
                   )}
-                  onClick={openScreenGuide}
-                  aria-label={isHome ? "Take tour" : "Show help"}
-                  title={isHome ? "Take tour" : "Show help"}
-                  style={{ animationDelay: '0.1s' }}
-                  suppressHydrationWarning
-                >
-                  <Sparkles className={cn(
-                    "w-6 h-6 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400",
-                    "transition-all duration-200",
-                    "group-hover:scale-110 group-hover:text-gray-900 dark:group-hover:text-gray-200",
-                    "group-hover:animate-sparkle-pulse"
-                  )} />
-                </Button>
-                <Button 
-                  type="button"
-                  variant="ghost" 
-                  size="sm" 
-                  className={cn(
-                    "min-w-[44px] h-[44px]",
-                    "rounded-xl",
-                    "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
-                    "transition-all duration-200 ease-out",
-                    "active:scale-[0.95]",
-                    "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
-                    "group",
-                    "animate-icon-enter",
-                    "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
-                    "relative z-20"
-                  )}
                   onClick={() => {
                     setDialogOpen(true);
                   }}
@@ -379,7 +350,12 @@ export function Header() {
                     "shadow-2xl shadow-gray-900/10 dark:shadow-gray-900/50",
                     "border border-gray-200/60 dark:border-gray-800/60",
                     "animate-in fade-in zoom-in-95 duration-300",
-                    "supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-gray-950/90"
+                    "supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-gray-950/90",
+                    "[&::-webkit-scrollbar]:w-2",
+                    "[&::-webkit-scrollbar-track]:bg-transparent",
+                    "[&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-700",
+                    "[&::-webkit-scrollbar-thumb]:rounded-full",
+                    "[&::-webkit-scrollbar-thumb]:hover:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:hover:bg-gray-600"
                   )}
                 >
                   {(() => {
@@ -391,11 +367,17 @@ export function Header() {
                       <>
                         <Dialog.Title className={cn(
                           "text-2xl sm:text-3xl md:text-4xl font-medium mb-6 md:mb-8",
-                          "text-gray-900 dark:text-gray-100",
                           "tracking-[-0.02em]",
-                          "leading-tight"
+                          "leading-tight",
+                          "flex items-baseline"
                         )}>
-                          {isHome ? 'How to Use CompLens™' : screenGuide.title}
+                          {isHome ? (
+                            <>
+                              <span className="whitespace-pre">How to Use </span><span className="text-gray-900 dark:text-white">Comp</span><span className="text-purple-600 dark:text-purple-200">Lens</span><sup className="text-xs font-normal text-gray-900 dark:text-white opacity-90 ml-0.5">™</sup>
+                            </>
+                          ) : (
+                            screenGuide.title
+                          )}
                         </Dialog.Title>
                         
                         <div className="space-y-5 sm:space-y-6 text-sm sm:text-base leading-relaxed">
@@ -421,20 +403,23 @@ export function Header() {
                                   "font-semibold text-gray-900 dark:text-white mb-3",
                                   "text-base sm:text-lg"
                                 )}>
-                                  Four Main Tools
+                                  Main Tools
                                 </h4>
                                 <ul className="space-y-3 text-gray-700 dark:text-gray-300">
                                   <li>
-                                    <strong className="text-gray-900 dark:text-white">Productivity Incentive Calculator:</strong> Calculate productivity-based compensation and incentives based on FTE and conversion factors.
+                                    <strong className="text-gray-900 dark:text-white">CF Modelling:</strong> Model conversion factors and productivity levels. Enter market data, select a CF model, and see how wRVU percentiles align with TCC percentiles.
                                   </li>
                                   <li>
                                     <strong className="text-gray-900 dark:text-white">FMV Calculator:</strong> Perform fast FMV reasonableness checks and percentile analysis across TCC, wRVU, and Conversion Factor metrics.
                                   </li>
                                   <li>
+                                    <strong className="text-gray-900 dark:text-white">Provider Comparison:</strong> Quickly compare providers side-by-side with different pay, CF models, and productivity levels to see how they calculate incentives and total cash compensation.
+                                  </li>
+                                  <li>
                                     <strong className="text-gray-900 dark:text-white">Call Pay Modeler:</strong> Model call-pay structures with per-call, per-shift, or tiered payment methods and see annualized outputs.
                                   </li>
                                   <li>
-                                    <strong className="text-gray-900 dark:text-white">Schedule-Based Productivity Calculator:</strong> Forecast annual productivity and compensation based on your work schedule and patient load.
+                                    <strong className="text-gray-900 dark:text-white">wRVU Forecaster:</strong> Forecast annual wRVUs and compensation based on your schedule and patient load.
                                   </li>
                                 </ul>
                               </div>

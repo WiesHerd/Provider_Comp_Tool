@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3, Database, Sparkles, Shield, TrendingDown } from 'lucide-react';
+import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3, Database, Sparkles, Shield, TrendingDown, Users } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ const tabs = [
   { id: 'wrvu-modeler', label: 'Productivity', icon: Calculator, path: '/wrvu-modeler' },
   { id: 'wrvu-forecaster', label: 'Schedule Forecast', icon: BarChart3, path: '/wrvu-forecaster' },
   { id: 'fmv-calculator', label: 'FMV', icon: TrendingUp, path: '/fmv-calculator' },
+  { id: 'provider-comparison', label: 'Compare', icon: Users, path: '/provider-comparison' },
   { id: 'physician-scenarios', label: 'CF Modeler', icon: Sparkles, path: '/physician-scenarios' },
   { id: 'cf-stewardship-dashboard', label: 'CF Stewardship', icon: Shield, path: '/cf-stewardship-dashboard' },
   { id: 'internal-benchmark-engine', label: 'Internal Benchmark', icon: TrendingDown, path: '/internal-benchmark-engine' },

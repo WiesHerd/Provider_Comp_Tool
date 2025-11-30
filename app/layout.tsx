@@ -15,6 +15,11 @@ const StoreInitializer = dynamicImport(
   { ssr: false }
 );
 
+const WelcomeWalkthrough = dynamicImport(
+  () => import("@/components/layout/welcome-walkthrough").then((mod) => ({ default: mod.WelcomeWalkthrough })),
+  { ssr: false }
+);
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -86,6 +91,7 @@ export default function RootLayout({
             <MainTabs>
               {children}
             </MainTabs>
+            <WelcomeWalkthrough />
           </ScreenGuideProvider>
         </ErrorBoundary>
       </body>
