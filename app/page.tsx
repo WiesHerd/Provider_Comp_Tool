@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import Link from 'next/link';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calculator, TrendingUp, Phone, BarChart3, ClipboardList, ArrowRightLeft } from 'lucide-react';
+import { Calculator, TrendingUp, Phone, BarChart3, ClipboardList, ArrowRightLeft, Users } from 'lucide-react';
 
 // Memoized card component to prevent unnecessary re-renders
 const ToolCard = memo(({ href, icon: Icon, title, description }: {
@@ -79,7 +79,7 @@ export default function Home() {
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
               Market Analysis & Planning
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <ToolCard
                 href="/fmv-calculator"
                 icon={TrendingUp}
@@ -91,6 +91,12 @@ export default function Home() {
                 icon={ArrowRightLeft}
                 title="CF Modelling"
                 description="Model conversion factors and productivity levels. Enter market data, select a CF model, and see how wRVU percentiles align with TCC percentiles."
+              />
+              <ToolCard
+                href="/provider-comparison"
+                icon={Users}
+                title="Provider Comparison"
+                description="Quickly compare two providers side-by-side with different pay, CF models, and productivity levels to see how they calculate incentives and total cash compensation."
               />
               <ToolCard
                 href="/call-pay-modeler"

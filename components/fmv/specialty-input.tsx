@@ -225,7 +225,9 @@ export function SpecialtyInput({
       <div className="flex gap-2">
         <Select value={specialty} onValueChange={handleSpecialtyChange}>
           <SelectTrigger className="flex-1">
-            <SelectValue placeholder="Select specialty" />
+            <SelectValue placeholder="Select specialty">
+              {specialty === 'Other' && customSpecialty ? customSpecialty : specialty || 'Select specialty'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -262,7 +264,7 @@ export function SpecialtyInput({
                   {s}
                 </SelectItem>
               ))}
-              <SelectItem value="Other">Custom Specialty...</SelectItem>
+              <SelectItem value="Other">Custom</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
