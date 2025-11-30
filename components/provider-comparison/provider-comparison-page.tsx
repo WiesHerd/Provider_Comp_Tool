@@ -344,7 +344,7 @@ export function ProviderComparisonPageContent() {
                   setActiveScenarioId(null);
                   setShowManualEntry(false);
                 }}
-                className="min-h-[44px] touch-target sm:ml-auto"
+                className="min-h-[44px] touch-target flex-1 sm:flex-initial sm:ml-auto"
               >
                 <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
                 Start Over
