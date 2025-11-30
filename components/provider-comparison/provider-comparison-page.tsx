@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ProviderComparison } from '@/components/physician-scenarios/provider-comparison';
 import { MarketBenchmarks } from '@/types';
 import { SpecialtyInput } from '@/components/fmv/specialty-input';
@@ -11,25 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
-  loadMarketData, 
-  getSavedSpecialties
+  loadMarketData
 } from '@/lib/utils/market-data-storage';
 
 export function ProviderComparisonPageContent() {
   const [specialty, setSpecialty] = useState<string>('');
   const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
-  const [savedSpecialties, setSavedSpecialties] = useState<string[]>([]);
   const [showManualEntry, setShowManualEntry] = useState<boolean>(false);
-
-  // Load saved specialties on mount
-  const refreshSavedSpecialties = useCallback(() => {
-    const saved = getSavedSpecialties('wrvu');
-    setSavedSpecialties(saved);
-  }, []);
-
-  useEffect(() => {
-    refreshSavedSpecialties();
-  }, [refreshSavedSpecialties]);
 
   // Auto-load market data when specialty changes
   useEffect(() => {
@@ -54,26 +42,6 @@ export function ProviderComparisonPageContent() {
       setMarketBenchmarks(loadedBenchmarks);
     }
   }, [specialty]);
-
-  // Handle loading saved specialty
-  const handleLoadSavedSpecialty = (savedSpecialty: string) => {
-    setSpecialty(savedSpecialty);
-    
-    // Load all market data for this specialty
-    const wrvuData = loadMarketData(savedSpecialty, 'wrvu');
-    const tccData = loadMarketData(savedSpecialty, 'tcc');
-    const cfData = loadMarketData(savedSpecialty, 'cf');
-
-    const loadedBenchmarks: MarketBenchmarks = {
-      ...(wrvuData || {}),
-      ...(tccData || {}),
-      ...(cfData || {}),
-    };
-
-    if (Object.keys(loadedBenchmarks).length > 0) {
-      setMarketBenchmarks(loadedBenchmarks);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">

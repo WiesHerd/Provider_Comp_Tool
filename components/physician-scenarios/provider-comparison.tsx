@@ -321,7 +321,6 @@ export function ProviderComparison({ marketBenchmarks }: ProviderComparisonProps
                   
                   const providerIndex = providers.findIndex(p => p.id === result.id);
                   const isBaseline = providerIndex === 0;
-                  const isEditingCF = editingProviderId === result.id;
                   
                   return (
                     <Card
