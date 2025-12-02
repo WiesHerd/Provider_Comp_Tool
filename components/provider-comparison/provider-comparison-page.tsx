@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { ProviderComparison } from '@/components/physician-scenarios/provider-comparison';
 import { MarketBenchmarks, ProviderScenario, ProviderComparisonScenarioData, FTE } from '@/types';
 import { ConversionFactorModel } from '@/types/cf-models';
