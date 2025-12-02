@@ -358,7 +358,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
       <Card className="border-2 shadow-md">
         <CardContent className="p-4 sm:p-6 pb-6">
           {/* Top: Tooltip on left, Goals on right */}
-          <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 min-w-0 overflow-hidden">
             {/* Help tooltip - Left side */}
             <Tooltip
               content="Select multiple dates, then enter data once to apply the same values to all selected dates."
@@ -366,7 +366,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
             >
               <button
                 type="button"
-                className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors touch-target"
+                className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors touch-target flex-shrink-0"
                 aria-label="Help"
               >
                 <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
@@ -375,7 +375,7 @@ export const WRVUCalendarView = memo(function WRVUCalendarView({
             
             {/* Goals - Right side */}
             {onGoalsChange && (
-              <div className="flex-shrink-0">
+              <div className="flex-1 min-w-0 overflow-hidden flex justify-end">
                 <MonthGoalsCompact
                   goals={goals}
                   onGoalsChange={onGoalsChange}

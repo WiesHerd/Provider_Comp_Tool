@@ -12,8 +12,7 @@ import { MonthYearSelector } from '@/components/provider-wrvu-tracking/month-yea
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Check, Info } from 'lucide-react';
-import { Tooltip } from '@/components/ui/tooltip';
+import { User, Check } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   Select,
@@ -308,12 +307,6 @@ export default function ProviderWRVUTrackingPage() {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white truncate">
               Provider Work RVU Tracking
             </h1>
-            <Tooltip 
-              content="Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports."
-              side="right"
-            >
-              <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help flex-shrink-0" />
-            </Tooltip>
           </div>
           
           {/* Month/Year Selector - Moves below title on mobile */}
