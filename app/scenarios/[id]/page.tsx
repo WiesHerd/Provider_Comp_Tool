@@ -125,7 +125,8 @@ export default function ScenarioDetailPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-6 pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8 space-y-8">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
         <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:flex-none">
           <Button variant="outline" onClick={() => router.push('/scenarios')} className="w-full sm:w-auto min-h-[44px] touch-target">
@@ -243,6 +244,7 @@ export default function ScenarioDetailPage() {
           />
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

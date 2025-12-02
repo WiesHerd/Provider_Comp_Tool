@@ -299,12 +299,13 @@ export default function ProviderWRVUTrackingPage() {
   );
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="w-full px-4 sm:px-6 lg:max-w-6xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
       {/* Page Title */}
       <div className="mb-6 pt-6 sm:pt-8 md:pt-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white truncate">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white truncate">
               Provider Work RVU Tracking
             </h1>
           </div>
@@ -496,6 +497,7 @@ export default function ProviderWRVUTrackingPage() {
           />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

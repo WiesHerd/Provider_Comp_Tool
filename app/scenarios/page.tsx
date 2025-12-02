@@ -16,9 +16,10 @@ export default function ScenariosPage() {
   }, [loadScenarios]);
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto py-4 sm:py-6 md:py-8 space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Models</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">My Models</h1>
         <Button onClick={() => router.push('/fmv-calculator')}>
           <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
           New Model
@@ -41,6 +42,7 @@ export default function ScenariosPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
