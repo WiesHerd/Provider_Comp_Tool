@@ -487,19 +487,19 @@ export default function CallPayModelerPage() {
         else if (tab === 'fmv-benchmarking') setActiveStep(3);
         else if (tab === 'results') setActiveStep(4);
       }} className="w-full mb-6">
-        <TabsList className="flex sm:grid w-full sm:grid-cols-4 mb-6 bg-gray-100 dark:bg-gray-800 overflow-x-auto sm:overflow-visible">
-          <TabsTrigger value="setup" className="text-xs sm:text-sm font-medium flex-shrink-0 sm:flex-shrink px-2 sm:px-3">
+        <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="setup" className="text-sm font-medium">
             Setup
           </TabsTrigger>
-          <TabsTrigger value="configuration" className="text-xs sm:text-sm font-medium flex-shrink-0 sm:flex-shrink px-2 sm:px-3" disabled={!step1Complete}>
+          <TabsTrigger value="configuration" className="text-sm font-medium" disabled={!step1Complete}>
             <span className="sm:hidden">Config</span>
             <span className="hidden sm:inline">Configuration</span>
           </TabsTrigger>
-          <TabsTrigger value="fmv-benchmarking" className="text-xs sm:text-sm font-medium flex-shrink-0 sm:flex-shrink px-2 sm:px-3" disabled={!step2Complete}>
+          <TabsTrigger value="fmv-benchmarking" className="text-sm font-medium" disabled={!step2Complete}>
             <span className="sm:hidden">FMV</span>
             <span className="hidden sm:inline">FMV Benchmarking</span>
           </TabsTrigger>
-          <TabsTrigger value="results" className="text-xs sm:text-sm font-medium flex-shrink-0 sm:flex-shrink px-2 sm:px-3" disabled={!step2Complete}>
+          <TabsTrigger value="results" className="text-sm font-medium" disabled={!step2Complete}>
             Results
           </TabsTrigger>
         </TabsList>
