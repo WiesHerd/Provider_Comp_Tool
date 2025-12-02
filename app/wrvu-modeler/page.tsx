@@ -169,7 +169,6 @@ function ResultsStepContent({
   monthlyWrvus,
 }: ResultsStepContentProps & { onBack: () => void; monthlyWrvus: number }) {
   const router = useRouter();
-  const isStickyVisible = useAutoHideSticky({ mobileOnly: true });
   
   const handleStartOver = () => {
     onStartOver();
@@ -408,23 +407,8 @@ function ResultsStepContent({
         </Card>
       )}
 
-      {/* Navigation and Action Buttons - Auto-hiding sticky on mobile, static on desktop */}
-      <motion.div
-        initial={false}
-        animate={{
-          y: isStickyVisible ? 0 : 100,
-          opacity: isStickyVisible ? 1 : 0,
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 300,
-          damping: 30,
-        }}
-        className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10"
-        style={{
-          pointerEvents: isStickyVisible ? 'auto' : 'none',
-        }}
-      >
+      {/* Navigation and Action Buttons - Auto-hide on mobile, static on desktop */}
+      <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
         {/* Back Button */}
         <div className="flex flex-col sm:flex-row gap-3 mb-3">
           <Button
@@ -458,7 +442,7 @@ function ResultsStepContent({
             Start Over
           </Button>
         </div>
-      </motion.div>
+      </AutoHideSticky>
     </div>
   );
 }

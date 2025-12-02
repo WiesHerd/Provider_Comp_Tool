@@ -466,7 +466,7 @@ function TCCCalculatorPageContent() {
                 Start Over
               </Button>
             </div>
-          </motion.div>
+          </AutoHideSticky>
         </div>
       )}
 
