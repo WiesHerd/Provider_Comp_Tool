@@ -10,7 +10,7 @@ import Link from 'next/link';
 const tabs = [
   { id: 'home', label: 'Home', icon: Home, path: '/' },
   { id: 'wrvu-modeler', label: 'Productivity', icon: Calculator, path: '/wrvu-modeler' },
-  { id: 'wrvu-forecaster', label: 'Schedule Forecast', icon: BarChart3, path: '/wrvu-forecaster' },
+  { id: 'wrvu-forecaster', label: 'Forecast', icon: BarChart3, path: '/wrvu-forecaster' },
   { id: 'fmv-calculator', label: 'FMV', icon: TrendingUp, path: '/fmv-calculator' },
   { id: 'provider-comparison', label: 'Compare', icon: Users, path: '/provider-comparison' },
   { id: 'physician-scenarios', label: 'CF Modeler', icon: Sparkles, path: '/physician-scenarios' },
