@@ -89,6 +89,18 @@ The app will be available at `https://your-project.vercel.app`
 
 No environment variables are required for basic functionality. All data is stored locally in the browser's localStorage.
 
+#### Feedback Form
+
+The feedback form uses a simple mailto link that opens the user's email client. To configure your email address:
+
+1. Open `components/feedback/feedback-modal.tsx`
+2. Update the `FEEDBACK_EMAIL` constant with your email address:
+   ```typescript
+   const FEEDBACK_EMAIL = 'your-email@example.com';
+   ```
+
+The feedback button appears on the home page and will open the user's email client with a pre-filled message when clicked.
+
 ## Project Structure
 
 ```

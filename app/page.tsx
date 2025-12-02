@@ -4,6 +4,7 @@ import { memo } from 'react';
 import Link from 'next/link';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Phone, BarChart3, ClipboardList, ArrowRightLeft, Users } from 'lucide-react';
+import { FeedbackButton } from '@/components/feedback/feedback-button';
 
 // Memoized card component to prevent unnecessary re-renders
 const ToolCard = memo(({ href, icon: Icon, title, description }: {
@@ -113,7 +114,9 @@ export default function Home() {
           For planning and analysis purposes only. Not a substitute for formal FMV opinions, legal review, or regulatory compliance verification.
         </p>
       </div>
-      
+
+      {/* Feedback Button - Floating */}
+      <FeedbackButton />
     </div>
   );
 }
