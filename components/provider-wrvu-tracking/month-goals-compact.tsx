@@ -185,7 +185,7 @@ export function MonthGoalsCompact({
 
   // Display mode - show goals as chips with progress
   return (
-    <div className={cn("flex items-center gap-2 flex-wrap min-w-0", className)}>
+    <div className={cn("flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0", className)}>
       {goals?.targetPatients && (
         <button
           onClick={() => {
@@ -193,22 +193,22 @@ export function MonthGoalsCompact({
             setEditingField('patients');
           }}
           className={cn(
-            "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full",
-            "text-xs sm:text-sm font-medium touch-target",
+            "inline-flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2 rounded-full",
+            "text-sm font-medium touch-target",
             "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300",
             "border border-blue-200 dark:border-blue-800",
             "hover:bg-blue-100 dark:hover:bg-blue-900/30",
             "transition-all duration-150 group",
-            "max-w-full min-w-0 flex-shrink"
+            "w-full sm:w-auto"
           )}
         >
-          <Target className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-          <span className="hidden sm:inline text-blue-600 dark:text-blue-400 font-semibold">Goal:</span>
-          <span className="font-semibold whitespace-nowrap">{goals.targetPatients}</span>
-          <span className="text-blue-500 dark:text-blue-400 whitespace-nowrap hidden xs:inline">patients</span>
+          <Target className="w-4 h-4 flex-shrink-0" />
+          <span className="text-blue-600 dark:text-blue-400 font-semibold">Goal:</span>
+          <span className="font-semibold">{goals.targetPatients}</span>
+          <span className="text-blue-500 dark:text-blue-400">patients</span>
           {actualPatients > 0 && (
             <span className={cn(
-              "ml-0.5 sm:ml-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0",
+              "ml-auto sm:ml-1 px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap flex-shrink-0",
               patientsProgress >= 100 ? "bg-green-500 text-white" :
               patientsProgress >= 75 ? "bg-blue-500 text-white" :
               patientsProgress >= 50 ? "bg-amber-500 text-white" :
@@ -217,7 +217,7 @@ export function MonthGoalsCompact({
               {Math.min(patientsProgress, 100).toFixed(0)}%
             </span>
           )}
-          <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 flex-shrink-0 hidden sm:block" />
+          <Edit2 className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 flex-shrink-0 hidden sm:block" />
         </button>
       )}
 
@@ -228,22 +228,22 @@ export function MonthGoalsCompact({
             setEditingField('wrvus');
           }}
           className={cn(
-            "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full",
-            "text-xs sm:text-sm font-medium touch-target",
+            "inline-flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2 rounded-full",
+            "text-sm font-medium touch-target",
             "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300",
             "border border-purple-200 dark:border-purple-800",
             "hover:bg-purple-100 dark:hover:bg-purple-900/30",
             "transition-all duration-150 group",
-            "max-w-full min-w-0 flex-shrink"
+            "w-full sm:w-auto"
           )}
         >
-          <Target className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-          <span className="hidden sm:inline text-purple-600 dark:text-purple-400 font-semibold">Goal:</span>
-          <span className="font-semibold whitespace-nowrap">{goals.targetWRVUs.toFixed(0)}</span>
-          <span className="text-purple-500 dark:text-purple-400 whitespace-nowrap hidden xs:inline">wRVUs</span>
+          <Target className="w-4 h-4 flex-shrink-0" />
+          <span className="text-purple-600 dark:text-purple-400 font-semibold">Goal:</span>
+          <span className="font-semibold">{goals.targetWRVUs.toFixed(0)}</span>
+          <span className="text-purple-500 dark:text-purple-400">wRVUs</span>
           {actualWRVUs > 0 && (
             <span className={cn(
-              "ml-0.5 sm:ml-1 px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0",
+              "ml-auto sm:ml-1 px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap flex-shrink-0",
               wrvusProgress >= 100 ? "bg-green-500 text-white" :
               wrvusProgress >= 75 ? "bg-purple-500 text-white" :
               wrvusProgress >= 50 ? "bg-amber-500 text-white" :
@@ -252,7 +252,7 @@ export function MonthGoalsCompact({
               {Math.min(wrvusProgress, 100).toFixed(0)}%
             </span>
           )}
-          <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 flex-shrink-0 hidden sm:block" />
+          <Edit2 className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 flex-shrink-0 hidden sm:block" />
         </button>
       )}
 
@@ -264,15 +264,16 @@ export function MonthGoalsCompact({
             setEditingField('both');
           }}
           className={cn(
-            "inline-flex items-center justify-center gap-1 px-3 sm:px-2 py-2 sm:py-1 rounded-full",
-            "text-sm sm:text-xs font-medium touch-target",
+            "inline-flex items-center justify-center gap-1 px-3 py-2 rounded-full",
+            "text-sm font-medium touch-target",
             "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200",
             "hover:bg-gray-100 dark:hover:bg-gray-800",
             "border border-dashed border-gray-300 dark:border-gray-700",
-            "transition-colors duration-150"
+            "transition-colors duration-150",
+            "w-full sm:w-auto"
           )}
         >
-          <Plus className="w-4 h-4 sm:w-3 sm:h-3" />
+          <Plus className="w-4 h-4" />
         </button>
       )}
     </div>
