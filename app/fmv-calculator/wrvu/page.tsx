@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { motion } from 'framer-motion';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { useSearchParams } from 'next/navigation';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
@@ -331,7 +330,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Calculate Button - Always visible on Step 2 */}
       {currentStep === 2 && normalizedWrvus > 0 && (
-        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <AutoHideSticky className="bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"

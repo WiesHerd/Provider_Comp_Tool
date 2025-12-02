@@ -840,7 +840,7 @@ function WRVUModelerPageContent() {
 
       {/* Calculate Button - Sticky bottom bar for Input tab */}
       {activeTab === 'input' && annualWrvus > 0 && conversionFactor > 0 && (
-        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <AutoHideSticky className="bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
@@ -861,9 +861,9 @@ function WRVUModelerPageContent() {
             >
               <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
               Calculate
-          </Button>
-        </div>
-      </AutoHideSticky>
+            </Button>
+          </div>
+        </AutoHideSticky>
       )}
       </div>
     </div>
