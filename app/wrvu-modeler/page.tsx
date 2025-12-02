@@ -447,7 +447,7 @@ function WRVUModelerPageContent() {
   const [customSpecialty, setCustomSpecialty] = useState('');
   const [basePay, setBasePay] = useState(0);
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState<'setup' | 'input' | 'results'>('input');
+  const [activeTab, setActiveTab] = useState<'setup' | 'input' | 'results'>('setup');
 
   const STORAGE_KEY = 'wrvuModelerDraftState';
 
@@ -604,7 +604,7 @@ function WRVUModelerPageContent() {
     setSpecialty('');
     setCustomSpecialty('');
     setBasePay(0);
-    setActiveTab('input');
+    setActiveTab('setup');
     // Clear draft state
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY);
