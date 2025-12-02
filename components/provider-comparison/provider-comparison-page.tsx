@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Tooltip } from '@/components/ui/tooltip';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Info, ChevronDown, ChevronUp, Save, Loader2, RotateCcw } from 'lucide-react';
-import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 import { 
   loadMarketData
 } from '@/lib/utils/market-data-storage';
@@ -298,8 +297,8 @@ export function ProviderComparisonPageContent() {
           onProvidersChange={setProviders}
         />
 
-        {/* Action Buttons - Auto-hide on mobile, static on desktop */}
-        <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+        {/* Action Buttons */}
+        <div className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t border-gray-200 dark:border-gray-800 mt-6">
           <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
               <Button 
                 onClick={() => setShowSaveDialog(true)}
@@ -348,7 +347,7 @@ export function ProviderComparisonPageContent() {
                 Start Over
               </Button>
             </div>
-        </AutoHideSticky>
+        </div>
 
         {/* Save Scenario Dialog */}
         <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>
