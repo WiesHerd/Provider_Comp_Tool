@@ -297,7 +297,7 @@ function ResultsStepContent({
         if (!hasVariation) return null;
         
         return (
-          <Card className="border border-gray-200 dark:border-gray-700 shadow-sm">
+          <Card className="border-2">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -333,7 +333,7 @@ function ResultsStepContent({
 
       {/* 1.0 FTE Projections - Only show if FTE < 1.0 */}
       {fte < 1.0 && (
-        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-primary/5 dark:bg-primary/10">
+        <Card className="border-2 bg-primary/5 dark:bg-primary/10">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
               Projected at 1.0 FTE (Full-Time)

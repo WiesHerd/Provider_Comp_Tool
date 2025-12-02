@@ -1012,7 +1012,7 @@ export default function CallPayModelerPage() {
                   className="w-full sm:w-auto min-h-[44px] touch-target"
                 >
                   <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
-                  Start New Calculation
+                  Start Over
                 </Button>
               </div>
             </div>

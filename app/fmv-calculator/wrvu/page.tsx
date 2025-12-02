@@ -218,18 +218,6 @@ function WRVUCalculatorPageContent() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-end gap-2 sm:gap-4">
-            {annualWrvus > 0 && fte > 0 && (
-              <div className="flex items-end">
-                <ProviderInputSaveButton
-                  scenarioType="fmv-wrvu"
-                  fte={fte}
-                  annualWrvus={annualWrvus}
-                  monthlyWrvus={monthlyWrvus}
-                  monthlyBreakdown={monthlyBreakdown}
-                  specialty={specialty}
-                />
-              </div>
-            )}
             <FTEInput value={fte} onChange={setFte} />
           </div>
           
@@ -258,6 +246,24 @@ function WRVUCalculatorPageContent() {
           )}
           </CardContent>
         </Card>
+
+          {/* Save Button - Sticky bottom */}
+          {annualWrvus > 0 && fte > 0 && (
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <ProviderInputSaveButton
+                    scenarioType="fmv-wrvu"
+                    fte={fte}
+                    annualWrvus={annualWrvus}
+                    monthlyWrvus={monthlyWrvus}
+                    monthlyBreakdown={monthlyBreakdown}
+                    specialty={specialty}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* Market Data Tab */}
@@ -310,12 +316,6 @@ function WRVUCalculatorPageContent() {
             onBenchmarksChange={setMarketBenchmarks}
             type="wrvu"
           />
-          
-          <MarketDataSaveButton
-            specialty={specialty}
-            metricType="wrvu"
-            benchmarks={marketBenchmarks}
-          />
           </CardContent>
         </Card>
 
@@ -331,6 +331,21 @@ function WRVUCalculatorPageContent() {
               {showResults ? 'Recalculate' : 'Calculate'}
             </Button>
           </div>
+
+          {/* Save Button - Sticky bottom */}
+          {specialty && (
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <MarketDataSaveButton
+                    specialty={specialty}
+                    metricType="wrvu"
+                    benchmarks={marketBenchmarks}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* Results Tab */}
@@ -353,8 +368,8 @@ function WRVUCalculatorPageContent() {
             valueLabel="Your Normalized wRVUs (1.0 FTE)"
           />
 
-              {/* Action Buttons */}
-              <div className="pt-6 space-y-3">
+              {/* Action Buttons - Sticky bottom */}
+              <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
                     <FMVSaveButton

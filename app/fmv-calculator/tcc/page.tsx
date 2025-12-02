@@ -285,16 +285,6 @@ function TCCCalculatorPageContent() {
           </CardHeader>
           <CardContent className="space-y-6">
           <div className="flex items-end gap-2 sm:gap-4">
-            {tccComponents.some(c => c.amount > 0) && (
-              <div className="flex items-end">
-                <ProviderInputSaveButton
-                  scenarioType="fmv-tcc"
-                  fte={fte}
-                  tccComponents={tccComponents}
-                  specialty={specialty}
-                />
-              </div>
-            )}
             <FTEInput value={fte} onChange={setFte} />
           </div>
           
@@ -342,6 +332,22 @@ function TCCCalculatorPageContent() {
           )}
           </CardContent>
         </Card>
+
+          {/* Save Button - Sticky bottom */}
+          {tccComponents.some(c => c.amount > 0) && (
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <ProviderInputSaveButton
+                    scenarioType="fmv-tcc"
+                    fte={fte}
+                    tccComponents={tccComponents}
+                    specialty={specialty}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* Market Data Tab */}
@@ -368,12 +374,6 @@ function TCCCalculatorPageContent() {
             onBenchmarksChange={setMarketBenchmarks}
             type="tcc"
           />
-          
-          <MarketDataSaveButton
-            specialty={specialty}
-            metricType="tcc"
-            benchmarks={marketBenchmarks}
-          />
           </CardContent>
         </Card>
 
@@ -389,6 +389,21 @@ function TCCCalculatorPageContent() {
               {showResults ? 'Recalculate' : 'Calculate'}
             </Button>
           </div>
+
+          {/* Save Button - Sticky bottom */}
+          {specialty && (
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <MarketDataSaveButton
+                    specialty={specialty}
+                    metricType="tcc"
+                    benchmarks={marketBenchmarks}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* Results Tab */}
@@ -411,8 +426,8 @@ function TCCCalculatorPageContent() {
             valueLabel="Your Normalized TCC"
           />
 
-              {/* Action Buttons */}
-              <div className="pt-6 space-y-3">
+              {/* Action Buttons - Sticky bottom */}
+              <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
                     <FMVSaveButton

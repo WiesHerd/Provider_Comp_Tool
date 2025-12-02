@@ -192,17 +192,6 @@ function CFCalculatorPageContent() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {cfValue > 0 && (
-              <div className="flex items-end">
-                <ProviderInputSaveButton
-                  scenarioType="fmv-cf"
-                  fte={1.0}
-                  cfValue={cfValue}
-                  specialty={specialty}
-                />
-              </div>
-            )}
-            
             {/* CF Input Section */}
             <div className="space-y-2">
             <Label className="text-sm font-semibold">Conversion Factor ($/wRVU)</Label>
@@ -231,12 +220,6 @@ function CFCalculatorPageContent() {
               onBenchmarksChange={setMarketBenchmarks}
               type="cf"
             />
-            
-            <MarketDataSaveButton
-              specialty={specialty}
-              metricType="cf"
-              benchmarks={marketBenchmarks}
-            />
           </div>
           </CardContent>
         </Card>
@@ -255,8 +238,33 @@ function CFCalculatorPageContent() {
               disabled={!hasMarketData || cfValue === 0}
             >
               <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
-              Calculate
+              {showResults ? 'Recalculate' : 'Calculate'}
             </Button>
+          </div>
+
+          {/* Save Buttons - Sticky bottom */}
+          <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {cfValue > 0 && (
+                <div className="flex-1">
+                  <ProviderInputSaveButton
+                    scenarioType="fmv-cf"
+                    fte={1.0}
+                    cfValue={cfValue}
+                    specialty={specialty}
+                  />
+                </div>
+              )}
+              {specialty && (
+                <div className={cfValue > 0 ? "w-full sm:w-auto" : "flex-1"}>
+                  <MarketDataSaveButton
+                    specialty={specialty}
+                    metricType="cf"
+                    benchmarks={marketBenchmarks}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
 
@@ -281,8 +289,8 @@ function CFCalculatorPageContent() {
             valueLabel="Your Conversion Factor"
           />
 
-          {/* Action Buttons */}
-          <div className="pt-6 space-y-3">
+          {/* Action Buttons - Sticky bottom */}
+          <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <FMVSaveButton
