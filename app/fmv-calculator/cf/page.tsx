@@ -249,7 +249,7 @@ function CFCalculatorPageContent() {
 
       {/* Calculate Button - Always visible when not showing results */}
       {!showResults && cfValue > 0 && (
-        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-24 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
           {!hasMarketData && (
             <p className="text-sm text-amber-600 dark:text-amber-400 text-center mb-3">
               Please enter at least one benchmark value (25th, 50th, 75th, or 90th percentile) to calculate.
@@ -301,7 +301,7 @@ function CFCalculatorPageContent() {
           />
 
           {/* Action Buttons - Fixed bottom */}
-          <div className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+          <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
             <div className="flex flex-col sm:flex-row gap-3 mb-3">
               <Button
                 variant="outline"

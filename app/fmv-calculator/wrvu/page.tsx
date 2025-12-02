@@ -315,7 +315,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}
       {currentStep === 1 && normalizedWrvus > 0 && !showResults && (
-        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-24 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
           <Button
             onClick={() => setActiveStep(2)}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -329,7 +329,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Calculate Button - Always visible on Step 2 */}
       {currentStep === 2 && normalizedWrvus > 0 && (
-        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-24 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
@@ -373,7 +373,7 @@ function WRVUCalculatorPageContent() {
           />
 
           {/* Action Buttons - Fixed bottom */}
-          <div className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+          <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
             <div className="flex flex-col sm:flex-row gap-3 mb-3">
               <Button
                 variant="outline"

@@ -42,7 +42,7 @@ export function AutoHideSticky({
         stiffness: 300,
         damping: 30,
       }}
-      className={cn('sticky bottom-20 md:static', className)}
+      className={cn('sticky bottom-24 md:static', className)}
       style={{
         pointerEvents: isVisible ? 'auto' : 'none',
       }}

@@ -188,7 +188,7 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
   return (
     <>
       {/* Action Buttons - Auto-hide on mobile, static on desktop */}
-      <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+      <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
         <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
             <div className="flex flex-row items-center justify-center gap-3 flex-wrap flex-1">
               <Button 

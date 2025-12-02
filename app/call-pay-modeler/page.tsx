@@ -988,7 +988,7 @@ export default function CallPayModelerPage() {
             )}
 
             {/* Action Buttons - Fixed bottom */}
-            <div className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
               <div className="flex flex-col sm:flex-row gap-3">
                 <CallPaySaveButton
                   context={context}
