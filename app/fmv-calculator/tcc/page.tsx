@@ -13,7 +13,8 @@ import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calculator, RotateCcw, ChevronLeft } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Calculator, RotateCcw } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks, TCCComponent, FTE, ProviderScenario } from '@/types';
 import { calculateTCCPercentile } from '@/lib/utils/percentile';
@@ -37,7 +38,7 @@ function TCCCalculatorPageContent() {
   ]);
   const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
   const [showResults, setShowResults] = useState(false);
-  const [activeStep, setActiveStep] = useState<number>(1);
+  const [activeTab, setActiveTab] = useState<'provider' | 'market' | 'results'>('provider');
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
   const STORAGE_KEY = 'fmvTccDraftState';
@@ -48,7 +49,7 @@ function TCCCalculatorPageContent() {
     fte,
     tccComponents,
     marketBenchmarks,
-    activeStep,
+    activeTab,
   };
   useDebouncedLocalStorage(STORAGE_KEY, draftState);
 
@@ -69,7 +70,7 @@ function TCCCalculatorPageContent() {
           setFte(draft.fte || 1.0);
           setTccComponents(Array.isArray(draft.tccComponents) ? draft.tccComponents : []);
           setMarketBenchmarks(draft.marketBenchmarks || {});
-          setActiveStep((draft.activeStep >= 1 && draft.activeStep <= 3) ? draft.activeStep : 1);
+          setActiveTab(draft.activeTab === 'provider' || draft.activeTab === 'market' || draft.activeTab === 'results' ? draft.activeTab : 'provider');
         }
       }
     } catch (error) {
@@ -91,7 +92,7 @@ function TCCCalculatorPageContent() {
   const handleCalculate = () => {
     if (normalizedTcc > 0 && hasMarketData) {
       setShowResults(true);
-      setActiveStep(3); // Navigate to results step
+      setActiveTab('results'); // Navigate to results tab
     }
   };
 
@@ -109,7 +110,7 @@ function TCCCalculatorPageContent() {
     }]);
     setMarketBenchmarks({});
     setShowResults(false);
-    setActiveStep(1); // Go back to Step 1
+    setActiveTab('provider'); // Go back to Provider tab
     setScenarioLoaded(false); // Reset scenario loaded flag
     // Clear draft state
     if (typeof window !== 'undefined') {
@@ -136,9 +137,9 @@ function TCCCalculatorPageContent() {
           setSpecialty(scenario.specialty);
         }
         setScenarioLoaded(true);
-        // If we have both TCC and market data, go to step 2
+        // If we have both TCC and market data, go to market tab
         if (scenario.tccComponents && scenario.tccComponents.length > 0 && scenario.marketBenchmarks) {
-          setActiveStep(2);
+          setActiveTab('market');
         }
       }
     }
@@ -229,9 +230,9 @@ function TCCCalculatorPageContent() {
         // Replace existing components with this one
         setTccComponents([totalTccComponent]);
         
-        // Auto-advance to step 2 if we have TCC and specialty (user can add market data)
+        // Auto-advance to market tab if we have TCC and specialty (user can add market data)
         if (specialtyParam && totalTccAmount > 0) {
-          setActiveStep(2);
+          setActiveTab('market');
         }
         
         // Clear the query parameters to avoid re-adding on re-render
@@ -246,23 +247,32 @@ function TCCCalculatorPageContent() {
 
   // Reset showResults when market data changes (so user can recalculate)
   useEffect(() => {
-    if (showResults && activeStep === 2) {
+    if (showResults && activeTab === 'market') {
       setShowResults(false);
     }
-  }, [marketBenchmarks, activeStep, showResults]);
+  }, [marketBenchmarks, activeTab, showResults]);
 
-  // Ensure activeStep is always valid (1, 2, or 3)
-  // If step 3 is selected but we don't have results, reset to step 1
-  const currentStep = (activeStep >= 1 && activeStep <= 3) 
-    ? (activeStep === 3 && !showResults ? 1 : activeStep)
-    : 1;
+  // Ensure activeTab is valid - if results tab is selected but no results, go to provider
+  const currentTab = (activeTab === 'results' && !showResults) ? 'provider' : activeTab;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
-      {/* Step 1: Provider Input (Only show when on Step 1) */}
-      {currentStep === 1 && (
-      <div id="provider-input" className="space-y-6" data-tour="fmv-tcc-content">
+      <Tabs value={currentTab} onValueChange={(value) => setActiveTab(value as 'provider' | 'market' | 'results')} className="w-full mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="provider" className="text-sm font-medium">
+            Provider
+          </TabsTrigger>
+          <TabsTrigger value="market" className="text-sm font-medium" disabled={normalizedTcc === 0}>
+            Market Data
+          </TabsTrigger>
+          <TabsTrigger value="results" className="text-sm font-medium" disabled={!showResults || normalizedTcc === 0}>
+            Results
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Provider Tab */}
+        <TabsContent value="provider" className="space-y-6 mt-0" data-tour="fmv-tcc-content">
         <Card className="border-2">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -332,12 +342,10 @@ function TCCCalculatorPageContent() {
           )}
           </CardContent>
         </Card>
-      </div>
-      )}
+        </TabsContent>
 
-      {/* Step 2: Market Data (Only show when on Step 2) */}
-      {currentStep === 2 && (
-      <div id="market-data" className="space-y-6">
+        {/* Market Data Tab */}
+        <TabsContent value="market" className="space-y-6 mt-0">
         <Card className="border-2">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -368,39 +376,12 @@ function TCCCalculatorPageContent() {
           />
           </CardContent>
         </Card>
-      </div>
-      )}
 
-      {/* Navigation Buttons - Show when on Step 1 or 2 */}
-      {currentStep === 1 && normalizedTcc > 0 && !showResults && (
-        <div className="sticky bottom-24 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
-          <Button
-            onClick={() => setActiveStep(2)}
-            className="w-full min-h-[48px] text-base font-semibold"
-            size="lg"
-          >
-            Continue to Market Data →
-          </Button>
-        </div>
-      )}
-      
-      
-      {/* Calculate Button - Always visible on Step 2 for easy recalculation */}
-      {currentStep === 2 && (
-        <div className="sticky bottom-24 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setActiveStep(1)}
-              className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
-              size="lg"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-              Back
-            </Button>
+          {/* Calculate Button */}
+          <div className="pt-6">
             <Button
               onClick={handleCalculate}
-              className="w-full sm:flex-1 min-h-[48px] text-base font-semibold"
+              className="w-full min-h-[48px] text-base font-semibold"
               size="lg"
               disabled={!hasMarketData || normalizedTcc === 0}
             >
@@ -408,12 +389,12 @@ function TCCCalculatorPageContent() {
               {showResults ? 'Recalculate' : 'Calculate'}
             </Button>
           </div>
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Step 3: Results (Only shown after calculation) */}
-      {currentStep === 3 && showResults && normalizedTcc > 0 && (
-        <div id="results-section" className="space-y-6">
+        {/* Results Tab */}
+        <TabsContent value="results" className="space-y-6 mt-0">
+          {showResults && normalizedTcc > 0 && (
+            <div id="results-section" className="space-y-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</h2>
           </div>
@@ -430,57 +411,35 @@ function TCCCalculatorPageContent() {
             valueLabel="Your Normalized TCC"
           />
 
-          {/* Action Buttons - Fixed bottom */}
-          <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
-            <div className="flex flex-col sm:flex-row gap-3 mb-3">
-              <Button
-                variant="outline"
-                onClick={() => setActiveStep(2)}
-                className="w-full sm:w-auto min-h-[44px] touch-target"
-              >
-                <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-                Back
-              </Button>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <FMVSaveButton
-                  metricType="tcc"
-                  value={normalizedTcc}
-                  benchmarks={marketBenchmarks}
-                  percentile={percentile}
-                  specialty={specialty}
-                  tccComponents={tccComponents}
-                  fte={fte}
-                  totalTcc={totalTcc}
-                />
+              {/* Action Buttons */}
+              <div className="pt-6 space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <FMVSaveButton
+                      metricType="tcc"
+                      value={normalizedTcc}
+                      benchmarks={marketBenchmarks}
+                      percentile={percentile}
+                      specialty={specialty}
+                      tccComponents={tccComponents}
+                      fte={fte}
+                      totalTcc={totalTcc}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleStartNew}
+                    className="w-full sm:w-auto min-h-[44px] touch-target"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
+                    Start Over
+                  </Button>
+                </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={handleStartNew}
-                className="w-full sm:w-auto min-h-[44px] touch-target"
-              >
-                <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
-                Start Over
-              </Button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Fallback: If somehow no step matches, show Step 1 */}
-      {currentStep !== 1 && currentStep !== 2 && currentStep !== 3 && (
-        <div className="space-y-6">
-          <Card className="border-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Loading...</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+          )}
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );
