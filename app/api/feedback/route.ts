@@ -6,9 +6,14 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 export async function POST(request: NextRequest) {
   try {
     // Check if Resend is configured
-    if (!resend || !process.env.RESEND_API_KEY) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey || !resend) {
+      console.error('RESEND_API_KEY is missing. Current value:', apiKey ? '***' + apiKey.slice(-4) : 'undefined');
       return NextResponse.json(
-        { error: 'Email service is not configured. Please set RESEND_API_KEY environment variable.' },
+        { 
+          error: 'Email service is not configured. Please set RESEND_API_KEY environment variable.',
+          hint: 'Make sure to restart your dev server after adding the variable to .env.local, or add it in Vercel dashboard for production.'
+        },
         { status: 500 }
       );
     }
