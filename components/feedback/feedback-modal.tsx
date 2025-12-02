@@ -15,7 +15,7 @@ interface FeedbackModalProps {
 }
 
 // Your email address - update this to your actual email
-const FEEDBACK_EMAIL = 'your-email@example.com'; // TODO: Update this to your email
+const FEEDBACK_EMAIL = 'wherdzik@gmail.com';
 
 export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
   const pathname = usePathname();
