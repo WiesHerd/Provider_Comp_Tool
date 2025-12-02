@@ -147,6 +147,7 @@ function CFCalculatorPageContent() {
       setShowResults(false);
       setActiveTab('provider');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [marketBenchmarks, cfValue]);
 
   // Ensure activeTab is valid - if results tab is selected but no results, go to provider

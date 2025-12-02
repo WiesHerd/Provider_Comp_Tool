@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DollarSign, User, Stethoscope, ChevronDown, Info, ChevronRight } from 'lucide-react';
+import { DollarSign, User, Stethoscope, ChevronDown, Info } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
