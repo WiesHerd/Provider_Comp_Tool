@@ -163,9 +163,8 @@ function ResultsStepContent({
   specialty,
   customSpecialty,
   onStartOver,
-  onBack,
   monthlyWrvus,
-}: ResultsStepContentProps & { onBack: () => void; monthlyWrvus: number }) {
+}: ResultsStepContentProps & { monthlyWrvus: number }) {
   const router = useRouter();
   
   const handleStartOver = () => {
@@ -619,11 +618,6 @@ function WRVUModelerPageContent() {
     }
   };
 
-  const handleBack = () => {
-    setActiveTab('input');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
@@ -819,7 +813,6 @@ function WRVUModelerPageContent() {
             specialty={specialty}
             customSpecialty={customSpecialty}
             onStartOver={handleStartOver}
-            onBack={handleBack}
             monthlyWrvus={monthlyWrvus}
           />
         </TabsContent>
