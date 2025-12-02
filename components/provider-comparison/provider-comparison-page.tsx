@@ -299,17 +299,15 @@ export function ProviderComparisonPageContent() {
 
         {/* Action Buttons - Sticky at bottom on mobile, regular on desktop */}
         <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-t sm:border-gray-200 sm:dark:border-gray-800">
-          <div className="fixed sm:static bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-50">
+          <div className="fixed sm:static bottom-20 sm:bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-30">
             <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
-              <div className="flex flex-row items-center justify-center gap-3 flex-wrap flex-1">
-                <Button 
-                  onClick={() => setShowSaveDialog(true)}
-                  className="min-h-[44px] touch-target flex-1 sm:flex-initial"
-                >
-                  <Save className="w-4 h-4 mr-2 flex-shrink-0" />
-                  Save
-                </Button>
-              </div>
+              <Button 
+                onClick={() => setShowSaveDialog(true)}
+                className="min-h-[44px] touch-target flex-1 sm:flex-initial"
+              >
+                <Save className="w-4 h-4 mr-2 flex-shrink-0" />
+                Save
+              </Button>
               
               <Button 
                 variant="outline" 
@@ -344,7 +342,7 @@ export function ProviderComparisonPageContent() {
                   setActiveScenarioId(null);
                   setShowManualEntry(false);
                 }}
-                className="min-h-[44px] touch-target flex-1 sm:flex-initial sm:ml-auto"
+                className="min-h-[44px] touch-target flex-1 sm:flex-initial"
               >
                 <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
                 Start Over
@@ -356,8 +354,8 @@ export function ProviderComparisonPageContent() {
         {/* Save Scenario Dialog */}
         <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>
           <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-            <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-6 max-w-md w-[90vw] max-h-[90vh] overflow-y-auto z-50 shadow-xl safe-area-inset">
+            <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[100]" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-6 max-w-md w-[90vw] max-h-[90vh] overflow-y-auto z-[100] shadow-xl safe-area-inset">
               <Dialog.Title className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">
                 {activeScenarioId ? 'Update Scenario' : 'Save Current Scenario'}
               </Dialog.Title>
