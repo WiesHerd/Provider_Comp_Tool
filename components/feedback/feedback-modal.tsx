@@ -59,7 +59,15 @@ export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send feedback');
+        // Build a more informative error message
+        let errorMsg = data.error || 'Failed to send feedback';
+        if (data.hint) {
+          errorMsg += ` ${data.hint}`;
+        }
+        if (data.details) {
+          errorMsg += ` (${data.details})`;
+        }
+        throw new Error(errorMsg);
       }
 
       setSubmitStatus('success');
