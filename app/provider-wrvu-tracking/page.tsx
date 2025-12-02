@@ -303,26 +303,28 @@ export default function ProviderWRVUTrackingPage() {
     <div className="w-full px-4 sm:px-6 lg:max-w-6xl lg:mx-auto py-4 sm:py-6 md:py-8">
       {/* Page Title */}
       <div className="mb-6 pt-6 sm:pt-8 md:pt-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white truncate">
               Provider Work RVU Tracking
             </h1>
             <Tooltip 
               content="Track your daily patients and work RVUs by month. Perfect for reconciling with compensation reports."
               side="right"
             >
-              <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help" />
+              <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help flex-shrink-0" />
             </Tooltip>
           </div>
           
-          {/* Top Right: Month/Year Selector */}
-          <MonthYearSelector
-            currentDate={currentDate}
-            onDateChange={handleMonthChange}
-            availableYears={availableYears}
-            monthsWithData={allMonthsWithData}
-          />
+          {/* Month/Year Selector - Moves below title on mobile */}
+          <div className="flex-shrink-0">
+            <MonthYearSelector
+              currentDate={currentDate}
+              onDateChange={handleMonthChange}
+              availableYears={availableYears}
+              monthsWithData={allMonthsWithData}
+            />
+          </div>
         </div>
       </div>
 

@@ -73,13 +73,13 @@ export function MonthYearSelector({
   };
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
-      {/* Year Selector - Wider for proper text fit */}
+    <div className={cn("flex items-center gap-2 sm:gap-3", className)}>
+      {/* Year Selector - Compact on mobile */}
       <Select
         value={currentYear.toString()}
         onValueChange={handleYearChange}
       >
-        <SelectTrigger className="h-10 w-[120px] text-base font-semibold border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm">
+        <SelectTrigger className="h-9 sm:h-10 w-[90px] sm:w-[120px] text-sm sm:text-base font-semibold border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="max-h-[300px] min-w-[120px]">
@@ -102,14 +102,14 @@ export function MonthYearSelector({
         </SelectContent>
       </Select>
 
-      {/* Month Selector - Wider for full month names */}
+      {/* Month Selector - Compact on mobile */}
       <Select
         value={currentMonth.toString()}
         onValueChange={handleMonthChange}
       >
-        <SelectTrigger className="h-10 w-[160px] text-base font-semibold border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm">
+        <SelectTrigger className="h-9 sm:h-10 w-[110px] sm:w-[160px] text-sm sm:text-base font-semibold border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm">
           <SelectValue>
-            {MONTHS[currentMonth]}
+            <span className="truncate">{MONTHS[currentMonth]}</span>
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="max-h-[300px] min-w-[160px]">

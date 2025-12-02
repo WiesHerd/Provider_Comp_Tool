@@ -114,21 +114,21 @@ export function WRVUGoalProgress({
   }
 
   return (
-    <Card className="border-2">
+    <Card className="border-2 overflow-hidden">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            Goals & Progress - {monthName}
+            <Target className="w-5 h-5 text-primary flex-shrink-0" />
+            <span className="truncate">Goals & Progress - {monthName}</span>
           </CardTitle>
           {daysElapsed > 0 && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
               Day {daysElapsed} of {totalDaysInMonth}
             </div>
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 overflow-x-hidden">
         {/* Current Goals Display */}
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Current Goals</h4>
@@ -263,25 +263,25 @@ export function WRVUGoalProgress({
 
             {/* Remaining Needed */}
             {daysRemaining > 0 && (goals?.targetPatients || goals?.targetWRVUs) && (
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3 overflow-x-hidden">
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Target className="w-4 h-4 text-primary" />
+                  <Target className="w-4 h-4 text-primary flex-shrink-0" />
                   To Reach Your Goals
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                   {goals.targetPatients && remainingPatients > 0 && (
                     <div className={cn(
-                      "bg-white dark:bg-gray-800 rounded-lg p-3 border",
+                      "bg-white dark:bg-gray-800 rounded-lg p-3 border min-w-0 overflow-hidden",
                       patientsOnTrack ? "border-green-200 dark:border-green-800" :
                       patientsSlightlyBehind ? "border-amber-200 dark:border-amber-800" :
                       "border-red-200 dark:border-red-800"
                     )}>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2 mb-2 min-w-0">
+                        <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                             Patients Needed
                           </p>
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                          <p className="text-lg font-bold text-gray-900 dark:text-white break-words">
                             {formatNumber(remainingPatients)}
                           </p>
                         </div>
@@ -293,7 +293,7 @@ export function WRVUGoalProgress({
                           <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 break-words">
                         That&apos;s <span className={cn(
                           "font-semibold",
                           patientsOnTrack ? "text-green-600 dark:text-green-400" :
@@ -304,7 +304,7 @@ export function WRVUGoalProgress({
                         </span>
                       </p>
                       {daysElapsed > 0 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 break-words">
                           You&apos;re seeing {formatNumber(avgPatientsPerDay, 1)}/day
                         </p>
                       )}
@@ -312,17 +312,17 @@ export function WRVUGoalProgress({
                   )}
                   {goals.targetWRVUs && remainingWRVUs > 0 && (
                     <div className={cn(
-                      "bg-white dark:bg-gray-800 rounded-lg p-3 border",
+                      "bg-white dark:bg-gray-800 rounded-lg p-3 border min-w-0 overflow-hidden",
                       wrvusOnTrack ? "border-green-200 dark:border-green-800" :
                       wrvusSlightlyBehind ? "border-amber-200 dark:border-amber-800" :
                       "border-red-200 dark:border-red-800"
                     )}>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2 mb-2 min-w-0">
+                        <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                             wRVUs Needed
                           </p>
-                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                          <p className="text-lg font-bold text-gray-900 dark:text-white break-words">
                             {formatNumber(remainingWRVUs, 2)}
                           </p>
                         </div>
@@ -334,7 +334,7 @@ export function WRVUGoalProgress({
                           <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 break-words">
                         That&apos;s <span className={cn(
                           "font-semibold",
                           wrvusOnTrack ? "text-green-600 dark:text-green-400" :
@@ -345,7 +345,7 @@ export function WRVUGoalProgress({
                         </span>
                       </p>
                       {daysElapsed > 0 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 break-words">
                           You&apos;re seeing {formatNumber(avgWRVUsPerDay, 2)}/day
                         </p>
                       )}
