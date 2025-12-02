@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { motion } from 'framer-motion';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { useSearchParams } from 'next/navigation';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
