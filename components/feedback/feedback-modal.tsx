@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { X, Mail } from 'lucide-react';
+import { X, Mail, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 interface FeedbackModalProps {
@@ -14,17 +14,16 @@ interface FeedbackModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Your email address - update this to your actual email
-const FEEDBACK_EMAIL = 'wherdzik@gmail.com';
-
 export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
   const pathname = usePathname();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!message.trim()) {
@@ -32,53 +31,64 @@ export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
       return;
     }
 
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
     setErrorMessage('');
 
-    // Build email subject
-    const subject = encodeURIComponent(
-      `Feedback from CompLens${name.trim() ? ` - ${name.trim()}` : ''}`
-    );
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim() || undefined,
+          email: email.trim() || undefined,
+          message: message.trim(),
+          page: pathname || '/',
+        }),
+      });
 
-    // Build email body
-    const emailBody = encodeURIComponent(`Feedback Submission
-Generated: ${new Date().toLocaleString()}
+      const data = await response.json();
 
-═══════════════════════════════════════════════════════
-FEEDBACK DETAILS
-═══════════════════════════════════════════════════════
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send feedback');
+      }
 
-${name.trim() ? `Name: ${name.trim()}` : 'Name: Not provided'}
-${email.trim() ? `Email: ${email.trim()}` : 'Email: Not provided'}
-Page: ${pathname || '/'}
-
-═══════════════════════════════════════════════════════
-MESSAGE
-═══════════════════════════════════════════════════════
-
-${message.trim()}
-`);
-
-    // Open email client with pre-filled content
-    window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${emailBody}`;
-    
-    // Close modal after a brief delay
-    setTimeout(() => {
-      onOpenChange(false);
+      setSubmitStatus('success');
       setName('');
       setEmail('');
       setMessage('');
-    }, 300);
+      
+      // Auto-close after 2 seconds
+      setTimeout(() => {
+        onOpenChange(false);
+        setSubmitStatus('idle');
+      }, 2000);
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage(
+        error instanceof Error 
+          ? error.message 
+          : 'Something went wrong. Please try again later.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
-    onOpenChange(false);
-    // Reset form after a brief delay to allow close animation
-    setTimeout(() => {
-      setErrorMessage('');
-      setName('');
-      setEmail('');
-      setMessage('');
-    }, 300);
+    if (!isSubmitting) {
+      onOpenChange(false);
+      // Reset form after a brief delay to allow close animation
+      setTimeout(() => {
+        setSubmitStatus('idle');
+        setErrorMessage('');
+        setName('');
+        setEmail('');
+        setMessage('');
+      }, 300);
+    }
   };
 
   return (
@@ -95,24 +105,45 @@ ${message.trim()}
               <Button
                 variant="ghost"
                 className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                disabled={isSubmitting}
               >
                 <X className="h-4 w-4" />
               </Button>
             </Dialog.Close>
           </div>
 
-          {/* Info Message */}
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl">
-            <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-900 dark:text-blue-200">
-                Your feedback will open in your email client. Just click send to submit.
-              </p>
+          {/* Success State */}
+          {submitStatus === 'success' && (
+            <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <p className="text-sm text-green-900 dark:text-green-200">
+                  Thank you for your feedback! We&apos;ll review it soon.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Error State */}
+          {submitStatus === 'error' && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-red-900 dark:text-red-200 mb-1">
+                    Failed to send feedback
+                  </p>
+                  <p className="text-sm text-red-800 dark:text-red-300">
+                    {errorMessage}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {submitStatus !== 'success' && (
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="feedback-name" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Name (Optional)
@@ -123,6 +154,7 @@ ${message.trim()}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -136,6 +168,7 @@ ${message.trim()}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your.email@example.com"
+                  disabled={isSubmitting}
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   We&apos;ll only use this to follow up if needed
@@ -153,9 +186,10 @@ ${message.trim()}
                   placeholder="Tell us what you think... What works well? What could be improved?"
                   rows={6}
                   required
+                  disabled={isSubmitting}
                   className="min-h-[120px] rounded-xl border-gray-300/80 dark:border-gray-600/80 bg-white dark:bg-gray-900 px-4 py-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-1 focus-visible:border-primary transition-all duration-200 shadow-sm focus-visible:shadow-md"
                 />
-                {errorMessage && (
+                {errorMessage && submitStatus === 'idle' && (
                   <p className="text-xs text-red-600 dark:text-red-400">{errorMessage}</p>
                 )}
               </div>
@@ -166,6 +200,7 @@ ${message.trim()}
                   <Button
                     type="button"
                     variant="outline"
+                    disabled={isSubmitting}
                     className="w-full sm:w-auto"
                   >
                     Cancel
@@ -173,14 +208,24 @@ ${message.trim()}
                 </Dialog.Close>
                 <Button
                   type="submit"
-                  disabled={!message.trim()}
+                  disabled={isSubmitting || !message.trim()}
                   className="w-full sm:w-auto min-w-[120px]"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Open Email
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Send Feedback
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
+          )}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

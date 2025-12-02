@@ -89,17 +89,20 @@ The app will be available at `https://your-project.vercel.app`
 
 No environment variables are required for basic functionality. All data is stored locally in the browser's localStorage.
 
-#### Feedback Form
+#### Optional: Feedback Form (Resend)
 
-The feedback form uses a simple mailto link that opens the user's email client. To configure your email address:
+To enable the feedback form on the home page:
 
-1. Open `components/feedback/feedback-modal.tsx`
-2. Update the `FEEDBACK_EMAIL` constant with your email address:
-   ```typescript
-   const FEEDBACK_EMAIL = 'your-email@example.com';
+1. Sign up for a free account at [resend.com](https://resend.com)
+2. Create an API key in your Resend dashboard
+3. Add the following to your `.env.local` file:
    ```
+   RESEND_API_KEY=re_your_api_key_here
+   ```
+4. In Vercel, add the same environment variable in your project settings (Settings → Environment Variables)
+5. The feedback form will automatically send emails to `wherdzik@gmail.com`
 
-The feedback button appears on the home page and will open the user's email client with a pre-filled message when clicked.
+**Note:** The free tier includes 3,000 emails/month, which is more than sufficient for feedback submissions.
 
 ## Project Structure
 
