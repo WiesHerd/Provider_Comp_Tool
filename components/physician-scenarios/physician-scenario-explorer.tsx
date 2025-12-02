@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip } from '@/components/ui/tooltip';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Stethoscope, Plus, ChevronLeft, ChevronRight, AlertTriangle, X, Info } from 'lucide-react';
+import { Stethoscope, Plus, AlertTriangle, X, Info } from 'lucide-react';
 import { MarketDataSaveAllButton } from '@/components/fmv/market-data-save-all-button';
 import { 
   loadMarketData, 
@@ -944,50 +944,6 @@ export function PhysicianScenarioExplorer() {
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
-
-        {/* Bottom Navigation Buttons */}
-        <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10 mt-8">
-          <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto px-4 sm:px-6">
-            <Button
-              variant="outline"
-              onClick={() => {
-                const tabs = ['setup', 'modeling', 'comparison', 'results'];
-                const currentIndex = tabs.indexOf(activeTab);
-                if (currentIndex > 0) {
-                  setActiveTab(tabs[currentIndex - 1]);
-                }
-              }}
-              disabled={activeTab === 'setup'}
-              className="min-h-[48px] min-w-[120px]"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-              Back
-            </Button>
-            
-            <Button
-              onClick={() => {
-                const tabs = ['setup', 'modeling', 'comparison', 'results'];
-                const currentIndex = tabs.indexOf(activeTab);
-                const nextTab = tabs[currentIndex + 1];
-                
-                // Check if wRVUs are required for next tab
-                if ((nextTab === 'results' || nextTab === 'comparison') && wrvus <= 0) {
-                  setToastMessage('Please enter Annual wRVUs in the Setup tab to view results and comparisons.');
-                  return;
-                }
-                
-                if (currentIndex < tabs.length - 1) {
-                  setActiveTab(nextTab);
-                }
-              }}
-              disabled={activeTab === 'comparison'}
-              className="min-h-[48px] min-w-[140px] ml-auto"
-            >
-              {activeTab === 'comparison' ? 'View Results' : 'Continue'}
-              <ChevronRight className="w-4 h-4 ml-2 flex-shrink-0" />
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );

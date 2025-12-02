@@ -28,7 +28,6 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { useRouter } from 'next/navigation';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
-import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { cn } from '@/lib/utils/cn';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -406,19 +405,8 @@ function ResultsStepContent({
         </Card>
       )}
 
-      {/* Navigation and Action Buttons - Auto-hide on mobile, static on desktop */}
-      <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
-        {/* Back Button */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-3">
-          <Button
-            variant="outline"
-            onClick={onBack}
-            className="w-full sm:w-auto min-h-[44px] touch-target"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-            Back
-          </Button>
-        </div>
+      {/* Action Buttons - Fixed bottom */}
+      <div className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
         {/* Save and Start Over Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
@@ -441,7 +429,7 @@ function ResultsStepContent({
             Start Over
           </Button>
         </div>
-      </AutoHideSticky>
+      </div>
     </div>
   );
 }
@@ -837,33 +825,6 @@ function WRVUModelerPageContent() {
         </TabsContent>
       </Tabs>
 
-      {/* Calculate Button - Sticky bottom bar for Input tab */}
-      {activeTab === 'input' && annualWrvus > 0 && conversionFactor > 0 && (
-        <AutoHideSticky className="bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setActiveTab('setup');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="w-full sm:w-auto min-h-[48px] text-base font-semibold"
-              size="lg"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-              Back
-            </Button>
-            <Button
-              onClick={handleCalculate}
-              className="w-full sm:flex-1 min-h-[48px] text-base font-semibold flex items-center"
-              size="lg"
-            >
-              <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
-              Calculate
-            </Button>
-          </div>
-        </AutoHideSticky>
-      )}
       </div>
     </div>
   );

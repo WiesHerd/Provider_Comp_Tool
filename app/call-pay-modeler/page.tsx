@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Info, DollarSign, Scale, ChevronLeft, RotateCcw } from 'lucide-react';
+import { Info, DollarSign, Scale, RotateCcw } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { CallPaySaveButton } from '@/components/call-pay/call-pay-save-button';
@@ -48,7 +48,6 @@ import { CallProvider, CallAssumptions } from '@/types/call-pay-engine';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
 import { cn } from '@/lib/utils/cn';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 
 const DEFAULT_CONTEXT: CallPayContext = {
   specialty: '',
@@ -804,31 +803,6 @@ export default function CallPayModelerPage() {
                 )}
               </CardContent>
             </Card>
-
-            {/* Navigation buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setActiveTab('configuration');
-                  setActiveStep(2);
-                }}
-                className="w-full sm:w-auto min-h-[44px] touch-target"
-              >
-                <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-                Back to Configuration
-              </Button>
-              <Button
-                onClick={() => {
-                  setActiveTab('results');
-                  setActiveStep(4);
-                }}
-                className="w-full sm:w-auto min-h-[44px] touch-target"
-                disabled={!step2Complete}
-              >
-                Continue to Results
-              </Button>
-            </div>
           </div>
         </TabsContent>
 
@@ -1013,21 +987,8 @@ export default function CallPayModelerPage() {
               </Card>
             )}
 
-            {/* Action Buttons - Auto-hide on mobile, static on desktop */}
-            <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
-              <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setActiveTab('fmv-benchmarking');
-                    setActiveStep(3);
-                  }}
-                  className="w-full sm:w-auto min-h-[44px] touch-target"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-2 flex-shrink-0" />
-                  Back to FMV Benchmarking
-                </Button>
-              </div>
+            {/* Action Buttons - Fixed bottom */}
+            <div className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
               <div className="flex flex-col sm:flex-row gap-3">
                 <CallPaySaveButton
                   context={context}
@@ -1054,7 +1015,7 @@ export default function CallPayModelerPage() {
                   Start New Calculation
                 </Button>
               </div>
-            </AutoHideSticky>
+            </div>
           </div>
           </div>
         </TabsContent>
