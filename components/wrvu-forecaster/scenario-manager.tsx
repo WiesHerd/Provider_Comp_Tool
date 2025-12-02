@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Save, Mail, Printer, RotateCcw } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
+import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 import {
   WRVUForecasterInputs,
   ProductivityMetrics,
@@ -186,10 +188,9 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
 
   return (
     <>
-      {/* Action Buttons - Sticky at bottom on mobile, regular on desktop */}
-      <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-t sm:border-gray-200 sm:dark:border-gray-800">
-        <div className="fixed sm:static bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-50">
-          <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
+      {/* Action Buttons - Auto-hide on mobile, static on desktop */}
+      <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
             <div className="flex flex-row items-center justify-center gap-3 flex-wrap flex-1">
               <Button 
                 onClick={() => setShowSaveDialog(true)}
@@ -238,8 +239,7 @@ export function ScenarioManager({ inputs, metrics, onEmailReport, onPrint, onSta
               </Button>
             )}
           </div>
-        </div>
-      </div>
+      </AutoHideSticky>
 
       <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <Dialog.Portal>

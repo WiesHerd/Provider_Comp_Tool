@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { ProviderComparison } from '@/components/physician-scenarios/provider-comparison';
 import { MarketBenchmarks, ProviderScenario, ProviderComparisonScenarioData, FTE } from '@/types';
 import { ConversionFactorModel } from '@/types/cf-models';
@@ -16,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Tooltip } from '@/components/ui/tooltip';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Info, ChevronDown, ChevronUp, Save, Loader2, RotateCcw } from 'lucide-react';
+import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 import { 
   loadMarketData
 } from '@/lib/utils/market-data-storage';
@@ -297,10 +299,9 @@ export function ProviderComparisonPageContent() {
           onProvidersChange={setProviders}
         />
 
-        {/* Action Buttons - Sticky at bottom on mobile, regular on desktop */}
-        <div className="sm:mt-6 sm:pt-6 sm:pb-6 sm:border-t sm:border-gray-200 sm:dark:border-gray-800">
-          <div className="fixed sm:static bottom-20 sm:bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t sm:border-t-0 border-gray-200 dark:border-gray-800 pt-4 pb-4 sm:pt-0 sm:pb-0 safe-area-inset-bottom z-30">
-            <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
+        {/* Action Buttons - Auto-hide on mobile, static on desktop */}
+        <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+          <div className="flex flex-row items-center justify-center sm:justify-between gap-3 flex-wrap px-4 sm:px-0 max-w-4xl mx-auto">
               <Button 
                 onClick={() => setShowSaveDialog(true)}
                 className="min-h-[44px] touch-target flex-1 sm:flex-initial"
@@ -348,8 +349,7 @@ export function ProviderComparisonPageContent() {
                 Start Over
               </Button>
             </div>
-          </div>
-        </div>
+        </AutoHideSticky>
 
         {/* Save Scenario Dialog */}
         <Dialog.Root open={showSaveDialog} onOpenChange={setShowSaveDialog}>

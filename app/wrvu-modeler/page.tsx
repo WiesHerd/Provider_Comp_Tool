@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { FTEInput } from '@/components/wrvu/fte-input';
 import { WRVUInput } from '@/components/wrvu/wrvu-input';
@@ -28,6 +29,7 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { useRouter } from 'next/navigation';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
 import { MonthlyBreakdownChart } from '@/components/wrvu/monthly-breakdown-chart';
+import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { cn } from '@/lib/utils/cn';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -167,6 +169,7 @@ function ResultsStepContent({
   monthlyWrvus,
 }: ResultsStepContentProps & { onBack: () => void; monthlyWrvus: number }) {
   const router = useRouter();
+  const isStickyVisible = useAutoHideSticky({ mobileOnly: true });
   
   const handleStartOver = () => {
     onStartOver();
@@ -405,8 +408,23 @@ function ResultsStepContent({
         </Card>
       )}
 
-      {/* Navigation and Action Buttons - Consistent with other screens */}
-      <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+      {/* Navigation and Action Buttons - Auto-hiding sticky on mobile, static on desktop */}
+      <motion.div
+        initial={false}
+        animate={{
+          y: isStickyVisible ? 0 : 100,
+          opacity: isStickyVisible ? 1 : 0,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 30,
+        }}
+        className="sticky bottom-20 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10"
+        style={{
+          pointerEvents: isStickyVisible ? 'auto' : 'none',
+        }}
+      >
         {/* Back Button */}
         <div className="flex flex-col sm:flex-row gap-3 mb-3">
           <Button
@@ -440,7 +458,7 @@ function ResultsStepContent({
             Start Over
           </Button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -838,7 +856,7 @@ function WRVUModelerPageContent() {
 
       {/* Calculate Button - Sticky bottom bar for Input tab */}
       {activeTab === 'input' && annualWrvus > 0 && conversionFactor > 0 && (
-        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
@@ -859,9 +877,9 @@ function WRVUModelerPageContent() {
             >
               <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
               Calculate
-            </Button>
-          </div>
+          </Button>
         </div>
+      </AutoHideSticky>
       )}
       </div>
     </div>

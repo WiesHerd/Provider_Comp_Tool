@@ -48,6 +48,7 @@ import { CallProvider, CallAssumptions } from '@/types/call-pay-engine';
 import { calculateCallPayImpact } from '@/lib/utils/call-pay-coverage';
 import { cn } from '@/lib/utils/cn';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 
 const DEFAULT_CONTEXT: CallPayContext = {
   specialty: '',
@@ -1012,7 +1013,8 @@ export default function CallPayModelerPage() {
               </Card>
             )}
 
-            <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+            {/* Action Buttons - Auto-hide on mobile, static on desktop */}
+            <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
               <div className="flex flex-col sm:flex-row gap-3 mb-3">
                 <Button
                   variant="outline"
@@ -1052,7 +1054,7 @@ export default function CallPayModelerPage() {
                   Start New Calculation
                 </Button>
               </div>
-            </div>
+            </AutoHideSticky>
           </div>
           </div>
         </TabsContent>

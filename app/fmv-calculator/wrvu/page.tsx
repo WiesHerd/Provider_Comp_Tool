@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
 import { useSearchParams } from 'next/navigation';
 import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
@@ -20,6 +21,7 @@ import { MarketBenchmarks, FTE } from '@/types';
 import { calculateWRVUPercentile } from '@/lib/utils/percentile';
 import { normalizeWrvus } from '@/lib/utils/normalization';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
+import { AutoHideSticky } from '@/components/ui/auto-hide-sticky';
 
 function WRVUCalculatorPageContent() {
   const searchParams = useSearchParams();
@@ -315,7 +317,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Navigation Buttons - Show when on Step 1 or 2 */}
       {currentStep === 1 && normalizedWrvus > 0 && !showResults && (
-        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <Button
             onClick={() => setActiveStep(2)}
             className="w-full min-h-[48px] text-base font-semibold"
@@ -329,7 +331,7 @@ function WRVUCalculatorPageContent() {
 
       {/* Calculate Button - Always visible on Step 2 */}
       {currentStep === 2 && normalizedWrvus > 0 && (
-        <div className="sticky bottom-20 md:bottom-0 bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
+        <div className="sticky bottom-20 md:static bg-white dark:bg-gray-900 pt-4 pb-4 sm:pb-6 border-t border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
@@ -348,9 +350,9 @@ function WRVUCalculatorPageContent() {
             >
               <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
               Calculate
-            </Button>
-          </div>
-        </div>
+              </Button>
+            </div>
+          </AutoHideSticky>
       )}
 
       {/* Step 3: Results (Only shown after calculation) */}
@@ -372,8 +374,8 @@ function WRVUCalculatorPageContent() {
             valueLabel="Your Normalized wRVUs (1.0 FTE)"
           />
 
-          {/* Save and Start Over Buttons */}
-          <div className="pt-4 border-t-2 border-gray-200 dark:border-gray-800">
+          {/* Action Buttons - Auto-hide on mobile, static on desktop */}
+          <AutoHideSticky className="bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-10">
             <div className="flex flex-col sm:flex-row gap-3 mb-3">
               <Button
                 variant="outline"
@@ -404,7 +406,7 @@ function WRVUCalculatorPageContent() {
                 Start Over
               </Button>
             </div>
-          </div>
+          </AutoHideSticky>
         </div>
       )}
       </div>
