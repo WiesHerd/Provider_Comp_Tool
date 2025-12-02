@@ -23,7 +23,7 @@ import { normalizeWrvus } from '@/lib/utils/normalization';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RotateCcw, User, Stethoscope, Info, Calendar, Calculator, DollarSign, ArrowUpRight, TrendingUp } from 'lucide-react';
+import { RotateCcw, User, Stethoscope, Info, Calendar, DollarSign, ArrowUpRight, TrendingUp } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { useRouter } from 'next/navigation';
 import { useScenariosStore } from '@/lib/store/scenarios-store';
