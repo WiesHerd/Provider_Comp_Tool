@@ -37,7 +37,6 @@ import {
 import { DollarSign, User, Stethoscope, ChevronDown, Info } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { PatientCalendarView } from '@/components/wrvu-forecaster/patient-calendar-view';
 import {
   formatDateString,
