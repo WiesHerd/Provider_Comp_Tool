@@ -611,13 +611,6 @@ function WRVUModelerPageContent() {
     }
   };
 
-  const handleCalculate = () => {
-    if (annualWrvus > 0 && conversionFactor > 0) {
-      setActiveTab('results');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
