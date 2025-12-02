@@ -13,6 +13,7 @@ import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Calculator, RotateCcw } from 'lucide-react';
 import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
 import { MarketBenchmarks } from '@/types';
@@ -26,6 +27,7 @@ function CFCalculatorPageContent() {
   const [cfValue, setCfValue] = useState<number>(0);
   const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
   const [showResults, setShowResults] = useState(false);
+  const [activeTab, setActiveTab] = useState<'provider' | 'results'>('provider');
   const [scenarioLoaded, setScenarioLoaded] = useState(false);
 
   const STORAGE_KEY = 'fmvCfDraftState';
@@ -85,6 +87,7 @@ function CFCalculatorPageContent() {
   const handleCalculate = () => {
     if (cfValue > 0 && hasMarketData) {
       setShowResults(true);
+      setActiveTab('results'); // Navigate to results tab
     } else {
       console.warn('❌ Conditions NOT met:');
       console.warn('  - CF Value > 0:', cfValue > 0, '(value:', cfValue, ')');
@@ -105,6 +108,7 @@ function CFCalculatorPageContent() {
     setCfValue(0);
     setMarketBenchmarks({});
     setShowResults(false);
+    setActiveTab('provider'); // Go back to Provider tab
     setScenarioLoaded(false); // Reset scenario loaded flag
     // Clear draft state
     if (typeof window !== 'undefined') {
@@ -139,38 +143,30 @@ function CFCalculatorPageContent() {
 
   // Reset showResults when market data or CF value changes (so user can recalculate)
   useEffect(() => {
-    setShowResults(false);
+    if (showResults) {
+      setShowResults(false);
+      setActiveTab('provider');
+    }
   }, [marketBenchmarks, cfValue]);
 
-  // Scroll to results when they are shown
-  useEffect(() => {
-    if (showResults && cfValue > 0) {
-      // Use requestAnimationFrame to wait for DOM update, then setTimeout for React render
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          const resultsSection = document.getElementById('results-section');
-          if (resultsSection) {
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else {
-            // Try again after a longer delay in case React hasn't rendered yet
-            setTimeout(() => {
-              const retrySection = document.getElementById('results-section');
-              if (retrySection) {
-                retrySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }, 500);
-          }
-        }, 150);
-      });
-    }
-  }, [showResults, cfValue]);
+  // Ensure activeTab is valid - if results tab is selected but no results, go to provider
+  const currentTab = (activeTab === 'results' && !showResults) ? 'provider' : activeTab;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
       <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
-      {/* Combined Input Screen - CF Input and Market Data together */}
-      {!showResults && (
-      <div id="cf-input" className="space-y-6" data-tour="fmv-cf-content">
+      <Tabs value={currentTab} onValueChange={(value) => setActiveTab(value as 'provider' | 'results')} className="w-full mb-6">
+        <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="provider" className="text-sm font-medium">
+            Provider
+          </TabsTrigger>
+          <TabsTrigger value="results" className="text-sm font-medium" disabled={!showResults || cfValue === 0}>
+            Results
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Provider Tab - CF Input and Market Data together */}
+        <TabsContent value="provider" className="space-y-6 mt-0" data-tour="fmv-cf-content">
         <Card className="border-2">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -244,32 +240,30 @@ function CFCalculatorPageContent() {
           </div>
           </CardContent>
         </Card>
-      </div>
-      )}
 
-      {/* Calculate Button - Always visible when not showing results */}
-      {!showResults && cfValue > 0 && (
-        <div className="pt-6">
-          {!hasMarketData && (
-            <p className="text-sm text-amber-600 dark:text-amber-400 text-center mb-3">
-              Please enter at least one benchmark value (25th, 50th, 75th, or 90th percentile) to calculate.
-            </p>
-          )}
-          <Button
-            onClick={handleCalculate}
-            className="w-full min-h-[48px] text-base font-semibold"
-            size="lg"
-            disabled={!hasMarketData}
-          >
-            <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
-            Calculate
-          </Button>
-        </div>
-      )}
+          {/* Calculate Button */}
+          <div className="pt-6">
+            {!hasMarketData && (
+              <p className="text-sm text-amber-600 dark:text-amber-400 text-center mb-3">
+                Please enter at least one benchmark value (25th, 50th, 75th, or 90th percentile) to calculate.
+              </p>
+            )}
+            <Button
+              onClick={handleCalculate}
+              className="w-full min-h-[48px] text-base font-semibold"
+              size="lg"
+              disabled={!hasMarketData || cfValue === 0}
+            >
+              <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
+              Calculate
+            </Button>
+          </div>
+        </TabsContent>
 
-      {/* Results (Only shown after calculation) */}
-      {showResults && cfValue > 0 && (
-        <div id="results-section" className="space-y-6">
+        {/* Results Tab */}
+        <TabsContent value="results" className="space-y-6 mt-0">
+          {showResults && cfValue > 0 && (
+            <div id="results-section" className="space-y-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Conversion Factor</h2>
           </div>
@@ -309,8 +303,10 @@ function CFCalculatorPageContent() {
               </Button>
             </div>
           </div>
-        </div>
-      )}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );
