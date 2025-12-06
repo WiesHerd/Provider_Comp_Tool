@@ -116,7 +116,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
   const invalidRows = previewData?.filter(row => row.errors && row.errors.length > 0) || [];
 
   const uploadContent = (
-    <CardContent className="space-y-4 hidden sm:block">
+    <CardContent className="space-y-4">
         {/* Upload Button */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <input

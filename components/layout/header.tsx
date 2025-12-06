@@ -162,18 +162,19 @@ export function Header() {
           "border-b transition-all duration-500 ease-out",
           "border-gray-200/40 dark:border-gray-800/40",
           "bg-white/75 dark:bg-gray-950/75",
-          "backdrop-blur-xl backdrop-saturate-200",
+          "backdrop-blur-lg sm:backdrop-blur-xl backdrop-saturate-150 sm:backdrop-saturate-200",
           "shadow-[0_1px_0_0_rgba(0,0,0,0.03),0_4px_24px_rgba(0,0,0,0.02)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03),0_4px_24px_rgba(0,0,0,0.3)]",
-          "supports-[backdrop-filter]:bg-white/65 supports-[backdrop-filter]:dark:bg-gray-950/65",
+          "supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-gray-950/70",
+          "supports-[backdrop-filter]:sm:bg-white/65 supports-[backdrop-filter]:sm:dark:bg-gray-950/65",
           isHeaderVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0",
           isLandscape ? "py-2 md:py-2" : "py-2 sm:py-2.5 md:py-3"
         )}
         suppressHydrationWarning
         role="banner"
       >
-      {/* Enhanced gradient overlay - Grok style */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/30 to-transparent dark:from-gray-950/60 dark:via-gray-950/30 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/5 to-pink-500/0 dark:from-blue-400/0 dark:via-purple-400/8 dark:to-pink-400/0 pointer-events-none" />
+      {/* Enhanced gradient overlay - more subtle on mobile */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/20 to-transparent dark:from-gray-950/50 dark:via-gray-950/20 sm:from-white/60 sm:via-white/30 sm:dark:from-gray-950/60 sm:dark:via-gray-950/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-purple-500/3 to-pink-500/0 dark:from-blue-400/0 dark:via-purple-400/5 dark:to-pink-400/0 sm:via-purple-500/5 sm:dark:via-purple-400/8 pointer-events-none" />
       
       <div className={cn(
         "relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-10",
@@ -182,7 +183,7 @@ export function Header() {
         <div className="flex items-center justify-between relative z-10">
           <div className={cn(
             "flex items-center",
-            isLandscape ? "gap-3 sm:gap-4" : "gap-5 sm:gap-6 md:gap-7"
+            isLandscape ? "gap-3 sm:gap-4" : "gap-4 sm:gap-5 md:gap-6"
           )}>
             {/* Back button - Grok style (only show when not on home) */}
             {/* Use safePathname for consistent SSR rendering */}
@@ -194,9 +195,11 @@ export function Header() {
                 className={cn(
                   "min-w-[44px] h-[44px] -ml-1 rounded-xl",
                   "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                  "active:bg-gray-200/90 dark:active:bg-gray-700/90",
                   "transition-all duration-200 ease-out",
-                  "active:scale-[0.95]",
+                  "active:scale-[0.92] touch-manipulation",
                   "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
+                  "active:shadow-sm",
                   "animate-icon-enter",
                   "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50"
                 )}
@@ -264,11 +267,12 @@ export function Header() {
 
           <div className={cn(
             "flex items-center relative z-20",
-            isLandscape ? "gap-2 sm:gap-3" : "gap-3 sm:gap-4"
+            isLandscape ? "gap-2 sm:gap-3" : "gap-2 sm:gap-3"
           )}>
             {(!isLandscape || (typeof window !== 'undefined' && window.innerWidth >= 640)) && (
               <>
-                <Link href="/market-data">
+                {/* Upload button - hidden on mobile */}
+                <Link href="/market-data" className="hidden sm:block">
                   <Button 
                     type="button"
                     variant="ghost" 
@@ -277,9 +281,11 @@ export function Header() {
                       "min-w-[44px] h-[44px]",
                       "rounded-xl",
                       "hover:bg-blue-50/80 dark:hover:bg-blue-950/30",
+                      "active:bg-blue-100/80 dark:active:bg-blue-900/40",
                       "transition-all duration-200 ease-out",
-                      "active:scale-[0.95]",
+                      "active:scale-[0.92] touch-manipulation",
                       "hover:shadow-md hover:shadow-blue-200/30 dark:hover:shadow-blue-900/20",
+                      "active:shadow-sm",
                       "group",
                       "animate-icon-enter",
                       "border border-transparent hover:border-blue-200/40 dark:hover:border-blue-800/40",
@@ -297,6 +303,7 @@ export function Header() {
                     )} />
                   </Button>
                 </Link>
+                {/* Info button - slightly more prominent for help/guidance */}
                 <Button 
                   type="button"
                   variant="ghost" 
@@ -304,26 +311,29 @@ export function Header() {
                   className={cn(
                     "min-w-[44px] h-[44px]",
                     "rounded-xl",
-                    "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                    "hover:bg-blue-50/80 dark:hover:bg-blue-950/30",
+                    "active:bg-blue-100/80 dark:active:bg-blue-900/40",
                     "transition-all duration-200 ease-out",
-                    "active:scale-[0.95]",
-                    "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
+                    "active:scale-[0.92] touch-manipulation",
+                    "hover:shadow-md hover:shadow-blue-200/30 dark:hover:shadow-blue-900/20",
+                    "active:shadow-sm",
                     "group",
                     "animate-icon-enter",
-                    "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
+                    "border border-transparent hover:border-blue-200/40 dark:hover:border-blue-800/40",
                     "relative z-20"
                   )}
                   onClick={() => {
                     setDialogOpen(true);
                   }}
                   aria-label="Show instructions"
+                  title="Show instructions"
                   style={{ animationDelay: '0.15s' }}
                   suppressHydrationWarning
                 >
                   <Info className={cn(
-                    "w-6 h-6 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400",
+                    "w-6 h-6 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400",
                     "transition-all duration-200",
-                    "group-hover:scale-110 group-hover:text-gray-900 dark:group-hover:text-gray-200"
+                    "group-hover:scale-110 group-hover:text-blue-700 dark:group-hover:text-blue-300"
                   )} />
                 </Button>
               </>
@@ -484,6 +494,7 @@ export function Header() {
                 </Dialog.Portal>
               </Dialog.Root>
 
+            {/* Theme toggle - subtle but accessible */}
             <Button
               type="button"
               variant="ghost"
@@ -493,15 +504,18 @@ export function Header() {
                 "min-w-[44px] h-[44px]",
                 "rounded-xl",
                 "hover:bg-gray-100/90 dark:hover:bg-gray-800/90",
+                "active:bg-gray-200/90 dark:active:bg-gray-700/90",
                 "transition-all duration-200 ease-out",
-                "active:scale-[0.95]",
-                "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
+                "active:scale-[0.92] touch-manipulation",
+                "hover:shadow-sm hover:shadow-gray-200/30 dark:hover:shadow-gray-900/30",
+                "active:shadow-xs",
                 "group",
                 "animate-icon-enter",
-                "border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50",
+                "border border-transparent hover:border-gray-200/30 dark:hover:border-gray-700/30",
                 "relative z-20"
               )}
               aria-label="Toggle theme"
+              title="Toggle dark/light mode"
               style={{ animationDelay: '0.2s' }}
               suppressHydrationWarning
             >
