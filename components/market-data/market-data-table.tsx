@@ -5,7 +5,7 @@ import { SavedMarketData } from '@/lib/utils/market-data-storage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Search, Download } from 'lucide-react';
+import { Trash2, Search, Download, AlertTriangle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { deleteMarketData, loadAllMarketData } from '@/lib/utils/market-data-storage';
+import { deleteMarketData, deleteAllMarketData, loadAllMarketData } from '@/lib/utils/market-data-storage';
 import * as XLSX from 'xlsx';
 
 interface MarketDataTableProps {
@@ -25,10 +25,17 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMetricType, setFilterMetricType] = useState<'all' | 'tcc' | 'wrvu' | 'cf'>('all');
   const [filterSpecialty, setFilterSpecialty] = useState('all');
+  const [filterRegion, setFilterRegion] = useState('all');
 
   // Get unique specialties
   const specialties = useMemo(() => {
     const unique = new Set(allData.map(d => d.specialty));
+    return Array.from(unique).sort();
+  }, [allData]);
+
+  // Get unique regions
+  const regions = useMemo(() => {
+    const unique = new Set(allData.map(d => d.geographicRegion).filter(Boolean) as string[]);
     return Array.from(unique).sort();
   }, [allData]);
 
@@ -50,14 +57,25 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
         return false;
       }
 
+      // Region filter
+      if (filterRegion !== 'all') {
+        if (filterRegion === 'none' && item.geographicRegion) {
+          return false;
+        }
+        if (filterRegion !== 'none' && item.geographicRegion !== filterRegion) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [allData, searchTerm, filterMetricType, filterSpecialty]);
+  }, [allData, searchTerm, filterMetricType, filterSpecialty, filterRegion]);
 
-  const handleDelete = (specialty: string, metricType: 'tcc' | 'wrvu' | 'cf') => {
-    if (confirm(`Delete market data for ${specialty} - ${metricType.toUpperCase()}?`)) {
+  const handleDelete = (specialty: string, metricType: 'tcc' | 'wrvu' | 'cf', geographicRegion?: string) => {
+    const regionText = geographicRegion ? ` (${geographicRegion})` : '';
+    if (confirm(`Delete market data for ${specialty} - ${metricType.toUpperCase()}${regionText}?`)) {
       try {
-        deleteMarketData(specialty, metricType);
+        deleteMarketData(specialty, metricType, geographicRegion);
         // Reload data
         setAllData(loadAllMarketData());
         if (onDataChange) {
@@ -70,11 +88,34 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
     }
   };
 
+  const handleDeleteAll = () => {
+    const count = allData.length;
+    if (count === 0) {
+      alert('No market data to delete.');
+      return;
+    }
+    
+    if (confirm(`Delete ALL market data? This will remove ${count} record${count !== 1 ? 's' : ''} and cannot be undone.`)) {
+      try {
+        deleteAllMarketData();
+        // Reload data
+        setAllData(loadAllMarketData());
+        if (onDataChange) {
+          onDataChange();
+        }
+      } catch (error) {
+        console.error('Error deleting all market data:', error);
+        alert('Failed to delete all market data. Please try again.');
+      }
+    }
+  };
+
   const handleExport = () => {
     try {
       // Prepare data for export (wide format)
       const specialtyMap = new Map<string, {
         specialty: string;
+        geographic_region?: string;
         tcc25?: number;
         tcc50?: number;
         tcc75?: number;
@@ -90,10 +131,17 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
       }>();
 
       allData.forEach(item => {
-        let row = specialtyMap.get(item.specialty);
+        // Use specialty + region as key to support multiple regions per specialty
+        const mapKey = item.geographicRegion 
+          ? `${item.specialty}|||${item.geographicRegion}` 
+          : item.specialty;
+        let row = specialtyMap.get(mapKey);
         if (!row) {
-          row = { specialty: item.specialty };
-          specialtyMap.set(item.specialty, row);
+          row = { 
+            specialty: item.specialty,
+            geographic_region: item.geographicRegion
+          };
+          specialtyMap.set(mapKey, row);
         }
 
         if (item.metricType === 'tcc') {
@@ -114,17 +162,28 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
         }
       });
 
-      const exportData = Array.from(specialtyMap.values());
+      // Convert map to array and add region info
+      const exportData = Array.from(specialtyMap.entries()).map(([key, row]) => {
+        // Extract region from key if it exists
+        const parts = key.split('|||');
+        if (parts.length > 1) {
+          return { ...row, geographic_region: parts[1] };
+        }
+        return row;
+      });
 
       // Create workbook
-      const ws = XLSX.utils.json_to_sheet(exportData, {
-        header: [
-          'specialty',
-          'TCC_25', 'TCC_50', 'TCC_75', 'TCC_90',
-          'wRVU_25', 'wRVU_50', 'wRVU_75', 'wRVU_90',
-          'CF_25', 'CF_50', 'CF_75', 'CF_90',
-        ],
-      });
+      const headers = ['specialty'];
+      // Add geographic_region if any row has it
+      if (exportData.some(row => row.geographic_region)) {
+        headers.push('geographic_region');
+      }
+      headers.push(
+        'TCC_25', 'TCC_50', 'TCC_75', 'TCC_90',
+        'wRVU_25', 'wRVU_50', 'wRVU_75', 'wRVU_90',
+        'CF_25', 'CF_50', 'CF_75', 'CF_90',
+      );
+      const ws = XLSX.utils.json_to_sheet(exportData, { header: headers });
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Market Data');
 
@@ -137,15 +196,30 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
   };
 
 
-  // Group data by specialty for display
+  // Group data by specialty and region for display
   const groupedData = useMemo(() => {
     const groups = new Map<string, SavedMarketData[]>();
     filteredData.forEach(item => {
-      const existing = groups.get(item.specialty) || [];
+      // Use specialty + region as key to support multiple regions per specialty
+      const groupKey = item.geographicRegion 
+        ? `${item.specialty}|||${item.geographicRegion}` 
+        : item.specialty;
+      const existing = groups.get(groupKey) || [];
       existing.push(item);
-      groups.set(item.specialty, existing);
+      groups.set(groupKey, existing);
     });
-    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return Array.from(groups.entries()).sort(([a], [b]) => {
+      const [aSpecialty, aRegion] = a.split('|||');
+      const [bSpecialty, bRegion] = b.split('|||');
+      if (aSpecialty !== bSpecialty) {
+        return aSpecialty.localeCompare(bSpecialty);
+      }
+      // If same specialty, sort by region (none first, then alphabetically)
+      if (!aRegion && bRegion) return -1;
+      if (aRegion && !bRegion) return 1;
+      if (!aRegion && !bRegion) return 0;
+      return (aRegion || '').localeCompare(bRegion || '');
+    });
   }, [filteredData]);
 
   const formatValue = (value: number | undefined, isCurrency: boolean = false): string => {
@@ -168,15 +242,28 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
               View and manage saved market benchmark data by specialty
             </p>
           </div>
-          <Button onClick={handleExport} variant="outline" size="sm" className="min-h-[44px]">
-            <Download className="w-4 h-4 mr-2" />
-            Export to Excel
-          </Button>
+          <div className="flex items-center gap-2">
+            {allData.length > 0 && (
+              <Button 
+                onClick={handleDeleteAll} 
+                variant="outline" 
+                size="sm" 
+                className="min-h-[44px] text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border-red-200 hover:border-red-300 dark:border-red-800 dark:hover:border-red-700"
+              >
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Delete All
+              </Button>
+            )}
+            <Button onClick={handleExport} variant="outline" size="sm" className="min-h-[44px]">
+              <Download className="w-4 h-4 mr-2" />
+              Export to Excel
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
@@ -208,6 +295,20 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
               ))}
             </SelectContent>
           </Select>
+          {regions.length > 0 && (
+            <Select value={filterRegion} onValueChange={setFilterRegion}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by region" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                <SelectItem value="none">No Region</SelectItem>
+                {regions.map(region => (
+                  <SelectItem key={region} value={region}>{region}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Table */}
@@ -224,6 +325,7 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Specialty</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Region</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">TCC</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">wRVU</th>
                   <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">CF</th>
@@ -232,7 +334,8 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {groupedData.map(([specialty, items]) => {
+                {groupedData.map(([groupKey, items]) => {
+                  const [specialty, geographicRegion] = groupKey.split('|||');
                   const tccItem = items.find(i => i.metricType === 'tcc');
                   const wrvuItem = items.find(i => i.metricType === 'wrvu');
                   const cfItem = items.find(i => i.metricType === 'cf');
@@ -241,9 +344,12 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
                   }, items[0].updatedAt);
 
                   return (
-                    <tr key={specialty} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <tr key={groupKey} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                       <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
                         {specialty}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        {geographicRegion || <span className="text-gray-400 italic">—</span>}
                       </td>
                       <td className="px-4 py-3 text-center">
                         {tccItem ? (
@@ -291,9 +397,9 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
                               key={item.id}
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(item.specialty, item.metricType)}
+                              onClick={() => handleDelete(item.specialty, item.metricType, item.geographicRegion)}
                               className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 h-8 w-8 p-0"
-                              title={`Delete ${item.specialty} - ${item.metricType.toUpperCase()}`}
+                              title={`Delete ${item.specialty} - ${item.metricType.toUpperCase()}${item.geographicRegion ? ` (${item.geographicRegion})` : ''}`}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>

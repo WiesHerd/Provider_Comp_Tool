@@ -14,6 +14,7 @@ import { logger } from './logger';
 
 export interface ParsedMarketDataRow {
   specialty: string;
+  geographicRegion?: string;
   tcc?: { p25?: number; p50?: number; p75?: number; p90?: number };
   wrvu?: { p25?: number; p50?: number; p75?: number; p90?: number };
   cf?: { p25?: number; p50?: number; p75?: number; p90?: number };
@@ -121,6 +122,11 @@ function parseWideFormat(jsonData: any[][], headers: string[]): ParseResult {
     };
   }
 
+  // Find geographic region column (optional)
+  const geographicRegionIndex = headers.findIndex((h) => 
+    h.includes('geographic') || h.includes('region') || h.includes('geo')
+  );
+
   // Find metric columns
   const findColumn = (pattern: string): number => {
     return headers.findIndex((h) => h.toLowerCase().includes(pattern.toLowerCase()));
@@ -156,8 +162,14 @@ function parseWideFormat(jsonData: any[][], headers: string[]): ParseResult {
       continue;
     }
 
+    // Get geographic region (optional)
+    const geographicRegion = geographicRegionIndex !== -1 
+      ? String(row[geographicRegionIndex] || '').trim() || undefined
+      : undefined;
+
     const parsedRow: ParsedMarketDataRow = {
       specialty,
+      geographicRegion,
       rowNumber: i + 1,
     };
 
@@ -251,6 +263,9 @@ function parseLongFormat(jsonData: any[][], headers: string[]): ParseResult {
   const metricTypeIndex = headers.findIndex((h) => h.includes('metric') && h.includes('type'));
   const variableIndex = headers.findIndex((h) => h.includes('variable') && !h.includes('type'));
   const metricColumnIndex = metricTypeIndex !== -1 ? metricTypeIndex : variableIndex;
+  const geographicRegionIndex = headers.findIndex((h) => 
+    h.includes('geographic') || h.includes('region') || h.includes('geo')
+  );
   const p25Index = headers.findIndex((h) => h.includes('p25') || (h.includes('25') && !h.includes('50') && !h.includes('75') && !h.includes('90')));
   const p50Index = headers.findIndex((h) => h.includes('p50') || (h.includes('50') && !h.includes('25') && !h.includes('75') && !h.includes('90')));
   const p75Index = headers.findIndex((h) => h.includes('p75') || (h.includes('75') && !h.includes('25') && !h.includes('50') && !h.includes('90')));
@@ -277,16 +292,22 @@ function parseLongFormat(jsonData: any[][], headers: string[]): ParseResult {
       continue;
     }
 
+    // Get geographic region (optional) - should be consistent across all rows for same specialty
+    const geographicRegion = geographicRegionIndex !== -1 
+      ? String(row[geographicRegionIndex] || '').trim() || undefined
+      : undefined;
+
     const metricTypeStr = String(row[metricColumnIndex] || '').trim().toLowerCase();
     let metricType: 'tcc' | 'wrvu' | 'cf' | null = null;
 
     // Map variable names to metric types
+    // Prefer "Total Compensation" over "Base Compensation" if both exist
     if (
       metricTypeStr.includes('tcc') || 
       metricTypeStr.includes('total cash') || 
       metricTypeStr.includes('total compensation') ||
       metricTypeStr === 'compensation' ||
-      metricTypeStr.includes('base compensation')
+      (metricTypeStr.includes('base compensation') && !metricTypeStr.includes('total'))
     ) {
       metricType = 'tcc';
     } else if (
@@ -310,14 +331,17 @@ function parseLongFormat(jsonData: any[][], headers: string[]): ParseResult {
 
     // metricType is now set above, or we continue if it doesn't match
 
-    // Get or create row for this specialty
-    let parsedRow = parsedRowsMap.get(specialty);
+    // Get or create row for this specialty and region
+    // Use specialty + region as key to support multiple regions per specialty
+    const specialtyKey = geographicRegion ? `${specialty}|||${geographicRegion}` : specialty;
+    let parsedRow = parsedRowsMap.get(specialtyKey);
     if (!parsedRow) {
       parsedRow = {
         specialty,
+        geographicRegion,
         rowNumber: i + 1,
       };
-      parsedRowsMap.set(specialty, parsedRow);
+      parsedRowsMap.set(specialtyKey, parsedRow);
     }
 
     // Parse percentiles
@@ -360,8 +384,16 @@ function parseLongFormat(jsonData: any[][], headers: string[]): ParseResult {
       }
     }
 
+    // For TCC: Prefer "Total Compensation" over "Base Compensation" if both exist
     if (metricType === 'tcc') {
-      parsedRow.tcc = percentileData;
+      // Only overwrite if current data is empty, or if this is "Total Compensation" and existing is "Base Compensation"
+      const isTotalComp = metricTypeStr.includes('total compensation') || metricTypeStr.includes('total cash');
+      const existingIsBaseComp = parsedRow.tcc && Object.keys(parsedRow.tcc).length > 0 && 
+        !metricTypeStr.includes('total');
+      
+      if (!parsedRow.tcc || Object.keys(parsedRow.tcc).length === 0 || (isTotalComp && existingIsBaseComp)) {
+        parsedRow.tcc = percentileData;
+      }
     } else if (metricType === 'wrvu') {
       parsedRow.wrvu = percentileData;
     } else if (metricType === 'cf') {
@@ -406,9 +438,12 @@ export function convertToSavedMarketData(parsedRows: ParsedMarketDataRow[]): Sav
       if (row.tcc.p90 !== undefined) benchmarks.tcc90 = row.tcc.p90;
 
       savedData.push({
-        id: `${row.specialty}-tcc`,
+        id: row.geographicRegion 
+          ? `${row.specialty}-tcc-${row.geographicRegion}` 
+          : `${row.specialty}-tcc`,
         specialty: row.specialty,
         metricType: 'tcc',
+        geographicRegion: row.geographicRegion,
         benchmarks,
         createdAt: now,
         updatedAt: now,
@@ -423,9 +458,12 @@ export function convertToSavedMarketData(parsedRows: ParsedMarketDataRow[]): Sav
       if (row.wrvu.p90 !== undefined) benchmarks.wrvu90 = row.wrvu.p90;
 
       savedData.push({
-        id: `${row.specialty}-wrvu`,
+        id: row.geographicRegion 
+          ? `${row.specialty}-wrvu-${row.geographicRegion}` 
+          : `${row.specialty}-wrvu`,
         specialty: row.specialty,
         metricType: 'wrvu',
+        geographicRegion: row.geographicRegion,
         benchmarks,
         createdAt: now,
         updatedAt: now,
@@ -440,9 +478,12 @@ export function convertToSavedMarketData(parsedRows: ParsedMarketDataRow[]): Sav
       if (row.cf.p90 !== undefined) benchmarks.cf90 = row.cf.p90;
 
       savedData.push({
-        id: `${row.specialty}-cf`,
+        id: row.geographicRegion 
+          ? `${row.specialty}-cf-${row.geographicRegion}` 
+          : `${row.specialty}-cf`,
         specialty: row.specialty,
         metricType: 'cf',
+        geographicRegion: row.geographicRegion,
         benchmarks,
         createdAt: now,
         updatedAt: now,

@@ -6,6 +6,7 @@ export interface SavedMarketData {
   id: string;
   specialty: string;
   metricType: 'tcc' | 'wrvu' | 'cf';
+  geographicRegion?: string; // Optional geographic region (e.g., "National", "Northeast", "West")
   benchmarks: MarketBenchmarks;
   createdAt: string;
   updatedAt: string;
@@ -19,16 +20,20 @@ const STORAGE_KEY = 'fmv_market_data';
 export function saveMarketData(
   specialty: string,
   metricType: 'tcc' | 'wrvu' | 'cf',
-  benchmarks: MarketBenchmarks
+  benchmarks: MarketBenchmarks,
+  geographicRegion?: string
 ): void {
   const allData = loadAllMarketData();
-  const id = `${specialty}-${metricType}`;
+  const id = geographicRegion 
+    ? `${specialty}-${metricType}-${geographicRegion}` 
+    : `${specialty}-${metricType}`;
   const existingIndex = allData.findIndex(d => d.id === id);
   
   const marketData: SavedMarketData = {
     id,
     specialty,
     metricType,
+    geographicRegion,
     benchmarks,
     createdAt: existingIndex >= 0 ? allData[existingIndex].createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -54,14 +59,25 @@ export function saveMarketData(
 
 /**
  * Load market data for a specific specialty and metric type
+ * If geographicRegion is provided, it will prefer that region, otherwise falls back to any region
  */
 export function loadMarketData(
   specialty: string,
-  metricType: 'tcc' | 'wrvu' | 'cf'
+  metricType: 'tcc' | 'wrvu' | 'cf',
+  geographicRegion?: string
 ): MarketBenchmarks | null {
   const allData = loadAllMarketData();
+  
+  // If region is specified, try to find exact match first
+  if (geographicRegion) {
+    const id = `${specialty}-${metricType}-${geographicRegion}`;
+    const data = allData.find(d => d.id === id);
+    if (data) return data.benchmarks;
+  }
+  
+  // Fall back to any region (or no region) for this specialty/metricType
   const id = `${specialty}-${metricType}`;
-  const data = allData.find(d => d.id === id);
+  const data = allData.find(d => d.id === id || d.id.startsWith(`${id}-`));
   return data ? data.benchmarks : null;
 }
 
@@ -98,11 +114,14 @@ export function getSavedSpecialties(metricType: 'tcc' | 'wrvu' | 'cf'): string[]
  */
 export function deleteMarketData(
   specialty: string,
-  metricType: 'tcc' | 'wrvu' | 'cf'
+  metricType: 'tcc' | 'wrvu' | 'cf',
+  geographicRegion?: string
 ): void {
   try {
     const allData = loadAllMarketData();
-    const id = `${specialty}-${metricType}`;
+    const id = geographicRegion 
+      ? `${specialty}-${metricType}-${geographicRegion}` 
+      : `${specialty}-${metricType}`;
     const filtered = allData.filter(d => d.id !== id);
     const serialized = JSON.stringify(filtered);
     if (!safeLocalStorage.setItem(STORAGE_KEY, serialized)) {
@@ -119,11 +138,31 @@ export function deleteMarketData(
  */
 export function hasMarketData(
   specialty: string,
-  metricType: 'tcc' | 'wrvu' | 'cf'
+  metricType: 'tcc' | 'wrvu' | 'cf',
+  geographicRegion?: string
 ): boolean {
   const allData = loadAllMarketData();
+  if (geographicRegion) {
+    const id = `${specialty}-${metricType}-${geographicRegion}`;
+    return allData.some(d => d.id === id);
+  }
   const id = `${specialty}-${metricType}`;
-  return allData.some(d => d.id === id);
+  return allData.some(d => d.id === id || d.id.startsWith(`${id}-`));
+}
+
+/**
+ * Delete all market data (clear everything)
+ */
+export function deleteAllMarketData(): void {
+  try {
+    if (!safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify([]))) {
+      logger.error('Failed to clear market data from localStorage');
+      throw new Error('Failed to clear market data. Please try again.');
+    }
+  } catch (error) {
+    logger.error('Error clearing market data:', error);
+    throw new Error('Failed to clear market data. Please try again.');
+  }
 }
 
 /**
