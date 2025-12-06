@@ -1,12 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MarketDataUpload } from '@/components/market-data/market-data-upload';
 import MarketDataTable from '@/components/market-data/market-data-table';
 import { Database } from 'lucide-react';
 
 export default function MarketDataPage() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Check screen size immediately on mount and on resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 640);
+    };
+    
+    // Check immediately
+    checkScreenSize();
+    
+    // Listen for resize
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const handleUploadComplete = () => {
     // Trigger refresh of table
@@ -25,19 +41,20 @@ export default function MarketDataPage() {
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            <span className="block sm:hidden">
-              View and manage market benchmark data (TCC, wRVU, CF) by specialty. Bulk uploads available on desktop.
-            </span>
-            <span className="hidden sm:block">
-              Upload, view, and manage market benchmark data (TCC, wRVU, CF) by specialty. This data is used across all FMV calculators and comparison tools.
-            </span>
+            {isDesktop ? (
+              'Upload, view, and manage market benchmark data (TCC, wRVU, CF) by specialty. This data is used across all FMV calculators and comparison tools.'
+            ) : (
+              'View and manage market benchmark data (TCC, wRVU, CF) by specialty. Bulk uploads available on desktop.'
+            )}
           </p>
         </div>
 
-        {/* Upload Section - Hidden on mobile using CSS */}
-        <div className="mb-6 hidden sm:block">
-          <MarketDataUpload onUploadComplete={handleUploadComplete} />
-        </div>
+        {/* Upload Section - Only render on desktop */}
+        {isDesktop && (
+          <div className="mb-6">
+            <MarketDataUpload onUploadComplete={handleUploadComplete} />
+          </div>
+        )}
 
         {/* Table Section */}
         <div>
