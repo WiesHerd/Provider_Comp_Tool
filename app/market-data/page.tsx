@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MarketDataUpload } from '@/components/market-data/market-data-upload';
 import MarketDataTable from '@/components/market-data/market-data-table';
 import { Database } from 'lucide-react';
