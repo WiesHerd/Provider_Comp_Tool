@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { MarketDataUpload } from '@/components/market-data/market-data-upload';
 import MarketDataTable from '@/components/market-data/market-data-table';
 import { Database } from 'lucide-react';
+import { useMobile } from '@/hooks/use-mobile';
 
 export default function MarketDataPage() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const isMobile = useMobile();
 
   const handleUploadComplete = () => {
     // Trigger refresh of table
@@ -25,15 +27,19 @@ export default function MarketDataPage() {
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Upload, view, and manage market benchmark data (TCC, wRVU, CF) by specialty. 
-            This data is used across all FMV calculators and comparison tools.
+            {isMobile 
+              ? 'View and manage market benchmark data (TCC, wRVU, CF) by specialty. Bulk uploads available on desktop.'
+              : 'Upload, view, and manage market benchmark data (TCC, wRVU, CF) by specialty. This data is used across all FMV calculators and comparison tools.'
+            }
           </p>
         </div>
 
-        {/* Upload Section */}
-        <div className="mb-6">
-          <MarketDataUpload onUploadComplete={handleUploadComplete} />
-        </div>
+        {/* Upload Section - Hidden on mobile */}
+        {!isMobile && (
+          <div className="mb-6">
+            <MarketDataUpload onUploadComplete={handleUploadComplete} />
+          </div>
+        )}
 
         {/* Table Section */}
         <div>

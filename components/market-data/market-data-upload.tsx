@@ -3,11 +3,10 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X, ChevronDown } from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { parseMarketDataFile, convertToSavedMarketData, ParsedMarketDataRow } from '@/lib/utils/market-data-parser';
 import { bulkSaveMarketData, loadAllMarketData } from '@/lib/utils/market-data-storage';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useMobile } from '@/hooks/use-mobile';
 
 interface MarketDataUploadProps {
   onUploadComplete?: () => void;
@@ -15,7 +14,6 @@ interface MarketDataUploadProps {
 
 export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useMobile();
   const [isUploading, setIsUploading] = useState(false);
   const [previewData, setPreviewData] = useState<ParsedMarketDataRow[] | null>(null);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
@@ -117,7 +115,6 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
   const validRows = previewData?.filter(row => !row.errors || row.errors.length === 0) || [];
   const invalidRows = previewData?.filter(row => row.errors && row.errors.length > 0) || [];
 
-  // On mobile, wrap in collapsible details element
   const uploadContent = (
     <CardContent className="space-y-4">
         {/* Upload Button */}
@@ -300,36 +297,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       </CardContent>
   );
 
-  // Mobile: Collapsible section (auto-expands if there's preview data or errors)
-  if (isMobile) {
-    return (
-      <Card className="border-2">
-        <details 
-          open={!!previewData || !!uploadError || parseErrors.length > 0}
-          className="group"
-        >
-          <summary className="cursor-pointer list-none">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Upload Market Data
-                  </CardTitle>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Best suited for desktop. Tap to expand.
-                  </p>
-                </div>
-                <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180 flex-shrink-0 ml-2" />
-              </div>
-            </CardHeader>
-          </summary>
-          {uploadContent}
-        </details>
-      </Card>
-    );
-  }
-
-  // Desktop: Always visible
+  // This component should not be rendered on mobile (handled by parent)
   return (
     <Card className="border-2">
       <CardHeader className="pb-4">
