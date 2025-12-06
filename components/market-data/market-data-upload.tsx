@@ -4,9 +4,17 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X } from 'lucide-react';
-import { parseMarketDataFile, convertToSavedMarketData, ParsedMarketDataRow } from '@/lib/utils/market-data-parser';
+import { parseMarketDataFile, convertToSavedMarketData, ParsedMarketDataRow, extractVariablesFromFile, VariableMapping } from '@/lib/utils/market-data-parser';
 import { bulkSaveMarketData, loadAllMarketData } from '@/lib/utils/market-data-storage';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 interface MarketDataUploadProps {
   onUploadComplete?: () => void;
@@ -19,6 +27,10 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [uploadSuccess, setUploadSuccess] = useState<{ imported: number; skipped: number } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uniqueVariables, setUniqueVariables] = useState<string[]>([]);
+  const [variableMapping, setVariableMapping] = useState<VariableMapping>({});
+  const [showMapping, setShowMapping] = useState(false);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -29,8 +41,23 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
     setParseErrors([]);
     setUploadSuccess(null);
     setUploadError(null);
+    setVariableMapping({});
+    setShowMapping(false);
 
     try {
+      // First, try to extract variables for manual mapping
+      const { variables } = await extractVariablesFromFile(file);
+      
+      if (variables.length > 0) {
+        // Show mapping step for long format files
+        setSelectedFile(file);
+        setUniqueVariables(variables);
+        setShowMapping(true);
+        setIsUploading(false);
+        return;
+      }
+
+      // If no variables found, try automatic parsing (wide format)
       const result = await parseMarketDataFile(file);
 
       if (result.errors.length > 0) {
@@ -49,9 +76,37 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       setUploadError(`Failed to parse file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
+      if (!showMapping && fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  const handleMappingComplete = async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    setShowMapping(false);
+
+    try {
+      const result = await parseMarketDataFile(selectedFile, variableMapping);
+
+      if (result.errors.length > 0) {
+        setParseErrors(result.errors);
+      }
+
+      if (result.data.length === 0) {
+        setUploadError('No valid data found after mapping. Please check your variable assignments.');
+        setIsUploading(false);
+        return;
+      }
+
+      setPreviewData(result.data);
+    } catch (error) {
+      console.error('Error parsing file with mapping:', error);
+      setUploadError(`Failed to parse file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -107,6 +162,10 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
     setParseErrors([]);
     setUploadSuccess(null);
     setUploadError(null);
+    setShowMapping(false);
+    setSelectedFile(null);
+    setUniqueVariables([]);
+    setVariableMapping({});
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -263,8 +322,94 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
           </div>
         )}
 
+        {/* Variable Mapping Step */}
+        {showMapping && uniqueVariables.length > 0 && (
+          <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                Map Variables to Metric Types
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                Please assign each variable from your file to the correct metric type (TCC, wRVU, or CF). 
+                Leave as &quot;Skip&quot; if you don&apos;t want to import that variable.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {uniqueVariables.map((variable) => (
+                <div key={variable} className="flex items-center gap-3">
+                  <Label className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 min-w-0">
+                    <span className="truncate block">{variable}</span>
+                  </Label>
+                  <Select
+                    value={variableMapping[variable] || 'skip'}
+                    onValueChange={(value) => {
+                      setVariableMapping(prev => ({
+                        ...prev,
+                        [variable]: value === 'skip' ? null : value as 'tcc' | 'wrvu' | 'cf',
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="skip">Skip</SelectItem>
+                      <SelectItem value="tcc">TCC</SelectItem>
+                      <SelectItem value="wrvu">wRVU</SelectItem>
+                      <SelectItem value="cf">CF</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-2 flex-wrap">
+              <Button variant="outline" onClick={handleCancel} size="sm">
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+              <Button 
+                variant="ghost"
+                onClick={async () => {
+                  // Use automatic detection (no mapping)
+                  if (!selectedFile) return;
+                  setIsUploading(true);
+                  setShowMapping(false);
+                  try {
+                    const result = await parseMarketDataFile(selectedFile);
+                    if (result.errors.length > 0) {
+                      setParseErrors(result.errors);
+                    }
+                    if (result.data.length === 0) {
+                      setUploadError('No valid data found. Please try manual mapping.');
+                      setIsUploading(false);
+                      return;
+                    }
+                    setPreviewData(result.data);
+                  } catch (error) {
+                    console.error('Error parsing file:', error);
+                    setUploadError(`Failed to parse file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+                size="sm"
+              >
+                Use Automatic Detection
+              </Button>
+              <Button 
+                onClick={handleMappingComplete} 
+                size="sm"
+                disabled={Object.values(variableMapping).filter(v => v !== null).length === 0}
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Continue with Mapping
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Format Help */}
-        {!previewData && (
+        {!previewData && !showMapping && (
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <details className="text-sm">
               <summary className="cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-medium">

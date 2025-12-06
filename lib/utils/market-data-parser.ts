@@ -26,12 +26,73 @@ export interface ParseResult {
   data: ParsedMarketDataRow[];
   errors: string[];
   format: 'wide' | 'long' | 'unknown';
+  variableMapping?: Map<string, 'tcc' | 'wrvu' | 'cf' | null>; // For manual mapping
+  uniqueVariables?: string[]; // Unique variable names found in file
+}
+
+export interface VariableMapping {
+  [variableName: string]: 'tcc' | 'wrvu' | 'cf' | null;
+}
+
+/**
+ * Extract unique variable names from a file (for manual mapping)
+ */
+export async function extractVariablesFromFile(file: File): Promise<{ variables: string[]; headers: string[] }> {
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' }) as any[][];
+
+    if (jsonData.length < 2) {
+      return { variables: [], headers: [] };
+    }
+
+    const headers = (jsonData[0] as string[]).map((h) => String(h).trim());
+    const format = detectFormat(headers.map(h => h.toLowerCase()));
+
+    if (format !== 'long') {
+      return { variables: [], headers };
+    }
+
+    // Find variable/metricType column
+    const metricTypeIndex = headers.findIndex((h) => h.toLowerCase().includes('metric') && h.toLowerCase().includes('type'));
+    const variableIndex = headers.findIndex((h) => h.toLowerCase().includes('variable') && !h.toLowerCase().includes('type'));
+    const metricColumnIndex = metricTypeIndex !== -1 ? metricTypeIndex : variableIndex;
+
+    if (metricColumnIndex === -1) {
+      return { variables: [], headers };
+    }
+
+    // Extract unique variables
+    const variablesSet = new Set<string>();
+    for (let i = 1; i < jsonData.length; i++) {
+      const row = jsonData[i];
+      const variable = String(row[metricColumnIndex] || '').trim();
+      if (variable) {
+        variablesSet.add(variable);
+      }
+    }
+
+    return {
+      variables: Array.from(variablesSet).sort(),
+      headers,
+    };
+  } catch (error) {
+    logger.error('Error extracting variables:', error);
+    return { variables: [], headers: [] };
+  }
 }
 
 /**
  * Parse a market data file (CSV or Excel)
+ * Optionally accepts a custom variable mapping for manual assignment
  */
-export async function parseMarketDataFile(file: File): Promise<ParseResult> {
+export async function parseMarketDataFile(
+  file: File,
+  variableMapping?: VariableMapping
+): Promise<ParseResult> {
   try {
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data, { type: 'array' });
@@ -67,7 +128,7 @@ export async function parseMarketDataFile(file: File): Promise<ParseResult> {
     if (format === 'wide') {
       return parseWideFormat(jsonData, headers);
     } else {
-      return parseLongFormat(jsonData, headers);
+      return parseLongFormat(jsonData, headers, variableMapping);
     }
   } catch (error) {
     logger.error('Error parsing market data file:', error);
@@ -253,8 +314,13 @@ function parseWideFormat(jsonData: any[][], headers: string[]): ParseResult {
 
 /**
  * Parse long format: Multiple rows per specialty with MetricType column
+ * Optionally accepts a custom variable mapping for manual assignment
  */
-function parseLongFormat(jsonData: any[][], headers: string[]): ParseResult {
+function parseLongFormat(
+  jsonData: any[][], 
+  headers: string[],
+  variableMapping?: VariableMapping
+): ParseResult {
   const errors: string[] = [];
   const parsedRowsMap = new Map<string, ParsedMarketDataRow>();
 
@@ -297,36 +363,47 @@ function parseLongFormat(jsonData: any[][], headers: string[]): ParseResult {
       ? String(row[geographicRegionIndex] || '').trim() || undefined
       : undefined;
 
-    const metricTypeStr = String(row[metricColumnIndex] || '').trim().toLowerCase();
+    const metricTypeStr = String(row[metricColumnIndex] || '').trim();
+    const metricTypeStrLower = metricTypeStr.toLowerCase();
     let metricType: 'tcc' | 'wrvu' | 'cf' | null = null;
 
-    // Map variable names to metric types
-    // Prefer "Total Compensation" over "Base Compensation" if both exist
-    if (
-      metricTypeStr.includes('tcc') || 
-      metricTypeStr.includes('total cash') || 
-      metricTypeStr.includes('total compensation') ||
-      metricTypeStr === 'compensation' ||
-      (metricTypeStr.includes('base compensation') && !metricTypeStr.includes('total'))
-    ) {
-      metricType = 'tcc';
-    } else if (
-      metricTypeStr.includes('wrvu') || 
-      metricTypeStr.includes('work rvu') ||
-      metricTypeStr.includes('rvu') && !metricTypeStr.includes('ratio')
-    ) {
-      metricType = 'wrvu';
-    } else if (
-      metricTypeStr.includes('cf') || 
-      metricTypeStr.includes('conversion') ||
-      metricTypeStr.includes('compensation to work rvu') ||
-      metricTypeStr.includes('compensation to rvu') ||
-      metricTypeStr.includes('ratio')
-    ) {
-      metricType = 'cf';
+    // Use custom mapping if provided, otherwise use automatic detection
+    if (variableMapping && variableMapping[metricTypeStr]) {
+      metricType = variableMapping[metricTypeStr];
+      if (metricType === null) {
+        // Explicitly skipped
+        continue;
+      }
     } else {
-      // Skip rows that don't match our metric types (e.g., "ASA Units", "Total Encounters", etc.)
-      continue;
+      // Automatic mapping (fallback)
+      // Check CF first (most specific patterns) to avoid false matches with wRVU
+      if (
+        metricTypeStrLower.includes('cf') || 
+        metricTypeStrLower.includes('conversion') ||
+        metricTypeStrLower.includes('compensation to work rvu') ||
+        metricTypeStrLower.includes('compensation to rvu') ||
+        (metricTypeStrLower.includes('ratio') && metricTypeStrLower.includes('rvu')) ||
+        (metricTypeStrLower.includes('ratio') && metricTypeStrLower.includes('compensation'))
+      ) {
+        metricType = 'cf';
+      } else if (
+        metricTypeStrLower.includes('tcc') || 
+        metricTypeStrLower.includes('total cash') || 
+        metricTypeStrLower.includes('total compensation') ||
+        metricTypeStrLower === 'compensation' ||
+        (metricTypeStrLower.includes('base compensation') && !metricTypeStrLower.includes('total'))
+      ) {
+        metricType = 'tcc';
+      } else if (
+        metricTypeStrLower.includes('wrvu') || 
+        metricTypeStrLower.includes('work rvu') ||
+        (metricTypeStrLower.includes('rvu') && !metricTypeStrLower.includes('ratio'))
+      ) {
+        metricType = 'wrvu';
+      } else {
+        // Skip rows that don't match our metric types (e.g., "ASA Units", "Total Encounters", etc.)
+        continue;
+      }
     }
 
     // metricType is now set above, or we continue if it doesn't match
