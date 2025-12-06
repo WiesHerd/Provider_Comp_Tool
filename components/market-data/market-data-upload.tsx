@@ -297,7 +297,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
                     Specialty | Variable | P25 | P50 | P75 | P90
                   </code>
                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    Supported variables: "Total Compensation", "Work RVUs", "Compensation to Work RVUs Ratio"
+                    Supported variables: &quot;Total Compensation&quot;, &quot;Work RVUs&quot;, &quot;Compensation to Work RVUs Ratio&quot;
                   </p>
                 </div>
               </div>
