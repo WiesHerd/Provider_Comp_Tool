@@ -3,10 +3,11 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X, ChevronDown } from 'lucide-react';
 import { parseMarketDataFile, convertToSavedMarketData, ParsedMarketDataRow } from '@/lib/utils/market-data-parser';
 import { bulkSaveMarketData, loadAllMarketData } from '@/lib/utils/market-data-storage';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface MarketDataUploadProps {
   onUploadComplete?: () => void;
@@ -14,6 +15,7 @@ interface MarketDataUploadProps {
 
 export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useMobile();
   const [isUploading, setIsUploading] = useState(false);
   const [previewData, setPreviewData] = useState<ParsedMarketDataRow[] | null>(null);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
@@ -115,19 +117,11 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
   const validRows = previewData?.filter(row => !row.errors || row.errors.length === 0) || [];
   const invalidRows = previewData?.filter(row => row.errors && row.errors.length > 0) || [];
 
-  return (
-    <Card className="border-2">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-          Upload Market Data
-        </CardTitle>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Upload a CSV or Excel file with market benchmark data. Supports wide format (one row per specialty) or long format (multiple rows per specialty).
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-4">
+  // On mobile, wrap in collapsible details element
+  const uploadContent = (
+    <CardContent className="space-y-4">
         {/* Upload Button */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <input
             ref={fileInputRef}
             type="file"
@@ -139,14 +133,14 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
           <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="min-h-[44px]"
+            className="min-h-[44px] w-full sm:w-auto"
           >
             <Upload className="w-4 h-4 mr-2 flex-shrink-0" />
             {isUploading ? 'Parsing...' : 'Select File'}
           </Button>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            <FileSpreadsheet className="w-4 h-4 inline mr-1" />
-            CSV or Excel (.xlsx, .xls)
+          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+            <FileSpreadsheet className="w-4 h-4 mr-1 flex-shrink-0" />
+            <span className="text-xs sm:text-sm">CSV or Excel (.xlsx, .xls)</span>
           </div>
         </div>
 
@@ -304,6 +298,49 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
           </div>
         )}
       </CardContent>
+  );
+
+  // Mobile: Collapsible section (auto-expands if there's preview data or errors)
+  if (isMobile) {
+    return (
+      <Card className="border-2">
+        <details 
+          open={!!previewData || !!uploadError || parseErrors.length > 0}
+          className="group"
+        >
+          <summary className="cursor-pointer list-none">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Upload Market Data
+                  </CardTitle>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Best suited for desktop. Tap to expand.
+                  </p>
+                </div>
+                <ChevronDown className="w-5 h-5 text-gray-400 transition-transform group-open:rotate-180 flex-shrink-0 ml-2" />
+              </div>
+            </CardHeader>
+          </summary>
+          {uploadContent}
+        </details>
+      </Card>
+    );
+  }
+
+  // Desktop: Always visible
+  return (
+    <Card className="border-2">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+          Upload Market Data
+        </CardTitle>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Upload a CSV or Excel file with market benchmark data. Supports wide format (one row per specialty) or long format (multiple rows per specialty).
+        </p>
+      </CardHeader>
+      {uploadContent}
     </Card>
   );
 }
