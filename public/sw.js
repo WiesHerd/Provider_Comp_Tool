@@ -1,5 +1,5 @@
 // Basic service worker for PWA support
-const CACHE_NAME = 'comp-lens-v2';
+const CACHE_NAME = 'comp-lens-v3';
 const urlsToCache = [
   '/',
   '/wrvu-modeler',

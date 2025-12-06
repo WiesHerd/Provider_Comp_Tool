@@ -49,12 +49,12 @@ export default function MarketDataPage() {
           </p>
         </div>
 
-        {/* Upload Section - Only render on desktop */}
-        {isDesktop && (
-          <div className="mb-6">
+        {/* Upload Section - Hidden on mobile with CSS + conditional rendering */}
+        <div className="mb-6 hidden sm:block">
+          {isDesktop && (
             <MarketDataUpload onUploadComplete={handleUploadComplete} />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Table Section */}
         <div>
