@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Info, ChevronLeft } from 'lucide-react';
+import { Sun, Moon, Info, ChevronLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
@@ -268,6 +268,35 @@ export function Header() {
           )}>
             {(!isLandscape || (typeof window !== 'undefined' && window.innerWidth >= 640)) && (
               <>
+                <Link href="/market-data">
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    size="sm" 
+                    className={cn(
+                      "min-w-[44px] h-[44px]",
+                      "rounded-xl",
+                      "hover:bg-blue-50/80 dark:hover:bg-blue-950/30",
+                      "transition-all duration-200 ease-out",
+                      "active:scale-[0.95]",
+                      "hover:shadow-md hover:shadow-blue-200/30 dark:hover:shadow-blue-900/20",
+                      "group",
+                      "animate-icon-enter",
+                      "border border-transparent hover:border-blue-200/40 dark:hover:border-blue-800/40",
+                      "relative z-20"
+                    )}
+                    aria-label="Upload Market Data"
+                    title="Upload Market Data"
+                    style={{ animationDelay: '0.1s' }}
+                    suppressHydrationWarning
+                  >
+                    <Upload className={cn(
+                      "w-5 h-5 text-blue-600 dark:text-blue-400",
+                      "transition-all duration-200",
+                      "group-hover:scale-110 group-hover:text-blue-700 dark:group-hover:text-blue-300"
+                    )} />
+                  </Button>
+                </Link>
                 <Button 
                   type="button"
                   variant="ghost" 
@@ -404,6 +433,18 @@ export function Header() {
                                 </h4>
                                 <p className="text-gray-700 dark:text-gray-300">
                                   Each tool allows you to save your work as scenarios. Use the &quot;Load Saved Scenario&quot; dropdown within each tool to reload your saved work.
+                                </p>
+                              </div>
+
+                              <div>
+                                <h4 className={cn(
+                                  "font-semibold text-gray-900 dark:text-white mb-3",
+                                  "text-base sm:text-lg"
+                                )}>
+                                  Market Data Management
+                                </h4>
+                                <p className="text-gray-700 dark:text-gray-300">
+                                  Upload and manage market benchmark data (TCC, wRVU, CF) by specialty. Access it via the &quot;Upload&quot; links in FMV calculators, or navigate to <Link href="/market-data" className="text-primary hover:underline font-medium">Market Data Management</Link> to bulk import from CSV/Excel files.
                                 </p>
                               </div>
                             </>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3, Database, Sparkles, Shield, TrendingDown, Users } from 'lucide-react';
+import { Home, Calculator, TrendingUp, Phone, FolderOpen, BarChart3, Database, Sparkles, Shield, TrendingDown, Users, FileSpreadsheet } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import Link from 'next/link';
@@ -18,6 +18,7 @@ const tabs = [
   { id: 'internal-benchmark-engine', label: 'Internal Benchmark', icon: TrendingDown, path: '/internal-benchmark-engine' },
   { id: 'call-pay-modeler', label: 'Call Pay', icon: Phone, path: '/call-pay-modeler' },
   { id: 'call-programs', label: 'Programs', icon: Database, path: '/call-programs' },
+  { id: 'market-data', label: 'Market Data', icon: FileSpreadsheet, path: '/market-data' },
   { id: 'scenarios', label: 'My Models', icon: FolderOpen, path: '/scenarios' },
 ];
 
@@ -90,7 +91,7 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
       {/* Mobile Bottom Tabs */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] safe-area-inset-bottom" role="navigation" aria-label="Main navigation">
         <div className="flex items-center justify-around h-16 px-2">
-          {tabs.filter(tab => tab.id !== 'scenarios' && tab.id !== 'call-programs' && tab.id !== 'physician-scenarios' && tab.id !== 'cf-stewardship-dashboard' && tab.id !== 'internal-benchmark-engine').map((tab) => {
+          {tabs.filter(tab => tab.id !== 'scenarios' && tab.id !== 'call-programs' && tab.id !== 'physician-scenarios' && tab.id !== 'cf-stewardship-dashboard' && tab.id !== 'internal-benchmark-engine' && tab.id !== 'market-data').map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (

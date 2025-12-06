@@ -126,6 +126,50 @@ export function hasMarketData(
   return allData.some(d => d.id === id);
 }
 
+/**
+ * Bulk save market data (for imports)
+ * Handles overwrite vs merge logic - overwrites existing data for same specialty/metricType
+ */
+export function bulkSaveMarketData(data: SavedMarketData[]): void {
+  if (typeof window === 'undefined') return;
+
+  if (data.length === 0) {
+    return;
+  }
+
+  try {
+    const allData = loadAllMarketData();
+    const existingIds = new Set(allData.map(d => d.id));
+
+    // Process each item
+    for (const newItem of data) {
+      const existingIndex = allData.findIndex(d => d.id === newItem.id);
+      
+      if (existingIndex >= 0) {
+        // Overwrite existing - preserve original createdAt, update updatedAt
+        allData[existingIndex] = {
+          ...newItem,
+          createdAt: allData[existingIndex].createdAt, // Preserve original creation date
+          updatedAt: new Date().toISOString(),
+        };
+      } else {
+        // Add new item
+        allData.push(newItem);
+      }
+    }
+
+    // Save to localStorage
+    const serialized = JSON.stringify(allData);
+    if (!safeLocalStorage.setItem(STORAGE_KEY, serialized)) {
+      logger.error('Failed to bulk save market data to localStorage');
+      throw new Error('Failed to save market data. Storage may be full.');
+    }
+  } catch (error) {
+    logger.error('Error bulk saving market data:', error);
+    throw error instanceof Error ? error : new Error('Failed to bulk save market data.');
+  }
+}
+
 
 
 

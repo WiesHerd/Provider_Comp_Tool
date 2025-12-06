@@ -205,26 +205,6 @@ export function PhysicianScenarioExplorer() {
     }
   }, [specialty, customSpecialty]);
 
-  // Handle loading saved specialty
-  const handleLoadSavedSpecialty = (savedSpecialty: string) => {
-    setSpecialty(savedSpecialty);
-    setCustomSpecialty('');
-    
-    // Load all market data for this specialty
-    const wrvuData = loadMarketData(savedSpecialty, 'wrvu');
-    const tccData = loadMarketData(savedSpecialty, 'tcc');
-    const cfData = loadMarketData(savedSpecialty, 'cf');
-
-    const loadedBenchmarks: MarketBenchmarks = {
-      ...(wrvuData || {}),
-      ...(tccData || {}),
-      ...(cfData || {}),
-    };
-
-    if (Object.keys(loadedBenchmarks).length > 0) {
-      setMarketBenchmarks(loadedBenchmarks);
-    }
-  };
 
   // Get effective specialty name (for saving)
   const effectiveSpecialty = specialty === 'Other' ? customSpecialty : (specialty || '');
@@ -460,67 +440,6 @@ export function PhysicianScenarioExplorer() {
                   Specialty
                 </Label>
                 
-                {/* Quick Load Saved Specialties */}
-                {savedSpecialties.length > 0 && (
-                  <div className="mb-3 -mt-2">
-                    <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">
-                      Quick load saved market data:
-                    </Label>
-                    {savedSpecialties.length <= 5 ? (
-                      // For 5 or fewer: Show buttons (quick access)
-                      <div className="flex flex-wrap gap-2">
-                        {savedSpecialties.map((savedSpec) => {
-                          const currentSpecialty = specialty === 'Other' ? customSpecialty : specialty;
-                          const isActive = currentSpecialty === savedSpec;
-                          return (
-                            <button
-                              key={savedSpec}
-                              type="button"
-                              onClick={() => handleLoadSavedSpecialty(savedSpec)}
-                              className={cn(
-                                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
-                                "min-h-[32px] touch-manipulation",
-                                isActive
-                                  ? "bg-primary text-white shadow-sm"
-                                  : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
-                              )}
-                            >
-                              {savedSpec}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      // For 6+: Show first 5 as buttons, then indicate more
-                      <div className="flex flex-wrap gap-2">
-                        {savedSpecialties.slice(0, 5).map((savedSpec) => {
-                          const currentSpecialty = specialty === 'Other' ? customSpecialty : specialty;
-                          const isActive = currentSpecialty === savedSpec;
-                          return (
-                            <button
-                              key={savedSpec}
-                              type="button"
-                              onClick={() => handleLoadSavedSpecialty(savedSpec)}
-                              className={cn(
-                                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
-                                "min-h-[32px] touch-manipulation",
-                                isActive
-                                  ? "bg-primary text-white shadow-sm"
-                                  : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
-                              )}
-                            >
-                              {savedSpec}
-                            </button>
-                          );
-                        })}
-                        <span className="px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                          +{savedSpecialties.length - 5} more
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
                 <Select
                   value={specialty || undefined}
                   onValueChange={(value) => {
@@ -532,43 +451,82 @@ export function PhysicianScenarioExplorer() {
                     <SelectValue placeholder="Select specialty" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
+                    {/* Saved Market Data - Show first if any exist */}
+                    {savedSpecialties.length > 0 && (
+                      <>
+                        <SelectGroup>
+                          <SelectLabel>Saved Market Data ({savedSpecialties.length})</SelectLabel>
+                          {savedSpecialties.map((savedSpec) => {
+                            const currentSpecialty = specialty === 'Other' ? customSpecialty : specialty;
+                            const isActive = currentSpecialty === savedSpec;
+                            return (
+                              <SelectItem key={savedSpec} value={savedSpec}>
+                                <div className="flex items-center justify-between w-full">
+                                  <span>{savedSpec}</span>
+                                  {isActive && (
+                                    <span className="text-primary text-xs ml-2">●</span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
+                        <SelectSeparator />
+                      </>
+                    )}
+                    
+                    {/* Primary Care / Hospital Medicine */}
                     <SelectGroup>
                       <SelectLabel>Primary Care / Hospital Medicine</SelectLabel>
-                      {SPECIALTIES.slice(0, 4).map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
+                      {SPECIALTIES.slice(0, 4)
+                        .filter(s => !savedSpecialties.includes(s))
+                        .map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
                     </SelectGroup>
                     <SelectSeparator />
                     <SelectGroup>
                       <SelectLabel>Procedural / Surgical</SelectLabel>
-                      {SPECIALTIES.slice(4, 15).map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
+                      {SPECIALTIES.slice(4, 15)
+                        .filter(s => !savedSpecialties.includes(s))
+                        .map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
                     </SelectGroup>
                     <SelectSeparator />
                     <SelectGroup>
                       <SelectLabel>Medical Subspecialties</SelectLabel>
-                      {SPECIALTIES.slice(15, 23).map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
+                      {SPECIALTIES.slice(15, 23)
+                        .filter(s => !savedSpecialties.includes(s))
+                        .map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
                     </SelectGroup>
                     <SelectSeparator />
                     <SelectGroup>
                       <SelectLabel>Other</SelectLabel>
-                      {SPECIALTIES.slice(23).map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
+                      {SPECIALTIES.slice(23)
+                        .filter(s => !savedSpecialties.includes(s))
+                        .map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
+                
+                {savedSpecialties.length > 0 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {savedSpecialties.length} saved {savedSpecialties.length === 1 ? 'specialty' : 'specialties'} available. Select from dropdown to auto-load market data.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -716,34 +674,44 @@ export function PhysicianScenarioExplorer() {
                     })}
                   </div>
                 ) : (
-                  // For 6+: Show first 5 as buttons, then indicate more
-                  <div className="flex flex-wrap gap-2">
-                    {models.slice(0, 5).map((savedModel) => {
-                      const isActive = activeModelId === savedModel.id;
-                      return (
-                        <button
-                          key={savedModel.id}
-                          type="button"
-                          onClick={() => {
-                            setActiveModel(savedModel.id);
-                            setCfModel(savedModel.model);
-                          }}
-                          className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150",
-                            "min-h-[32px] touch-manipulation",
-                            isActive
-                              ? "bg-primary text-white shadow-sm"
-                              : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
-                          )}
-                        >
-                          {savedModel.name}
-                        </button>
-                      );
-                    })}
-                    <span className="px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                      +{models.length - 5} more
-                    </span>
-                  </div>
+                  // For 6+: Use dropdown (scalable, mobile-friendly)
+                  <Select 
+                    value={activeModelId || ''} 
+                    onValueChange={(value) => {
+                      const model = models.find(m => m.id === value);
+                      if (model) {
+                        setActiveModel(model.id);
+                        setCfModel(model.model);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={`Select from ${models.length} saved models...`} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      <SelectGroup>
+                        <SelectLabel>Saved Models ({models.length})</SelectLabel>
+                        {models.map((savedModel) => {
+                          const isActive = activeModelId === savedModel.id;
+                          return (
+                            <SelectItem key={savedModel.id} value={savedModel.id}>
+                              <div className="flex items-center justify-between w-full">
+                                <span>{savedModel.name}</span>
+                                {isActive && (
+                                  <span className="text-primary text-xs ml-2">●</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+                {models.length > 5 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    {models.length} saved models available
+                  </p>
                 )}
               </div>
             )}
