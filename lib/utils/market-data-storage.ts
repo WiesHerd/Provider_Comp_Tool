@@ -139,7 +139,6 @@ export function bulkSaveMarketData(data: SavedMarketData[]): void {
 
   try {
     const allData = loadAllMarketData();
-    const existingIds = new Set(allData.map(d => d.id));
 
     // Process each item
     for (const newItem of data) {

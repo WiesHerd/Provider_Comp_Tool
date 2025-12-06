@@ -72,7 +72,6 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
 
       // Verify the data was actually saved by checking localStorage
       const allSavedData = loadAllMarketData();
-      const savedCount = allSavedData.length;
       
       // Verify that at least some of our data was saved
       const savedIds = new Set(allSavedData.map(d => d.id));

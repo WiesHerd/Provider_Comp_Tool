@@ -21,7 +21,6 @@ import {
   getSavedSpecialties,
   hasMarketData,
 } from '@/lib/utils/market-data-storage';
-import { cn } from '@/lib/utils/cn';
 
 // Common medical specialties
 const COMMON_SPECIALTIES = [
@@ -138,8 +137,6 @@ export function SpecialtyInput({
   
   // Filter out saved specialties from common list to avoid duplicates
   const unsavedSpecialties = COMMON_SPECIALTIES.filter(s => !savedSpecialties.includes(s));
-  // Get saved specialties that aren't in common list (custom saved specialties)
-  const customSavedSpecialties = savedSpecialties.filter(s => !COMMON_SPECIALTIES.includes(s));
 
   return (
     <div className="space-y-3">
