@@ -368,7 +368,7 @@ function parseLongFormat(
     let metricType: 'tcc' | 'wrvu' | 'cf' | null = null;
 
     // Use custom mapping if provided, otherwise use automatic detection
-    if (variableMapping && variableMapping[metricTypeStr]) {
+    if (variableMapping && metricTypeStr in variableMapping) {
       metricType = variableMapping[metricTypeStr];
       if (metricType === null) {
         // Explicitly skipped

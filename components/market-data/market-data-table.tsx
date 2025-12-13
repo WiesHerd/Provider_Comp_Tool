@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { SavedMarketData } from '@/lib/utils/market-data-storage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,14 @@ interface MarketDataTableProps {
 }
 
 export default function MarketDataTable({ onDataChange }: MarketDataTableProps) {
-  const [allData, setAllData] = useState<SavedMarketData[]>(() => loadAllMarketData());
+  const [allData, setAllData] = useState<SavedMarketData[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Load data client-side only to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+    setAllData(loadAllMarketData());
+  }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMetricType, setFilterMetricType] = useState<'all' | 'tcc' | 'wrvu' | 'cf'>('all');
   const [filterSpecialty, setFilterSpecialty] = useState('all');
@@ -236,7 +243,7 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-              Market Data ({filteredData.length} record{filteredData.length !== 1 ? 's' : ''})
+              Market Data {isMounted ? `(${filteredData.length} record${filteredData.length !== 1 ? 's' : ''})` : '(loading...)'}
             </CardTitle>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               View and manage saved market benchmark data by specialty

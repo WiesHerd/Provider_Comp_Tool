@@ -44,6 +44,8 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
     setVariableMapping({});
     setShowMapping(false);
 
+    let needsMapping = false;
+    
     try {
       // First, try to extract variables for manual mapping
       const { variables } = await extractVariablesFromFile(file);
@@ -54,6 +56,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
         setUniqueVariables(variables);
         setShowMapping(true);
         setIsUploading(false);
+        needsMapping = true;
         return;
       }
 
@@ -76,7 +79,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       setUploadError(`Failed to parse file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
-      if (!showMapping && fileInputRef.current) {
+      if (!needsMapping && fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }

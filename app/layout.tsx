@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/header";
-import { MainTabs } from "@/components/navigation/main-tabs";
-import { ScreenGuideProvider } from "@/components/ui/screen-guide-provider";
-import { ErrorBoundary } from "@/components/error-boundary";
 import dynamicImport from "next/dynamic";
 
-// Force dynamic rendering to prevent static generation issues with Zustand stores
-export const dynamic = 'force-dynamic';
+// Allow static export for Firebase Hosting
+// Use 'auto' to allow static export (default for static builds)
+export const dynamic = 'auto';
 
 const StoreInitializer = dynamicImport(
   () => import("@/components/store-initializer").then((mod) => ({ default: mod.StoreInitializer })),
@@ -20,19 +17,47 @@ const WelcomeWalkthrough = dynamicImport(
   { ssr: false }
 );
 
+const AuthProvider = dynamicImport(
+  () => import("@/components/auth/auth-provider").then((mod) => ({ default: mod.AuthProvider })),
+  { ssr: false }
+);
+
+const RouteGuard = dynamicImport(
+  () => import("@/components/auth/route-guard").then((mod) => ({ default: mod.RouteGuard })),
+  { ssr: false }
+);
+
+const Header = dynamicImport(
+  () => import("@/components/layout/header").then((mod) => ({ default: mod.Header })),
+  { ssr: false }
+);
+
+const EmailVerificationBanner = dynamicImport(
+  () => import("@/components/auth/email-verification-banner").then((mod) => ({ default: mod.EmailVerificationBanner })),
+  { ssr: false }
+);
+
+const MainTabs = dynamicImport(
+  () => import("@/components/navigation/main-tabs").then((mod) => ({ default: mod.MainTabs })),
+  { ssr: false }
+);
+
+const ScreenGuideProvider = dynamicImport(
+  () => import("@/components/ui/screen-guide-provider").then((mod) => ({ default: mod.ScreenGuideProvider })),
+  { ssr: false }
+);
+
+const ErrorBoundary = dynamicImport(
+  () => import("@/components/error-boundary").then((mod) => ({ default: mod.ErrorBoundary })),
+  { ssr: false }
+);
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "CompLens™ | Provider Compensation Intelligence",
   description: "wRVU modeling, FMV analysis, and call-pay scenarios",
   manifest: "/manifest.json",
-  themeColor: "#000000",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png" },
@@ -54,6 +79,14 @@ export const metadata: Metadata = {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -85,14 +118,19 @@ export default function RootLayout({
           }}
         />
         <ErrorBoundary>
-          <StoreInitializer />
-          <ScreenGuideProvider>
-            <Header />
-            <MainTabs>
-              {children}
-            </MainTabs>
-            <WelcomeWalkthrough />
-          </ScreenGuideProvider>
+          <AuthProvider>
+            <StoreInitializer />
+            <RouteGuard>
+              <ScreenGuideProvider>
+                <Header />
+                <EmailVerificationBanner />
+                <MainTabs>
+                  {children}
+                </MainTabs>
+                <WelcomeWalkthrough />
+              </ScreenGuideProvider>
+            </RouteGuard>
+          </AuthProvider>
         </ErrorBoundary>
       </body>
     </html>
