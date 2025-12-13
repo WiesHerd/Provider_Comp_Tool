@@ -1,14 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Info, ChevronLeft, Upload } from 'lucide-react';
+import { Sun, Moon, Info, ChevronLeft, Upload, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import * as Dialog from '@radix-ui/react-dialog';
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 import { SCREEN_GUIDES } from '@/lib/screen-guides';
+import { useAuthStore } from '@/lib/store/auth-store';
+
+// Dropdown menu components (Radix UI)
+const DropdownMenuRoot = DropdownMenuPrimitive.Root as any;
+const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger as any;
+const DropdownMenuPortal = DropdownMenuPrimitive.Portal as any;
+const DropdownMenuContent = DropdownMenuPrimitive.Content as any;
+const DropdownMenuItem = DropdownMenuPrimitive.Item as any;
+const DropdownMenuSeparator = DropdownMenuPrimitive.Separator as any;
 
 // Page title mapping for header
 // Note: Page titles removed from header to match gold standard - no screen titles in banner
@@ -44,8 +54,14 @@ export function Header() {
   const [isLandscape, setIsLandscape] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout, loading: authLoading } = useAuthStore();
   // Ensure consistent pathname for SSR - use pathname directly, not conditional on mounted
   const safePathname = pathname || '/';
+  
+  // Don't show header on auth page
+  if (pathname === '/auth') {
+    return null;
+  }
   const isHome = safePathname === '/';
   const pageTitle = safePathname ? getPageTitle(safePathname) : null;
 
@@ -269,6 +285,107 @@ export function Header() {
             "flex items-center relative z-20",
             isLandscape ? "gap-2 sm:gap-3" : "gap-2 sm:gap-3"
           )}>
+            {/* User menu - Google/Apple style dropdown */}
+            {user && !authLoading && (
+              <DropdownMenuRoot>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "min-w-[44px] h-[44px]",
+                      "rounded-full", // Circular like Google/Apple
+                      "bg-gray-100/80 dark:bg-gray-800/80",
+                      "hover:bg-gray-200/80 dark:hover:bg-gray-700/80",
+                      "active:bg-gray-300/80 dark:active:bg-gray-600/80",
+                      "transition-all duration-200 ease-out",
+                      "active:scale-[0.95] touch-manipulation",
+                      "hover:shadow-md hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
+                      "active:shadow-sm",
+                      "border border-gray-200/50 dark:border-gray-700/50",
+                      "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    )}
+                    aria-label="Account menu"
+                    title={user.email || "Account"}
+                    suppressHydrationWarning
+                  >
+                    <User className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuContent
+                    className={cn(
+                      "min-w-[240px] bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800 p-1 z-50",
+                      "animate-in fade-in-0 zoom-in-95 duration-200"
+                    )}
+                    align="end"
+                    sideOffset={8}
+                  >
+                    {/* User email header */}
+                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-800">
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Signed in as
+                      </p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                    
+                    <DropdownMenuSeparator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
+                    
+                    {/* Sign out option */}
+                    <DropdownMenuItem
+                      className={cn(
+                        "flex items-center px-3 py-2 text-sm text-red-600 dark:text-red-400 rounded-md cursor-pointer",
+                        "hover:bg-red-50 dark:hover:bg-red-900/20 outline-none",
+                        "focus:bg-red-50 dark:focus:bg-red-900/20"
+                      )}
+                      onClick={async () => {
+                        await logout();
+                        router.push('/auth');
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenuPortal>
+              </DropdownMenuRoot>
+            )}
+            
+            {/* Sign in button - show when not logged in */}
+            {!user && !authLoading && safePathname !== '/auth' && (
+              <Link href="/auth">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "min-w-[44px] h-[44px] sm:min-w-auto sm:px-4",
+                    "rounded-xl",
+                    "hover:bg-blue-50/80 dark:hover:bg-blue-950/30",
+                    "active:bg-blue-100/80 dark:active:bg-blue-900/40",
+                    "transition-all duration-200 ease-out",
+                    "active:scale-[0.92] touch-manipulation",
+                    "hover:shadow-md hover:shadow-blue-200/30 dark:hover:shadow-blue-900/20",
+                    "active:shadow-sm",
+                    "group",
+                    "animate-icon-enter",
+                    "border border-transparent hover:border-blue-200/40 dark:hover:border-blue-800/40"
+                  )}
+                  aria-label="Sign in"
+                  title="Sign in"
+                  suppressHydrationWarning
+                >
+                  <User className="w-5 h-5 sm:mr-2 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300" />
+                  <span className="hidden sm:inline text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                    Sign In
+                  </span>
+                </Button>
+              </Link>
+            )}
+
             {(!isLandscape || (typeof window !== 'undefined' && window.innerWidth >= 640)) && (
               <>
                 {/* Upload button - hidden on mobile */}
