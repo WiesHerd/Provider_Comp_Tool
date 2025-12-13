@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can ONLY access their own data - strict security
+    match /users/{userId} {
+      // User profile - users can only access their own
+      match /profile/{profileId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Scenarios - users can only access their own
+      match /scenarios/{scenarioId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Call pay scenarios - users can only access their own
+      match /callPayScenarios/{scenarioId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // CF models - users can only access their own
+      match /cfModels/{modelId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Market data - users can only access their own
+      match /marketData/{dataId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Feedback - users can only access their own
+      match /feedback/{feedbackId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Preferences - users can only access their own
+      match /preferences/{preferenceId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Catch-all for any other subcollections under users
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Programs and shift types - users can only read/write their own
+    match /programs/{programId} {
+      // Can only read programs they created
+      allow read: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+      // Can only write their own programs
+      allow write: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+    
+    match /shiftTypes/{shiftTypeId} {
+      // Can only read shift types they created
+      allow read: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+      // Can only write their own shift types
+      allow write: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+    
+    // Global feedback collection - authenticated users can write, only admins can read
+    // This allows all users to submit feedback, but only admins can view it
+    match /feedback/{feedbackId} {
+      // Any authenticated user can create feedback
+      allow create: if request.auth != null;
+      // Only the user who created it can read their own feedback
+      allow read: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+      // Users cannot update or delete feedback once submitted
+      allow update, delete: if false;
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+
+

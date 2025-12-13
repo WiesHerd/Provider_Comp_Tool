@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { X, Mail, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useAuthStore } from '@/lib/store/auth-store';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -36,38 +37,51 @@ export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name.trim() || undefined,
-          email: email.trim() || undefined,
-          message: message.trim(),
-          page: pathname || '/',
-        }),
-      });
-
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+      // Get current user for authentication
+      const user = useAuthStore.getState().user;
+      
+      if (!user || !user.uid) {
+        throw new Error('Please sign in to submit feedback.');
       }
 
-      const data = await response.json();
+      const userId = user.uid;
+      const userEmail = user.email || email.trim() || undefined;
 
-      if (!response.ok) {
-        // Build a more informative error message
-        let errorMsg = data.error || 'Failed to send feedback';
-        if (data.hint) {
-          errorMsg += ` ${data.hint}`;
+      // Save feedback directly to Firestore (works on free tier)
+      const { saveFeedbackToFirebase } = await import('@/lib/firebase/firebaseStorageClient');
+      const feedbackId = `feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      await saveFeedbackToFirebase(userId, {
+        id: feedbackId,
+        name: name.trim() || undefined,
+        email: userEmail,
+        message: message.trim(),
+        page: pathname || '/',
+        createdAt: new Date().toISOString(),
+      });
+
+      // Also save to a global feedback collection for easy admin access
+      // This is optional - if it fails, the user feedback is already saved
+      try {
+        const { db } = await import('@/lib/firebase/config');
+        const { collection, doc, setDoc, serverTimestamp } = await import('firebase/firestore');
+        
+        if (db) {
+          const globalFeedbackRef = doc(collection(db, 'feedback'), feedbackId);
+          await setDoc(globalFeedbackRef, {
+            id: feedbackId,
+            userId: userId,
+            name: name.trim() || undefined,
+            email: userEmail,
+            message: message.trim(),
+            page: pathname || '/',
+            createdAt: serverTimestamp(),
+          });
+          console.log('✅ Feedback saved to global collection for admin review');
         }
-        if (data.details) {
-          errorMsg += ` (${data.details})`;
-        }
-        throw new Error(errorMsg);
+      } catch (globalError) {
+        // Non-critical - user feedback is already saved to their collection
+        console.warn('Could not save to global feedback collection (non-critical):', globalError);
       }
 
       setSubmitStatus('success');
