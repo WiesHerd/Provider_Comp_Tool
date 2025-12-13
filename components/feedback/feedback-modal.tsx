@@ -61,7 +61,6 @@ export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
       });
 
       // Also save to a global feedback collection for easy admin access
-      // This is optional - if it fails, the user feedback is already saved
       try {
         const { db } = await import('@/lib/firebase/config');
         const { collection, doc, setDoc, serverTimestamp } = await import('firebase/firestore');
@@ -82,6 +81,111 @@ export function FeedbackModal({ isOpen, onOpenChange }: FeedbackModalProps) {
       } catch (globalError) {
         // Non-critical - user feedback is already saved to their collection
         console.warn('Could not save to global feedback collection (non-critical):', globalError);
+      }
+
+      // Send email notification via Resend API (client-side, works on free tier)
+      // This works on Spark (free) plan - no Cloud Functions needed
+      try {
+        // Get API key from environment variable
+        // Add to .env.local: NEXT_PUBLIC_RESEND_API_KEY=re_xxxxx
+        const resendApiKey = process.env.NEXT_PUBLIC_RESEND_API_KEY;
+        if (resendApiKey) {
+          // Professional email template
+          const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="padding: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">New Feedback Received</h1>
+              <p style="margin: 8px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">CompLens™ Feedback System</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px;">
+              <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px; border-left: 4px solid #667eea;">
+                <h2 style="margin: 0 0 16px; color: #1f2937; font-size: 18px;">Feedback Details</h2>
+                <p style="margin: 8px 0; color: #4b5563; font-size: 14px;"><strong>From:</strong> ${name.trim() || userEmail || 'Anonymous'}</p>
+                <p style="margin: 8px 0; color: #4b5563; font-size: 14px;"><strong>Email:</strong> ${userEmail || 'Not provided'}</p>
+                <p style="margin: 8px 0; color: #4b5563; font-size: 14px;"><strong>Page:</strong> ${pathname || '/'}</p>
+                <p style="margin: 8px 0; color: #4b5563; font-size: 14px;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+              </div>
+              <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+                <h2 style="margin: 0 0 12px; color: #1f2937; font-size: 18px;">Message</h2>
+                <div style="color: #374151; font-size: 15px; line-height: 1.6; white-space: pre-wrap; padding: 16px; background-color: #f9fafb; border-radius: 6px; border-left: 4px solid #10b981;">
+${message.trim()}
+                </div>
+              </div>
+              <div style="margin-top: 24px; text-align: center;">
+                <a href="https://console.firebase.google.com/project/complens-88a4f/firestore/data/~2Ffeedback~2F${feedbackId}" 
+                   style="display: inline-block; padding: 12px 24px; background-color: #667eea; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                  View in Firebase Console
+                </a>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+          `.trim();
+
+          const emailText = `
+New Feedback from CompLens
+
+From: ${name.trim() || userEmail || 'Anonymous'}
+Email: ${userEmail || 'Not provided'}
+Page: ${pathname || '/'}
+Submitted: ${new Date().toLocaleString()}
+
+Message:
+${message.trim()}
+
+View in Firebase Console:
+https://console.firebase.google.com/project/complens-88a4f/firestore/data/~2Ffeedback~2F${feedbackId}
+          `.trim();
+
+          // Call Resend API
+          const emailResponse = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${resendApiKey}`,
+            },
+            body: JSON.stringify({
+              from: 'CompLens Feedback <onboarding@resend.dev>',
+              to: 'wherdzik@gmail.com',
+              reply_to: userEmail || undefined,
+              subject: `New Feedback from CompLens${name.trim() ? ` - ${name.trim()}` : ''}`,
+              html: emailHtml,
+              text: emailText,
+            }),
+          });
+
+          if (emailResponse.ok) {
+            const emailData = await emailResponse.json();
+            console.log('✅ Feedback email sent successfully:', emailData.id);
+          } else {
+            const errorData = await emailResponse.json();
+            console.warn('⚠️ Email sending failed (non-critical):', errorData);
+            // Don't throw - feedback is already saved to Firestore
+          }
+        } else {
+          console.log('ℹ️ Resend API key not configured. Feedback saved to Firestore only.');
+        }
+      } catch (emailError) {
+        // Non-critical - feedback is already saved to Firestore
+        console.warn('⚠️ Email sending error (non-critical):', emailError);
       }
 
       setSubmitStatus('success');
