@@ -81,7 +81,7 @@ The Patient Calendar helps you forecast annual wRVUs by entering patient counts 
 • Click **Apply This Week to Entire Year** to replicate your pattern across all matching days
 
 **Key Features**:
-• **Quick Fill**: Pre-configured templates for 32, 36, or 40-hour work weeks. For 32+ hours, you can choose which day to reduce hours.
+• **Quick Fill**: Pre-configured templates for 32, 36, or 40-hour work weeks. For 32h pick which weekday is off; for 36h pick which day has reduced hours; 40h applies a full week (8h×5) with no day choice.
 • **Patients Per Hour**: Enter your average patients per hour, then click "Calculate from Hours" to auto-fill patient counts based on hours entered.
 • **Patients Per Day**: Set a fixed patient count that applies to all working days.
 • **Apply to Year**: Replicates your week pattern to all matching days (e.g., all Mondays, all Tuesdays) while automatically excluding vacation, CME, and holiday dates.
@@ -626,13 +626,14 @@ export function PatientCalendarView({
                           <Button
                             type="button"
                             onClick={() => {
-                              // If totalHours >= 32, show popover to select day to reduce
-                              // If totalHours < 32, apply directly (distributes evenly)
-                              if (hours >= 32) {
-                                setQuickFillPopoverOpen(quickFillPopoverOpen === hours ? null : hours);
+                              // 40h: apply full week (8h×5) directly, no day choice
+                              if (hours === 40) {
+                                onApplyWorkWeekTemplate(40);
+                                setSelectedQuickFill(40);
+                                setQuickFillPopoverOpen(null);
                               } else {
-                                onApplyWorkWeekTemplate(hours);
-                                setSelectedQuickFill(hours);
+                                // 32h: day off; 36h: reduce hours on — show popover to pick day
+                                setQuickFillPopoverOpen(quickFillPopoverOpen === hours ? null : hours);
                               }
                             }}
                             variant={selectedQuickFill === hours ? 'default' : 'outline'}
@@ -644,11 +645,11 @@ export function PatientCalendarView({
                             <span className="text-lg font-semibold">{hours}</span>
                             <span className="text-xs opacity-80">hours</span>
                           </Button>
-                          {quickFillPopoverOpen === hours && hours >= 32 && (
+                          {quickFillPopoverOpen === hours && (hours === 32 || hours === 36) && (
                             <div className="absolute top-full left-0 mt-1 z-[100] bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg shadow-lg min-w-[180px]">
                               <div className="p-2 space-y-1">
                                 <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 px-2">
-                                  Reduce hours on:
+                                  {hours === 32 ? 'Day off:' : 'Reduce hours on:'}
                                 </div>
                                 {[
                                   { day: 1, name: 'Monday' },
@@ -678,13 +679,23 @@ export function PatientCalendarView({
                     </div>
                     <div className="flex items-center justify-center gap-2 mt-2">
                       <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                        {selectedQuickFill ? (
+                        {selectedQuickFill === 32 ? (
                           <span className="inline-flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
-                            <span className="font-medium">{selectedQuickFill}h selected</span>
+                            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400 shrink-0" />
+                            <span>Four-day week: pick day off</span>
+                          </span>
+                        ) : selectedQuickFill === 36 ? (
+                          <span className="inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400 shrink-0" />
+                            <span>One short day: pick which day</span>
+                          </span>
+                        ) : selectedQuickFill === 40 ? (
+                          <span className="inline-flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400 shrink-0" />
+                            <span>Full week (8h×5)</span>
                           </span>
                         ) : (
-                          '8h Mon-Thu, Friday adjusts'
+                          '32h: day off · 36h: short day · 40h: full week'
                         )}
                       </p>
                     </div>
