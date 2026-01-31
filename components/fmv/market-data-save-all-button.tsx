@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MarketBenchmarks } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Save, Check } from 'lucide-react';
@@ -22,6 +22,9 @@ export function MarketDataSaveAllButton({
 }: MarketDataSaveAllButtonProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isWrvuSaved, setIsWrvuSaved] = useState(false);
+  const [isTccSaved, setIsTccSaved] = useState(false);
+  const [isCfSaved, setIsCfSaved] = useState(false);
 
   // Check which metrics have data
   const hasWrvuData = useMemo(() => {
@@ -39,11 +42,27 @@ export function MarketDataSaveAllButton({
   const hasAnyData = hasWrvuData || hasTccData || hasCfData;
 
   // Check which metrics are already saved
-  const isWrvuSaved = specialty && hasMarketData(specialty, 'wrvu');
-  const isTccSaved = specialty && hasMarketData(specialty, 'tcc');
-  const isCfSaved = specialty && hasMarketData(specialty, 'cf');
+  useEffect(() => {
+    if (specialty) {
+      const checkSaved = async () => {
+        const [wrvu, tcc, cf] = await Promise.all([
+          hasMarketData(specialty, 'wrvu'),
+          hasMarketData(specialty, 'tcc'),
+          hasMarketData(specialty, 'cf'),
+        ]);
+        setIsWrvuSaved(wrvu);
+        setIsTccSaved(tcc);
+        setIsCfSaved(cf);
+      };
+      checkSaved();
+    } else {
+      setIsWrvuSaved(false);
+      setIsTccSaved(false);
+      setIsCfSaved(false);
+    }
+  }, [specialty]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!specialty.trim()) {
       alert('Please select or enter a specialty first');
       return;
@@ -57,16 +76,18 @@ export function MarketDataSaveAllButton({
     setIsSaving(true);
 
     // Save all metrics that have data
+    const savePromises = [];
     if (hasWrvuData) {
-      saveMarketData(specialty.trim(), 'wrvu', benchmarks);
+      savePromises.push(saveMarketData(specialty.trim(), 'wrvu', benchmarks).then(() => setIsWrvuSaved(true)));
     }
     if (hasTccData) {
-      saveMarketData(specialty.trim(), 'tcc', benchmarks);
+      savePromises.push(saveMarketData(specialty.trim(), 'tcc', benchmarks).then(() => setIsTccSaved(true)));
     }
     if (hasCfData) {
-      saveMarketData(specialty.trim(), 'cf', benchmarks);
+      savePromises.push(saveMarketData(specialty.trim(), 'cf', benchmarks).then(() => setIsCfSaved(true)));
     }
 
+    await Promise.all(savePromises);
     setSaved(true);
     setIsSaving(false);
 

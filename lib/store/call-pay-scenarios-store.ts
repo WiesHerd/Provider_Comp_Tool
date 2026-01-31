@@ -59,35 +59,39 @@ export const useCallPayScenariosStore = create<CallPayScenariosState>()((set, ge
   scenarios: [],
   activeScenarioId: null,
   
-  loadScenarios: () => {
-    const scenarios = loadCallPayScenarios();
+  loadScenarios: async () => {
+    const scenarios = await loadCallPayScenarios();
     set({ scenarios });
   },
   
-  saveScenario: (scenario: CallScenario) => {
-    const scenarios = loadCallPayScenarios();
-    const existingIndex = scenarios.findIndex(s => s.id === scenario.id);
+  saveScenario: async (scenario: CallScenario) => {
+    const currentScenarios = await loadCallPayScenarios();
+    const existingIndex = currentScenarios.findIndex(s => s.id === scenario.id);
     
+    let scenarios: CallScenario[];
     if (existingIndex >= 0) {
+      scenarios = [...currentScenarios];
       scenarios[existingIndex] = scenario;
     } else {
-      scenarios.push(scenario);
+      scenarios = [...currentScenarios, scenario];
     }
     
-    saveCallPayScenarios(scenarios);
+    await saveCallPayScenarios(scenarios);
     
     // Also save to ProviderScenario format for compatibility
     const providerScenario = callScenarioToProviderScenario(scenario);
-    const providerScenarios = loadProviderScenarios();
-    const providerIndex = providerScenarios.findIndex(s => s.id === providerScenario.id);
+    const currentProviderScenarios = await loadProviderScenarios();
+    const providerIndex = currentProviderScenarios.findIndex(s => s.id === providerScenario.id);
     
+    let providerScenarios: ProviderScenario[];
     if (providerIndex >= 0) {
+      providerScenarios = [...currentProviderScenarios];
       providerScenarios[providerIndex] = providerScenario;
     } else {
-      providerScenarios.push(providerScenario);
+      providerScenarios = [...currentProviderScenarios, providerScenario];
     }
     
-    saveProviderScenarios(providerScenarios);
+    await saveProviderScenarios(providerScenarios);
     
     set({ scenarios });
   },
@@ -105,13 +109,15 @@ export const useCallPayScenariosStore = create<CallPayScenariosState>()((set, ge
     get().saveScenario(updated);
   },
   
-  deleteScenario: (id: string) => {
-    const scenarios = loadCallPayScenarios().filter(s => s.id !== id);
-    saveCallPayScenarios(scenarios);
+  deleteScenario: async (id: string) => {
+    const currentScenarios = await loadCallPayScenarios();
+    const scenarios = currentScenarios.filter(s => s.id !== id);
+    await saveCallPayScenarios(scenarios);
     
     // Also delete from ProviderScenario storage
-    const providerScenarios = loadProviderScenarios().filter(s => s.id !== id);
-    saveProviderScenarios(providerScenarios);
+    const currentProviderScenarios = await loadProviderScenarios();
+    const providerScenarios = currentProviderScenarios.filter(s => s.id !== id);
+    await saveProviderScenarios(providerScenarios);
     
     set({ scenarios });
     

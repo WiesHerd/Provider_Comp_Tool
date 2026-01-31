@@ -17,22 +17,24 @@ interface ScenariosState {
 export const useScenariosStore = create<ScenariosState>()((set, get) => ({
   scenarios: [],
   
-  loadScenarios: () => {
-    const scenarios = loadScenariosFromStorage();
+  loadScenarios: async () => {
+    const scenarios = await loadScenariosFromStorage();
     set({ scenarios });
   },
   
-  saveScenario: (scenario: ProviderScenario) => {
-    const scenarios = loadScenariosFromStorage();
-    const existingIndex = scenarios.findIndex(s => s.id === scenario.id);
+  saveScenario: async (scenario: ProviderScenario) => {
+    const currentScenarios = await loadScenariosFromStorage();
+    const existingIndex = currentScenarios.findIndex(s => s.id === scenario.id);
     
+    let scenarios: ProviderScenario[];
     if (existingIndex >= 0) {
+      scenarios = [...currentScenarios];
       scenarios[existingIndex] = scenario;
     } else {
-      scenarios.push(scenario);
+      scenarios = [...currentScenarios, scenario];
     }
     
-    saveScenarios(scenarios);
+    await saveScenarios(scenarios);
     set({ scenarios });
   },
   
@@ -49,9 +51,10 @@ export const useScenariosStore = create<ScenariosState>()((set, get) => ({
     get().saveScenario(updated);
   },
   
-  deleteScenario: (id: string) => {
-    const scenarios = loadScenariosFromStorage().filter(s => s.id !== id);
-    saveScenarios(scenarios);
+  deleteScenario: async (id: string) => {
+    const currentScenarios = await loadScenariosFromStorage();
+    const scenarios = currentScenarios.filter(s => s.id !== id);
+    await saveScenarios(scenarios);
     set({ scenarios });
   },
   

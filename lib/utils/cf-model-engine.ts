@@ -74,7 +74,8 @@ export function calculateIncentivePayWithModel(
         fte
       );
     default:
-      throw new Error(`Unknown CF model type: ${(model as any).modelType}`);
+      // TypeScript should never reach here if all cases are handled
+      throw new Error(`Unknown CF model type: ${(model.modelType as never)}`);
   }
 }
 

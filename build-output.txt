@@ -1,0 +1,328 @@
+﻿
+> provider-comp-tool@0.1.0 build:firebase
+> next build || (echo Build completed with warnings && exit 0)
+
+  Γû▓ Next.js 14.2.33
+  - Environments: .env.local
+  - Experiments (use with caution):
+    ┬╖ missingSuspenseWithCSRBailout
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/22) ...
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Error occurred prerendering page "/scenarios". Read more: 
+https://nextjs.org/docs/messages/prerender-error
+
+Error: The provided export path '/scenarios' doesn't match the 
+'/scenarios/[...id]' page.
+Read more: https://nextjs.org/docs/messages/export-path-mismatch
+    at getParams (C:\Users\wherd\Python Projects\Provider_Comp_Tool\node_module
+s\next\dist\export\helpers\get-params.js:27:15)
+    at exportPageImpl (C:\Users\wherd\Python 
+Projects\Provider_Comp_Tool\node_modules\next\dist\export\worker.js:91:47)
+    at C:\Users\wherd\Python 
+Projects\Provider_Comp_Tool\node_modules\next\dist\export\worker.js:237:110
+    at turborepoTraceAccess (C:\Users\wherd\Python Projects\Provider_Comp_Tool\
+node_modules\next\dist\build\turborepo-access-trace\helpers.js:36:51)
+    at C:\Users\wherd\Python 
+Projects\Provider_Comp_Tool\node_modules\next\dist\export\worker.js:237:105
+    at Span.traceAsyncFn (C:\Users\wherd\Python 
+Projects\Provider_Comp_Tool\node_modules\next\dist\trace\trace.js:154:26)
+    at Object.exportPage (C:\Users\wherd\Python 
+Projects\Provider_Comp_Tool\node_modules\next\dist\export\worker.js:237:41)
+    at execFunction (C:\Users\wherd\Python Projects\Provider_Comp_Tool\node_mod
+ules\next\dist\compiled\jest-worker\processChild.js:1:2764)
+    at execHelper (C:\Users\wherd\Python Projects\Provider_Comp_Tool\node_modul
+es\next\dist\compiled\jest-worker\processChild.js:1:2422)
+    at execMethod (C:\Users\wherd\Python Projects\Provider_Comp_Tool\node_modul
+es\next\dist\compiled\jest-worker\processChild.js:1:2510)
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/_not-found. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/_not-found. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/_not-found. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/_not-found. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/wrvu-forecaster. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/wrvu-forecaster. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/wrvu-forecaster. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/wrvu-forecaster. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/cf-stewardship-dashboard. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/cf-stewardship-dashboard. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/cf-stewardship-dashboard. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/cf-stewardship-dashboard. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/auth. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in /auth. 
+Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/auth. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in /auth. 
+Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator/tcc. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator/tcc. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator/tcc. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator/tcc. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/market-data. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/market-data. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/market-data. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/market-data. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/physician-scenarios. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/physician-scenarios. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/physician-scenarios. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/physician-scenarios. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/wrvu-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/wrvu-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/wrvu-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/wrvu-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/provider-comparison. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/provider-comparison. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/provider-comparison. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/provider-comparison. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/provider-wrvu-tracking. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/provider-wrvu-tracking. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/provider-wrvu-tracking. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/provider-wrvu-tracking. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+   Generating static pages (5/22) 
+   Generating static pages (10/22) 
+   Generating static pages (16/22) 
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/call-programs. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/call-programs. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/call-programs. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/call-programs. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. 
+Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in /. 
+Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. 
+Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in /. 
+Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator/cf. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator/cf. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator/cf. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator/cf. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/call-pay-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/call-pay-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/call-pay-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/call-pay-modeler. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator/wrvu. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator/wrvu. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/fmv-calculator/wrvu. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/fmv-calculator/wrvu. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/internal-benchmark-engine. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/internal-benchmark-engine. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in 
+/internal-benchmark-engine. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata viewport is configured in metadata export in 
+/internal-benchmark-engine. Please move it to viewport export instead.
+Read more: 
+https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ Γ£ô Generating static pages (22/22)
+
+> Export encountered errors on following paths:
+	/scenarios/[...id]/page: /scenarios
+Build completed with warnings 

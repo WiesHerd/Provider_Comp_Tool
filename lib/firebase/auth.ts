@@ -67,8 +67,11 @@ export async function signIn(email: string, password: string): Promise<User> {
  * Sign up with email and password
  */
 export async function signUp(email: string, password: string): Promise<User> {
-  console.log('🔐 signUp function called');
-  console.log('🔍 Auth object check:', { authExists: !!auth, authType: typeof auth });
+  const debug = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
+  if (debug) {
+    console.log('🔐 signUp function called');
+    console.log('🔍 Auth object check:', { authExists: !!auth, authType: typeof auth });
+  }
   
   if (!auth) {
     const errorMsg = 'Firebase Authentication is not configured. Please check your Firebase environment variables.';
@@ -77,16 +80,18 @@ export async function signUp(email: string, password: string): Promise<User> {
   }
   
   try {
-    console.log('🔐 Creating user account in Firebase Authentication...', { email });
+    if (debug) console.log('🔐 Creating user account in Firebase Authentication...', { email });
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    console.log('✅ User account created in Firebase Authentication:', {
-      userId: user.uid,
-      email: user.email,
-      emailVerified: user.emailVerified,
-      providerId: user.providerId
-    });
+    if (debug) {
+      console.log('✅ User account created in Firebase Authentication:', {
+        userId: user.uid,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        providerId: user.providerId
+      });
+    }
     
     // Send verification email
     try {
@@ -94,13 +99,15 @@ export async function signUp(email: string, password: string): Promise<User> {
         ? `${window.location.origin}/auth?verified=true`
         : 'https://complens-88a4f.web.app/auth?verified=true';
       await sendEmailVerification(user, { url });
-      console.log('✅ Verification email sent to:', user.email);
+      if (debug) console.log('✅ Verification email sent to:', user.email);
     } catch (verificationError: any) {
       logger.error('Error sending verification email:', verificationError);
-      console.error('Verification email error details:', {
-        code: verificationError?.code,
-        message: verificationError?.message
-      });
+      if (debug) {
+        console.error('Verification email error details:', {
+          code: verificationError?.code,
+          message: verificationError?.message
+        });
+      }
       // Don't throw - verification email failure shouldn't block sign-up
     }
     
@@ -108,7 +115,7 @@ export async function signUp(email: string, password: string): Promise<User> {
     try {
       const { createOrUpdateUserProfile } = await import('./user-profile');
       await createOrUpdateUserProfile(user, { signUpMethod: 'email' });
-      console.log('✅ User profile saved to Firestore database');
+      if (debug) console.log('✅ User profile saved to Firestore database');
     } catch (profileError) {
       logger.error('❌ Error creating user profile after sign-up:', profileError);
       // Don't throw - profile creation failure shouldn't block sign-up
@@ -118,21 +125,24 @@ export async function signUp(email: string, password: string): Promise<User> {
     try {
       const { sendWelcomeEmail } = await import('./welcome-email');
       await sendWelcomeEmail(user);
-      console.log('✅ Welcome email sent to:', user.email);
+      if (debug) console.log('✅ Welcome email sent to:', user.email);
     } catch (welcomeError) {
       logger.error('Error sending welcome email:', welcomeError);
       // Don't throw - welcome email failure shouldn't block sign-up
     }
     
-    console.log('✅ signUp function completed successfully, returning user:', user.uid);
+    if (debug) console.log('✅ signUp function completed successfully, returning user:', user.uid);
     return user;
   } catch (error: any) {
-    console.error('❌ CRITICAL ERROR in signUp function:', error);
-    console.error('❌ Error type:', typeof error);
-    console.error('❌ Error code:', error?.code);
-    console.error('❌ Error message:', error?.message);
-    console.error('❌ Error stack:', error?.stack);
-    console.error('❌ Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    // Keep detailed logs in development; in production, rely on logger/error boundaries.
+    if (debug) {
+      console.error('❌ CRITICAL ERROR in signUp function:', error);
+      console.error('❌ Error type:', typeof error);
+      console.error('❌ Error code:', error?.code);
+      console.error('❌ Error message:', error?.message);
+      console.error('❌ Error stack:', error?.stack);
+      console.error('❌ Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    }
     logger.error('❌ Error signing up:', error);
     throw error;
   }

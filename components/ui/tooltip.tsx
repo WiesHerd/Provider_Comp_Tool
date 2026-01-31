@@ -42,11 +42,11 @@ export function Tooltip({
   const [position, setPosition] = React.useState<CalculatedPosition | null>(null);
   const [mounted, setMounted] = React.useState(false);
   const [isMeasuring, setIsMeasuring] = React.useState(true);
-  const timeoutRef = React.useRef<NodeJS.Timeout>();
-  const delayTimeoutRef = React.useRef<NodeJS.Timeout>();
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const delayTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
-  const positionUpdateRef = React.useRef<number>();
+  const positionUpdateRef = React.useRef<number | null>(null);
 
   // Detect touch device and mount state
   React.useEffect(() => {

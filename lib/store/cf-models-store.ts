@@ -19,26 +19,29 @@ export const useCFModelsStore = create<CFModelsState>()((set, get) => ({
   models: [],
   activeModelId: null,
 
-  loadModels: () => {
-    const models = loadCFModels();
+  loadModels: async () => {
+    const models = await loadCFModels();
     set({ models });
   },
 
-  addModel: (model: SavedCFModel) => {
-    const models = loadCFModels();
-    const existingIndex = models.findIndex(m => m.id === model.id);
+  addModel: async (model: SavedCFModel) => {
+    const currentModels = get().models;
+    const existingIndex = currentModels.findIndex(m => m.id === model.id);
 
+    let updatedModels: SavedCFModel[];
     if (existingIndex >= 0) {
-      models[existingIndex] = model;
+      updatedModels = [...currentModels];
+      updatedModels[existingIndex] = model;
     } else {
-      models.push(model);
+      updatedModels = [...currentModels, model];
     }
 
-    saveCFModels(models);
-    set({ models });
+    set({ models: updatedModels });
+    // Save to storage (async, fire and forget)
+    void saveCFModels(updatedModels);
   },
 
-  updateModel: (id: string, updates: Partial<SavedCFModel>) => {
+  updateModel: async (id: string, updates: Partial<SavedCFModel>) => {
     const model = get().getModel(id);
     if (!model) return;
 
@@ -48,13 +51,16 @@ export const useCFModelsStore = create<CFModelsState>()((set, get) => ({
       updatedAt: new Date().toISOString(),
     };
 
-    get().addModel(updated);
+    await get().addModel(updated);
   },
 
-  deleteModel: (id: string) => {
-    const models = loadCFModels().filter(m => m.id !== id);
-    saveCFModels(models);
-    set({ models });
+  deleteModel: async (id: string) => {
+    const currentModels = get().models;
+    const filteredModels = currentModels.filter(m => m.id !== id);
+    
+    set({ models: filteredModels });
+    // Save to storage (async, fire and forget)
+    void saveCFModels(filteredModels);
 
     // Clear active model if it was deleted
     if (get().activeModelId === id) {
@@ -62,7 +68,7 @@ export const useCFModelsStore = create<CFModelsState>()((set, get) => ({
     }
   },
 
-  duplicateModel: (id: string) => {
+  duplicateModel: async (id: string) => {
     const model = get().getModel(id);
     if (!model) return;
 
@@ -74,7 +80,7 @@ export const useCFModelsStore = create<CFModelsState>()((set, get) => ({
       updatedAt: new Date().toISOString(),
     };
 
-    get().addModel(duplicated);
+    await get().addModel(duplicated);
   },
 
   getModel: (id: string) => {
@@ -89,12 +95,3 @@ export const useCFModelsStore = create<CFModelsState>()((set, get) => ({
     return get().models;
   },
 }));
-
-
-
-
-
-
-
-
-

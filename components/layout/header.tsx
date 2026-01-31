@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Info, ChevronLeft, Upload, LogOut, User } from 'lucide-react';
+import { Sun, Moon, Info, ChevronLeft, Upload, LogOut, User, Zap, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
@@ -11,6 +11,8 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 import { SCREEN_GUIDES } from '@/lib/screen-guides';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { useTrialStatus } from '@/hooks/use-trial-status';
+import { isOwnerEmail } from '@/lib/utils/trial-status';
 
 // Dropdown menu components (Radix UI)
 const DropdownMenuRoot = DropdownMenuPrimitive.Root as any;
@@ -55,14 +57,20 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, loading: authLoading } = useAuthStore();
+  const { isTrialActive, daysRemaining, needsUpgrade, hasValidSubscription } = useTrialStatus();
+  const isOwner = isOwnerEmail(user?.email || null);
   // Ensure consistent pathname for SSR - use pathname directly, not conditional on mounted
   const safePathname = pathname || '/';
   
-  // Don't show header on auth page
-  if (pathname === '/auth') {
-    return null;
-  }
-  const isHome = safePathname === '/';
+  // Don't show header on auth page.
+  // In static export + client-only layout, `usePathname()` can be briefly undefined on first paint,
+  // which can cause a markup mismatch if we render the header and then remove it.
+  const currentPath =
+    pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
+  // IMPORTANT: do not early-return before hooks; logout can redirect to /auth which would change
+  // the number of hooks executed and crash with "Rendered fewer hooks than expected".
+  const shouldHideHeader = currentPath === '/auth' || currentPath === '/auth.html';
+  const isHome = (currentPath || safePathname) === '/';
   const pageTitle = safePathname ? getPageTitle(safePathname) : null;
 
   useEffect(() => {
@@ -160,6 +168,8 @@ export function Header() {
       />
     </div>
   );
+
+  if (shouldHideHeader) return null;
 
   return (
     <>
@@ -285,6 +295,115 @@ export function Header() {
             "flex items-center relative z-20",
             isLandscape ? "gap-2 sm:gap-3" : "gap-2 sm:gap-3"
           )}>
+            {/* Trial status indicator */}
+            {user && !authLoading && (
+              <>
+                {!isOwner && isTrialActive && daysRemaining > 0 && (
+                  <Link href="/pricing">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "min-w-[44px] h-[44px] sm:min-w-auto sm:px-3",
+                        "rounded-xl",
+                        daysRemaining <= 3 
+                          ? "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300"
+                          : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300",
+                        "hover:bg-opacity-80 dark:hover:bg-opacity-80",
+                        "transition-all duration-200 ease-out",
+                        "active:scale-[0.92] touch-manipulation",
+                        "hover:shadow-md",
+                        "group",
+                        "animate-icon-enter",
+                        "text-xs sm:text-sm font-medium"
+                      )}
+                      aria-label={`${daysRemaining} days left in trial`}
+                      title={`${daysRemaining} days left in trial`}
+                      suppressHydrationWarning
+                    >
+                      <Clock className="w-4 h-4 sm:mr-1.5" />
+                      <span className="hidden sm:inline">
+                        {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left
+                      </span>
+                    </Button>
+                  </Link>
+                )}
+                {!isOwner && needsUpgrade && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "min-w-[44px] h-[44px] sm:min-w-auto sm:px-3",
+                      "rounded-xl",
+                      "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300",
+                      "hover:bg-red-100 dark:hover:bg-red-900/30",
+                      "transition-all duration-200 ease-out",
+                      "active:scale-[0.92] touch-manipulation",
+                      "hover:shadow-md",
+                      "group",
+                      "animate-icon-enter",
+                      "text-xs sm:text-sm font-medium"
+                    )}
+                    aria-label="Trial expired - Upgrade now"
+                    title="Trial expired - Upgrade now"
+                    suppressHydrationWarning
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('complens:upgrade-required'));
+                      } else {
+                        router.push('/pricing');
+                      }
+                    }}
+                  >
+                    <AlertCircle className="w-4 h-4 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Trial Expired</span>
+                  </Button>
+                )}
+                {hasValidSubscription && !isTrialActive && (
+                  <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <Zap className="w-3 h-3 text-green-600 dark:text-green-400" />
+                    <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                      {isOwner ? 'Owner' : 'Pro'}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Pricing button - visible to all users */}
+            {safePathname !== '/pricing' && (
+              <Link href="/pricing">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "min-w-[44px] h-[44px] sm:min-w-auto sm:px-4",
+                    "rounded-xl",
+                    "hover:bg-purple-50/80 dark:hover:bg-purple-950/30",
+                    "active:bg-purple-100/80 dark:active:bg-purple-900/40",
+                    "transition-all duration-200 ease-out",
+                    "active:scale-[0.92] touch-manipulation",
+                    "hover:shadow-md hover:shadow-purple-200/30 dark:hover:shadow-purple-900/20",
+                    "active:shadow-sm",
+                    "group",
+                    "animate-icon-enter",
+                    "border border-transparent hover:border-purple-200/40 dark:hover:border-purple-800/40"
+                  )}
+                  aria-label="Pricing"
+                  title="View Pricing"
+                  suppressHydrationWarning
+                >
+                  <Zap className="w-5 h-5 sm:mr-2 text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300" />
+                  <span className="hidden sm:inline text-sm font-medium text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                    Pricing
+                  </span>
+                </Button>
+              </Link>
+            )}
+
             {/* User menu - Google/Apple style dropdown */}
             {user && !authLoading && (
               <DropdownMenuRoot>
@@ -334,6 +453,22 @@ export function Header() {
                     
                     <DropdownMenuSeparator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
                     
+                    {/* Pricing link */}
+                    <Link href="/pricing">
+                      <DropdownMenuItem
+                        className={cn(
+                          "flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md cursor-pointer",
+                          "hover:bg-gray-100 dark:hover:bg-gray-800 outline-none",
+                          "focus:bg-gray-100 dark:focus:bg-gray-800"
+                        )}
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        Pricing
+                      </DropdownMenuItem>
+                    </Link>
+                    
+                    <DropdownMenuSeparator className="h-px bg-gray-200 dark:bg-gray-800 my-1" />
+                    
                     {/* Sign out option */}
                     <DropdownMenuItem
                       className={cn(
@@ -342,8 +477,15 @@ export function Header() {
                         "focus:bg-red-50 dark:focus:bg-red-900/20"
                       )}
                       onClick={async () => {
-                        await logout();
-                        router.push('/auth');
+                        try {
+                          await logout();
+                        } catch {
+                          // If sign out fails, keep the user on /auth and let them sign in again.
+                        }
+                        // Let the RouteGuard handle redirects based on auth state.
+                        // We avoid hard navigations here because they can race with React unmounts
+                        // (dropdown closing, auth store updates) and trigger runtime errors.
+                        router.replace('/auth');
                       }}
                     >
                       <LogOut className="w-4 h-4 mr-2" />
@@ -389,7 +531,7 @@ export function Header() {
             {(!isLandscape || (typeof window !== 'undefined' && window.innerWidth >= 640)) && (
               <>
                 {/* Upload button - hidden on mobile */}
-                <Link href="/market-data" className="hidden sm:block">
+                <Link href="/market-data?upload=true" className="hidden sm:block">
                   <Button 
                     type="button"
                     variant="ghost" 
@@ -582,16 +724,6 @@ export function Header() {
                             </div>
                           )}
 
-                          <div className={cn(
-                            "bg-blue-50/80 dark:bg-blue-900/30",
-                            "backdrop-blur-sm",
-                            "p-4 rounded-xl",
-                            "border border-blue-200/50 dark:border-blue-800/50"
-                          )}>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic">
-                              <strong className="text-gray-900 dark:text-white">Note:</strong> For planning and analysis purposes only. Not a substitute for formal FMV opinions, legal review, or regulatory compliance verification.
-                            </p>
-                          </div>
                         </div>
 
                         <div className="flex justify-end mt-8">

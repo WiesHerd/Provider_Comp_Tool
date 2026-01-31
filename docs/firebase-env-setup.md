@@ -11,13 +11,15 @@ If you're seeing `FirebaseError: Error (auth/invalid-api-key)`, it means your Fi
 Make sure you have a `.env.local` file in your project root with:
 
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBvtXp1ztBiRub3vPnfQYZoJbyEyP-VDk0
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=complens-88a4f.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=complens-88a4f
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=complens-88a4f.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=930349338966
-NEXT_PUBLIC_FIREBASE_APP_ID=1:930349338966:web:7bd7506a1ecdce416f06f7
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
+
+Get real values from Firebase Console > Project Settings > General > Your apps. **Do not commit real keys.**
 
 ### Step 2: Restart Dev Server
 
@@ -55,6 +57,10 @@ Firebase initialized successfully
 ```
 
 If you see `hasApiKey: false`, the environment variables aren't loading.
+
+
+
+
 
 
 

@@ -1,0 +1,475 @@
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
+import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
+import { loadDraftState, deleteDraftState, DRAFT_SCREEN_IDS } from '@/lib/utils/draft-state-storage';
+import { useSearchParams } from 'next/navigation';
+import { BenchmarkInputs } from '@/components/fmv/benchmark-inputs';
+import { PercentileBreakdown } from '@/components/fmv/percentile-breakdown';
+import { FMVSaveButton } from '@/components/fmv/fmv-save-button';
+import { SpecialtyInput } from '@/components/fmv/specialty-input';
+import { MarketDataSaveButton } from '@/components/fmv/market-data-save-button';
+import { ProviderInputSaveButton } from '@/components/fmv/provider-input-save-button';
+import { TCCComponentsGrid } from '@/components/fmv/tcc-components-grid';
+import { FTEInput } from '@/components/wrvu/fte-input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Calculator, RotateCcw } from 'lucide-react';
+import { ScenarioLoader } from '@/components/scenarios/scenario-loader';
+import { MarketBenchmarks, TCCComponent, FTE, ProviderScenario } from '@/types';
+import { calculateTCCPercentile } from '@/lib/utils/percentile';
+import { normalizeTcc } from '@/lib/utils/normalization';
+import { useScenariosStore } from '@/lib/store/scenarios-store';
+
+function TCCCalculatorPageContent() {
+  const searchParams = useSearchParams();
+  const { getScenario } = useScenariosStore();
+  const [specialty, setSpecialty] = useState<string>('');
+  const [fte, setFte] = useState<FTE>(1.0);
+  const [tccComponents, setTccComponents] = useState<TCCComponent[]>([
+    {
+      id: `component-${Date.now()}`,
+      label: '',
+      type: 'Base Salary',
+      calculationMethod: 'fixed',
+      amount: 0,
+      fixedAmount: 0,
+    }
+  ]);
+  const [marketBenchmarks, setMarketBenchmarks] = useState<MarketBenchmarks>({});
+  const [showResults, setShowResults] = useState(false);
+  const [activeTab, setActiveTab] = useState<'provider' | 'market' | 'results'>('provider');
+  const [scenarioLoaded, setScenarioLoaded] = useState(false);
+
+  const STORAGE_KEY = 'fmvTccDraftState';
+  const SCREEN_ID = DRAFT_SCREEN_IDS.FMV_TCC;
+
+  // Auto-save draft state to localStorage whenever inputs change (debounced, skip when scenario is loaded)
+  const draftState = scenarioLoaded ? null : {
+    specialty,
+    fte,
+    tccComponents,
+    marketBenchmarks,
+    activeTab,
+  };
+  useDebouncedLocalStorage(STORAGE_KEY, draftState);
+
+  // Load draft state on mount (if no scenario is being loaded via URL)
+  useEffect(() => {
+    if (typeof window === 'undefined' || scenarioLoaded) return;
+    
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId) return; // URL scenario will be loaded by the other effect
+    
+    const loadDraft = async () => {
+      try {
+        const draft = await loadDraftState(SCREEN_ID, STORAGE_KEY);
+        if (draft) {
+          // Only load draft if it has meaningful data
+          const d = draft as any;
+          if (d.tccComponents && Array.isArray(d.tccComponents) && d.tccComponents.some((c: TCCComponent) => c.amount > 0)) {
+            setSpecialty(d.specialty || '');
+            setFte(d.fte || 1.0);
+            setTccComponents(Array.isArray(d.tccComponents) ? d.tccComponents : []);
+            setMarketBenchmarks(d.marketBenchmarks || {});
+            setActiveTab(draft.activeTab === 'provider' || draft.activeTab === 'market' || draft.activeTab === 'results' ? draft.activeTab : 'provider');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading draft state:', error);
+      }
+    };
+    
+    void loadDraft();
+  }, [searchParams, scenarioLoaded]);
+
+  // Calculate total TCC from components
+  const totalTcc = Array.isArray(tccComponents) ? tccComponents.reduce((sum, c) => sum + (c?.amount || 0), 0) : 0;
+  const normalizedTcc = normalizeTcc(totalTcc, fte);
+  const percentile = calculateTCCPercentile(normalizedTcc, marketBenchmarks);
+
+  const formatValue = (value: number) => {
+    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const hasMarketData = marketBenchmarks.tcc25 || marketBenchmarks.tcc50 || marketBenchmarks.tcc75 || marketBenchmarks.tcc90;
+
+  const handleCalculate = () => {
+    if (normalizedTcc > 0 && hasMarketData) {
+      setShowResults(true);
+      setActiveTab('results'); // Navigate to results tab
+    }
+  };
+
+  const handleStartNew = () => {
+    // Clear all form data but keep one empty component
+    setSpecialty('');
+    setFte(1.0);
+    setTccComponents([{
+      id: `component-${Date.now()}`,
+      label: '',
+      type: 'Base Salary',
+      calculationMethod: 'fixed',
+      amount: 0,
+      fixedAmount: 0,
+    }]);
+    setMarketBenchmarks({});
+    setShowResults(false);
+    setActiveTab('provider'); // Go back to Provider tab
+    setScenarioLoaded(false); // Reset scenario loaded flag
+    // Clear draft state
+    if (typeof window !== 'undefined') {
+      void deleteDraftState(SCREEN_ID, STORAGE_KEY);
+    }
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  // Auto-load scenario from query parameter
+  useEffect(() => {
+    const scenarioId = searchParams.get('scenario');
+    if (scenarioId && !scenarioLoaded) {
+      const scenario = getScenario(scenarioId);
+      if (scenario && scenario.scenarioType === 'fmv-tcc') {
+        setFte(scenario.fte);
+        if (scenario.tccComponents && scenario.tccComponents.length > 0) {
+          setTccComponents(scenario.tccComponents);
+        }
+        if (scenario.marketBenchmarks) {
+          setMarketBenchmarks(scenario.marketBenchmarks);
+        }
+        if (scenario.specialty) {
+          setSpecialty(scenario.specialty);
+        }
+        setScenarioLoaded(true);
+        // If we have both TCC and market data, go to market tab
+        if (scenario.tccComponents && scenario.tccComponents.length > 0 && scenario.marketBenchmarks) {
+          setActiveTab('market');
+        }
+      }
+    }
+  }, [searchParams, getScenario, scenarioLoaded]);
+
+  // Mark scenario as loaded when loaded via ScenarioLoader
+  const handleScenarioLoad = (scenario: ProviderScenario) => {
+    setFte(scenario.fte);
+    if (scenario.tccComponents && scenario.tccComponents.length > 0) {
+      setTccComponents(scenario.tccComponents);
+    }
+    if (scenario.marketBenchmarks) {
+      setMarketBenchmarks(scenario.marketBenchmarks);
+    }
+    if (scenario.specialty) {
+      setSpecialty(scenario.specialty);
+    }
+    setScenarioLoaded(true);
+  };
+
+  // Handle query parameters from other screens
+  useEffect(() => {
+    // Handle callPay query parameter from call-pay-modeler
+    const callPayParam = searchParams.get('callPay');
+    if (callPayParam) {
+      const callPayAmount = parseFloat(callPayParam);
+      if (!isNaN(callPayAmount) && callPayAmount > 0) {
+        // Check if call pay component already exists
+        const existingCallPay = tccComponents.find(c => c.type === 'Call Pay');
+        if (existingCallPay) {
+          // Update existing call pay component
+          setTccComponents(prev => prev.map(c => 
+            c.id === existingCallPay.id
+              ? { ...c, amount: callPayAmount, fixedAmount: callPayAmount }
+              : c
+          ));
+        } else {
+          // Add new call pay component
+          const callPayComponent: TCCComponent = {
+            id: `call-pay-${Date.now()}`,
+            label: 'Call Pay',
+            type: 'Call Pay',
+            calculationMethod: 'fixed',
+            amount: callPayAmount,
+            fixedAmount: callPayAmount,
+          };
+          setTccComponents(prev => [...prev, callPayComponent]);
+        }
+        // Clear the query parameter to avoid re-adding on re-render
+        const url = new URL(window.location.href);
+        url.searchParams.delete('callPay');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+
+    // Handle totalTcc query parameter from wrvu-forecaster
+    const totalTccParam = searchParams.get('totalTcc');
+    const fteParam = searchParams.get('fte');
+    const specialtyParam = searchParams.get('specialty');
+    
+    if (totalTccParam && !scenarioLoaded) {
+      const totalTccAmount = parseFloat(totalTccParam);
+      if (!isNaN(totalTccAmount) && totalTccAmount > 0) {
+        // Set FTE if provided
+        if (fteParam) {
+          const fteValue = parseFloat(fteParam);
+          if (!isNaN(fteValue) && fteValue > 0 && fteValue <= 1.0) {
+            setFte(fteValue as FTE);
+          }
+        }
+        
+        // Set specialty if provided (this will trigger auto-load via SpecialtyInput)
+        if (specialtyParam) {
+          setSpecialty(specialtyParam);
+        }
+        
+        // Create a single TCC component with the total amount
+        // This represents the total compensation from the forecaster
+        const totalTccComponent: TCCComponent = {
+          id: `total-comp-${Date.now()}`,
+          label: 'Total Compensation',
+          type: 'Base Salary', // Using Base Salary as the type for simplicity
+          calculationMethod: 'fixed',
+          amount: totalTccAmount,
+          fixedAmount: totalTccAmount,
+        };
+        
+        // Replace existing components with this one
+        setTccComponents([totalTccComponent]);
+        
+        // Auto-advance to market tab if we have TCC and specialty (user can add market data)
+        if (specialtyParam && totalTccAmount > 0) {
+          setActiveTab('market');
+        }
+        
+        // Clear the query parameters to avoid re-adding on re-render
+        const url = new URL(window.location.href);
+        url.searchParams.delete('totalTcc');
+        url.searchParams.delete('fte');
+        url.searchParams.delete('specialty');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams, scenarioLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset showResults when market data changes (so user can recalculate)
+  useEffect(() => {
+    if (showResults && activeTab === 'market') {
+      setShowResults(false);
+    }
+  }, [marketBenchmarks, activeTab, showResults]);
+
+  // Ensure activeTab is valid - if results tab is selected but no results, go to provider
+  const currentTab = (activeTab === 'results' && !showResults) ? 'provider' : activeTab;
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6">
+      <div className="w-full px-4 sm:px-6 lg:max-w-4xl lg:mx-auto pt-6 sm:pt-8 md:pt-10 pb-4 sm:pb-6 md:pb-8">
+      <Tabs value={currentTab} onValueChange={(value) => setActiveTab(value as 'provider' | 'market' | 'results')} className="w-full mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 dark:bg-gray-800">
+          <TabsTrigger value="provider" className="text-sm font-medium">
+            Provider
+          </TabsTrigger>
+          <TabsTrigger value="market" className="text-sm font-medium" disabled={normalizedTcc === 0}>
+            Market Data
+          </TabsTrigger>
+          <TabsTrigger value="results" className="text-sm font-medium" disabled={!showResults || normalizedTcc === 0}>
+            Results
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Provider Tab */}
+        <TabsContent value="provider" className="space-y-6 mt-0" data-tour="fmv-tcc-content">
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-tcc"
+                onLoad={handleScenarioLoad}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+          <div className="flex items-end gap-2 sm:gap-4">
+            <FTEInput value={fte} onChange={setFte} />
+          </div>
+          
+          <TCCComponentsGrid
+            components={tccComponents}
+            onComponentsChange={setTccComponents}
+          />
+
+          {totalTcc > 0 && (
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+              {/* Itemized breakdown - only show components with amounts > 0 */}
+              {tccComponents.some(c => c.amount > 0) && (
+                <div className="space-y-1.5">
+                  {tccComponents
+                    .filter(component => component.amount > 0)
+                    .map((component) => {
+                      const displayLabel = component.label || component.type;
+                      return (
+                        <div key={component.id} className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600 dark:text-gray-400 truncate pr-2">{displayLabel}</span>
+                          <span className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                            {formatValue(component.amount)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+              {/* Totals */}
+              <div className="pt-2 space-y-1.5 border-t border-gray-200 dark:border-gray-800">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total TCC</span>
+                  <span className="font-semibold text-base text-gray-900 dark:text-white">
+                    {formatValue(totalTcc)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Normalized TCC (1.0 FTE)</span>
+                  <span className="font-semibold text-base text-primary">
+                    {formatValue(normalizedTcc)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          </CardContent>
+        </Card>
+
+          {/* Save Button - Sticky bottom */}
+          {tccComponents.some(c => c.amount > 0) && (
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <ProviderInputSaveButton
+                    scenarioType="fmv-tcc"
+                    fte={fte}
+                    tccComponents={tccComponents}
+                    specialty={specialty}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Market Data Tab */}
+        <TabsContent value="market" className="space-y-6 mt-0">
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</CardTitle>
+              <ScenarioLoader
+                scenarioType="fmv-tcc"
+                onLoad={handleScenarioLoad}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <SpecialtyInput
+            metricType="tcc"
+            specialty={specialty}
+            onSpecialtyChange={setSpecialty}
+            onMarketDataLoad={setMarketBenchmarks}
+          />
+          <BenchmarkInputs
+            benchmarks={marketBenchmarks}
+            onBenchmarksChange={setMarketBenchmarks}
+            type="tcc"
+          />
+          </CardContent>
+        </Card>
+
+          {/* Calculate Button */}
+          <div className="pt-6">
+            <Button
+              onClick={handleCalculate}
+              className="w-full min-h-[48px] text-base font-semibold"
+              size="lg"
+              disabled={!hasMarketData || normalizedTcc === 0}
+            >
+              <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
+              {showResults ? 'Recalculate' : 'Calculate'}
+            </Button>
+          </div>
+
+          {/* Save Button - Sticky bottom */}
+          {specialty && (
+            <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <MarketDataSaveButton
+                    specialty={specialty}
+                    metricType="tcc"
+                    benchmarks={marketBenchmarks}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Results Tab */}
+        <TabsContent value="results" className="space-y-6 mt-0">
+          {showResults && normalizedTcc > 0 && (
+            <div id="results-section" className="space-y-6">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Total Cash Compensation</h2>
+          </div>
+          <PercentileBreakdown
+            value={normalizedTcc}
+            percentile={percentile}
+            benchmarks={{
+              p25: marketBenchmarks.tcc25,
+              p50: marketBenchmarks.tcc50,
+              p75: marketBenchmarks.tcc75,
+              p90: marketBenchmarks.tcc90,
+            }}
+            formatValue={formatValue}
+            valueLabel="Your Normalized TCC"
+          />
+
+              {/* Action Buttons - Sticky bottom */}
+              <div className="sticky bottom-24 md:static bg-gray-50 dark:bg-gray-900 pt-4 pb-4 border-t-2 border-gray-200 dark:border-gray-800 safe-area-inset-bottom z-30">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <FMVSaveButton
+                      metricType="tcc"
+                      value={normalizedTcc}
+                      benchmarks={marketBenchmarks}
+                      percentile={percentile}
+                      specialty={specialty}
+                      tccComponents={tccComponents}
+                      fte={fte}
+                      totalTcc={totalTcc}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleStartNew}
+                    className="w-full sm:w-auto min-h-[44px] touch-target"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2 flex-shrink-0" />
+                    Start Over
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+      </div>
+    </div>
+  );
+}
+
+export default function TCCCalculatorPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 sm:pb-6"><div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 sm:pb-8 md:pb-12">Loading...</div></div>}>
+      <TCCCalculatorPageContent />
+    </Suspense>
+  );
+}

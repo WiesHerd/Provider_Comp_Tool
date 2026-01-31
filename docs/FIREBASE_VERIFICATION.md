@@ -107,3 +107,7 @@ When you sign up or sign in, you should see logs in the browser console (F12 →
 - All authentication is handled by Firebase (industry-standard security)
 
 
+
+
+
+

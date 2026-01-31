@@ -75,8 +75,11 @@ export function SpecialtyInput({
 
   // Load saved specialties on mount
   useEffect(() => {
-    const saved = getSavedSpecialties(metricType);
-    setSavedSpecialties(saved);
+    const loadSpecialties = async () => {
+      const saved = await getSavedSpecialties(metricType);
+      setSavedSpecialties(saved);
+    };
+    loadSpecialties();
   }, [metricType]);
 
   // Sync internal state with prop (for persistence across navigation)
@@ -98,7 +101,7 @@ export function SpecialtyInput({
     }
   }, [specialtyProp]);
 
-  const handleSpecialtyChange = (value: string) => {
+  const handleSpecialtyChange = async (value: string) => {
     setSpecialty(value);
     setCustomSpecialty('');
     
@@ -106,10 +109,15 @@ export function SpecialtyInput({
     onSpecialtyChange(selectedSpecialty);
     
     // Auto-load market data if saved
-    if (selectedSpecialty && hasMarketData(selectedSpecialty, metricType)) {
-      const loaded = loadMarketData(selectedSpecialty, metricType);
-      if (loaded) {
-        onMarketDataLoad(loaded);
+    if (selectedSpecialty) {
+      const hasData = await hasMarketData(selectedSpecialty, metricType);
+      if (hasData) {
+        const loaded = await loadMarketData(selectedSpecialty, metricType);
+        if (loaded) {
+          onMarketDataLoad(loaded);
+        }
+      } else {
+        onMarketDataLoad({});
       }
     } else {
       // Clear market data if switching to unsaved specialty
@@ -117,15 +125,20 @@ export function SpecialtyInput({
     }
   };
 
-  const handleCustomSpecialtyChange = (value: string) => {
+  const handleCustomSpecialtyChange = async (value: string) => {
     setCustomSpecialty(value);
     onSpecialtyChange(value);
     
     // Auto-load market data if saved
-    if (value && hasMarketData(value, metricType)) {
-      const loaded = loadMarketData(value, metricType);
-      if (loaded) {
-        onMarketDataLoad(loaded);
+    if (value) {
+      const hasData = await hasMarketData(value, metricType);
+      if (hasData) {
+        const loaded = await loadMarketData(value, metricType);
+        if (loaded) {
+          onMarketDataLoad(loaded);
+        }
+      } else {
+        onMarketDataLoad({});
       }
     } else {
       onMarketDataLoad({});

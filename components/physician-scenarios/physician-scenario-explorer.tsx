@@ -169,8 +169,8 @@ export function PhysicianScenarioExplorer() {
   }, [activeModelId, getModel]);
 
   // Load saved specialties on mount and refresh function
-  const refreshSavedSpecialties = useCallback(() => {
-    const saved = getSavedSpecialties('wrvu');
+  const refreshSavedSpecialties = useCallback(async () => {
+    const saved = await getSavedSpecialties('wrvu');
     setSavedSpecialties(saved);
   }, []);
 
@@ -185,24 +185,28 @@ export function PhysicianScenarioExplorer() {
     const effectiveSpecialty = specialty === 'Other' ? customSpecialty : specialty;
     if (!effectiveSpecialty) return;
 
-    // Load wRVU data
-    const wrvuData = loadMarketData(effectiveSpecialty, 'wrvu');
-    // Load TCC data
-    const tccData = loadMarketData(effectiveSpecialty, 'tcc');
-    // Load CF data
-    const cfData = loadMarketData(effectiveSpecialty, 'cf');
+    // Load market data asynchronously
+    const loadData = async () => {
+      const [wrvuData, tccData, cfData] = await Promise.all([
+        loadMarketData(effectiveSpecialty, 'wrvu'),
+        loadMarketData(effectiveSpecialty, 'tcc'),
+        loadMarketData(effectiveSpecialty, 'cf'),
+      ]);
 
-    // Merge all loaded data
-    const loadedBenchmarks: MarketBenchmarks = {
-      ...(wrvuData || {}),
-      ...(tccData || {}),
-      ...(cfData || {}),
+      // Merge all loaded data
+      const loadedBenchmarks: MarketBenchmarks = {
+        ...(wrvuData || {}),
+        ...(tccData || {}),
+        ...(cfData || {}),
+      };
+
+      // Only update if we have some data
+      if (Object.keys(loadedBenchmarks).length > 0) {
+        setMarketBenchmarks(loadedBenchmarks);
+      }
     };
-
-    // Only update if we have some data
-    if (Object.keys(loadedBenchmarks).length > 0) {
-      setMarketBenchmarks(loadedBenchmarks);
-    }
+    
+    loadData();
   }, [specialty, customSpecialty]);
 
 

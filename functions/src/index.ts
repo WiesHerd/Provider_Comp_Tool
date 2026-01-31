@@ -1,12 +1,16 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { Resend } from 'resend';
+import Stripe from 'stripe';
 
 // Initialize Firebase Admin
 admin.initializeApp();
 
 // Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY || '');
+// Get API key from environment variable (can be set in Firebase Console or .env file)
+// Firebase Console: Functions → Configuration → Environment Variables
+const resendApiKey = process.env.RESEND_API_KEY || '';
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // Admin email to receive feedback
 const ADMIN_EMAIL = 'wherdzik@gmail.com';
@@ -24,8 +28,9 @@ export const onFeedbackCreated = functions.firestore
     console.log('📧 New feedback received:', feedbackId);
 
     // Skip if Resend is not configured
-    if (!process.env.RESEND_API_KEY) {
+    if (!resend || !resendApiKey) {
       console.warn('⚠️ RESEND_API_KEY not configured. Email notification skipped.');
+      console.warn('⚠️ Set it with: firebase functions:config:set resend.api_key="re_xxxxx"');
       return null;
     }
 
@@ -225,4 +230,380 @@ Feedback ID: ${feedbackId}
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   });
+
+// Initialize Stripe (will use secret from environment)
+const getStripe = () => {
+  // Prefer Firebase Functions config (firebase functions:config:set),
+  // fall back to process.env for local/dev or alternate deploy pipelines.
+  const secretKey =
+    (functions.config()?.stripe?.secret_key as string | undefined) ||
+    process.env.STRIPE_SECRET_KEY ||
+    '';
+  if (!secretKey) {
+    const errorMsg = 'STRIPE_SECRET_KEY environment variable is not set. ' +
+      'Please set it in Firebase Console: Functions → Configuration → Environment Variables. ' +
+      'Or use: firebase functions:config:set stripe.secret_key="sk_test_..."';
+    console.error('❌ Stripe Configuration Error:', errorMsg);
+    throw new Error(errorMsg);
+  }
+  try {
+    return new Stripe(secretKey);
+  } catch (error) {
+    console.error('❌ Stripe Initialization Error:', error);
+    throw new Error(`Failed to initialize Stripe: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
+ * Create Stripe Checkout Session (for subscriptions)
+ */
+export const createCheckoutSession = functions.https.onRequest(async (req, res) => {
+  // Enable CORS
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  try {
+    const { priceId, userId, mode = 'subscription', amount } = req.body;
+
+    if (!priceId && !amount) {
+      res.status(400).json({ error: 'Price ID or amount is required' });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({ error: 'User ID is required' });
+      return;
+    }
+
+    const origin = req.get('origin') || 'https://complens-88a4f.web.app';
+
+    const isSubscription = mode === 'subscription';
+    
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
+      mode: isSubscription ? 'subscription' : 'payment',
+      payment_method_types: ['card'],
+      success_url: `${origin}/pricing?success=true`,
+      cancel_url: `${origin}/pricing?canceled=true`,
+      client_reference_id: userId,
+      metadata: {
+        userId,
+        type: isSubscription ? 'subscription' : 'donation',
+      },
+    };
+
+    if (isSubscription && priceId) {
+      sessionConfig.line_items = [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ];
+      sessionConfig.subscription_data = {
+        metadata: {
+          userId,
+        },
+      };
+    } else if (!isSubscription && amount) {
+      sessionConfig.line_items = [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Support CompLens',
+              description: 'Thank you for supporting CompLens development!',
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ];
+    }
+
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    res.json({ 
+      sessionId: session.id,
+      url: session.url 
+    });
+  } catch (error: any) {
+    console.error('❌ Stripe checkout error:', error);
+    const errorMessage = error.message || 'Failed to create checkout session';
+    const statusCode = errorMessage.includes('STRIPE_SECRET_KEY') ? 503 : 500;
+    res.status(statusCode).json({
+      error: errorMessage,
+      ...(errorMessage.includes('STRIPE_SECRET_KEY') && {
+        help: 'Set STRIPE_SECRET_KEY in Firebase Console: Functions → Configuration → Environment Variables'
+      })
+    });
+  }
+});
+
+/**
+ * Create Stripe Donation Session
+ */
+export const createDonationSession = functions.https.onRequest(async (req, res) => {
+  // Enable CORS
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  try {
+    const { amount, userId, email } = req.body;
+
+    if (!amount || amount < 1) {
+      res.status(400).json({ error: 'Amount must be at least $1' });
+      return;
+    }
+
+    const origin = req.get('origin') || 'https://complens-88a4f.web.app';
+
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Support CompLens',
+              description: 'Thank you for supporting CompLens development!',
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${origin}/pricing?success=true&type=donation`,
+      cancel_url: `${origin}/pricing?canceled=true`,
+      ...(userId && { client_reference_id: userId }),
+      metadata: {
+        type: 'donation',
+        ...(userId && { userId }),
+        ...(email && { email }),
+      },
+    });
+
+    res.json({ 
+      sessionId: session.id,
+      url: session.url 
+    });
+  } catch (error: any) {
+    console.error('❌ Stripe donation error:', error);
+    const errorMessage = error.message || 'Failed to create donation session';
+    const statusCode = errorMessage.includes('STRIPE_SECRET_KEY') ? 503 : 500;
+    res.status(statusCode).json({
+      error: errorMessage,
+      ...(errorMessage.includes('STRIPE_SECRET_KEY') && {
+        help: 'Set STRIPE_SECRET_KEY in Firebase Console: Functions → Configuration → Environment Variables'
+      })
+    });
+  }
+});
+
+/**
+ * Create Stripe Customer Billing Portal session
+ */
+export const createBillingPortalSession = functions.https.onRequest(async (req, res) => {
+  // Enable CORS
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  try {
+    const { customerId, returnPath = '/pricing' } = req.body || {};
+
+    if (!customerId || typeof customerId !== 'string' || !customerId.startsWith('cus_')) {
+      res.status(400).json({ error: 'Valid Stripe customerId (cus_...) is required' });
+      return;
+    }
+
+    const origin = req.get('origin') || 'https://complens-88a4f.web.app';
+    const normalizedReturnPath =
+      typeof returnPath === 'string' && returnPath.length > 0
+        ? (returnPath.startsWith('/') ? returnPath : `/${returnPath}`)
+        : '/pricing';
+
+    const stripe = getStripe();
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${origin}${normalizedReturnPath}`,
+    });
+
+    res.json({ url: session.url });
+  } catch (error: any) {
+    console.error('❌ Stripe billing portal error:', error);
+    const errorMessage = error.message || 'Failed to create billing portal session';
+    const statusCode = errorMessage.includes('STRIPE_SECRET_KEY') ? 503 : 500;
+    res.status(statusCode).json({
+      error: errorMessage,
+      ...(errorMessage.includes('STRIPE_SECRET_KEY') && {
+        help: 'Set STRIPE_SECRET_KEY in Firebase Console: Functions → Configuration → Environment Variables',
+      }),
+    });
+  }
+});
+
+/**
+ * Stripe Webhook Handler
+ * Note: Must preserve raw body for signature verification
+ */
+export const stripeWebhook = functions.runWith({
+  // Increase timeout for webhook processing
+  timeoutSeconds: 60,
+}).https.onRequest(async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  // Support multiple webhook secrets (Stripe may create multiple destinations).
+  // Provide as comma-separated values in STRIPE_WEBHOOK_SECRET:
+  //   STRIPE_WEBHOOK_SECRET=whsec_a,whsec_b
+  const webhookSecretValue =
+    (functions.config()?.stripe?.webhook_secret as string | undefined) ||
+    process.env.STRIPE_WEBHOOK_SECRET ||
+    '';
+  const webhookSecrets = webhookSecretValue
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const signature = req.get('stripe-signature');
+
+  if (!signature) {
+    res.status(400).json({ error: 'No signature' });
+    return;
+  }
+
+  let event: Stripe.Event | null = null;
+  try {
+    // For Firebase Functions v1, rawBody should be available
+    // If not, we'll need to configure the function differently
+    const body = (req as any).rawBody 
+      ? Buffer.from((req as any).rawBody).toString('utf8')
+      : JSON.stringify(req.body);
+    
+    const stripe = getStripe();
+
+    // Try each secret until one verifies.
+    let lastErr: any = null;
+    for (const secret of webhookSecrets) {
+      try {
+        event = stripe.webhooks.constructEvent(body, signature, secret);
+        lastErr = null;
+        break;
+      } catch (e: any) {
+        lastErr = e;
+      }
+    }
+
+    if (lastErr || !event) {
+      throw lastErr;
+    }
+  } catch (err: any) {
+    console.error('Webhook signature verification failed:', err.message);
+    res.status(400).json({ error: err.message });
+    return;
+  }
+
+  try {
+    if (event && event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const userId = session.metadata?.userId || session.client_reference_id;
+      const paymentType = session.metadata?.type || (session.mode === 'subscription' ? 'subscription' : 'donation');
+
+      if (paymentType === 'subscription' && userId) {
+        const userRef = admin.firestore().doc(`users/${userId}`);
+        await userRef.set({
+          subscription: {
+            status: 'active',
+            plan: 'pro',
+            stripeCustomerId: session.customer as string,
+            stripeSubscriptionId: session.subscription as string,
+            currentPeriodEnd: session.expires_at
+              ? new Date(session.expires_at * 1000).toISOString()
+              : undefined,
+          },
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+        console.log('✅ Subscription activated for user:', userId);
+      } else if (paymentType === 'donation') {
+        console.log('✅ Donation received:', {
+          amount: session.amount_total ? session.amount_total / 100 : 0,
+          userId: userId || 'anonymous',
+          email: session.customer_email,
+        });
+      }
+    }
+
+    if (event && event.type === 'customer.subscription.updated') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.userId;
+
+      if (userId) {
+        const userRef = admin.firestore().doc(`users/${userId}`);
+        const periodEnd = (subscription as any).current_period_end;
+        await userRef.update({
+          'subscription.status': subscription.status === 'active' ? 'active' : 'canceled',
+          'subscription.currentPeriodEnd': periodEnd
+            ? new Date(periodEnd * 1000).toISOString()
+            : undefined,
+          updatedAt: new Date().toISOString(),
+        });
+        console.log('✅ Subscription updated for user:', userId);
+      }
+    }
+
+    if (event && event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.userId;
+
+      if (userId) {
+        const userRef = admin.firestore().doc(`users/${userId}`);
+        await userRef.update({
+          'subscription.status': 'canceled',
+          updatedAt: new Date().toISOString(),
+        });
+        console.log('✅ Subscription canceled for user:', userId);
+      }
+    }
+
+    res.json({ received: true });
+  } catch (error: any) {
+    console.error('Error processing webhook:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+});
 

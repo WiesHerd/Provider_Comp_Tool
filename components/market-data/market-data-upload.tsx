@@ -44,8 +44,6 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
     setVariableMapping({});
     setShowMapping(false);
 
-    let needsMapping = false;
-    
     try {
       // First, try to extract variables for manual mapping
       const { variables } = await extractVariablesFromFile(file);
@@ -56,7 +54,6 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
         setUniqueVariables(variables);
         setShowMapping(true);
         setIsUploading(false);
-        needsMapping = true;
         return;
       }
 
@@ -79,7 +76,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       setUploadError(`Failed to parse file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
-      if (!needsMapping && fileInputRef.current) {
+      if (!showMapping && fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
@@ -113,8 +110,11 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
     }
   };
 
-  const handleConfirmImport = () => {
+  const handleConfirmImport = async () => {
     if (!previewData) return;
+
+    setIsUploading(true);
+    setUploadError(null);
 
     try {
       // Convert parsed data to SavedMarketData format
@@ -122,14 +122,15 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       
       if (savedData.length === 0) {
         setUploadError('No valid data to import. All rows have errors.');
+        setIsUploading(false);
         return;
       }
 
-      // Bulk save to localStorage
-      bulkSaveMarketData(savedData);
+      // Bulk save to Firebase (or localStorage fallback)
+      await bulkSaveMarketData(savedData);
 
-      // Verify the data was actually saved by checking localStorage
-      const allSavedData = loadAllMarketData();
+      // Verify the data was actually saved
+      const allSavedData = await loadAllMarketData();
       
       // Verify that at least some of our data was saved
       const savedIds = new Set(allSavedData.map(d => d.id));
@@ -137,7 +138,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       const actuallySaved = Array.from(expectedIds).filter(id => savedIds.has(id)).length;
       
       if (actuallySaved === 0 && savedData.length > 0) {
-        throw new Error('Data was not persisted to storage. Please check your browser\'s localStorage settings.');
+        throw new Error('Data was not persisted to storage. Please check your connection and try again.');
       }
 
       // Calculate stats
@@ -148,6 +149,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       setPreviewData(null);
       setParseErrors([]);
       setUploadError(null);
+      setIsUploading(false);
 
       // Callback to refresh parent
       if (onUploadComplete) {
@@ -157,6 +159,7 @@ export function MarketDataUpload({ onUploadComplete }: MarketDataUploadProps) {
       console.error('Error importing data:', error);
       setUploadError(`Failed to import data: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setUploadSuccess(null);
+      setIsUploading(false);
     }
   };
 

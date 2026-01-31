@@ -32,7 +32,7 @@ export function FormField({
       <Label htmlFor={id} className={cn(required && "after:content-['*'] after:ml-0.5 after:text-danger")}>
         {label}
       </Label>
-      {React.isValidElement(children) && React.cloneElement(children as React.ReactElement, {
+      {React.isValidElement(children) && React.cloneElement(children as React.ReactElement<any>, {
         id,
         'aria-describedby': describedBy,
         'aria-invalid': error ? true : undefined,

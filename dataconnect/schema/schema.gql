@@ -1,0 +1,57 @@
+type User @table {
+  email: String!
+  role: String!
+  createdAt: Timestamp!
+  firstName: String
+  lastName: String
+  photoUrl: String
+}
+
+type CompensationPlan @table {
+  name: String!
+  type: String!
+  description: String!
+  createdAt: Timestamp!
+  startDate: Date
+  endDate: Date
+}
+
+type PaymentSchedule @table {
+  compensationPlan: CompensationPlan!
+  frequency: String!
+  paymentDate: Date!
+  amountType: String!
+  createdAt: Timestamp!
+  fixedAmount: Float
+  percentage: Float
+}
+
+type ProviderCompensation @table {
+  user: User!
+  compensationPlan: CompensationPlan!
+  effectiveDate: Date!
+  createdAt: Timestamp!
+  endDate: Date
+  notes: String
+}
+
+type PerformanceMetric @table {
+  compensationPlan: CompensationPlan!
+  name: String!
+  targetValue: Float!
+  unit: String!
+  createdAt: Timestamp!
+  description: String
+  weight: Float
+}
+
+type PaymentTransaction @table {
+  user: User!
+  providerCompensation: ProviderCompensation!
+  amount: Float!
+  paymentDate: Timestamp!
+  status: String!
+  createdAt: Timestamp!
+  referenceNumber: String
+  notes: String
+}

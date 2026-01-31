@@ -11,6 +11,7 @@
   },
   "hosting": {
     "public": "out",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -18,12 +19,28 @@
     ],
     "rewrites": [
       {
-        "source": "/auth",
-        "destination": "/auth.html"
+        "source": "/api/create-checkout-session",
+        "function": "createCheckoutSession"
       },
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/api/create-donation-session",
+        "function": "createDonationSession"
+      },
+      {
+        "source": "/api/create-billing-portal-session",
+        "function": "createBillingPortalSession"
+      },
+      {
+        "source": "/api/webhooks/stripe",
+        "function": "stripeWebhook"
+      },
+      {
+        "source": "/pricing",
+        "destination": "/pricing.html"
+      },
+      {
+        "source": "/auth",
+        "destination": "/auth.html"
       }
     ],
     "headers": [

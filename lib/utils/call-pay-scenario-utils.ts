@@ -13,6 +13,7 @@ import { calculateCallBudget } from '@/lib/utils/call-pay-engine';
 import { mapCallPayStateToEngineInputs } from '@/lib/utils/call-pay-adapter';
 import { calculateExpectedBurden, calculateFairnessMetrics } from '@/lib/utils/burden-calculations';
 import { evaluateFMV } from '@/lib/utils/fmv-evaluator';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Create a CallScenario snapshot from current model state
@@ -41,7 +42,7 @@ export function createScenarioFromCurrentState(
     const burdenResults = calculateExpectedBurden(providers, engineInputs.assumptions);
     burdenSummary = calculateFairnessMetrics(burdenResults);
   } catch (error) {
-    console.warn('Error calculating burden summary:', error);
+    logger.warn('Error calculating burden summary:', error);
   }
   
   // Calculate FMV summary
@@ -63,7 +64,7 @@ export function createScenarioFromCurrentState(
       effectiveRatePer24h: budgetResult.effectivePer24h,
     };
   } catch (error) {
-    console.warn('Error calculating FMV summary:', error);
+    logger.warn('Error calculating FMV summary:', error);
   }
   
   const now = new Date().toISOString();

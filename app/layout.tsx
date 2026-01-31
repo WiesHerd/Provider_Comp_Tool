@@ -1,56 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import dynamicImport from "next/dynamic";
+import { ClientLayoutWrapper } from "@/components/layout/client-layout-wrapper";
 
 // Allow static export for Firebase Hosting
 // Use 'auto' to allow static export (default for static builds)
 export const dynamic = 'auto';
-
-const StoreInitializer = dynamicImport(
-  () => import("@/components/store-initializer").then((mod) => ({ default: mod.StoreInitializer })),
-  { ssr: false }
-);
-
-const WelcomeWalkthrough = dynamicImport(
-  () => import("@/components/layout/welcome-walkthrough").then((mod) => ({ default: mod.WelcomeWalkthrough })),
-  { ssr: false }
-);
-
-const AuthProvider = dynamicImport(
-  () => import("@/components/auth/auth-provider").then((mod) => ({ default: mod.AuthProvider })),
-  { ssr: false }
-);
-
-const RouteGuard = dynamicImport(
-  () => import("@/components/auth/route-guard").then((mod) => ({ default: mod.RouteGuard })),
-  { ssr: false }
-);
-
-const Header = dynamicImport(
-  () => import("@/components/layout/header").then((mod) => ({ default: mod.Header })),
-  { ssr: false }
-);
-
-const EmailVerificationBanner = dynamicImport(
-  () => import("@/components/auth/email-verification-banner").then((mod) => ({ default: mod.EmailVerificationBanner })),
-  { ssr: false }
-);
-
-const MainTabs = dynamicImport(
-  () => import("@/components/navigation/main-tabs").then((mod) => ({ default: mod.MainTabs })),
-  { ssr: false }
-);
-
-const ScreenGuideProvider = dynamicImport(
-  () => import("@/components/ui/screen-guide-provider").then((mod) => ({ default: mod.ScreenGuideProvider })),
-  { ssr: false }
-);
-
-const ErrorBoundary = dynamicImport(
-  () => import("@/components/error-boundary").then((mod) => ({ default: mod.ErrorBoundary })),
-  { ssr: false }
-);
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -114,24 +69,24 @@ export default function RootLayout({
                   };
                 }
               }
+              // Suppress harmless WebSocket errors from browser extensions (port 8081)
+              if (typeof window !== 'undefined' && window.console) {
+                const originalError = console.error;
+                console.error = function(...args) {
+                  const message = args.join(' ');
+                  // Filter out WebSocket connection errors to port 8081 (browser extensions)
+                  if (message.includes('WebSocket') && message.includes('8081')) {
+                    return; // Silently ignore
+                  }
+                  originalError.apply(console, args);
+                };
+              }
             `,
           }}
         />
-        <ErrorBoundary>
-          <AuthProvider>
-            <StoreInitializer />
-            <RouteGuard>
-              <ScreenGuideProvider>
-                <Header />
-                <EmailVerificationBanner />
-                <MainTabs>
-                  {children}
-                </MainTabs>
-                <WelcomeWalkthrough />
-              </ScreenGuideProvider>
-            </RouteGuard>
-          </AuthProvider>
-        </ErrorBoundary>
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   );

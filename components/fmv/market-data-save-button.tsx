@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MarketBenchmarks } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Save, Check } from 'lucide-react';
@@ -24,13 +24,24 @@ export function MarketDataSaveButton({
 }: MarketDataSaveButtonProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isAlreadySaved, setIsAlreadySaved] = useState(false);
 
   // Check if data is already saved
-  const isAlreadySaved = specialty && hasMarketData(specialty, metricType);
+  useEffect(() => {
+    if (specialty) {
+      const checkSaved = async () => {
+        const saved = await hasMarketData(specialty, metricType);
+        setIsAlreadySaved(saved);
+      };
+      checkSaved();
+    } else {
+      setIsAlreadySaved(false);
+    }
+  }, [specialty, metricType]);
 
   const hasData = Object.values(benchmarks).some(v => v !== undefined && v > 0);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!specialty.trim()) {
       alert('Please select or enter a specialty first');
       return;
@@ -42,8 +53,9 @@ export function MarketDataSaveButton({
     }
 
     setIsSaving(true);
-    saveMarketData(specialty.trim(), metricType, benchmarks);
+    await saveMarketData(specialty.trim(), metricType, benchmarks);
     setSaved(true);
+    setIsAlreadySaved(true);
     setIsSaving(false);
 
     // Notify parent to refresh saved specialties list

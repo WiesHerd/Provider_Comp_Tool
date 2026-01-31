@@ -73,7 +73,7 @@ export function ScreenGuideModal({
           onClick={handleClose}
         />
         <Dialog.Content 
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 max-w-lg w-[calc(100vw-2rem)] max-h-[min(calc(100vh-6rem),600px)] md:max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 max-w-lg w-[calc(100vw-2rem)] max-h-[min(calc(100vh-6rem),600px)] md:max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300 native-scrollbar"
           onPointerDownOutside={(e) => {
             e.preventDefault();
             handleClose();

@@ -5,6 +5,7 @@
  */
 
 import { ScenarioReportData, ScenarioComparisonReportData } from '@/types/report';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Export a single scenario report to PDF
@@ -19,7 +20,7 @@ export async function exportReportToPDF(
   const opt = {
     margin: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
     filename: filename,
-    image: { type: 'jpeg', quality: 0.98 },
+    image: { type: 'jpeg' as const, quality: 0.98 },
     html2canvas: { 
       scale: 2,
       useCORS: true,
@@ -28,15 +29,15 @@ export async function exportReportToPDF(
     jsPDF: { 
       unit: 'in', 
       format: 'letter', 
-      orientation: 'portrait',
+      orientation: 'portrait' as const,
     },
     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
   };
 
   try {
-    await html2pdf().set(opt as any).from(element).save();
+    await html2pdf().set(opt).from(element).save();
   } catch (error) {
-    console.error('Error exporting to PDF:', error);
+    logger.error('Error exporting to PDF:', error);
     throw new Error('Failed to export PDF. Please try again.');
   }
 }

@@ -72,24 +72,28 @@ export function ProviderComparisonPageContent() {
   useEffect(() => {
     if (!specialty || specialty === 'Other') return;
     
-    // Load wRVU data
-    const wrvuData = loadMarketData(specialty, 'wrvu');
-    // Load TCC data
-    const tccData = loadMarketData(specialty, 'tcc');
-    // Load CF data
-    const cfData = loadMarketData(specialty, 'cf');
+    // Load market data asynchronously
+    const loadData = async () => {
+      const [wrvuData, tccData, cfData] = await Promise.all([
+        loadMarketData(specialty, 'wrvu'),
+        loadMarketData(specialty, 'tcc'),
+        loadMarketData(specialty, 'cf'),
+      ]);
 
-    // Merge all loaded data
-    const loadedBenchmarks: MarketBenchmarks = {
-      ...(wrvuData || {}),
-      ...(tccData || {}),
-      ...(cfData || {}),
+      // Merge all loaded data
+      const loadedBenchmarks: MarketBenchmarks = {
+        ...(wrvuData || {}),
+        ...(tccData || {}),
+        ...(cfData || {}),
+      };
+
+      // Only update if we have some data
+      if (Object.keys(loadedBenchmarks).length > 0) {
+        setMarketBenchmarks(loadedBenchmarks);
+      }
     };
-
-    // Only update if we have some data
-    if (Object.keys(loadedBenchmarks).length > 0) {
-      setMarketBenchmarks(loadedBenchmarks);
-    }
+    
+    loadData();
   }, [specialty]);
 
   // Pre-fill name when dialog opens

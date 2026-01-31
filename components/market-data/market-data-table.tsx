@@ -20,14 +20,16 @@ interface MarketDataTableProps {
   onDataChange?: () => void;
 }
 
-export default function MarketDataTable({ onDataChange }: MarketDataTableProps) {
+export default function MarketDataTable({ onDataChange }: MarketDataTableProps) { 
   const [allData, setAllData] = useState<SavedMarketData[]>([]);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Load data client-side only to avoid hydration mismatch
+  
+  // Load market data on mount
   useEffect(() => {
-    setIsMounted(true);
-    setAllData(loadAllMarketData());
+    const loadData = async () => {
+      const data = await loadAllMarketData();
+      setAllData(data);
+    };
+    loadData();
   }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMetricType, setFilterMetricType] = useState<'all' | 'tcc' | 'wrvu' | 'cf'>('all');
@@ -78,13 +80,14 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
     });
   }, [allData, searchTerm, filterMetricType, filterSpecialty, filterRegion]);
 
-  const handleDelete = (specialty: string, metricType: 'tcc' | 'wrvu' | 'cf', geographicRegion?: string) => {
+  const handleDelete = async (specialty: string, metricType: 'tcc' | 'wrvu' | 'cf', geographicRegion?: string) => {
     const regionText = geographicRegion ? ` (${geographicRegion})` : '';
     if (confirm(`Delete market data for ${specialty} - ${metricType.toUpperCase()}${regionText}?`)) {
       try {
-        deleteMarketData(specialty, metricType, geographicRegion);
+        await deleteMarketData(specialty, metricType, geographicRegion);
         // Reload data
-        setAllData(loadAllMarketData());
+        const data = await loadAllMarketData();
+        setAllData(data);
         if (onDataChange) {
           onDataChange();
         }
@@ -95,7 +98,7 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
     }
   };
 
-  const handleDeleteAll = () => {
+  const handleDeleteAll = async () => {
     const count = allData.length;
     if (count === 0) {
       alert('No market data to delete.');
@@ -104,9 +107,10 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
     
     if (confirm(`Delete ALL market data? This will remove ${count} record${count !== 1 ? 's' : ''} and cannot be undone.`)) {
       try {
-        deleteAllMarketData();
+        await deleteAllMarketData();
         // Reload data
-        setAllData(loadAllMarketData());
+        const data = await loadAllMarketData();
+        setAllData(data);
         if (onDataChange) {
           onDataChange();
         }
@@ -243,7 +247,7 @@ export default function MarketDataTable({ onDataChange }: MarketDataTableProps) 
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-              Market Data {isMounted ? `(${filteredData.length} record${filteredData.length !== 1 ? 's' : ''})` : '(loading...)'}
+              Market Data ({filteredData.length} record{filteredData.length !== 1 ? 's' : ''})
             </CardTitle>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               View and manage saved market benchmark data by specialty

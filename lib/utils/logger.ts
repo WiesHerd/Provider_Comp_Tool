@@ -1,6 +1,8 @@
 /**
  * Centralized logging utility
- * Only logs in development mode to avoid console noise in production
+ * 
+ * Logs in development mode to console. In production, errors are still logged
+ * to console but can be integrated with error tracking services.
  */
 
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -13,18 +15,22 @@ export const logger = {
   },
 
   error: (...args: unknown[]) => {
-    // Always log errors, but could integrate with error tracking service
-    if (isDevelopment) {
-      console.error(...args);
-    }
+    // Always log errors (even in production) for debugging
+    console.error(...args);
+    
     // TODO: Integrate with error tracking service (Sentry, LogRocket, etc.)
-    // errorTrackingService.captureException(...args);
+    // In production, you might want to send errors to a tracking service:
+    // if (!isDevelopment && typeof window !== 'undefined') {
+    //   errorTrackingService.captureException(...args);
+    // }
   },
 
   warn: (...args: unknown[]) => {
     if (isDevelopment) {
       console.warn(...args);
     }
+    // Optionally log warnings in production for critical issues
+    // console.warn(...args);
   },
 
   debug: (...args: unknown[]) => {

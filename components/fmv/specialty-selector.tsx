@@ -77,8 +77,11 @@ export function SpecialtySelector({
 
   // Load saved specialties on mount
   useEffect(() => {
-    const saved = getSavedSpecialties(metricType);
-    setSavedSpecialties(saved);
+    const loadSpecialties = async () => {
+      const saved = await getSavedSpecialties(metricType);
+      setSavedSpecialties(saved);
+    };
+    loadSpecialties();
   }, [metricType]);
 
   // Check if current specialty has saved data and auto-load
@@ -90,32 +93,35 @@ export function SpecialtySelector({
     
     const currentSpecialty = specialty === 'Other' ? customSpecialty : specialty;
     if (currentSpecialty) {
-      const saved = hasMarketData(currentSpecialty, metricType);
-      setIsSaved(saved);
-      
-      // Auto-load if saved
-      if (saved) {
-        const loaded = loadMarketData(currentSpecialty, metricType);
-        if (loaded) {
-          onBenchmarksChange(loaded);
+      const checkAndLoad = async () => {
+        const saved = await hasMarketData(currentSpecialty, metricType);
+        setIsSaved(saved);
+        
+        // Auto-load if saved
+        if (saved) {
+          const loaded = await loadMarketData(currentSpecialty, metricType);
+          if (loaded) {
+            onBenchmarksChange(loaded);
+          }
         }
-      }
+      };
+      checkAndLoad();
     } else {
       setIsSaved(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [specialty, customSpecialty, metricType]);
 
-  const handleSpecialtyChange = (value: string) => {
+  const handleSpecialtyChange = async (value: string) => {
     setSpecialty(value);
     setCustomSpecialty('');
     
     // Auto-load if saved
     if (value && value !== 'Other') {
-      const saved = hasMarketData(value, metricType);
+      const saved = await hasMarketData(value, metricType);
       setIsSaved(saved);
       if (saved) {
-        const loaded = loadMarketData(value, metricType);
+        const loaded = await loadMarketData(value, metricType);
         if (loaded) {
           onBenchmarksChange(loaded);
         }
@@ -128,7 +134,7 @@ export function SpecialtySelector({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const currentSpecialty = specialty === 'Other' ? customSpecialty.trim() : specialty;
     if (!currentSpecialty) {
       alert('Please select or enter a specialty');
@@ -140,11 +146,11 @@ export function SpecialtySelector({
       return;
     }
     
-    saveMarketData(currentSpecialty, metricType, benchmarks);
+    await saveMarketData(currentSpecialty, metricType, benchmarks);
     setIsSaved(true);
     
     // Update saved specialties list
-    const saved = getSavedSpecialties(metricType);
+    const saved = await getSavedSpecialties(metricType);
     setSavedSpecialties(saved);
     
     // Show brief success feedback (could be replaced with toast)
@@ -160,25 +166,25 @@ export function SpecialtySelector({
     }
   };
 
-  const handleLoad = (selectedSpecialty: string) => {
+  const handleLoad = async (selectedSpecialty: string) => {
     setSpecialty(selectedSpecialty);
     setCustomSpecialty('');
-    const loaded = loadMarketData(selectedSpecialty, metricType);
+    const loaded = await loadMarketData(selectedSpecialty, metricType);
     if (loaded) {
       onBenchmarksChange(loaded);
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const currentSpecialty = specialty === 'Other' ? customSpecialty : specialty;
     if (!currentSpecialty) return;
     
     if (confirm(`Delete saved market data for ${currentSpecialty}?`)) {
-      deleteMarketData(currentSpecialty, metricType);
+      await deleteMarketData(currentSpecialty, metricType);
       setIsSaved(false);
       
       // Update saved specialties list
-      const saved = getSavedSpecialties(metricType);
+      const saved = await getSavedSpecialties(metricType);
       setSavedSpecialties(saved);
       
       // Clear specialty if it was deleted

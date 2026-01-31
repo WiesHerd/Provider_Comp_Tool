@@ -1,139 +1,83 @@
 'use client';
 
 import { MarketBenchmarks } from '@/types';
-import { CurrencyInput } from '@/components/ui/currency-input';
-import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
-import { DollarSign, Activity } from 'lucide-react';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 interface BenchmarkInputsProps {
   benchmarks: MarketBenchmarks;
   onBenchmarksChange: (benchmarks: MarketBenchmarks) => void;
-  type: 'tcc' | 'cf' | 'wrvu';
+  type: 'wrvu' | 'tcc' | 'cf';
 }
 
-export function BenchmarkInputs({ benchmarks, onBenchmarksChange, type }: BenchmarkInputsProps) {
-  const isCurrency = type === 'tcc' || type === 'cf';
-  const isTCC = type === 'tcc';
-  const isCF = type === 'cf';
-
-  const updateBenchmark = (key: keyof MarketBenchmarks, value: number) => {
-    // Always update the value, even if 0 (to allow clearing)
-    // The parent component will check if values > 0 for enabling buttons
-    if (!isNaN(value) && value >= 0) {
-      onBenchmarksChange({ ...benchmarks, [key]: value });
-    }
-  };
-
+export function BenchmarkInputs({
+  benchmarks,
+  onBenchmarksChange,
+  type,
+}: BenchmarkInputsProps) {
   const getLabel = () => {
-    if (type === 'tcc') return 'TCC Benchmarks';
-    if (type === 'cf') return 'CF Benchmarks';
-    return 'wRVU Benchmarks';
+    switch (type) {
+      case 'wrvu':
+        return 'wRVU';
+      case 'tcc':
+        return 'TCC';
+      case 'cf':
+        return 'CF';
+    }
   };
 
-  const getPlaceholder = (percentile: '25' | '50' | '75' | '90') => {
-    if (isTCC) {
-      const examples = { '25': '100000', '50': '150000', '75': '200000', '90': '300000' };
-      return examples[percentile];
-    }
-    if (isCF) {
-      const examples = { '25': '30.00', '50': '40.00', '75': '50.00', '90': '70.00' };
-      return examples[percentile];
-    }
-    return '';
+  const getValue = (percentile: '25' | '50' | '75' | '90') => {
+    const key = `${type}${percentile}` as keyof MarketBenchmarks;
+    return benchmarks[key] ?? 0;
   };
+
+  const setValue = (percentile: '25' | '50' | '75' | '90', value: number) => {
+    const key = `${type}${percentile}` as keyof MarketBenchmarks;
+    onBenchmarksChange({
+      ...benchmarks,
+      [key]: value,
+    });
+  };
+
+  const label = getLabel();
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
-        <Label className="text-base font-semibold mb-0">{getLabel()}</Label>
-      </div>
-
-      <div className="p-4 space-y-4 bg-white dark:bg-gray-900">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">25th Percentile</Label>
-              {isCurrency ? (
-                <CurrencyInput
-                  value={benchmarks[`${type}25` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}25` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('25')}
-                  showDecimals={isCF}
-                  prefix=""
-                  icon={<DollarSign className="w-5 h-5" />}
-                />
-              ) : (
-                <NumberInput
-                  value={benchmarks[`${type}25` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}25` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('25')}
-                  icon={<Activity className="w-5 h-5" />}
-                />
-              )}
-            </div>
-            <div>
-              <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">50th Percentile</Label>
-              {isCurrency ? (
-                <CurrencyInput
-                  value={benchmarks[`${type}50` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}50` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('50')}
-                  showDecimals={isCF}
-                  prefix=""
-                  icon={<DollarSign className="w-5 h-5" />}
-                />
-              ) : (
-                <NumberInput
-                  value={benchmarks[`${type}50` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}50` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('50')}
-                  icon={<Activity className="w-5 h-5" />}
-                />
-              )}
-            </div>
-            <div>
-              <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">75th Percentile</Label>
-              {isCurrency ? (
-                <CurrencyInput
-                  value={benchmarks[`${type}75` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}75` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('75')}
-                  showDecimals={isCF}
-                  prefix=""
-                  icon={<DollarSign className="w-5 h-5" />}
-                />
-              ) : (
-                <NumberInput
-                  value={benchmarks[`${type}75` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}75` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('75')}
-                  icon={<Activity className="w-5 h-5" />}
-                />
-              )}
-            </div>
-            <div>
-              <Label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">90th Percentile</Label>
-              {isCurrency ? (
-                <CurrencyInput
-                  value={benchmarks[`${type}90` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}90` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('90')}
-                  showDecimals={isCF}
-                  prefix=""
-                  icon={<DollarSign className="w-5 h-5" />}
-                />
-              ) : (
-                <NumberInput
-                  value={benchmarks[`${type}90` as keyof MarketBenchmarks] as number}
-                  onChange={(value) => updateBenchmark(`${type}90` as keyof MarketBenchmarks, value)}
-                  placeholder={getPlaceholder('90')}
-                  icon={<Activity className="w-5 h-5" />}
-                />
-              )}
-            </div>
-          </div>
+    <div className="space-y-3">
+      <Label className="text-sm font-semibold">{label} Percentiles</Label>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">25th</Label>
+          <CurrencyInput
+            value={getValue('25')}
+            onChange={(value) => setValue('25', value)}
+            placeholder="0"
+          />
         </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">50th (Median)</Label>
+          <CurrencyInput
+            value={getValue('50')}
+            onChange={(value) => setValue('50', value)}
+            placeholder="0"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">75th</Label>
+          <CurrencyInput
+            value={getValue('75')}
+            onChange={(value) => setValue('75', value)}
+            placeholder="0"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">90th</Label>
+          <CurrencyInput
+            value={getValue('90')}
+            onChange={(value) => setValue('90', value)}
+            placeholder="0"
+          />
+        </div>
+      </div>
     </div>
   );
 }
-

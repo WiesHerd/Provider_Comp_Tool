@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useDebouncedLocalStorage } from '@/hooks/use-debounced-local-storage';
+import { loadDraftState, saveDraftState, DRAFT_SCREEN_IDS } from '@/lib/utils/draft-state-storage';
 import { ProviderRecord, InternalPercentiles, BlendedBenchmarks, CFRecommendation } from '@/types/internal-benchmark';
 import { MarketBenchmarks } from '@/types';
 import { SpecialtyInput } from '@/components/fmv/specialty-input';
@@ -28,6 +29,7 @@ import {
 import { BarChart3 } from 'lucide-react';
 
 const STORAGE_KEY = 'internalBenchmarkEngineDraftState';
+const SCREEN_ID = DRAFT_SCREEN_IDS.INTERNAL_BENCHMARK;
 
 export function InternalBenchmarkEngine() {
   const [specialty, setSpecialty] = useState<string>('');
@@ -53,34 +55,48 @@ export function InternalBenchmarkEngine() {
     marketBenchmarks,
     blendedBenchmarks,
   };
+  
+  // Save to unified storage (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      void saveDraftState(SCREEN_ID, STORAGE_KEY, draftState);
+    }, 1000); // 1 second debounce
+    
+    return () => clearTimeout(timeoutId);
+  }, [draftState]);
+  
+  // Also save to localStorage as immediate backup
   useDebouncedLocalStorage(STORAGE_KEY, draftState);
 
   // Load draft state on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    try {
-      const savedDraft = localStorage.getItem(STORAGE_KEY);
-      if (savedDraft) {
-        const draft = JSON.parse(savedDraft);
-        setSpecialty(draft.specialty || '');
-        setModelYear(draft.modelYear || new Date().getFullYear());
-        setRecords(draft.records || [
-          {
-            id: 'record-1',
-            name: '',
-            fte: 1.0,
-            wrvus: 0,
-            tcc: 0,
-            notes: '',
-          },
-        ]);
-        setMarketBenchmarks(draft.marketBenchmarks || {});
-        setBlendedBenchmarks(draft.blendedBenchmarks || null);
+    const loadDraft = async () => {
+      try {
+        const draft = await loadDraftState(SCREEN_ID, STORAGE_KEY);
+        if (draft) {
+          setSpecialty(draft.specialty || '');
+          setModelYear(draft.modelYear || new Date().getFullYear());
+          setRecords(draft.records || [
+            {
+              id: 'record-1',
+              name: '',
+              fte: 1.0,
+              wrvus: 0,
+              tcc: 0,
+              notes: '',
+            },
+          ]);
+          setMarketBenchmarks(draft.marketBenchmarks || {});
+          setBlendedBenchmarks(draft.blendedBenchmarks || null);
+        }
+      } catch (error) {
+        console.error('Error loading draft state:', error);
       }
-    } catch (error) {
-      console.error('Error loading draft state:', error);
-    }
+    };
+    
+    void loadDraft();
   }, []);
 
   // Calculate internal percentiles

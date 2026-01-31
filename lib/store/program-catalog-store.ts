@@ -33,15 +33,15 @@ export const useProgramCatalogStore = create<ProgramCatalogState>()((set, get) =
   programs: [],
   shiftTypes: [],
   
-  loadInitialData: () => {
-    const catalog = loadProgramCatalog();
+  loadInitialData: async () => {
+    const catalog = await loadProgramCatalog();
     set({
       programs: catalog.programs.filter(p => !p.isDeleted),
       shiftTypes: catalog.shiftTypes.filter(st => !st.isDeleted),
     });
   },
   
-  addShiftType: (shiftType: ShiftType) => {
+  addShiftType: async (shiftType: ShiftType) => {
     const now = new Date().toISOString();
     const newShiftType: ShiftType = {
       ...shiftType,
@@ -50,29 +50,27 @@ export const useProgramCatalogStore = create<ProgramCatalogState>()((set, get) =
       isDeleted: false,
     };
     
-    set((state) => {
-      const updated = [...state.shiftTypes, newShiftType];
-      saveProgramCatalog({
-        programs: state.programs,
-        shiftTypes: updated,
-      });
-      return { shiftTypes: updated };
+    const state = get();
+    const updated = [...state.shiftTypes, newShiftType];
+    await saveProgramCatalog({
+      programs: state.programs,
+      shiftTypes: updated,
     });
+    set({ shiftTypes: updated });
   },
   
-  updateShiftType: (id: string, updates: Partial<ShiftType>) => {
-    set((state) => {
-      const updated = state.shiftTypes.map(st =>
-        st.id === id
-          ? { ...st, ...updates, updatedAt: new Date().toISOString() }
-          : st
-      );
-      saveProgramCatalog({
-        programs: state.programs,
-        shiftTypes: updated,
-      });
-      return { shiftTypes: updated };
+  updateShiftType: async (id: string, updates: Partial<ShiftType>) => {
+    const state = get();
+    const updated = state.shiftTypes.map(st =>
+      st.id === id
+        ? { ...st, ...updates, updatedAt: new Date().toISOString() }
+        : st
+    );
+    await saveProgramCatalog({
+      programs: state.programs,
+      shiftTypes: updated,
     });
+    set({ shiftTypes: updated });
   },
   
   deleteShiftType: (id: string) => {
@@ -83,7 +81,7 @@ export const useProgramCatalogStore = create<ProgramCatalogState>()((set, get) =
     return get().shiftTypes.find(st => st.id === id && !st.isDeleted);
   },
   
-  addProgram: (program: CallProgram) => {
+  addProgram: async (program: CallProgram) => {
     const now = new Date().toISOString();
     const newProgram: CallProgram = {
       ...program,
@@ -92,29 +90,27 @@ export const useProgramCatalogStore = create<ProgramCatalogState>()((set, get) =
       isDeleted: false,
     };
     
-    set((state) => {
-      const updated = [...state.programs, newProgram];
-      saveProgramCatalog({
-        programs: updated,
-        shiftTypes: state.shiftTypes,
-      });
-      return { programs: updated };
+    const state = get();
+    const updated = [...state.programs, newProgram];
+    await saveProgramCatalog({
+      programs: updated,
+      shiftTypes: state.shiftTypes,
     });
+    set({ programs: updated });
   },
   
-  updateProgram: (id: string, updates: Partial<CallProgram>) => {
-    set((state) => {
-      const updated = state.programs.map(p =>
-        p.id === id
-          ? { ...p, ...updates, updatedAt: new Date().toISOString() }
-          : p
-      );
-      saveProgramCatalog({
-        programs: updated,
-        shiftTypes: state.shiftTypes,
-      });
-      return { programs: updated };
+  updateProgram: async (id: string, updates: Partial<CallProgram>) => {
+    const state = get();
+    const updated = state.programs.map(p =>
+      p.id === id
+        ? { ...p, ...updates, updatedAt: new Date().toISOString() }
+        : p
+    );
+    await saveProgramCatalog({
+      programs: updated,
+      shiftTypes: state.shiftTypes,
     });
+    set({ programs: updated });
   },
   
   deleteProgram: (id: string) => {

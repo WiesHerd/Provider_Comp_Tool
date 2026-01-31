@@ -179,5 +179,42 @@
     }
   }
 
+  /* Apple-style native scrollbars for modals */
+  .native-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+  }
+
+  .native-scrollbar:hover {
+    scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+  }
+
+  .native-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .native-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .native-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.4);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+
+  .native-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.6);
+  }
+
+  .dark .native-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.4);
+  }
+
+  .dark .native-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(75, 85, 99, 0.6);
+  }
+
 }
 

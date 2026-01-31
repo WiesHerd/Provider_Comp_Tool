@@ -30,6 +30,15 @@ export function MainTabs({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
+  // Don't show tabs on auth page - just render children.
+  // In static export + client-only layout, `usePathname()` can be briefly undefined on first paint,
+  // so fall back to window.location.pathname to avoid rendering tabs then removing them (React #300).
+  const currentPath =
+    pathname || (typeof window !== 'undefined' ? window.location.pathname : '');
+  if (currentPath === '/auth' || currentPath === '/auth.html') {
+    return <>{children}</>;
+  }
+
   // Safe pathname check for SSR - ensure consistent initial render
   const activeTab = mounted && pathname 
     ? (tabs.find(tab => {

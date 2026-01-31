@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
-import { X, ArrowRight, ArrowLeft, Sparkles, Calculator, TrendingUp, Phone, Navigation } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Sparkles, Calculator, TrendingUp, Phone, Navigation, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { parseDescription } from '@/lib/utils/text-parser';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { useTrialStatus } from '@/hooks/use-trial-status';
 
 interface WalkthroughStep {
   id: string;
@@ -14,11 +16,24 @@ interface WalkthroughStep {
   icon?: React.ReactNode;
 }
 
+// Get trial days from env or default to 14
+const TRIAL_DAYS = parseInt(process.env.NEXT_PUBLIC_TRIAL_DAYS || '14', 10);
+
+const getWelcomeDescription = (daysRemaining: number, isTrialActive: boolean): string => {
+  const baseDescription = 'CompLens is your comprehensive tool for provider compensation modeling and FMV (Fair Market Value) analysis. Whether you\'re planning compensation structures, analyzing market benchmarks, or modeling call pay scenarios, CompLens helps you make informed decisions.';
+  
+  if (isTrialActive) {
+    return `${baseDescription}\n\n🎉 **You're on a ${TRIAL_DAYS}-day free trial!** You have ${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} to explore all features. No credit card required. Upgrade anytime to continue after your trial ends.`;
+  }
+  
+  return baseDescription;
+};
+
 const WALKTHROUGH_STEPS: WalkthroughStep[] = [
   {
     id: 'step1',
     title: 'Welcome to CompLens™',
-    description: 'CompLens is your comprehensive tool for provider compensation modeling and FMV (Fair Market Value) analysis. Whether you\'re planning compensation structures, analyzing market benchmarks, or modeling call pay scenarios, CompLens helps you make informed decisions.',
+    description: '', // Will be set dynamically
     icon: <Sparkles className="w-6 h-6 text-primary" />,
   },
   {
@@ -56,6 +71,8 @@ interface WelcomeWalkthroughProps {
 export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: WelcomeWalkthroughProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const { user, loading, initialized } = useAuthStore();
+  const { isTrialActive, daysRemaining } = useTrialStatus();
 
   // Handle on-demand opening
   useEffect(() => {
@@ -71,11 +88,23 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
   };
 
   useEffect(() => {
+    // CRITICAL: Only show walkthrough if user is authenticated
+    // Don't show if still loading, not initialized, or no user
+    if (loading || !initialized || !user) {
+      return;
+    }
+    
     // Check if user has seen walkthrough before
     if (typeof window === 'undefined') return;
     
     // Don't auto-show if it's being controlled externally
     if (openOnDemand !== undefined) return;
+    
+    // IMPORTANT: Only show walkthrough if user is authenticated
+    // Check if we're on the auth page - if so, don't show walkthrough
+    if (window.location.pathname === '/auth') {
+      return;
+    }
     
     const seen = localStorage.getItem('complens-welcome-seen');
     if (!seen) {
@@ -85,7 +114,7 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [openOnDemand]);
+  }, [openOnDemand, user, loading, initialized]);
 
   // Listen for custom event to show walkthrough on-demand
   useEffect(() => {
@@ -129,9 +158,25 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
     handleComplete();
   };
 
-  const currentStepData = WALKTHROUGH_STEPS[currentStep];
+  // Get dynamic description for first step based on trial status
+  const stepsWithTrialInfo = WALKTHROUGH_STEPS.map((step, index) => {
+    if (index === 0) {
+      return {
+        ...step,
+        description: getWelcomeDescription(daysRemaining, isTrialActive)
+      };
+    }
+    return step;
+  });
+
+  const currentStepData = stepsWithTrialInfo[currentStep];
   const isLastStep = currentStep === WALKTHROUGH_STEPS.length - 1;
   const isFirstStep = currentStep === 0;
+
+  // CRITICAL: Don't render walkthrough if user is not authenticated
+  if (!user || loading || !initialized) {
+    return null;
+  }
 
   // Always render the dialog so it can be triggered on-demand
   // Only skip rendering if we're not open and it's the initial auto-show (not on-demand)
@@ -150,7 +195,7 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
           onClick={handleSkip}
         />
         <Dialog.Content 
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 md:p-8 max-w-lg w-[calc(100vw-2rem)] max-h-[min(calc(100vh-6rem),600px)] md:max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 md:p-8 max-w-lg w-[calc(100vw-2rem)] max-h-[min(calc(100vh-6rem),600px)] md:max-h-[85vh] overflow-y-auto z-[101] shadow-2xl animate-in fade-in zoom-in-95 duration-300 native-scrollbar"
           onPointerDownOutside={(e) => {
             e.preventDefault();
             handleSkip();
@@ -202,6 +247,21 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
             <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed space-y-2">
               {parseDescription(currentStepData.description)}
             </div>
+            {/* Trial info badge on first step */}
+            {currentStep === 0 && isTrialActive && (
+              <div className={cn(
+                "inline-flex items-center gap-2 px-3 py-2 rounded-lg border",
+                "bg-purple-50 dark:bg-purple-900/20",
+                "border-purple-200 dark:border-purple-800",
+                "text-purple-800 dark:text-purple-200",
+                "mt-3"
+              )}>
+                <Clock className="w-4 h-4" />
+                <span className="text-xs font-medium">
+                  {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left in your free trial
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Step Indicators */}
@@ -241,14 +301,6 @@ export function WelcomeWalkthrough({ onComplete, openOnDemand, onOpenChange }: W
             </Button>
           </div>
 
-          {/* Disclaimer */}
-          {isLastStep && (
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-xs text-gray-500 dark:text-gray-400 italic text-center">
-                <strong className="text-gray-700 dark:text-gray-300">Note:</strong> For planning and analysis purposes only. Not a substitute for formal FMV opinions, legal review, or regulatory compliance verification.
-              </p>
-            </div>
-          )}
 
           {/* Skip link */}
           <div className="text-center mt-4">

@@ -24,32 +24,45 @@ export const useUserPreferencesStore = create<UserPreferencesState>()((set, get)
   
   setActiveProgram: (programId: string | null) => {
     set({ activeProgramId: programId });
-    // Auto-save preferences
+    // Auto-save preferences (async, fire and forget)
     const prefs = {
       activeProgramId: programId,
       modelingMode: get().modelingMode,
     };
-    saveUserPrefs(prefs);
+    void saveUserPrefs(prefs);
   },
   
   setModelingMode: (mode: ModelingMode) => {
     set({ modelingMode: mode });
-    // Auto-save preferences
+    // Auto-save preferences (async, fire and forget)
     const prefs = {
       activeProgramId: get().activeProgramId,
       modelingMode: mode,
     };
-    saveUserPrefs(prefs);
+    void saveUserPrefs(prefs);
   },
   
-  loadPreferences: () => {
-    const prefs = loadUserPrefs();
+  loadPreferences: async () => {
+    const prefs = await loadUserPrefs();
     set({
       activeProgramId: prefs.activeProgramId,
       modelingMode: prefs.modelingMode,
     });
   },
 }));
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -19,6 +19,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
+  const debug = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -89,54 +90,61 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
       // Validate email
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         setEmailError('Please enter a valid email address');
+        setIsSubmitting(false);
         return;
       }
 
       // Validate password
       if (!password) {
         setPasswordError('Password is required');
+        setIsSubmitting(false);
         return;
       }
 
       const passwordValidation = validatePassword(password);
       if (!passwordValidation.isValid) {
         setPasswordError(passwordValidation.errors[0] || 'Password does not meet requirements');
+        setIsSubmitting(false);
         return;
       }
 
       // Validate password confirmation
       if (!confirmPassword) {
         setConfirmPasswordError('Please confirm your password');
+        setIsSubmitting(false);
         return;
       }
 
       if (!passwordsMatch(password, confirmPassword)) {
         setConfirmPasswordError('Passwords do not match');
+        setIsSubmitting(false);
         return;
       }
     } else {
       // Sign-in validation
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         setEmailError('Please enter a valid email address');
+        setIsSubmitting(false);
         return;
       }
 
       if (!password) {
         setPasswordError('Password is required');
+        setIsSubmitting(false);
         return;
       }
     }
 
     try {
       if (isSignUp) {
-        console.log('🔄 Starting sign-up process...', { email, passwordLength: password.length });
+        if (debug) console.log('🔄 Starting sign-up process...', { email, passwordLength: password.length });
         try {
           const user = await register(email, password);
-          console.log('✅ Register function returned:', user);
+          if (debug) console.log('✅ Register function returned:', user);
           setIsSubmitting(false);
           
           if (user && user.uid) {
-            console.log('✅ Sign-up successful! User created:', user.uid, user.email);
+            if (debug) console.log('✅ Sign-up successful! User created:', user.uid, user.email);
             
             // Store created user info for success modal
             setCreatedUser({
@@ -151,16 +159,18 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
             setSuccess(`✅ Account created successfully! Check your email for verification.`);
             
             // Verify user is actually in Firebase by checking auth state
-            console.log('🔍 Verifying user in Firebase Auth...');
+            if (debug) console.log('🔍 Verifying user in Firebase Auth...');
             const { auth } = await import('@/lib/firebase/config');
             if (auth?.currentUser) {
-              console.log('✅ Confirmed: User is in Firebase Auth:', auth.currentUser.uid);
-              console.log('✅ User stored in Firebase Authentication database');
+              if (debug) {
+                console.log('✅ Confirmed: User is in Firebase Auth:', auth.currentUser.uid);
+                console.log('✅ User stored in Firebase Authentication database');
+              }
             } else {
-              console.warn('⚠️ Warning: User not found in auth.currentUser immediately after sign-up');
+              if (debug) console.warn('⚠️ Warning: User not found in auth.currentUser immediately after sign-up');
             }
           } else {
-            console.error('❌ ERROR: Register returned invalid user object:', user);
+            if (debug) console.error('❌ ERROR: Register returned invalid user object:', user);
             setError('Account creation failed: Invalid user object returned. Please try again.');
           }
           
@@ -170,7 +180,7 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
             setConfirmPassword('');
           }, 3000);
         } catch (registerError: any) {
-          console.error('❌ Register function threw error:', registerError);
+          if (debug) console.error('❌ Register function threw error:', registerError);
           throw registerError; // Re-throw to be caught by outer catch
         }
       } else {
@@ -187,11 +197,13 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
         onSuccess?.();
       }
     } catch (err: any) {
-      // Log the full error for debugging - ALWAYS log in production
-      console.error('❌ SIGN-UP/LOGIN ERROR:', err);
-      console.error('❌ Error code:', err.code);
-      console.error('❌ Error message:', err.message);
-      console.error('❌ Full error object:', JSON.stringify(err, null, 2));
+      // Keep noisy debugging logs out of production.
+      if (debug) {
+        console.error('❌ SIGN-UP/LOGIN ERROR:', err);
+        console.error('❌ Error code:', err.code);
+        console.error('❌ Error message:', err.message);
+        console.error('❌ Full error object:', JSON.stringify(err, null, 2));
+      }
       
       // Handle Firebase auth errors with user-friendly messages
       let errorMessage = 'An error occurred. Please try again.';
@@ -203,10 +215,15 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
         errorMessage = 'Firebase Authentication is not configured. Please check your Firebase settings.';
       }
       
-      if (err.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email address. Please sign up or check your email.';
-      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        errorMessage = 'Incorrect password. Please try again or reset your password.';
+      // For security (avoid account enumeration) and clarity, treat "bad credentials" the same.
+      // Firebase may return different codes depending on configuration/version.
+      if (
+        err.code === 'auth/user-not-found' ||
+        err.code === 'auth/wrong-password' ||
+        err.code === 'auth/invalid-credential' ||
+        err.code === 'auth/invalid-login-credentials'
+      ) {
+        errorMessage = 'Incorrect email or password. Please try again.';
       } else if (err.code === 'auth/email-already-in-use') {
         errorMessage = 'An account with this email already exists. Please sign in instead.';
       } else if (err.code === 'auth/weak-password') {
@@ -230,7 +247,7 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
         errorMessage = `Sign-up failed${err.code ? ` (${err.code})` : ''}. Please check the browser console for details.`;
       }
       
-      console.error('❌ Setting error message in UI:', errorMessage);
+      if (debug) console.error('❌ Setting error message in UI:', errorMessage);
       setError(errorMessage);
       setIsSubmitting(false);
       
@@ -324,7 +341,7 @@ export function LoginForm({ onSuccess, showSignUp = false }: LoginFormProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
-          <Alert variant="destructive" className="shadow-lg">
+          <Alert variant="destructive" className="shadow-lg" role="alert" aria-live="polite">
             <AlertDescription className="font-medium">{error}</AlertDescription>
           </Alert>
         )}

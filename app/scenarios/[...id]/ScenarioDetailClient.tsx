@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Trash2, Activity } from 'lucide-react';
 
-export default function ScenarioDetailPage() {
+export default function ScenarioDetailClient() {
   const params = useParams();
   const router = useRouter();
   const { getScenario, saveScenario, updateScenario, deleteScenario } = useScenariosStore();
@@ -36,8 +36,10 @@ export default function ScenarioDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
-    if (params.id && typeof params.id === 'string') {
-      const loaded = getScenario(params.id);
+    // Handle catch-all route - id is an array
+    const scenarioId = Array.isArray(params.id) ? params.id[0] : (params.id as string);
+    if (scenarioId && typeof scenarioId === 'string') {
+      const loaded = getScenario(scenarioId);
       if (loaded) {
         setScenario(loaded);
         setName(loaded.name);
@@ -248,4 +250,13 @@ export default function ScenarioDetailPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
