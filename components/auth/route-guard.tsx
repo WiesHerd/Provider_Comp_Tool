@@ -8,6 +8,12 @@ import { auth } from '@/lib/firebase/config';
 import { useTrialStatus } from '@/hooks/use-trial-status';
 import { TrialExpiredModal } from './trial-expired-modal';
 
+// Portfolio/demo mode: when true, all auth and trial gates are bypassed and the
+// app is browsable without sign-in. Flip to false (or set NEXT_PUBLIC_DEMO_MODE=false)
+// to re-enable the full authentication + entitlement flow.
+const DEMO_MODE =
+  process.env.NEXT_PUBLIC_DEMO_MODE === 'false' ? false : true;
+
 /**
  * Route Guard Component
  * 
@@ -18,6 +24,13 @@ import { TrialExpiredModal } from './trial-expired-modal';
  * - Uses Next.js router only (no window.location redirects)
  */
 export function RouteGuard({ children }: { children: ReactNode }) {
+  // Demo mode short-circuit: render children with zero gating. Safe to early-return
+  // before hooks because DEMO_MODE is a module-level constant, so the hook order
+  // is stable across every render of this component instance.
+  if (DEMO_MODE) {
+    return <>{children}</>;
+  }
+
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading, initialized } = useAuthStore();
